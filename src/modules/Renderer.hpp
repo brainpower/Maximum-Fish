@@ -7,11 +7,11 @@
 #include "sbe/Module.hpp"
 
 
-class LocalGameView : public Module
+class Renderer : public Module
 {
 	public:
-		LocalGameView();
-		virtual ~LocalGameView();
+		Renderer();
+		virtual ~Renderer();
 
 
 	private:
@@ -21,5 +21,5 @@ class LocalGameView : public Module
 
 };
 
-#endif // LOCALGAMEVIEW_H
+#endif // Renderer_H
 

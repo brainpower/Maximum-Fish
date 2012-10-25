@@ -28,7 +28,7 @@ void Game::ModuleInit()
 
 	Engine::out() << "View..." << std::endl;
 
-	RegisterModule( new Renderer,
+	RegisterModule( new Renderer(),
 					ModuleStartInfo(
 						"Renderer",
 						60,
@@ -37,7 +37,7 @@ void Game::ModuleInit()
 				  );
 
 	Engine::out() << "Logic..." << std::endl;
-	RegisterModule( new Logic,
+	RegisterModule( new Logic(),
 					ModuleStartInfo(
 						"Logik",
 						20,

@@ -2,20 +2,20 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "sbe/event/SFMLEvent.h"
+#include "sbe/event/SFMLEvent.hpp"
 
-LocalGameView::LocalGameView()
+Renderer::Renderer()
 {
 
 }
 
-LocalGameView::~LocalGameView()
+Renderer::~Renderer()
 {
 
 }
-void LocalGameView::Init()
+void Renderer::Init()
 {
-	Engine::out() << "[LocalGameView] Screen..." << std::endl;
+	Engine::out() << "[Renderer] Screen..." << std::endl;
 
 	Engine::out() << "Creating Window." << std::endl;
 
@@ -23,7 +23,7 @@ void LocalGameView::Init()
 	Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Schiffbruch again!" );
 }
 
-void LocalGameView::DeInit()
+void Renderer::DeInit()
 {
 	Engine::GetApp().close();
 }
