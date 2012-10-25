@@ -1,4 +1,4 @@
-#include "LocalGameView.h"
+#include "Renderer.h"
 
 #include <boost/lexical_cast.hpp>
 

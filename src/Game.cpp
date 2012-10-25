@@ -1,8 +1,7 @@
 #include "Game.h"
 
-#include "game/modules/LocalGameView.h"
-#include "game/modules/Logic.h"
-#include "game/AssetManager.h"
+#include "modules/Renderer.h"
+#include "modules/Logic.h"
 
 Game* Game::Instance;
 
@@ -16,20 +15,12 @@ Game::~Game()
 	Instance = nullptr;
 }
 
-std::shared_ptr<AssetManager>	Game::GetAssetMgr()
-{
-	return Instance->AssetMgr;
-}
-
 void Game::GameInit()
 {
-	Engine::out() << "Game Assets..." << std::endl;
-	AssetMgr.reset	( new AssetManager );
 }
 
 void Game::DeInit()
 {
-	AssetMgr.reset();
 }
 
 void Game::ModuleInit()
@@ -37,9 +28,9 @@ void Game::ModuleInit()
 
 	Engine::out() << "View..." << std::endl;
 
-	RegisterModule( new LocalGameView,
+	RegisterModule( new Renderer,
 					ModuleStartInfo(
-						"LocalGameview",
+						"Renderer",
 						60,
 						std::shared_ptr<Event> (new Event("EVT_FRAME"))
 					)

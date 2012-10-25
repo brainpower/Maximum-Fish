@@ -15,7 +15,6 @@ class Logic : public Module
 		Logic();
 		virtual ~Logic();
 
-		static std::shared_ptr<World>		GetWorld() { return mInstance->world; };
 
 	private:
 		virtual void Init();
@@ -23,7 +22,6 @@ class Logic : public Module
 
 		static Logic* mInstance;
 
-		std::shared_ptr<World> 		world;
 };
 
 

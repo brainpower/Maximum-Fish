@@ -5,12 +5,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/variant.hpp>
 
-#include "game/AssetManager.h"
-#include "game/World.h"
 
-#include "event/Event.h"
+#include "sbe/event/Event.h"
 
-#include "game/parser/ptree/PtreeParser.h"
 
 Logic* Logic::mInstance;
 
