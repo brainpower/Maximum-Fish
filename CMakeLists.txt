@@ -15,6 +15,12 @@ include_directories(${PROJECT_SOURCE_DIR}/libsbe/include )
 add_subdirectory(libsbe)
 #add_subdirectory(src)
 
+if(CMAKE_SYSTEM_NAME MATCHES Windows)
+    add_definitions(-std=gnu++0x)
+else()
+    add_definitions(-std=c++0x)
+endif()
+
 
 set(SRCDIR ${PROJECT_SOURCE_DIR}/src )
 
