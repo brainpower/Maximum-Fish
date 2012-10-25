@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
-#include "sbe/Module.h"
+#include "sbe/Module.hpp"
 
 
 class LocalGameView : public Module

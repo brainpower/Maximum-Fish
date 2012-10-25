@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "Renderer.hpp"
 
 #include <boost/lexical_cast.hpp>
 

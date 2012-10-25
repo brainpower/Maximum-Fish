@@ -1,4 +1,4 @@
-#include "Logic.h"
+#include "Logic.hpp"
 
 #include <SFML/System.hpp>
 
@@ -6,7 +6,7 @@
 #include <boost/variant.hpp>
 
 
-#include "sbe/event/Event.h"
+#include "sbe/event/Event.hpp"
 
 
 Logic* Logic::mInstance;

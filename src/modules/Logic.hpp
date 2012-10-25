@@ -1,8 +1,8 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
-#include "sbe/Module.h"
-#include "sbe/event/EventUser.h"
+#include "sbe/Module.hpp"
+#include "sbe/event/EventUser.hpp"
 
 #include <memory>
 

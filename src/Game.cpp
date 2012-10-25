@@ -1,7 +1,7 @@
-#include "Game.h"
+#include "Game.hpp"
 
-#include "modules/Renderer.h"
-#include "modules/Logic.h"
+#include "modules/Renderer.hpp"
+#include "modules/Logic.hpp"
 
 Game* Game::Instance;
 

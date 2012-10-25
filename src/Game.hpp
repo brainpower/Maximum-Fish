@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "sbe/GameBase.h"
+#include "sbe/GameBase.hpp"
 #include <memory>
 
 
