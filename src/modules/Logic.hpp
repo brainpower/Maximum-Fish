@@ -6,8 +6,7 @@
 
 #include <memory>
 
-class AssetManager;
-class World;
+class Simulator;
 
 class Logic : public Module
 {
@@ -21,7 +20,7 @@ class Logic : public Module
 		virtual void DeInit();
 
 		static Logic* mInstance;
-
+		std::shared_ptr<Simulator> Sim;
 };
 
 

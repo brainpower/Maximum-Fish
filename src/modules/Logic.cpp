@@ -8,6 +8,7 @@
 
 #include "sbe/event/Event.hpp"
 
+#include "../simulator/Simulator.hpp"
 
 Logic* Logic::mInstance;
 
@@ -18,14 +19,14 @@ Logic::Logic()
 
 Logic::~Logic()
 {
-	Engine::out() << "World..." << std::endl;
+	//Engine::out() << "World..." << std::endl;
 	mInstance = nullptr;
 }
 
 void Logic::Init()
 {
-	Engine::out() << "Loading World, do your stuff here :D" << std::endl;
-
+	Engine::out() << "[Logic] Creating Sim" << std::endl;
+	Sim.reset ( new Simulator() );
 }
 
 void Logic::DeInit()
