@@ -6,6 +6,7 @@
 
 #include "sbe/Module.hpp"
 
+class Screen;
 
 class Renderer : public Module
 {
@@ -18,6 +19,7 @@ class Renderer : public Module
 		virtual void Init();
 		virtual void DeInit();
 
+		std::shared_ptr<Screen> Scr;
 
 };
 
