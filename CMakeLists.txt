@@ -31,7 +31,7 @@ link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/ )
 
 message ( "-- Sfml: ${CUSTOM_SFML_ROOT}" )
 
-get_property(LIBS GLOBAL PROPERTY LINKED )
+get_property(LIBS GLOBAL PROPERTY SBE_LINK_LIBS )
 message ( "-- Linking: ${LIBS}")
 
 
