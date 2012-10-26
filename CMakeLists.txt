@@ -12,12 +12,11 @@ include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/include )
 
 add_subdirectory(libsbe)
 
+#needed on windows to find the libs sfml provides
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
-    add_definitions(-std=gnu++0x)
-else()
-    add_definitions(-std=c++0x)
+  link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/ )
 endif()
-
+message("-- System is ${CMAKE_SYSTEM_NAME}")
 
 set(SRCDIR ${PROJECT_SOURCE_DIR}/src )
 
@@ -29,7 +28,7 @@ message ( "-- Sfml: ${CUSTOM_SFML_ROOT}" )
 get_property(LIBS GLOBAL PROPERTY SBE_LINK_LIBS )
 message ( "-- Linking: ${LIBS}")
 
-add_definitions( -DSFML_STATIC )
+add_definitions( -DSFML_STATIC -std=c++11 )
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
 #target_link_libraries(MaximumFish sbe ${LIBS} )
 target_link_libraries(MaximumFish sbe )
