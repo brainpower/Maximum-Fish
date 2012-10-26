@@ -3,11 +3,12 @@ project(Maximum-Fish)
 cmake_minimum_required(VERSION 2.8)
 
 
-add_definitions(-Wall -DCOUNT_EVENTS -fPIC)
+add_definitions(-DCOUNT_EVENTS)
 
 include_directories( ${PROJECT_SOURCE_DIR}/src )
 include_directories( ${PROJECT_SOURCE_DIR}/libsbe/include )
 include_directories( ${PROJECT_SOURCE_DIR}/../boost_1_51_0  )
+include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/include )
 include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/include )
 
 add_subdirectory(libsbe)
@@ -28,9 +29,9 @@ message ( "-- Sfml: ${CUSTOM_SFML_ROOT}" )
 get_property(LIBS GLOBAL PROPERTY SBE_LINK_LIBS )
 message ( "-- Linking: ${LIBS}")
 
-add_definitions( -DSFML_STATIC -std=c++11 )
+add_definitions( -DSFML_STATIC -DSFGUI_STATIC -std=c++11 )
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
 #target_link_libraries(MaximumFish sbe ${LIBS} )
-target_link_libraries(MaximumFish sbe )
+target_link_libraries(MaximumFish sbe sfgui )
 
 
