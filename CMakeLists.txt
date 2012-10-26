@@ -24,16 +24,10 @@ set(SRCDIR ${PROJECT_SOURCE_DIR}/src )
 file( GLOB_RECURSE SRCS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.cpp" )
 file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.h" )
 
-
-
-link_directories( ${PROJECT_SOURCE_DIR}/libsbe/build/ )
-link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/ )
-
 message ( "-- Sfml: ${CUSTOM_SFML_ROOT}" )
 
 get_property(LIBS GLOBAL PROPERTY SBE_LINK_LIBS )
 message ( "-- Linking: ${LIBS}")
-
 
 add_definitions( -DSFML_STATIC )
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
