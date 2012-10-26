@@ -37,6 +37,7 @@ message ( "-- Linking: ${LIBS}")
 
 add_definitions( -DSFML_STATIC )
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
-target_link_libraries(MaximumFish sbe ${LIBS} )
+#target_link_libraries(MaximumFish sbe ${LIBS} )
+target_link_libraries(MaximumFish sbe )
 
 
