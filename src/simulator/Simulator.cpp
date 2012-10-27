@@ -4,7 +4,7 @@
 
 Simulator::Simulator()
 {
-	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	RegisterForEvent("EVT_QUIT");
 }
 

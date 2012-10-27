@@ -8,7 +8,7 @@
 
 #include "sbe/event/Event.hpp"
 
-#include "../simulator/Simulator.hpp"
+#include "simulator/Simulator.hpp"
 
 Logic* Logic::mInstance;
 
@@ -31,6 +31,7 @@ void Logic::Init()
 
 void Logic::DeInit()
 {
+	Sim.reset();
 }
 
 

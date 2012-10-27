@@ -9,7 +9,7 @@ class DebugWindow : public EventUser
 {
 	public:
 
-		DebugWindow( const Geom::Point& RelativePosition = Geom::Point(0,0), const Geom::Vec2 Size = Geom::Vec2(300, 300));
+		DebugWindow( const Geom::Point& RelativePosition = Geom::Point(0,0), const Geom::Vec2 Size = Geom::Vec2(600, 280));
 		virtual ~DebugWindow() {};
 
 		virtual void HandleEvent( Event& e);
@@ -18,8 +18,13 @@ class DebugWindow : public EventUser
 		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
 		void UpdateText();
 
-		sfg::Label::Ptr Text;
+		sfg::Label::Ptr LogText;
+		sfg::Label::Ptr DbgText;
+		sfg::Label::Ptr DbgLabels;
+		sfg::Box::Ptr	LogBox;
 		sfg::Window::Ptr Win;
+		sfg::ScrolledWindow::Ptr scrolledwindow;
+		unsigned int currentlabeltext;
 
 		// a list of debugging strings which are set by event
 		std::map<std::string, std::string> DebugStrings;

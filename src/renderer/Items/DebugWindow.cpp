@@ -5,22 +5,42 @@
 DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
 	RegisterForEvent( "VIEW_DBG_STRING" );
+	RegisterForEvent( "EVT_FRAME" );
 
+	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
 }
 
 void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
 {
 	Win = sfg::Window::Create();
-	Text = sfg::Label::Create();
+
+	DbgText = sfg::Label::Create();
+	DbgText->SetAlignment( sf::Vector2f(0.f, 0.f) );
+
+	DbgLabels = sfg::Label::Create();
+	DbgLabels->SetAlignment( sf::Vector2f(0.f, 0.f) );
+
+	LogText = sfg::Label::Create();
 
 	Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
-	Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
 
-	// Create a vertical box layouter with 5 pixels spacing and add the label
-	// and button to it.
-	sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::VERTICAL, 5.0f ) );
-	box->Pack( Text );
+	// main box, horizontal
+	sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
+		sfg::Box::Ptr boxInfo( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
+		boxInfo->Pack( DbgLabels, false, false);
+		boxInfo->Pack( DbgText, false, false);
+	box->Pack(boxInfo, false, false);
+
+		LogBox = sfg::Box::Create( sfg::Box::VERTICAL );
+		LogBox->Pack(LogText, true, true);
+
+		scrolledwindow = sfg::ScrolledWindow::Create();
+		scrolledwindow->AddWithViewport( LogBox );
+		scrolledwindow->SetRequisition( sf::Vector2f( 400.f, 100.f ) );
+		scrolledwindow->SetScrollbarPolicy( sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC );
+	box->Pack ( scrolledwindow );
 
 	// Create a window and add the box layouter to it. Also set the window's title.
 
@@ -43,27 +63,51 @@ void DebugWindow::HandleEvent( Event& e)
 			std::pair< std::string, std::string> D = boost::any_cast<  std::pair< std::string, std::string>  >(e.Data());
 			DebugStrings[D.first] = D.second;
 
-			UpdateText();
 		}
 		else
 		{
 			Engine::out() << "[DebugWindow] DebugString Event with wrong parameters" << std::endl;
 		}
 	}
+	else if (e.Is("EVT_FRAME"))
+	{
+		UpdateText();
+	}
 }
 
 void DebugWindow::UpdateText()
 {
-	std::string text = "Debug Information: \n";
-	text += "------------------------------------\n";
+	std::string values;
+	std::string labels;
 	for ( auto dbgString : DebugStrings )
 	{
-		text += "\t" + dbgString.first + "  =  " + dbgString.second + "\n";
+		labels += dbgString.first  + "\n";
+		values += dbgString.second + "\n";
 	}
-	text += "------------------------------------";
 
 	//Engine::out() << " Text: \n" << text << std::endl;
 
-	Text->SetText( text );
+	DbgLabels->SetText( labels );
+	DbgText->SetText( values );
+
+	std::string newtext =  Engine::GetLogger()->GetLog();
+	if (!newtext.empty())
+	{
+		LogText->SetText( LogText->GetText()+ newtext);
+		currentlabeltext += newtext.size();
+		Engine::GetLogger()->ClearCache();
+
+		if (currentlabeltext > 1000)
+		{
+			//Engine::out() << " Adding one more label.. " << std::endl;
+			LogText = sfg::Label::Create();
+			LogText->SetAlignment( sf::Vector2f(0.f, 0.f) );
+			LogBox->Pack(LogText, true, true);
+			currentlabeltext = 0;
+		}
+
+		scrolledwindow->GetVerticalAdjustment()->SetValue( scrolledwindow->GetVerticalAdjustment()->GetUpper() );
+	}
+
 }
 

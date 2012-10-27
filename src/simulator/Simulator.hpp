@@ -8,7 +8,6 @@ class Simulator : public EventUser
 	public:
 		Simulator();
 		virtual ~Simulator() {};
-
 		virtual void HandleEvent( Event& e);
 };
 

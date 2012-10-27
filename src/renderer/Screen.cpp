@@ -30,7 +30,7 @@ Screen::Screen()
 
 	// convert key inputs to an event
 	EvtConv->AddEventConversion( sf::Event::Closed , "EVT_QUIT", true );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "EVT_QUIT" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "EVT_QUIT", true );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 , "TOGGLE_SHOW_CONSOLE" );
 
 	Init();
