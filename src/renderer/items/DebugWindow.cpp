@@ -6,6 +6,7 @@ DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 
 {
 	RegisterForEvent( "VIEW_DBG_STRING" );
 	RegisterForEvent( "EVT_FRAME" );
+	RegisterForEvent( "TOGGLE_SHOW_CONSOLE" );
 
 	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
@@ -44,7 +45,7 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 
 	// Create a window and add the box layouter to it. Also set the window's title.
 
-	Win->SetTitle( "Debug Information" );
+	Win->SetTitle( "Debug Information [F3]" );
 	Win->Add( box );
 
 	Event e("SCREEN_ADD_WINDOW");
@@ -73,6 +74,13 @@ void DebugWindow::HandleEvent( Event& e)
 	{
 		UpdateText();
 	}
+	else if (e.Is("TOGGLE_SHOW_CONSOLE"))
+    {
+        if (Win->IsGloballyVisible())
+            Win->Show(false);
+        else if (!Win->IsGloballyVisible())
+            Win->Show(true);
+    }
 }
 
 void DebugWindow::UpdateText()
