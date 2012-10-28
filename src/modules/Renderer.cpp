@@ -20,5 +20,6 @@ void Renderer::Init()
 void Renderer::DeInit()
 {
 	Engine::GetApp().close();
+	Scr.reset();
 }
 
