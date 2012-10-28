@@ -10,7 +10,7 @@
 #include "sbe/Module.hpp"
 
 #include "renderer/items/DebugWindow.hpp"
-#include "renderer/items/MainMenue.hpp"
+#include "renderer/items/MainMenu.hpp"
 
 #include <SFML/System/Clock.hpp>
 #include <SFGUI/SFGUI.hpp>
@@ -32,7 +32,7 @@ Screen::Screen()
 	// convert key inputs to an event
 	EvtConv->AddEventConversion( sf::Event::Closed , "EVT_QUIT", true );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "TOGGLE_SHOW_CONSOLE"   );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENUE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 
 	Init();
 }
@@ -50,7 +50,7 @@ void Screen::Init()
 	Desktop.reset ( new sfg::Desktop() );
 
 	DbgWin.reset ( new DebugWindow() );
-	MnMnWin.reset ( new MainMenue() );
+	MnMnWin.reset ( new MainMenu() );
 
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.

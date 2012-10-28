@@ -5,19 +5,20 @@
 
 #include <SFGUI/SFGUI.hpp>
 
-class MainMenue : public EventUser
+class MainMenu : public EventUser
 {
 	public:
 
-		MainMenue( const Geom::Point& RelativePosition = Geom::Point(0,200), const Geom::Vec2 Size = Geom::Vec2(150, 300));
-		virtual ~MainMenue() {};
+		MainMenu( const Geom::Vec2 Size = Geom::Vec2(200, 300));
+		virtual ~MainMenu() {};
 
 		virtual void HandleEvent( Event& e);
 
 	private:
-		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
+		void CreateWindow(const Geom::Vec2 Size);
         void BtnResumeClick();
         void BtnExitClick();
+		void updatePosition();
 
 		sfg::Window::Ptr Win;
 		unsigned int currentlabeltext;
