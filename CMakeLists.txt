@@ -5,11 +5,39 @@ cmake_minimum_required(VERSION 2.8)
 
 add_definitions(-DCOUNT_EVENTS)
 
+option(USE_CUSTOM_BOOST "" OFF)
+option(USE_CUSTOM_SFML "" ON)
+set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
+set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
+
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+if(USE_CUSTOM_BOOST)
+	message("-- Using custom boost...")
+	set(BOOST_ROOT "${CUSTOM_BOOST_ROOT}")
+endif()
+
+if(USE_CUSTOM_SFML)
+	message("-- Using custom SFML...")
+	set(SFML_ROOT "${CUSTOM_SFML_ROOT}/build")
+	set(SFML_INCLUDE_DIR "${CUSTOM_SFML_ROOT}/include")
+endif(USE_CUSTOM_SFML)
+
+find_package(Boost 1.46 COMPONENTS thread system)# regex)
+#only audio required, the others are pulled in by sfgui
+find_package(SFML 2 COMPONENTS audio)
+
+if(Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIR})
+endif()
+if(SFML_FOUND)
+	include_directories(${SFML_INCLUDE_DIR})
+endif()
+
 include_directories( ${PROJECT_SOURCE_DIR}/src )
 include_directories( ${PROJECT_SOURCE_DIR}/libsbe/include )
-include_directories( ${PROJECT_SOURCE_DIR}/../boost_1_51_0  )
 include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/include )
-include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/include )
+#include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/include )
 
 add_subdirectory(libsbe)
 
