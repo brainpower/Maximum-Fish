@@ -8,7 +8,7 @@ add_definitions(-DCOUNT_EVENTS)
 option(USE_CUSTOM_BOOST "" OFF)
 option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
-set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
+set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
@@ -32,6 +32,8 @@ if(Boost_FOUND)
 endif()
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
+else(SFML_FOUND)
+  message( FATAL_ERROR "Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
 endif()
 
 include_directories( ${PROJECT_SOURCE_DIR}/src )
