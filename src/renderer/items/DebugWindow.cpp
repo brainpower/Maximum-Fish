@@ -15,7 +15,9 @@ DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 
 void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
 {
 	Win = sfg::Window::Create();
+    Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::TITLEBAR | sfg::Window::Style::SHADOW  | sfg::Window::Style::RESIZE );
 
+    //DbgText and DbgLabels are different, so it looks like two columns.
 	DbgText = sfg::Label::Create();
 	DbgText->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
@@ -24,15 +26,21 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 
 	LogText = sfg::Label::Create();
 
+    // create Inputbox for console commands.
+    sfg::Entry::Ptr consoleInput = sfg::Entry::Create();
+    consoleInput->AppendText( "Not yet implemented." );
+
 	Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
 	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
 
-	// main box, horizontal
-	sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
+	// main box, vertical
+	sfg::Box::Ptr wholeBox( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ) );
+	// topbox, horizontal
+	sfg::Box::Ptr topBox( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
 		sfg::Box::Ptr boxInfo( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
 		boxInfo->Pack( DbgLabels, false, false);
 		boxInfo->Pack( DbgText, false, false);
-	box->Pack(boxInfo, false, false);
+	topBox->Pack(boxInfo, false, false);
 
 		LogBox = sfg::Box::Create( sfg::Box::VERTICAL );
 		LogBox->Pack(LogText, true, true);
@@ -41,19 +49,22 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 		scrolledwindow->AddWithViewport( LogBox );
 		scrolledwindow->SetRequisition( sf::Vector2f( 400.f, 100.f ) );
 		scrolledwindow->SetScrollbarPolicy( sfg::ScrolledWindow::HORIZONTAL_AUTOMATIC | sfg::ScrolledWindow::VERTICAL_AUTOMATIC );
-	box->Pack ( scrolledwindow );
+	topBox->Pack ( scrolledwindow , true , true );
+	wholeBox->Pack ( topBox , true , true );
+	wholeBox->Pack ( consoleInput , false , false );
+
 
 	// Create a window and add the box layouter to it. Also set the window's title.
 
 	Win->SetTitle( "Debug Information [F3]" );
-	Win->Add( box );
+	Win->Add( wholeBox );
 
 	Event e("SCREEN_ADD_WINDOW");
 	e.SetData( Win );
 	Module::Get()->QueueEvent( e );
 }
 
-void DebugWindow::HandleEvent( Event& e)
+void DebugWindow::HandleEvent( Event& e )
 {
 	if (e.Is("VIEW_DBG_STRING"))
 	{
