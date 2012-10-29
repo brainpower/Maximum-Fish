@@ -2,6 +2,7 @@ project(Maximum-Fish)
 
 cmake_minimum_required(VERSION 2.8)
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Modules" ${CMAKE_MODULE_PATH})
 
 add_definitions(-DCOUNT_EVENTS)
 
@@ -28,7 +29,7 @@ find_package(Boost 1.46 COMPONENTS thread system)# regex)
 find_package(SFML 2 COMPONENTS audio)
 
 if(Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIR})
+  include_directories(${Boost_INCLUDE_DIR})
 else(Boost_FOUND)
   message( FATAL_ERROR "!! Boost not found!")
 endif()
