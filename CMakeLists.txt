@@ -33,7 +33,7 @@ add_definitions( -DSFML_STATIC -DSFGUI_STATIC)
 
 if (GCC_VERSION VERSION_GREATER 4.6)
     add_definitions ( -std=c++11 )
-elseif()
+else()
     add_definitions ( -std=c++0x )
 endif()
 
