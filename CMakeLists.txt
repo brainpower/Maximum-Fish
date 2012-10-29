@@ -11,6 +11,10 @@ option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
 set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
+set(SFGUI_BUILD_EXAMPLES false CACHE BOOL "Do or dont build examples)")
+set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
+set( SFML_STATIC_LIBRARIES true CACHE BOOL "Was SFML built as a static library?" )
+
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 if(USE_CUSTOM_BOOST)
