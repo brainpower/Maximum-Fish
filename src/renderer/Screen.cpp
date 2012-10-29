@@ -11,6 +11,7 @@
 
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
+#include "renderer/items/MiniMap.hpp"
 
 #include <SFML/System/Clock.hpp>
 #include <SFGUI/SFGUI.hpp>
@@ -30,9 +31,10 @@ Screen::Screen()
 	//RegisterForSFMLEvent(sf::Event::EventType::MouseButtonReleased);
 
 	// convert key inputs to an event
-	EvtConv->AddEventConversion( sf::Event::Closed , "EVT_QUIT", true );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "TOGGLE_SHOW_CONSOLE"   );
+	EvtConv->AddEventConversion( sf::Event::Closed ,       "EVT_QUIT", true );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "TOGGLE_SHOW_CONSOLE" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
 
 	Init();
 }
@@ -51,6 +53,7 @@ void Screen::Init()
 
 	DbgWin.reset ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
+	MiMap.reset ( new MiniMap() );
 
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.

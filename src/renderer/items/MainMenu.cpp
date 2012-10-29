@@ -35,7 +35,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 
     // Create a window and add the box layouter to it. Also set the window's title.
 
-    Win->SetTitle( "Main Menue [ESC]" );
+    Win->SetTitle( "Main Menu [ESC]" );
     Win->Add( box );
 
     Event e("SCREEN_ADD_WINDOW");

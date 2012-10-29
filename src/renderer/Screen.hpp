@@ -7,6 +7,7 @@
 class SFMLEventConverter;
 class DebugWindow;
 class MainMenu;
+class MiniMap;
 namespace sfg { class Desktop; class SFGUI; }
 namespace sf { class Clock; }
 /**
@@ -32,6 +33,7 @@ class Screen : public EventUser
 
 		std::shared_ptr<DebugWindow> DbgWin;
 		std::shared_ptr<MainMenu> MnMnWin;
+		std::shared_ptr<MiniMap> MiMap;
 		std::shared_ptr<sfg::SFGUI> SFG;
 		std::shared_ptr<sfg::Desktop> Desktop;
 		std::shared_ptr<sf::Clock> guiclock;
