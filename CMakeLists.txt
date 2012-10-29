@@ -29,7 +29,15 @@ message ( "-- Sfml: ${CUSTOM_SFML_ROOT}" )
 get_property(LIBS GLOBAL PROPERTY SBE_LINK_LIBS )
 message ( "-- Linking: ${LIBS}")
 
-add_definitions( -DSFML_STATIC -DSFGUI_STATIC -std=c++11 )
+add_definitions( -DSFML_STATIC -DSFGUI_STATIC)
+
+if (GCC_VERSION VERSION_GREATER 4.6)
+    add_definitions ( -std=c++11 )
+elseif()
+    add_definitions ( -std=c++0x )
+endif()
+
+
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
 #target_link_libraries(MaximumFish sbe ${LIBS} )
 target_link_libraries(MaximumFish sbe sfgui )
