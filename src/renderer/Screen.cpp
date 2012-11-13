@@ -55,9 +55,13 @@ void Screen::Init()
 	MnMnWin.reset ( new MainMenu() );
 	MiMap.reset ( new MiniMap() );
 
+
+	SimulatorView.reset ( new SimView() );
+
+
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.
-    Engine::GetApp().resetGLStates();
+    //Engine::GetApp().resetGLStates();
 
 
 	guiclock.reset( new sf::Clock() );
@@ -86,6 +90,8 @@ void Screen::Render()
 
 	// Clear screen
 	Engine::GetApp().clear();
+
+	SimulatorView->Render();
 
 	// draw SFGUI
 	SFG->Display( Engine::GetApp() );

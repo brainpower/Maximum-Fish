@@ -37,6 +37,7 @@ class Screen : public EventUser
 		std::shared_ptr<sfg::SFGUI> SFG;
 		std::shared_ptr<sfg::Desktop> Desktop;
 		std::shared_ptr<sf::Clock> guiclock;
+		std::shared_ptr<SimView> SimulatorView;
 };
 
 #endif // SCREEN_H
