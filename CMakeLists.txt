@@ -67,7 +67,7 @@ add_subdirectory(libsbe)
 set(SRCDIR ${PROJECT_SOURCE_DIR}/src )
 
 file( GLOB_RECURSE SRCS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.cpp" )
-file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.h" )
+file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.hpp" )
 
 
 #######################################################
