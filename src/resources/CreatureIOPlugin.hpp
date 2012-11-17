@@ -12,8 +12,8 @@ class CreatureIOPlugin : public iTreeIOPlugin<Creature> {
 	CreatureIOPlugin(){}
 	virtual ~CreatureIOPlugin(){}
 
-	ObjectList loadObjects(boost::ptree::node &root) override;
-	bool saveObject( const Creature &o, boost::ptree::node &root) override;
+	ObjectList loadObjects(boost::property_tree::ptree &root) override;
+	bool saveObject( const Creature &o, boost::property_tree::ptree &root) override;
 };
 
 #endif // CREATUREIOPLUGIN_HPP
