@@ -5,10 +5,9 @@ class Tile;
 
 class Terrain
 {
+	public:
 
-
-
-
+	int getTileAltitude(Geom::Vec2f pos);
 
 	//
 	void setHumidityFactor( float humidity_factor );
@@ -19,6 +18,7 @@ class Terrain
 		void calculateHumidity();
 
 		float humidity_factor;
+		
 		std::vector<std::vector<Tile>> Tiles;
 
 }

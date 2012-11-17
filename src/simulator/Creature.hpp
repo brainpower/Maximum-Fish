@@ -14,25 +14,13 @@ class Creature
 		virtual void HandleEvent(Event& e);
 
 	private:
-
+		
 		//Attributes
 		int currentHealth;
-		int hunger;
-		int water;
 		int age;
-		Geom::Vec2 Position;
+		Geom::Vec2f Position;
 
-		//Character
-		int maxHealth;
-		int speed;
-		int reach;
-		int resistance;
-		int breedingSpeed;
-
-		//Modificat0rs
-		int consumption;
-		int aging;
-
+		//References
 		std::shared_ptr<Species> mySpecies;
 };
 

@@ -3,6 +3,10 @@
 
 class Tile
 {
+	public:
+		int getAltitude(){return height;}
+		int getNutrition(){return nutrition;}
+		int getBaseHumidity(){return base_humidity;}
 
 	private:
 		int height;
