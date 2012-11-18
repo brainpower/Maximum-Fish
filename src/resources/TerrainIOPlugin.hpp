@@ -12,8 +12,8 @@ class TerrainIOPlugin : iTreeIOPlugin<Terrain> {
 
 	virtual ~TerrainIOPlugin(){}
 
-	ObjectList loadObjects(boost::ptree::node &root) override;
-	bool saveObject( const Terrain &o, boost::ptree::node &root) override;
+	ObjectList loadObjects(boost::property_tree::ptree &root) override;
+	bool saveObject( const Terrain &o, boost::property_tree::ptree &root) override;
 };
 
 #endif // TERRAINIOPLUGIN_HPP
