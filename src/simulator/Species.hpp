@@ -14,11 +14,11 @@ class Species : public EventUser
 		int getReach() {return Reach;}
 		int getResistance() {return resistance;}
 		int getBreedingSpeed() {return breedingSpeed;}
-		bool getIsCarnivore() {return isCarnivore;}
+		bool IsCarnivore() {return isCarnivore;}
 		int getFoodRequirement() {return foodRequirement;}
 		int getWaterRequirement() {return waterRequirement;}
 		int getOptimalHeight() {return optimalHeight;}
-		
+
 		void HandleEvent( Event& e );
 	private:
 
@@ -29,7 +29,7 @@ class Species : public EventUser
 		int Reach;
 		int resistance;
 		int breedingSpeed;
-		
+
 		bool isCarnivore;
 		int foodRequirement;
 		int waterRequirement;

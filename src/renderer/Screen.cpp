@@ -12,6 +12,7 @@
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
+#include "renderer/items/SimView.hpp"
 
 #include <SFML/System/Clock.hpp>
 #include <SFGUI/SFGUI.hpp>
