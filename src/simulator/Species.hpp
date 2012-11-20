@@ -8,6 +8,16 @@
 class Species : public EventUser
 {
 	public:
+		int getMaxAge() {return maxAge;}
+		int getMaxHealth() {return maxHealth;}
+		int getMaxSpeed() {return maxSpeed;}
+		int getReach() {return Reach;}
+		int getResistance() {return resistance;}
+		int getBreedingSpeed() {return breedingSpeed;}
+		bool IsCarnivore() {return isCarnivore;}
+		int getFoodRequirement() {return foodRequirement;}
+		int getWaterRequirement() {return waterRequirement;}
+		int getOptimalHeight() {return optimalHeight;}
 
 		void HandleEvent( Event& e );
 	private:
@@ -20,6 +30,7 @@ class Species : public EventUser
 		int resistance;
 		int breedingSpeed;
 
+		bool isCarnivore;
 		int foodRequirement;
 		int waterRequirement;
 
@@ -29,7 +40,7 @@ class Species : public EventUser
 		*/
 		int optimalHeight;
 
-		std::vector<std::shared_ptr<Creature>> Creatures;
+		//std::vector<std::shared_ptr<Creature>> Creatures;
 
 		std::string ImageSetName;
 		int Frame;
