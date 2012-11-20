@@ -14,8 +14,10 @@ class Tile;
 
 class SimView : public EventUser, public sfg::Widget
 {
-
 	public:
+
+		SimView() : Name("SimView") {}
+
 		typedef std::vector<std::shared_ptr<Creature>> CreatureRenderList;
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;
 
@@ -42,7 +44,7 @@ class SimView : public EventUser, public sfg::Widget
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;
 
-		const std::string Name = "SimView";
+		const std::string Name;
 };
 
 #endif // SIMVIEW_H
