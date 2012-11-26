@@ -106,7 +106,7 @@ endif()
 if (GCC_VERSION VERSION_GREATER 4.6)
     add_definitions ( -std=c++11 )
 else()
-    add_definitions ( -std=c++0x )
+    add_definitions ( -std=c++0x -D__GCC_4_6__ )
 endif()
 
 
