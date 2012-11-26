@@ -1,8 +1,7 @@
 #include "TerrainIOPlugin.hpp"
 
-ObjectList loadObjects(boost::property_tree::ptree &r){
+TerrainIOPlugin::ObjectList TerrainIOPlugin::loadObjects(boost::property_tree::ptree &root){
 }
+bool TerrainIOPlugin::saveObject(const Terrain &t, boost::property_tree::ptree &r){
 
-void saveObject(const Terrain &t, boost::property_tree::ptree &r){
-	
 }

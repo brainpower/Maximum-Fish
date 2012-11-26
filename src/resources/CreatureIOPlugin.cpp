@@ -1,8 +1,8 @@
 #include "CreatureIOPlugin.hpp"
 
-ObjectList loadObjects(boost::property_tree::ptree &r){
+CreatureIOPlugin::ObjectList CreatureIOPlugin::loadObjects(boost::property_tree::ptree &r){
 }
 
-void saveObject(const Creature &c, boost::property_tree::ptree &r){
-	
+bool CreatureIOPlugin::saveObject(const Creature &c, boost::property_tree::ptree &r){
+
 }
