@@ -1,5 +1,5 @@
-#ifndef CREATURE_H
-#define CREATURE_H
+#ifndef CREATURE_HPP
+#define CREATURE_HPP
 
 #include <memory>
 
@@ -20,6 +20,14 @@ class Creature : public EventUser
 		virtual ~Creature() {};
 		virtual void HandleEvent( Event& e);
 
+		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
+		inline void setAge(const int a){ age = a; }
+		//void setSpecies(const string &s);
+		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); }
+
+		inline int getCurrentHealth() const { return currentHealth; }
+		inline int getAge() const { return age; }
+		inline Geom::Vec2f getPosition() const { return Position; }
 	private:
 		void live();
 
@@ -43,4 +51,4 @@ class Creature : public EventUser
 };
 
 
-#endif // CREATURE_H
+#endif // CREATURE_HPP
