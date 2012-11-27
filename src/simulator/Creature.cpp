@@ -27,8 +27,8 @@ void Creature::HandleEvent(Event& e)
 
 void Creature::live()
 {
-
-
+	// damage from environment
+	calcEnv();
 	// feed
 	huntFood();
 	// move ( or not )
