@@ -9,6 +9,9 @@ CreatureIOPlugin::ObjectList CreatureIOPlugin::loadObjects(ptree &r){
 	ObjectList ol;
 
 	while(i){
+		// better use get_child here instead of a counter,
+		// see: http://www.boost.org/doc/libs/1_52_0/doc/html/boost/property_tree/basic_ptree.html#id1249113-bb
+		// and: http://www.boost.org/doc/libs/1_52_0/doc/html/boost_propertytree/tutorial.html
 		auto c = std::shared_ptr<Creature>(new Creature());
 		c->setCurrentHealth(get<int>(r, i, "currentHealth"));
 		c->setAge(get<int>(r, i, "age"));
