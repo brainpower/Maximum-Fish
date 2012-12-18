@@ -11,7 +11,7 @@
 
 
 class CreatureIOPlugin : public iTreeIOPlugin<Creature> {
-
+public:
 	CreatureIOPlugin()
 	{
 		file = "Creatures.info";
