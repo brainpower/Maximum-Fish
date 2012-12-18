@@ -8,6 +8,8 @@ class SFMLEventConverter;
 class DebugWindow;
 class MainMenu;
 class MiniMap;
+class SimView;
+
 namespace sfg { class Desktop; class SFGUI; }
 namespace sf { class Clock; }
 /**

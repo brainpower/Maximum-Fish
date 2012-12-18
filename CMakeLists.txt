@@ -67,7 +67,7 @@ add_subdirectory(libsbe)
 set(SRCDIR ${PROJECT_SOURCE_DIR}/src )
 
 file( GLOB_RECURSE SRCS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.cpp" )
-file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.h" )
+file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.hpp" )
 
 
 #######################################################
@@ -106,7 +106,7 @@ endif()
 if (GCC_VERSION VERSION_GREATER 4.6)
     add_definitions ( -std=c++11 )
 else()
-    add_definitions ( -std=c++0x )
+    add_definitions ( -std=c++0x -D__GCC_4_6__ )
 endif()
 
 

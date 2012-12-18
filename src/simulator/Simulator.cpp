@@ -2,6 +2,8 @@
 
 #include <boost/thread.hpp>
 
+Simulator* Simulator::Instance = nullptr;
+
 Simulator::Simulator()
 {
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
