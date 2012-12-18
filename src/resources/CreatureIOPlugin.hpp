@@ -10,14 +10,16 @@
 #include "../simulator/Creature.hpp"
 
 
-class CreatureIOPlugin : public iTreeIOPlugin<Creature> {
+class CreatureIOPlugin : public iTreeIOPlugin<Creature>
+{
+
+public:
 
 	CreatureIOPlugin()
-	{
-		file = "Creatures.info";
-	}
-	virtual ~CreatureIOPlugin(){}
+	: iTreeIOPlugin( "Creatures.info" )
+	{}
 
+	virtual ~CreatureIOPlugin(){}
 
 	virtual ObjPtr loadObject(const boost::property_tree::ptree::value_type &node);
 	virtual bool saveObject( const Creature &o, boost::property_tree::ptree &root);

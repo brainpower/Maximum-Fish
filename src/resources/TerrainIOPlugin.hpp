@@ -8,17 +8,15 @@
 
 class TerrainIOPlugin : iTreeIOPlugin<Terrain> {
 
-	TerrainIOPlugin(){}
+	TerrainIOPlugin()
+	 : iTreeIOPlugin( "Terrain.info" )
+	{}
 
 	virtual ~TerrainIOPlugin(){}
 
-#ifndef __GCC_4_6__ // gcc < 4.7 doesn't support override
-	ObjPtr loadObjects(boost::property_tree::ptree &root) override;
-	bool saveObject( const Terrain &o, boost::property_tree::ptree &root) override;
-#else
-	ObjPtr loadObjects(boost::property_tree::ptree &root);
-	bool saveObject( const Terrain &o, boost::property_tree::ptree &root);
-#endif
+	virtual ObjPtr loadObjects(boost::property_tree::ptree &root);
+	virtual bool saveObject( const Terrain &o, boost::property_tree::ptree &root);
+
 };
 
 #endif // TERRAINIOPLUGIN_HPP

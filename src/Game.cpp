@@ -17,6 +17,7 @@ Game::~Game()
 
 void Game::GameInit()
 {
+
 }
 
 void Game::DeInit()

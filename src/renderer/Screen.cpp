@@ -1,6 +1,7 @@
 #include "Screen.hpp"
 
 #include "sbe/Engine.hpp"
+#include "sbe/ResourceManager.hpp"
 
 #include "sbe/event/EventUser.hpp"
 #include "sbe/event/Event.hpp"
@@ -62,10 +63,14 @@ void Screen::Init()
 
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.
-    //Engine::GetApp().resetGLStates();
+    Engine::GetApp().resetGLStates();
 
 
 	guiclock.reset( new sf::Clock() );
+
+
+	auto txts = Engine::GetIO()->loadPath<sf::Image>( "test.jpg" );
+	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "test.jpg");
 }
 
 
