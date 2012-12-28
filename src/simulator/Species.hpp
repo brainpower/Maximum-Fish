@@ -7,17 +7,21 @@
 
 class Species : public EventUser
 {
+
 	public:
-		int getMaxAge() {return maxAge;}
-		int getMaxHealth() {return maxHealth;}
-		int getMaxSpeed() {return maxSpeed;}
-		int getReach() {return Reach;}
-		int getResistance() {return resistance;}
-		int getBreedingSpeed() {return breedingSpeed;}
-		bool IsCarnivore() {return isCarnivore;}
-		int getFoodRequirement() {return foodRequirement;}
-		int getWaterRequirement() {return waterRequirement;}
-		int getOptimalHeight() {return optimalHeight;}
+		Species(const std::string &name);
+		virtual ~Species() = default;
+
+		int getMaxAge() const    {return maxAge;}
+		int getMaxHealth() const {return maxHealth;}
+		int getMaxSpeed() const  {return maxSpeed;}
+		int getReach() const     {return Reach;}
+		int getResistance()const  {return resistance;}
+		int getBreedingSpeed() const {return breedingSpeed;}
+		bool IsCarnivore() const {return isCarnivore;}
+		int getFoodRequirement() const {return foodRequirement;}
+		int getWaterRequirement() const {return waterRequirement;}
+		int getOptimalHeight() const {return optimalHeight;}
 
 		void setMaxAge(int ma) {                   maxAge = ma;}
 		void setMaxHealth(int mh) {             maxHealth = mh;}

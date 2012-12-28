@@ -1,6 +1,9 @@
 #include "TerrainIOPlugin.hpp"
+#include "sbe/Engine.hpp"
 
-TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObjects(const boost::property_tree::ptree::value_type &node){
+using boost::property_tree::ptree;
+
+TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node){
 	ObjPtr re;
 	if (node.first != "Terrain") return re;
 

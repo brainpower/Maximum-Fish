@@ -1,4 +1,7 @@
 #include "SpeciesIOPlugin.hpp"
+#include "sbe/Engine.hpp"
+
+using boost::property_tree::ptree;
 
 SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node){
 		ObjPtr re;
@@ -8,7 +11,7 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 	{
 		const ptree& pt = node.second;
 
-		re.reset( new Species() );
+		re.reset( new Species( pt.get<std::string>("name") ));
 
 		re->setMaxAge( pt.get<int>("maxAge") );
 		re->setMaxHealth( pt.get<int>("maxHealth") );
@@ -38,16 +41,16 @@ bool SpeciesIOPlugin::saveObject(const Species &s, boost::property_tree::ptree &
 	{
 		ptree pt;
 
-		pt.put<int>("maxAge"), s.getMaxAge());
-		pt.put<int>("maxHealth"), s.getMaxHealth() );
-		pt.put<int>("maxSpeed"), s.getMaxSpeed() );
-		pt.put<int>("reach"), s.getReach() );
-		pt.put<int>("resistance"), s.getResistance() );
-		pt.put<int>("breedingSpead"), s.getBreedingSpeed() );
-		pt.put<bool>("carnivore"), s.IsCarnivore() );
-		pt.put<int>("foodRequirement"), s.getFoodRequirement() );
-		pt.put<int>("waterRequirement"), s.getWaterRequirement() );
-		pt.put<int>("optimalHeight"), s.getOptimalHeight() );
+		pt.put<int>("maxAge", s.getMaxAge());
+		pt.put<int>("maxHealth", s.getMaxHealth() );
+		pt.put<int>("maxSpeed", s.getMaxSpeed() );
+		pt.put<int>("reach", s.getReach() );
+		pt.put<int>("resistance", s.getResistance() );
+		pt.put<int>("breedingSpead", s.getBreedingSpeed() );
+		pt.put<bool>("carnivore", s.IsCarnivore() );
+		pt.put<int>("foodRequirement", s.getFoodRequirement() );
+		pt.put<int>("waterRequirement", s.getWaterRequirement() );
+		pt.put<int>("optimalHeight", s.getOptimalHeight() );
 
 		//pt.put<string>("imageSetName", s.getImageSetName());
 

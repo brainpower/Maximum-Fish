@@ -22,12 +22,12 @@ class Creature : public EventUser
 
 		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
 		inline void setAge(const int a){ age = a; }
-		inline void setSpecies(const string &s){ /* TODO: do some magic here ;) */}
-		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); }
+		inline void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
+		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); } // TODO: update tile on pos update
 
 		inline int getCurrentHealth() const { return currentHealth; }
 		inline int getAge() const { return age; }
-		inline string getSpeciesString() { /* TODO: same magic here, but the other way round */ }
+		inline std::string getSpeciesString() const { /* TODO: same magic here, but the other way round */ }
 		inline Geom::Vec2f getPosition() const { return Position; }
 	private:
 		void live();

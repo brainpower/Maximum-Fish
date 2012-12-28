@@ -12,7 +12,7 @@ class Terrain
 	int getTileAltitude(Geom::Vec2f pos);
 	Tile* getTile( Geom::Vec2f pos );
 	//
-	void setHumidityFactor( float humidity_factor );
+	void setHumidityFactor( const float hf ) { humidity_factor = hf;}
 
 	private:
 
@@ -26,4 +26,3 @@ class Terrain
 };
 
 #endif // TERRAIN_H
-
