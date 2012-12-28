@@ -1,6 +1,6 @@
 #include "SpeciesIOPlugin.hpp"
 
-SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObjects(boost::property_tree::ptree &r){
+SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node){
 		ObjPtr re;
 	if (node.first != "Species") return re;
 

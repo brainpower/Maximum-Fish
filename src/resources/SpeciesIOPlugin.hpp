@@ -15,7 +15,7 @@ public:
 
 	virtual ~SpeciesIOPlugin() = default;
 
-	virtual ObjPtr loadObjects(boost::property_tree::ptree &root);
+	virtual ObjPtr loadObject(const boost::property_tree::ptree::value_type &node);
 	virtual bool saveObject( const Species &o, boost::property_tree::ptree &root);
 
 };

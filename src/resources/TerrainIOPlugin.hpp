@@ -13,9 +13,9 @@ public:
 	 : iTreeIOPlugin( "Terrain.info" )
 	{}
 
-	virtual ~TerrainIOPlugin(){}
+	virtual ~TerrainIOPlugin() = default;
 
-	virtual ObjPtr loadObjects(boost::property_tree::ptree &root);
+	virtual ObjPtr loadObject(const boost::property_tree::ptree::value_type &node);
 	virtual bool saveObject( const Terrain &o, boost::property_tree::ptree &root);
 
 };
