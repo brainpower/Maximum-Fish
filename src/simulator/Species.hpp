@@ -19,6 +19,17 @@ class Species : public EventUser
 		int getWaterRequirement() {return waterRequirement;}
 		int getOptimalHeight() {return optimalHeight;}
 
+		void setMaxAge(int ma) {                   maxAge = ma;}
+		void setMaxHealth(int mh) {             maxHealth = mh;}
+		void setMaxSpeed(int ms) {               maxSpeed = ms;}
+		void setReach(int r) {                      Reach = r; }
+		void setResistance(int re){            resistance = re;}
+		void setBreedingSpeed(int bs) {     breedingSpeed = bs;}
+		void setCarnivore(bool c) {           isCarnivore = c;}
+		void setFoodRequirement(int fr) { foodRequirement = fr;}
+		void setWaterRequirement(int wr){waterRequirement = wr;}
+		void setOptimalHeight(int oh) {     optimalHeight = oh;}
+
 		void HandleEvent( Event& e );
 	private:
 
@@ -47,4 +58,3 @@ class Species : public EventUser
 };
 
 #endif // SPECIES_H
-

@@ -8,11 +8,12 @@
 
 
 class SpeciesIOPlugin : public iTreeIOPlugin<Species> {
+public:
 	SpeciesIOPlugin()
 	 : iTreeIOPlugin( "Species.info" )
 	{}
 
-	virtual ~SpeciesIOPlugin(){}
+	virtual ~SpeciesIOPlugin() = default;
 
 	virtual ObjPtr loadObjects(boost::property_tree::ptree &root);
 	virtual bool saveObject( const Species &o, boost::property_tree::ptree &root);
