@@ -17,7 +17,7 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 
 		// for y in tiles.x:
 		//   for t in tiles.x.y:
-		//		 tile->set(t.altitude)
+		//		 tile->set(t.elevation)
 		//		 tile->set(t.nutrition)
 		//		 tile->set(t.baseHumidity)
 		//		 tile->set(t.Humidity)
@@ -44,8 +44,8 @@ bool TerrainIOPlugin::saveObject(const Terrain &t, boost::property_tree::ptree &
 
 		// for vec<tile> in tiles:
 		//   for tile in vec<tile>:
-		//     pt.put<int>("tiles.x.y.altitude", tile.altitude);
-		//     pt.put<int>("tiles.x.y.nutrition", tile.altitude);
+		//     pt.put<int>("tiles.x.y.elevation", tile.elevation);
+		//     pt.put<int>("tiles.x.y.nutrition", tile.elevation);
 		//     pt.put<int>("tiles.x.y.baseHumidity", tile.baseHumidity);
 		//     pt.put<int>("tiles.x.y.Humidity", tile.Humidity);
 		//     pt.put<int>("tiles.x.y.Biomass", tile.Biomass);

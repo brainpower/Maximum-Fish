@@ -21,18 +21,18 @@ class Species : public EventUser
 		bool IsCarnivore() const {return isCarnivore;}
 		int getFoodRequirement() const {return foodRequirement;}
 		int getWaterRequirement() const {return waterRequirement;}
-		int getOptimalHeight() const {return optimalHeight;}
+		int getOptimalTemperature() const {return optimalTemperature;}
 
-		void setMaxAge(int ma) {                   maxAge = ma;}
-		void setMaxHealth(int mh) {             maxHealth = mh;}
-		void setMaxSpeed(int ms) {               maxSpeed = ms;}
-		void setReach(int r) {                      Reach = r; }
-		void setResistance(int re){            resistance = re;}
-		void setBreedingSpeed(int bs) {     breedingSpeed = bs;}
-		void setCarnivore(bool c) {           isCarnivore = c;}
-		void setFoodRequirement(int fr) { foodRequirement = fr;}
-		void setWaterRequirement(int wr){waterRequirement = wr;}
-		void setOptimalHeight(int oh) {     optimalHeight = oh;}
+		void setMaxAge(int ma) {                        maxAge = ma;}
+		void setMaxHealth(int mh) {                  maxHealth = mh;}
+		void setMaxSpeed(int ms) {                    maxSpeed = ms;}
+		void setReach(int r) {                            Reach = r;}
+		void setResistance(int re){                 resistance = re;}
+		void setBreedingSpeed(int bs) {          breedingSpeed = bs;}
+		void setCarnivore(bool c) {                 isCarnivore = c;}
+		void setFoodRequirement(int fr) {      foodRequirement = fr;}
+		void setWaterRequirement(int wr){     waterRequirement = wr;}
+		void setOptimalTemperature(int oh) {optimalTemperature = oh;}
 
 		void HandleEvent( Event& e );
 	private:
@@ -53,7 +53,7 @@ class Species : public EventUser
 			Determines the optimal Height for the species to live and
 			also the required temperature
 		*/
-		int optimalHeight;
+		int optimalTemperature;
 
 		//std::vector<std::shared_ptr<Creature>> Creatures;
 
