@@ -1,6 +1,8 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
+#include <vector>
+
 #include "sbe/Geom.hpp"
 
 #include "Tile.hpp"
