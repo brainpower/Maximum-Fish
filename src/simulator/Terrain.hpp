@@ -22,6 +22,8 @@ class Terrain
 		void calculateHumidity();
 
 		float humidity_factor;
+		float global_temp;              //temperature at sea level
+		int max_elevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
 
 		std::vector<std::vector<Tile>> Tiles;
 

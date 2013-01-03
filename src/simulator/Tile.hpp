@@ -4,10 +4,11 @@
 class Tile
 {
 	public:
-		int getAltitude(){return height;}
+		int getElevation(){return height;}
 		int getNutrition(){return nutrition;}
 		int getBaseHumidity(){return base_humidity;}
 		int getHumidity(){return humidity;}
+		float calcTemperature();
 
 	private:
 		int height;
