@@ -22,7 +22,7 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 		re->setCarnivore( pt.get<bool>("carnivore") );
 		re->setFoodRequirement( pt.get<int>("foodRequirement") );
 		re->setWaterRequirement( pt.get<int>("waterRequirement") );
-		re->setOptimalHeight( pt.get<int>("optimalHeight") );
+		re->setOptimalTemperature( pt.get<int>("optimalTemperature") );
 
 		//re->setImageSetName( pt.get<string>("imageSetName") );
 	}
@@ -50,7 +50,7 @@ bool SpeciesIOPlugin::saveObject(const Species &s, boost::property_tree::ptree &
 		pt.put<bool>("carnivore", s.IsCarnivore() );
 		pt.put<int>("foodRequirement", s.getFoodRequirement() );
 		pt.put<int>("waterRequirement", s.getWaterRequirement() );
-		pt.put<int>("optimalHeight", s.getOptimalHeight() );
+		pt.put<int>("optimalTemperature", s.getOptimalTemperature() );
 
 		//pt.put<string>("imageSetName", s.getImageSetName());
 
