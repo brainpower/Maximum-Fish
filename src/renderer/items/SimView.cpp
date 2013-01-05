@@ -15,6 +15,7 @@ void SimView::Render()
 
 void SimView::ReadTileRenderList(TileRenderList& r)
 {
+
 	Tiles.resize( 4 * r.size() );
 
 	auto ImgSet = Engine::GetResMgr()->Get<ImageSet>("Tiles.png");

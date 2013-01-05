@@ -27,6 +27,7 @@ class SimView : public EventUser, public sfg::Widget
 			UpdateTileRenderList		 -> TileRenderlist
 			Render
 		*/
+			
 		void HandleEvent( Event& e );
 
 

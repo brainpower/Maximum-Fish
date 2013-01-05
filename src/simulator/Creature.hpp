@@ -20,6 +20,8 @@ class Creature : public EventUser
 		virtual ~Creature() {};
 		virtual void HandleEvent( Event& e);
 
+		void live();
+
 		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
 		inline void setAge(const int a){ age = a; }
 		inline void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
@@ -29,8 +31,8 @@ class Creature : public EventUser
 		inline int getAge() const { return age; }
 		inline std::string getSpeciesString() const { /* TODO: same magic here, but the other way round */ }
 		inline Geom::Vec2f getPosition() const { return Position; }
+
 	private:
-		void live();
 
 		int huntFood();
 		void mate();
