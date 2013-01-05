@@ -28,13 +28,13 @@ void Creature::HandleEvent(Event& e)
 void Creature::live()
 {
 	// damage from environment
-	calcEnv(  );
+	calcEnv();
 	// feed
-	huntFood(  );
+	huntFood();
 	// move ( or not )
-	move(  );
+	move();
 	// and try to reproduce
-	mate(  );
+	mate();
 }
 
 int Creature::huntFood()
