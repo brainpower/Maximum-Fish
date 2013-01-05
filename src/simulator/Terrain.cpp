@@ -1,6 +1,6 @@
 #include "Terrain.hpp"
 
-#include "sbe/Event/Event.hpp"
+#include "sbe/event/Event.hpp"
 #include "sbe/Module.hpp"
 #include "sbe/Geom.hpp"
 
