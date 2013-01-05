@@ -36,11 +36,12 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 	return re;
 }
 
-bool SpeciesIOPlugin::saveObject(const Species &s, boost::property_tree::ptree &r){
+bool SpeciesIOPlugin::saveObject( const std::string& name, const Species &s, boost::property_tree::ptree &r){
 	try
 	{
 		ptree pt;
 
+		pt.put<std::string>("Name", name);
 		pt.put<int>("maxAge", s.getMaxAge());
 		pt.put<int>("maxHealth", s.getMaxHealth() );
 		pt.put<int>("maxSpeed", s.getMaxSpeed() );
