@@ -5,8 +5,7 @@
 
 #include "sbe/event/EventUser.hpp"
 
-#include "Species.hpp"
-
+class Species;
 class Tile;
 
 /**
@@ -50,7 +49,7 @@ class Creature : public EventUser
 
 		//References
 		std::shared_ptr<Species> mySpecies;
-		Tile* currentTile;
+		std::shared_ptr<Tile> currentTile;
 };
 
 

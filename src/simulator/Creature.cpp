@@ -5,6 +5,8 @@
 #include "sbe/event/EventUser.hpp"
 #include "sbe/event/Event.hpp"
 
+#include "Species.hpp"
+#include "Terrain.hpp"
 #include "Simulator.hpp"
 #include "Tile.hpp"
 
@@ -100,7 +102,7 @@ void Creature::calcEnv()
 
 
 	//--damage from wrong elevation/temperature
-	int damage = (int)(pow((double)( currentTile->getElevation() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
+	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
 	damage = damage + (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
 

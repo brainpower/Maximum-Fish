@@ -35,6 +35,9 @@ Screen::Screen()
 	// convert key inputs to an event
 	EvtConv->AddEventConversion( sf::Event::Closed ,       "EVT_QUIT", true );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "TOGGLE_SHOW_CONSOLE" );
+
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
+
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOOGLE_SIM_PAUSE" );

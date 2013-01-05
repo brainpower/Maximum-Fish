@@ -4,11 +4,22 @@
 #include "sbe/ResourceManager.hpp"
 #include "sbe/ImageSet.hpp"
 
+SimView::SimView()
+: Name("SimView")
+{
+	RegisterForEvent("UpdateCreatureRenderList");
+	RegisterForEvent("UpdateTileRenderList");
+}
+
 void SimView::HandleEvent(Event& e)
 {
 	if(e.Is("UpdateCreatureRenderList"))
 	{
-		Engine::out() << "Creatures updatet" << std::endl;
+		//Engine::out() << "[SimView] Creatures NOT updated" << std::endl;
+	}
+	else if ( e.Is("UpdateTileRenderList"))
+	{
+
 	}
 }
 
@@ -22,7 +33,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 
 	Tiles.resize( 4 * r.size() );
 
-	auto ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles.png");
+	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles.png");
 
 	int i = 0;
 
@@ -32,7 +43,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 		// we don't have a tileset to render stuff yet, so the actual indices are yet to be defined
 		int frame = 0;
 
-		//not existing yet --> ImgSet->CreateQuad( frame , Tiles, , i++);
+		//ImgSet->CreateQuad( frame ,, Tiles, , i++);
 	}
 
 }
