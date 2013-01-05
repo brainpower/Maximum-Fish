@@ -2,9 +2,10 @@
 #define SIMULATOR_H
 
 #include "sbe/event/EventUser.hpp"
-#include "Terrain.hpp"
-#include "Creature.hpp"
-#include "Tile.hpp"
+
+class Tile;
+class Terrain;
+class Creature;
 
 #include <list>
 
@@ -17,6 +18,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 		virtual ~Simulator() {};
 		virtual void HandleEvent( Event& e);
 
+		void init();
+
 		void tick();
 
 		static std::shared_ptr<Terrain> GetTerrain()
@@ -26,8 +29,10 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 	private:
 
-		std::list<Tile> m_tiles;
-		std::list<std::shared_ptr<Creature>> m_creatures;
+		void registerIOPlugins();
+
+
+		std::list<std::shared_ptr<Creature>> Creatures;
 		std::shared_ptr<Terrain> Terra;
 
 		bool m_pause;

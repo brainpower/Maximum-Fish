@@ -12,25 +12,35 @@ class Terrain
 {
 	public:
 
-	void update_terrain();
-	void setHumidityFactor( const float hf ) { humidity_factor = hf;}
+		void UpdateTerrain();
+		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
+		float getHumidityFactor( ) const { return humidityFactor;}
 
-	int getTileElevation(Geom::Vec2f pos);
-	int getMaxElevation();
-	float getGlobalTemp();
+		int getTileElevation(Geom::Vec2f pos);
+		int getMaxElevation();
+		float getGlobalTemp();
 
-	Tile* getTile( Geom::Vec2f pos );
+		std::shared_ptr<Tile> getTile( Geom::Vec2f pos );
+
+		void CreateDebugTerrain();
 
 	private:
 
-	// calculate Rainmap
-	void calculateHumidity();
+		friend class TerrainIOPlugin;
 
-	float humidity_factor;
-	float global_temp;              //temperature at sea level
-	int max_elevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
 
-	std::list<std::shared_ptr<Tile>> m_tiles;
+
+		// calculate Rainmap
+		void calculateHumidity();
+
+		/// Size of the Terrain in tiles x/y
+		Geom::Vec2 Size;
+
+		float humidityFactor;
+		float globalTemp;              //temperature at sea level
+		int maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
+
+		std::vector<std::shared_ptr<Tile>> Tiles;
 
 };
 

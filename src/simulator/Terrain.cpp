@@ -1,33 +1,74 @@
 #include "Terrain.hpp"
+
 #include "sbe/Event/Event.hpp"
 #include "sbe/Module.hpp"
+#include "sbe/Geom.hpp"
 
-Tile* Terrain::getTile( Geom::Vec2f pos )
+#include <random>
+
+std::shared_ptr<Tile> Terrain::getTile( Geom::Vec2f pos )
 {
-	return nullptr//&(Tiles[ (int)(pos.x()) ][ (int)(pos.y()) ])
-	;
+	int index = (int)(pos.x()) * Size.x() + (int)(pos.y());
+	return Tiles[ index ];
 }
 
 int Terrain::getTileElevation(Geom::Vec2f pos)
 {
-	return 0//Tiles[(int)(pos.x())][(int)(pos.y())].getElevation()
-	;
+	int index = (int)(pos.x()) * Size.x() + (int)(pos.y());
+	return Tiles[ index ]->getHeight();
 }
 
 int Terrain::getMaxElevation()
 {
-	return max_elevation;
+	return maxElevation;
 }
 
 float Terrain::getGlobalTemp()
 {
-	return global_temp;
+	return globalTemp;
 }
 
-void Terrain::update_terrain()
+void Terrain::UpdateTerrain()
 {
 	//make a freakin Event, man
 	Event e("UpdateTileRenderList");
-	e.SetData( m_tiles );
+	e.SetData( Tiles );
 	Module::Get()->QueueEvent(e, true);
+}
+
+void Terrain::CreateDebugTerrain()
+{
+	Tiles.clear();
+
+	Size = Geom::Vec2( 100, 100 );
+
+	float maxHeight = 100;
+	float minheight = 0;
+
+	float maxFallofDist = Size.x()/2;
+
+	Geom::Pointf Mid = Geom::Pointf( Size.x()/2, Size.y()/2 );
+
+
+	std::default_random_engine gen;
+	std::uniform_real_distribution<float> rnd;
+
+
+	for ( int x = 0; x < Size.x(); ++x)
+	{
+		for ( int y = 0; y < Size.y(); ++y)
+		{
+			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
+			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist ) ;
+			HeightFactor = HeightFactor < 1 ? 0 : HeightFactor;
+			float TileHeight = maxHeight*HeightFactor;
+
+			if (TileHeight > maxElevation) maxElevation = TileHeight;
+
+			std::shared_ptr<Tile> T ( new Tile( Geom::Vec2(x,y), TileHeight, rnd(gen), rnd(gen) ) );
+			Tiles.push_back ( T );
+		}
+	}
+
+	UpdateTerrain();
 }
