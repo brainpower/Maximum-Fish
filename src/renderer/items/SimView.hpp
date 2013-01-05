@@ -16,7 +16,7 @@ class SimView : public EventUser, public sfg::Widget
 {
 	public:
 
-		SimView() : Name("SimView") {}
+		SimView() : Name("SimView") { RegisterForEvent("UpdateCreatureRenderList"); }
 
 		typedef std::vector<std::shared_ptr<Creature>> CreatureRenderList;
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;

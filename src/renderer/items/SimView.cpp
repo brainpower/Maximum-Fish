@@ -6,6 +6,10 @@
 
 void SimView::HandleEvent(Event& e)
 {
+	if(e.Is("UpdateCreatureRenderList"))
+	{
+		Engine::out() << "Creatures updatet" << std::endl;
+	}
 }
 
 void SimView::Render()
@@ -15,7 +19,7 @@ void SimView::Render()
 
 void SimView::ReadTileRenderList(TileRenderList& r)
 {
-	
+
 }
 
 void SimView::ReadCreatureRenderList(CreatureRenderList& r)
