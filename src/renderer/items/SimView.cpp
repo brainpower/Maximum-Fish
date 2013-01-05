@@ -1,8 +1,8 @@
 #include "SimView.hpp"
-
-
 #include "simulator/Creature.hpp"
 #include "simulator/Tile.hpp"
+#include "sbe/ResourceManager.hpp"
+#include "sbe/ImageSet.hpp"
 
 void SimView::HandleEvent(Event& e)
 {
@@ -22,7 +22,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 
 	Tiles.resize( 4 * r.size() );
 
-	auto ImgSet = Engine::GetResMgr()->Get<ImageSet>("Tiles.png");
+	auto ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles.png");
 
 	int i = 0;
 
@@ -32,7 +32,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 		// we don't have a tileset to render stuff yet, so the actual indices are yet to be defined
 		int frame = 0;
 
-		ImgSet->CreateQuad( frame , Tiles, , i++);
+		//not existing yet --> ImgSet->CreateQuad( frame , Tiles, , i++);
 	}
 
 }
