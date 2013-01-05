@@ -35,10 +35,12 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 	return re;
 }
 
-bool TerrainIOPlugin::saveObject(const Terrain &t, boost::property_tree::ptree &r){
+bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boost::property_tree::ptree &r){
 	try
 	{
 		ptree pt;
+
+		//pt.put<std::string>("Name", name);
 
 		//pt.put<float>("humidityFactor", t.getHumidityFactor());
 
@@ -48,7 +50,7 @@ bool TerrainIOPlugin::saveObject(const Terrain &t, boost::property_tree::ptree &
 		//     pt.put<int>("tiles.x.y.nutrition", tile.elevation);
 		//     pt.put<int>("tiles.x.y.baseHumidity", tile.baseHumidity);
 		//     pt.put<int>("tiles.x.y.Humidity", tile.Humidity);
-		//     pt.put<int>("tiles.x.y.Biomass", tile.Biomass);
+		//     pt.put<int>("tiles.x.y.Biomass", tile.Biomass);s
 
 		r.add_child( "Species", pt);
 		return true;

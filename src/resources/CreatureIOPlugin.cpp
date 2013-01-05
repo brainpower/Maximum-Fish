@@ -33,12 +33,13 @@ CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree
 }
 
 
-bool CreatureIOPlugin::saveObject(const Creature &c, boost::property_tree::ptree &r)
+bool CreatureIOPlugin::saveObject( const std::string& name, const Creature &c, boost::property_tree::ptree &r)
 {
 	try
 	{
 		ptree pt;
 
+		pt.put<std::string>("Name", name);
 		pt.put<int>("currentHealth", c.getCurrentHealth());
 		pt.put<int>("age", c.getAge());
 		pt.put<float>("pos.x", c.getPosition().x());
