@@ -1,5 +1,5 @@
 #include "Terrain.hpp"
-#include "sbe/Event/Event.hpp"
+#include "sbe/event/Event.hpp"
 #include "sbe/Module.hpp"
 
 Tile* Terrain::getTile( Geom::Vec2f pos )
