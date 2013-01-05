@@ -12,6 +12,7 @@ class Species : public EventUser
 		Species(const std::string &name);
 		virtual ~Species() = default;
 
+		//-1 to lazy, oh boy
 		int getMaxAge() const    {return maxAge;}
 		int getMaxHealth() const {return maxHealth;}
 		int getMaxSpeed() const  {return maxSpeed;}
@@ -23,6 +24,7 @@ class Species : public EventUser
 		int getWaterRequirement() const {return waterRequirement;}
 		int getOptimalTemperature() const {return optimalTemperature;}
 
+		//+1 style
 		void setMaxAge(int ma) {                        maxAge = ma;}
 		void setMaxHealth(int mh) {                  maxHealth = mh;}
 		void setMaxSpeed(int ms) {                    maxSpeed = ms;}

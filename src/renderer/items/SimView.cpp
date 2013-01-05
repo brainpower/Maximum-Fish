@@ -15,6 +15,7 @@ void SimView::Render()
 
 void SimView::ReadTileRenderList(TileRenderList& r)
 {
+	
 }
 
 void SimView::ReadCreatureRenderList(CreatureRenderList& r)
