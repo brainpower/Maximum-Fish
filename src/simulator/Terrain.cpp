@@ -40,7 +40,7 @@ void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
 
-	Size = Geom::Vec2( 100, 100 );
+	Size = Geom::Vec2( 32, 32 );
 
 	float maxHeight = 1500;
 	float minheight = 0;

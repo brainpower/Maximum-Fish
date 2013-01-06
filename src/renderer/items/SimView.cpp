@@ -33,6 +33,10 @@ void SimView::HandleEvent(Event& e)
 			std::vector<std::shared_ptr<Tile>> r = boost::any_cast< std::vector<std::shared_ptr<Tile>> >(e.Data());
 			ReadTileRenderList( r );
 		}
+		else
+		{
+			Engine::out() << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
+		}
 	}
 }
 
@@ -95,7 +99,10 @@ void SimView::Render()
 
 void SimView::ReadTileRenderList(TileRenderList& r)
 {
+
+	Tiles.clear();
 	Tiles.resize( 4 * r.size() );
+	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
 
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 
@@ -105,6 +112,8 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	{
 		ImgSet->CreateQuad( DetermineTileSpriteIndex( T ) , Tiles, DetermineTilePos( T ) , (i++ * 4));
 	}
+
+	Engine::out() << "[SimView] Recreated tile vertexarray!" << std::endl;
 }
 
 

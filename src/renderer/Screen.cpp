@@ -69,7 +69,7 @@ void Screen::Init()
 
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.
-    Engine::GetApp().resetGLStates();
+    //Engine::GetApp().resetGLStates();
 
 
 	guiclock.reset( new sf::Clock() );
@@ -80,6 +80,8 @@ void Screen::Init()
 
 	std::shared_ptr<ImageSet> I( new ImageSet( "Tiles", "Tiles.tga", Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
 	Engine::GetResMgr()->add(I ,"Tiles");
+
+	//Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
 }
 
 
@@ -115,6 +117,7 @@ void Screen::Render()
 
 	// Blit
 	Engine::GetApp().display();
+
 }
 
 void Screen::HandleEvent(Event& e)
