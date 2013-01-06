@@ -7,19 +7,20 @@ class Tile
 {
 	public:
 
-		Tile( Geom::Vec2 _Position, float _height, float _nutrition, float _baseHumidity );
+		Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity );
 
 		float getHeight(){return height;}
 		float getNutrition(){return nutrition;}
 		float getBaseHumidity(){return baseHumidity;}
 		float getHumidity(){return humidity;}
 		float calcTemperature();
+		Geom::Point getPosition() { return Position; }
 
 	private:
 
 		friend class TerrainIOPlugin;
 
-		Geom::Vec2 Position;
+		Geom::Point Position;
 
 		float height;
 		/// nutrition value on that tile ( required for plant growth

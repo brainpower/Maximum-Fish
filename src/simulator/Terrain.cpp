@@ -12,13 +12,13 @@ std::shared_ptr<Tile> Terrain::getTile( Geom::Vec2f pos )
 	return Tiles[ index ];
 }
 
-int Terrain::getTileElevation(Geom::Vec2f pos)
+float Terrain::getTileElevation(Geom::Vec2f pos)
 {
 	int index = (int)(pos.x()) * Size.x() + (int)(pos.y());
 	return Tiles[ index ]->getHeight();
 }
 
-int Terrain::getMaxElevation()
+float Terrain::getMaxElevation()
 {
 	return maxElevation;
 }
@@ -42,7 +42,7 @@ void Terrain::CreateDebugTerrain()
 
 	Size = Geom::Vec2( 100, 100 );
 
-	float maxHeight = 100;
+	float maxHeight = 1500;
 	float minheight = 0;
 
 	float maxFallofDist = Size.x()/2;
@@ -60,15 +60,16 @@ void Terrain::CreateDebugTerrain()
 		{
 			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
 			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist ) ;
-			HeightFactor = HeightFactor < 1 ? 0 : HeightFactor;
+			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float TileHeight = maxHeight*HeightFactor;
 
 			if (TileHeight > maxElevation) maxElevation = TileHeight;
 
-			std::shared_ptr<Tile> T ( new Tile( Geom::Vec2(x,y), TileHeight, rnd(gen), 0 ) );
+			std::shared_ptr<Tile> T ( new Tile( Geom::Point(x,y), TileHeight, rnd(gen), 0 ) );
 			Tiles.push_back ( T );
 		}
 	}
 
 	UpdateTerrain();
 }
+
