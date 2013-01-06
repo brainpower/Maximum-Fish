@@ -103,10 +103,18 @@ else()
 	add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
 endif()
 
+# get gcc compiler version 
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(GCC_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
+	# if newer cmake, CMAKE_CXX_COMPILER_VERSION is set, so use it...
+	# if not, call 'c++ -dumpversion' and get it from there
+	if(CMAKE_CXX_COMPILER_VERSION)
+		set(GCC_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
+	else()
+		execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+	endif()
 endif()
 
+# set some definitions depending on gcc version
 if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
     add_definitions ( -std=c++11 )
 
@@ -116,11 +124,14 @@ if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
 				add_definitions( -Og )
 			endif(DEBUG)
 		endif()
-elseif(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
-    add_definitions ( -std=c++0x -D__GCC_4_6__ )
 else()
+	if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
+    add_definitions ( -std=c++0x -D__GCC_4_6__ )
+	else()
 		message("-- Unsupported compiler detected. Build might fail!")
+		# changing this to -std=c++0x if you've got an old compiler, might work
 		add_definitions( -std=c++11 )
+	endif()
 endif()
 
 
