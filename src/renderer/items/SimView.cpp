@@ -98,7 +98,10 @@ void SimView::Render()
 {
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 
+
 	Engine::GetApp().setView(Camera);
+
+	if (!ImgSet->getTexture()) return;
 
 	Engine::GetApp().draw( Tiles, sf::RenderStates( ImgSet->getTexture().get() ) );
 	//Engine::GetApp()->draw( Creatures );
@@ -114,6 +117,13 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
 
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	ImgSet->updateTexture();
+
+	if (!ImgSet->getTexture())
+	{
+		Engine::out() << "[SimView] Unable to get texture for tile rendering!" << std::endl;
+		return;
+	}
 
 	int i = 0;
 
