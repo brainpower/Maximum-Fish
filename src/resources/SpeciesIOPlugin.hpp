@@ -8,17 +8,15 @@
 
 
 class SpeciesIOPlugin : public iTreeIOPlugin<Species> {
-	SpeciesIOPlugin(){}
+public:
+	SpeciesIOPlugin()
+	 : iTreeIOPlugin( "Species.info" )
+	{}
 
-	virtual ~SpeciesIOPlugin(){}
+	virtual ~SpeciesIOPlugin() = default;
+	virtual ObjPtr loadObject(const boost::property_tree::ptree::value_type &node);
+	virtual bool saveObject( const std::string& name, const Species &o, boost::property_tree::ptree &root);
 
-#ifndef __GCC_4_6__ // gcc < 4.7 doesn't support override
-	ObjPtr loadObjects(boost::property_tree::ptree &root) override;
-	bool saveObject( const Species &o, boost::property_tree::ptree &root) override;
-#else
-	ObjPtr loadObjects(boost::property_tree::ptree &root);
-	bool saveObject( const Species &o, boost::property_tree::ptree &root);
-#endif
 };
 
 

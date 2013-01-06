@@ -1,6 +1,7 @@
 #include "Screen.hpp"
 
 #include "sbe/Engine.hpp"
+#include "sbe/ResourceManager.hpp"
 
 #include "sbe/event/EventUser.hpp"
 #include "sbe/event/Event.hpp"
@@ -34,8 +35,12 @@ Screen::Screen()
 	// convert key inputs to an event
 	EvtConv->AddEventConversion( sf::Event::Closed ,       "EVT_QUIT", true );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "TOGGLE_SHOW_CONSOLE" );
+
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
+
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOOGLE_SIM_PAUSE" );
 
 	Init();
 }
@@ -62,10 +67,14 @@ void Screen::Init()
 
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.
-    //Engine::GetApp().resetGLStates();
+    Engine::GetApp().resetGLStates();
 
 
 	guiclock.reset( new sf::Clock() );
+
+
+	auto txts = Engine::GetIO()->loadPath<sf::Image>( "test.jpg" );
+	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "test.jpg");
 }
 
 

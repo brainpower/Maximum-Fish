@@ -6,19 +6,18 @@
 #include "sbe/io/IOPlugin.hpp"
 #include "../simulator/Terrain.hpp"
 
-class TerrainIOPlugin : iTreeIOPlugin<Terrain> {
+class TerrainIOPlugin : public iTreeIOPlugin<Terrain> {
 
-	TerrainIOPlugin(){}
+public:
+	TerrainIOPlugin()
+	 : iTreeIOPlugin( "Terrain.info" )
+	{}
 
-	virtual ~TerrainIOPlugin(){}
+	virtual ~TerrainIOPlugin() = default;
 
-#ifndef __GCC_4_6__ // gcc < 4.7 doesn't support override
-	ObjPtr loadObjects(boost::property_tree::ptree &root) override;
-	bool saveObject( const Terrain &o, boost::property_tree::ptree &root) override;
-#else
-	ObjPtr loadObjects(boost::property_tree::ptree &root);
-	bool saveObject( const Terrain &o, boost::property_tree::ptree &root);
-#endif
+	virtual ObjPtr loadObject(const boost::property_tree::ptree::value_type &node);
+	virtual bool saveObject( const std::string& name, const Terrain &o, boost::property_tree::ptree &root);
+
 };
 
 #endif // TERRAINIOPLUGIN_HPP

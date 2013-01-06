@@ -1,29 +1,47 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include "sbe/Geom.hpp"
+#include <list>
+#include <memory>
 
+#include "sbe/Geom.hpp"
 #include "Tile.hpp"
+
 
 class Terrain
 {
 	public:
 
-	int getTileAltitude(Geom::Vec2f pos);
-	Tile* getTile( Geom::Vec2f pos );
-	//
-	void setHumidityFactor( float humidity_factor );
+		void UpdateTerrain();
+		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
+		float getHumidityFactor( ) const { return humidityFactor;}
+
+		int getTileElevation(Geom::Vec2f pos);
+		int getMaxElevation();
+		float getGlobalTemp();
+
+		std::shared_ptr<Tile> getTile( Geom::Vec2f pos );
+
+		void CreateDebugTerrain();
 
 	private:
+
+		friend class TerrainIOPlugin;
+
+
 
 		// calculate Rainmap
 		void calculateHumidity();
 
-		float humidity_factor;
+		/// Size of the Terrain in tiles x/y
+		Geom::Vec2 Size;
 
-		std::vector<std::vector<Tile>> Tiles;
+		float humidityFactor;
+		float globalTemp;              //temperature at sea level
+		int maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
+
+		std::vector<std::shared_ptr<Tile>> Tiles;
 
 };
 
 #endif // TERRAIN_H
-

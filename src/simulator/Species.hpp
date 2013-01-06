@@ -7,17 +7,34 @@
 
 class Species : public EventUser
 {
+
 	public:
-		int getMaxAge() {return maxAge;}
-		int getMaxHealth() {return maxHealth;}
-		int getMaxSpeed() {return maxSpeed;}
-		int getReach() {return Reach;}
-		int getResistance() {return resistance;}
-		int getBreedingSpeed() {return breedingSpeed;}
-		bool IsCarnivore() {return isCarnivore;}
-		int getFoodRequirement() {return foodRequirement;}
-		int getWaterRequirement() {return waterRequirement;}
-		int getOptimalHeight() {return optimalHeight;}
+		Species(const std::string &name);
+		virtual ~Species() = default;
+
+		//-1 to lazy, oh boy
+		int getMaxAge() const    {return maxAge;}
+		int getMaxHealth() const {return maxHealth;}
+		int getMaxSpeed() const  {return maxSpeed;}
+		int getReach() const     {return Reach;}
+		int getResistance()const  {return resistance;}
+		int getBreedingSpeed() const {return breedingSpeed;}
+		bool IsCarnivore() const {return isCarnivore;}
+		int getFoodRequirement() const {return foodRequirement;}
+		int getWaterRequirement() const {return waterRequirement;}
+		int getOptimalTemperature() const {return optimalTemperature;}
+
+		//+1 style
+		void setMaxAge(int ma) {                        maxAge = ma;}
+		void setMaxHealth(int mh) {                  maxHealth = mh;}
+		void setMaxSpeed(int ms) {                    maxSpeed = ms;}
+		void setReach(int r) {                            Reach = r;}
+		void setResistance(int re){                 resistance = re;}
+		void setBreedingSpeed(int bs) {          breedingSpeed = bs;}
+		void setCarnivore(bool c) {                 isCarnivore = c;}
+		void setFoodRequirement(int fr) {      foodRequirement = fr;}
+		void setWaterRequirement(int wr){     waterRequirement = wr;}
+		void setOptimalTemperature(int oh) {optimalTemperature = oh;}
 
 		void HandleEvent( Event& e );
 	private:
@@ -38,7 +55,7 @@ class Species : public EventUser
 			Determines the optimal Height for the species to live and
 			also the required temperature
 		*/
-		int optimalHeight;
+		int optimalTemperature;
 
 		//std::vector<std::shared_ptr<Creature>> Creatures;
 
@@ -47,4 +64,3 @@ class Species : public EventUser
 };
 
 #endif // SPECIES_H
-

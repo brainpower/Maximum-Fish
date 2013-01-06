@@ -3,9 +3,13 @@
 
 #include "sbe/event/EventUser.hpp"
 
-#include <SFML/System/NonCopyable.hpp>
+class Tile;
+class Terrain;
+class Creature;
 
-#include "Terrain.hpp"
+#include <list>
+
+#include <SFML/System/NonCopyable.hpp>
 
 class Simulator : public EventUser, public sf::NonCopyable
 {
@@ -14,13 +18,24 @@ class Simulator : public EventUser, public sf::NonCopyable
 		virtual ~Simulator() {};
 		virtual void HandleEvent( Event& e);
 
+		void init();
+
+		void tick();
+
 		static std::shared_ptr<Terrain> GetTerrain()
 		{
 			return Instance->Terra;
 		}
 
 	private:
+
+		void registerIOPlugins();
+
+
+		std::list<std::shared_ptr<Creature>> Creatures;
 		std::shared_ptr<Terrain> Terra;
+
+		bool m_pause;
 
 		static Simulator* Instance;
 };

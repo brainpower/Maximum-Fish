@@ -5,6 +5,8 @@
 #include "sbe/event/EventUser.hpp"
 #include "sbe/event/Event.hpp"
 
+#include "Species.hpp"
+#include "Terrain.hpp"
 #include "Simulator.hpp"
 #include "Tile.hpp"
 
@@ -95,12 +97,12 @@ void Creature::calcEnv()
 	//####### calculate external effects on creature ########
 
 	//modifiers
-	const float altModifier1 = 16;	//stretches out the range where creatures don't take much damage from wrong altitude \__/ -> \____/
-	const float altModifier2 = 4;	//higher values here mean steeper rise in damage from moving further away from optimal altitude; only use even numbers! \__/ -> |__|
+	const float altModifier1 = 16;	//stretches out the range where creatures don't take much damage from wrong elevation \__/ -> \____/
+	const float altModifier2 = 4;	//higher values here mean steeper rise in damage from moving further away from optimal elevation; only use even numbers! \__/ -> |__|
 
 
-	//--damage from wrong altitude/temperatur
-	int damage = (int)(pow((double)( currentTile->getAltitude() - mySpecies->getOptimalHeight() ) / altModifier1, altModifier2));
+	//--damage from wrong elevation/temperature
+	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
 	damage = damage + (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
 

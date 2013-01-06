@@ -5,8 +5,7 @@
 
 #include "sbe/event/EventUser.hpp"
 
-#include "Species.hpp"
-
+class Species;
 class Tile;
 
 /**
@@ -20,16 +19,19 @@ class Creature : public EventUser
 		virtual ~Creature() {};
 		virtual void HandleEvent( Event& e);
 
+		void live();
+
 		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
 		inline void setAge(const int a){ age = a; }
-		//void setSpecies(const string &s);
-		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); }
+		inline void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
+		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); } // TODO: update tile on pos update
 
 		inline int getCurrentHealth() const { return currentHealth; }
 		inline int getAge() const { return age; }
+		inline std::string getSpeciesString() const { /* TODO: same magic here, but the other way round */ }
 		inline Geom::Vec2f getPosition() const { return Position; }
+
 	private:
-		void live();
 
 		int huntFood();
 		void mate();
@@ -47,7 +49,7 @@ class Creature : public EventUser
 
 		//References
 		std::shared_ptr<Species> mySpecies;
-		Tile* currentTile;
+		std::shared_ptr<Tile> currentTile;
 };
 
 
