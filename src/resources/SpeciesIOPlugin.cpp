@@ -3,6 +3,11 @@
 
 using boost::property_tree::ptree;
 
+SpeciesIOPlugin::~SpeciesIOPlugin()
+{
+
+}
+
 SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node){
 		ObjPtr re;
 	if (node.first != "Species") return re;
