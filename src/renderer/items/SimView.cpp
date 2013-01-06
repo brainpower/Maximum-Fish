@@ -42,6 +42,10 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
+
+	if (e.type == sf::Event::EventType::KeyReleased)
+	{
+
 		int delta = 10;
 
 		if (e.key.shift) delta *= 10;
@@ -75,6 +79,11 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			default:
 				break;
 		}
+	}
+	else if (e.type == sf::Event::EventType::Resized)
+	{
+		Camera.setSize(e.size.width, e.size.height);
+	}
 }
 
 void SimView::SetupCamera()
