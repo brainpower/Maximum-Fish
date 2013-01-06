@@ -44,7 +44,7 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
-		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra);
+		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
 	else if (e.Is("EVT_QUIT"))
 	{

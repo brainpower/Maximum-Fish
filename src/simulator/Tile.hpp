@@ -7,16 +7,12 @@ class Tile
 {
 	public:
 
-		Tile( Geom::Vec2 Position, int _height, int _nutrition, int _baseHumidity )
-		 : height(_height), nutrition( _nutrition ), baseHumidity( _baseHumidity )
-		{
+		Tile( Geom::Vec2 _Position, float _height, float _nutrition, float _baseHumidity );
 
-		}
-
-		int getHeight(){return height;}
-		int getNutrition(){return nutrition;}
-		int getBaseHumidity(){return baseHumidity;}
-		int getHumidity(){return humidity;}
+		float getHeight(){return height;}
+		float getNutrition(){return nutrition;}
+		float getBaseHumidity(){return baseHumidity;}
+		float getHumidity(){return humidity;}
 		float calcTemperature();
 
 	private:
@@ -25,13 +21,16 @@ class Tile
 
 		Geom::Vec2 Position;
 
-		int height;
-		int nutrition;
-		int baseHumidity;
+		float height;
+		/// nutrition value on that tile ( required for plant growth
+		float nutrition;
+		/// general humidity on that tile
+		float baseHumidity;
 
 		/// number of plants on that field, used to determine overpopulation
 		int biomass;
-		int humidity;
+		/// current humidity, decreased through "feeding" plants
+		float humidity;
 };
 
 

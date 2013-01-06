@@ -65,7 +65,7 @@ void Terrain::CreateDebugTerrain()
 
 			if (TileHeight > maxElevation) maxElevation = TileHeight;
 
-			std::shared_ptr<Tile> T ( new Tile( Geom::Vec2(x,y), TileHeight, rnd(gen), rnd(gen) ) );
+			std::shared_ptr<Tile> T ( new Tile( Geom::Vec2(x,y), TileHeight, rnd(gen), 0 ) );
 			Tiles.push_back ( T );
 		}
 	}

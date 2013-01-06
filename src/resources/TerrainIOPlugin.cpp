@@ -52,13 +52,17 @@ bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boos
 
         for (auto tile : t.Tiles)
         {
-            pt.put<int>("tiles.x.y.pos.x", tile->Position.x());
-            pt.put<int>("tiles.x.y.pos.y", tile->Position.y());
-            pt.put<int>("tiles.x.y.heigth", tile->height);
-            pt.put<int>("tiles.x.y.nutrition", tile->nutrition);
-            pt.put<int>("tiles.x.y.baseHumidity", tile->baseHumidity);
-            pt.put<int>("tiles.x.y.Humidity", tile->humidity);
-            pt.put<int>("tiles.x.y.Biomass", tile->biomass);
+        	ptree pt_t;
+
+            pt_t.put<int>("pos.x", tile->Position.x());
+            pt_t.put<int>("pos.y", tile->Position.y());
+            pt_t.put<float>("heigth", tile->height);
+            pt_t.put<float>("nutrition", tile->nutrition);
+            pt_t.put<float>("baseHumidity", tile->baseHumidity);
+            pt_t.put<float>("Humidity", tile->humidity);
+            pt_t.put<int>("Biomass", tile->biomass);
+
+            pt.add_child( "Tile", pt_t);
         }
 
 
