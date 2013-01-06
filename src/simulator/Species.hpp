@@ -10,7 +10,7 @@ class Species : public EventUser
 
 	public:
 		Species(const std::string &name);
-		virtual ~Species() = default;
+		virtual ~Species();
 
 		//-1 to lazy, oh boy
 		int getMaxAge() const    {return maxAge;}

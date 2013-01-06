@@ -4,6 +4,11 @@
 
 using boost::property_tree::ptree;
 
+CreatureIOPlugin::~CreatureIOPlugin()
+{
+
+}
+
 CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node)
 {
 	ObjPtr re;

@@ -3,6 +3,11 @@
 
 using boost::property_tree::ptree;
 
+TerrainIOPlugin::~TerrainIOPlugin()
+{
+
+}
+
 TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node)
 {
     ObjPtr re;
