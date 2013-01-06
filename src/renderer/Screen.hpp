@@ -30,6 +30,8 @@ class Screen : public EventUser
 
 	private:
 
+		bool Fullscreen;
+
 		void Init();
 		std::shared_ptr<SFMLEventConverter> EvtConv;
 

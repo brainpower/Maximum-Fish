@@ -10,6 +10,8 @@
 
 #include "sbe/Module.hpp"
 
+#include "sbe/ImageSet.hpp"
+
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
@@ -22,12 +24,14 @@
 // ############# SCREEN ####
 
 Screen::Screen()
+ : Fullscreen(false)
 {
 
 	EvtConv.reset( new SFMLEventConverter() );
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "EVT_QUIT" );
 	RegisterForEvent( "SCREEN_ADD_WINDOW" );
+	RegisterForEvent( "TOGGLE_FULLSCREEN" );
 
 	//RegisterForSFMLEvent(sf::Event::EventType::KeyReleased);
 	//RegisterForSFMLEvent(sf::Event::EventType::MouseButtonReleased);
@@ -41,6 +45,7 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOOGLE_SIM_PAUSE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,      "TOGGLE_FULLSCREEN" );
 
 	Init();
 }
@@ -67,14 +72,19 @@ void Screen::Init()
 
 	// We're not using SFML to render anything in this program, so reset OpenGL
     // states. Otherwise we wouldn't see anything.
-    Engine::GetApp().resetGLStates();
+    //Engine::GetApp().resetGLStates();
 
 
 	guiclock.reset( new sf::Clock() );
 
 
-	auto txts = Engine::GetIO()->loadPath<sf::Image>( "test.jpg" );
-	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "test.jpg");
+	auto txts = Engine::GetIO()->loadPath<sf::Image>( "Tiles.tga" );
+	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "Tiles.tga");
+
+	std::shared_ptr<ImageSet> I( new ImageSet( "Tiles", "Tiles.tga", Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
+	Engine::GetResMgr()->add(I ,"Tiles");
+
+	//Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
 }
 
 
@@ -87,6 +97,8 @@ void Screen::Render()
 	{
 		// Try to consume the event, if that fails try to convert it
 		Desktop->HandleEvent( sfEvent );
+
+		SimulatorView->HandleSfmlEvent( sfEvent );
 
 		// give it to the converter
 		EvtConv->HandleEvent( sfEvent );
@@ -108,6 +120,7 @@ void Screen::Render()
 
 	// Blit
 	Engine::GetApp().display();
+
 }
 
 void Screen::HandleEvent(Event& e)
@@ -115,6 +128,29 @@ void Screen::HandleEvent(Event& e)
 	if (e.Is("EVT_FRAME"))
 	{
 		Render();
+	}
+	else if (e.Is("TOGGLE_FULLSCREEN"))
+	{
+		if ( !Fullscreen )
+		{
+			auto modes = sf::VideoMode::getFullscreenModes();
+
+			if (modes.size() > 0)
+			{
+				Engine::GetApp().create(modes[0], "Maximum-Fish (fullscreen)", sf::Style::Fullscreen);
+				Fullscreen = true;
+			}
+			else
+			{
+				Engine::out() << "[Screen] No supported fullscreen mode found!" << std::endl;
+			}
+		}
+		else
+		{
+			Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
+			Fullscreen = false;
+		}
+
 	}
 	else if (e.Is("SCREEN_ADD_WINDOW"))
 	{

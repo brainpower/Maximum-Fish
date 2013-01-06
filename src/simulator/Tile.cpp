@@ -3,7 +3,7 @@
 #include "Simulator.hpp"
 #include <memory>
 
-Tile::Tile( Geom::Vec2 _Position, float _height, float _nutrition, float _baseHumidity )
+Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity )
  : Position(_Position),
   height(_height),
   nutrition( _nutrition ),

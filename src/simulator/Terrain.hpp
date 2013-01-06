@@ -16,8 +16,8 @@ class Terrain
 		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
 		float getHumidityFactor( ) const { return humidityFactor;}
 
-		int getTileElevation(Geom::Vec2f pos);
-		int getMaxElevation();
+		float getTileElevation(Geom::Vec2f pos);
+		float getMaxElevation();
 		float getGlobalTemp();
 
 		std::shared_ptr<Tile> getTile( Geom::Vec2f pos );
@@ -38,7 +38,7 @@ class Terrain
 
 		float humidityFactor;
 		float globalTemp;              //temperature at sea level
-		int maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
+		float maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
 
 		std::vector<std::shared_ptr<Tile>> Tiles;
 
