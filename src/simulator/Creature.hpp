@@ -33,6 +33,8 @@ class Creature : public EventUser
 
 	private:
 
+		friend class CreatureIOPlugin;
+
 		int huntFood();
 		void mate();
 		void move();
