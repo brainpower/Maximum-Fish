@@ -15,11 +15,13 @@ CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree
 
 		re.reset( new Creature() );
 
-		re->setCurrentHealth( pt.get<int>("currentHealth") );
-		re->setAge( pt.get<int>("age") );
-		re->setPosition( pt.get<float>("pos.x"), pt.get<float>("pos.y") );
+		re->currentHealth = pt.get<int>("currentHealth");
+		re->age           = pt.get<int>("age");
+
+		re->Position.SetX( pt.get<float>("pos.x"));
+		re->Position.SetY( pt.get<float>("pos.y"));
+
 		re->setSpecies(pt.get<std::string>("species"));
-		// how to save? or restore? -> setSpecies has to take a string and do the right thing
 
 	}
 	catch ( boost::property_tree::ptree_error )
@@ -40,10 +42,10 @@ bool CreatureIOPlugin::saveObject( const std::string& name, const Creature &c, b
 		ptree pt;
 
 		pt.put<std::string>("Name", name);
-		pt.put<int>("currentHealth", c.getCurrentHealth());
-		pt.put<int>("age", c.getAge());
-		pt.put<float>("pos.x", c.getPosition().x());
-		pt.put<float>("pos.y", c.getPosition().y());
+		pt.put<int>("currentHealth", c.currentHealth);
+		pt.put<int>("age", c.age);
+		pt.put<float>("pos.x", c.Position.x());
+		pt.put<float>("pos.y", c.Position.y());
 		pt.put<std::string>("species", c.getSpeciesString());
 
 		r.add_child( "Creature", pt);

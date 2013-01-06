@@ -39,6 +39,8 @@ class Species : public EventUser
 		void HandleEvent( Event& e );
 	private:
 
+		friend class SpeciesIOPlugin;
+
 		std::string name;
 		int maxAge;
 		int maxHealth;
