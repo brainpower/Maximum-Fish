@@ -103,13 +103,26 @@ else()
 	add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
 endif()
 
-if (GCC_VERSION VERSION_GREATER 4.6)
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(GCC_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
+if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
     add_definitions ( -std=c++11 )
-else()
+
+		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
+			add_definitions ( -D__GCC_4_8__ )
+			if(DEBUG)
+				add_definitions( -Og )
+			endif(DEBUG)
+		endif()
+elseif(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
     add_definitions ( -std=c++0x -D__GCC_4_6__ )
+else()
+		message("-- Unsupported compiler detected. Build might fail!")
+		add_definitions( -std=c++11 )
 endif()
 
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
 target_link_libraries(MaximumFish sbe sfgui )
-
