@@ -15,16 +15,25 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
         re.reset( new Terrain() );
 
         re->setHumidityFactor( pt.get<float>("humidityFactor") );
+        re->Size.SetX( pt.get<int>("size.x") );
+        re->Size.SetY( pt.get<int>("size.y") );
 
-        // for y in tiles.x:
-        //   for t in tiles.x.y:
-        //		 tile->set(t.elevation)
-        //		 tile->set(t.nutrition)
-        //		 tile->set(t.baseHumidity)
-        //		 tile->set(t.Humidity)
-        //		 tile->set(t.Biomass)
-        //     re->addTile(x,y, tile);
+				for ( const boost::property_tree::ptree::value_type& e : pt){
+					if(e.first == "Tile"){
+						auto pt_t = e.second;
 
+						std::shared_ptr<Tile> t_ptr(new Tile(
+						    Geom::Vec2(pt_t.get<int>("pos.x"), pt_t.get<int>("pos.y")),
+						    pt_t.get<float>("height"),
+						    pt_t.get<float>("nutrition"),
+						    pt_t.get<float>("baseHumidity")));
+
+						t_ptr->humidity     = pt_t.get<float>("humidity");
+						t_ptr->biomass      = pt_t.get<int>  ("biomass");
+
+						re->Tiles.push_back(t_ptr);
+					}
+				}
 
     }
     catch ( boost::property_tree::ptree_error )
@@ -56,11 +65,11 @@ bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boos
 
             pt_t.put<int>("pos.x", tile->Position.x());
             pt_t.put<int>("pos.y", tile->Position.y());
-            pt_t.put<float>("heigth", tile->height);
+            pt_t.put<float>("height", tile->height);
             pt_t.put<float>("nutrition", tile->nutrition);
             pt_t.put<float>("baseHumidity", tile->baseHumidity);
-            pt_t.put<float>("Humidity", tile->humidity);
-            pt_t.put<int>("Biomass", tile->biomass);
+            pt_t.put<float>("humidity", tile->humidity);
+            pt_t.put<int>("biomass", tile->biomass);
 
             pt.add_child( "Tile", pt_t);
         }
