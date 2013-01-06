@@ -24,12 +24,14 @@
 // ############# SCREEN ####
 
 Screen::Screen()
+ : Fullscreen(false)
 {
 
 	EvtConv.reset( new SFMLEventConverter() );
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "EVT_QUIT" );
 	RegisterForEvent( "SCREEN_ADD_WINDOW" );
+	RegisterForEvent( "TOGGLE_FULLSCREEN" );
 
 	//RegisterForSFMLEvent(sf::Event::EventType::KeyReleased);
 	//RegisterForSFMLEvent(sf::Event::EventType::MouseButtonReleased);
@@ -43,6 +45,7 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOOGLE_SIM_PAUSE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,      "TOGGLE_FULLSCREEN" );
 
 	Init();
 }
@@ -125,6 +128,29 @@ void Screen::HandleEvent(Event& e)
 	if (e.Is("EVT_FRAME"))
 	{
 		Render();
+	}
+	else if (e.Is("TOGGLE_FULLSCREEN"))
+	{
+		if ( !Fullscreen )
+		{
+			auto modes = sf::VideoMode::getFullscreenModes();
+
+			if (modes.size() > 0)
+			{
+				Engine::GetApp().create(modes[0], "Maximum-Fish (fullscreen)", sf::Style::Fullscreen);
+				Fullscreen = true;
+			}
+			else
+			{
+				Engine::out() << "[Screen] No supported fullscreen mode found!" << std::endl;
+			}
+		}
+		else
+		{
+			Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
+			Fullscreen = false;
+		}
+
 	}
 	else if (e.Is("SCREEN_ADD_WINDOW"))
 	{
