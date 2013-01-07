@@ -78,10 +78,10 @@ void Screen::Init()
 	guiclock.reset( new sf::Clock() );
 
 
-	auto txts = Engine::GetIO()->loadPath<sf::Image>( "Tiles.tga" );
-	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "Tiles.tga");
+	auto txts = Engine::GetIO()->loadPath<sf::Image>( "Tiles_serious.tga" );
+	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "Tiles_serious.tga");
 
-	std::shared_ptr<ImageSet> I( new ImageSet( "Tiles", "Tiles.tga", Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
+	std::shared_ptr<ImageSet> I( new ImageSet( "Tiles", "Tiles_serious.tga", Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
 	Engine::GetResMgr()->add(I ,"Tiles");
 
 	//Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
