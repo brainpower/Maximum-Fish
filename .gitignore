@@ -17,3 +17,6 @@
 *.exe
 
 build*
+.bak
+.kdev4
+doc/html
