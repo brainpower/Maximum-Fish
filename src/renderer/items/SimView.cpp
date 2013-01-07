@@ -21,7 +21,18 @@ SimView::SimView()
 void SimView::HandleEvent(Event& e)
 {
 	if(e.Is("UpdateCreatureRenderList"))
-	{
+	{		// check event datatype
+		
+		if (e.Data().type() == typeid( std::list<std::shared_ptr<Creature>> ))
+		{
+			// cast into desired type
+			std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
+			ReadCreatureRenderList( r );
+		}
+		else
+		{
+			Engine::out() << "[SimView] Wrong eventdata at UpdateCreatureRenderList!" << std::endl;
+		}
 		//Engine::out() << "[SimView] Creatures NOT updated" << std::endl;
 	}
 	else if ( e.Is("UpdateTileRenderList"))
@@ -103,8 +114,8 @@ void SimView::Render()
 
 	if (!ImgSet->getTexture()) return;
 
-	Engine::GetApp().draw( Tiles, sf::RenderStates( ImgSet->getTexture().get() ) );
-	//Engine::GetApp()->draw( Creatures );
+	Engine::GetApp().draw( Tiles, ImgSet->getTexture().get());
+	Engine::GetApp().draw( Creatures , ImgSet->getTexture().get());
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 }
@@ -132,12 +143,33 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 		ImgSet->CreateQuad( DetermineTileSpriteIndex( T ) , Tiles, DetermineTilePos( T ) , (i++ * 4));
 	}
 
-	Engine::out() << "[SimView] Recreated tile vertexarray!" << std::endl;
+	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
 }
 
 
 void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 {
+	Creatures.clear();
+	Creatures.resize( 4 * r.size() );
+	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
+
+	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	ImgSet->updateTexture();
+
+	if (!ImgSet->getTexture())
+	{
+		Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
+		return;
+	}
+
+	int i = 0;
+
+	for ( std::shared_ptr<Creature> T : r)
+	{
+		ImgSet->CreateQuad( 3, Creatures, DetermineCreaturePos(T), (i++ * 4) );
+	}
+
+	Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
 }
 
 sf::Vector2f SimView::CalculateRequisition()
@@ -153,6 +185,18 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 
 	re.left 	= TileSize * t->getPosition().x();
 	re.top 		= TileSize * t->getPosition().y();
+	re.width 	= TileSize;
+	re.height 	= TileSize;
+
+	return re;
+}
+
+sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
+{
+	sf::FloatRect re;
+
+	re.left 	= TileSize * c->getPosition().x();
+	re.top 		= TileSize * c->getPosition().y();
 	re.width 	= TileSize;
 	re.height 	= TileSize;
 

@@ -12,11 +12,7 @@
 
 Creature::Creature()
 {
-//variables to be initialized after discussion
-
-
-	// if we left our old Tile
-	currentTile = Simulator::GetTerrain()->getTile( Position );
+	
 }
 
 void Creature::HandleEvent(Event& e)
@@ -30,13 +26,13 @@ void Creature::HandleEvent(Event& e)
 void Creature::live()
 {
 	// damage from environment
-	calcEnv();
+	//calcEnv();
 	// feed
-	huntFood();
+	//huntFood();
 	// move ( or not )
 	move();
 	// and try to reproduce
-	mate();
+	//mate();
 }
 
 int Creature::huntFood()
@@ -81,15 +77,9 @@ void Creature::mate()
 
 void Creature::move()
 {
-	// plants dont move
-	if (mySpecies->getMaxSpeed() == 0) return;
+	//std::uniform_real_distribution<float> rnd(0, 4);
 
-
-
-
-	// if we left our old Tile
-	currentTile = Simulator::GetTerrain()->getTile( Position );
-
+	setPosition( 2,2 );
 }
 
 void Creature::calcEnv()

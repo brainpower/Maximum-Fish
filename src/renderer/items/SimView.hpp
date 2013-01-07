@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <random>
 
 class Creature;
 class Tile;
@@ -51,6 +52,7 @@ class SimView : public EventUser, public sfg::Widget
 
 		/// determines where a Tile should be rendered on the viewport
 		sf::FloatRect DetermineTilePos ( std::shared_ptr<Tile>& t);
+		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
 
 		void SetupCamera();
 		sf::View Camera;
