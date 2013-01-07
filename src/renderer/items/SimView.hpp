@@ -49,8 +49,9 @@ class SimView : public EventUser, public sfg::Widget
 			Right now this just uses a simple height formula to determine what to render.
 		*/
 		int DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t);
-
-		/// determines where a Tile should be rendered on the viewport
+		int DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t);
+		
+			/// determines where a Tile should be rendered on the viewport
 		sf::FloatRect DetermineTilePos ( std::shared_ptr<Tile>& t);
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
 
