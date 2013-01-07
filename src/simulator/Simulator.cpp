@@ -69,7 +69,11 @@ void Simulator::init()
 
 	m_pause = false;
 
-	addCreature();
+	for(int i = 0; i < 1000; i++)
+	{
+		addCreature();
+
+	}
 
 }
 
@@ -117,8 +121,9 @@ void Simulator::registerIOPlugins()
 
 void Simulator::addCreature()
 {
+	std::uniform_real_distribution<float> rnd(0, 32);
 	std::shared_ptr<Creature> ptr_creature = *(new std::shared_ptr<Creature>(new Creature()));
-	ptr_creature->setPosition(0,0);
+	ptr_creature->setPosition(rnd(gen),rnd(gen));
 
 	Creatures.push_back(ptr_creature);
 }

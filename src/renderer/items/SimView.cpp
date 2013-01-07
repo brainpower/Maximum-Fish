@@ -158,7 +158,7 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 
 	if (!ImgSet->getTexture())
 	{
-		Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
+		//Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
 		return;
 	}
 
@@ -169,7 +169,7 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 		ImgSet->CreateQuad( 3, Creatures, DetermineCreaturePos(T), (i++ * 4) );
 	}
 
-	Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
+	//Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
 }
 
 sf::Vector2f SimView::CalculateRequisition()

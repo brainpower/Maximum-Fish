@@ -29,7 +29,7 @@ class Simulator : public EventUser, public sf::NonCopyable
 			return Instance->Terra;
 		}
 
-		static std::default_random_engine GetEngine()
+		static std::default_random_engine& GetEngine()
 		{
 			return Instance->gen;
 		}
