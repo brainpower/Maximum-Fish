@@ -42,7 +42,7 @@ class Simulator : public EventUser, public sf::NonCopyable
 		std::list<std::shared_ptr<Creature>> Creatures;
 		std::shared_ptr<Terrain> Terra;
 
-		bool m_pause;
+		bool isPaused;
 
 		static Simulator* Instance;
 };
