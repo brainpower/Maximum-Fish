@@ -158,7 +158,7 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 
 	if (!ImgSet->getTexture())
 	{
-		//Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
+		Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
 		return;
 	}
 
@@ -195,7 +195,7 @@ sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
 {
 	sf::FloatRect re;
 	
-	const inst CreatureSize = 16;
+	const int CreatureSize = 16;
 
 	re.left 	= TileSize * c->getPosition().x() - CreatureSize/2;
 	re.top 		= TileSize * c->getPosition().y() - CreatureSize/2;
