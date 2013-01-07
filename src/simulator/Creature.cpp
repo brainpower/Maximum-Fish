@@ -81,6 +81,9 @@ void Creature::move()
 	float x = Position.x() + rnd(Simulator::GetEngine());
 	float y = Position.y() + rnd(Simulator::GetEngine());
 
+	if ( x > 32 || x < 0 ) x = 16;
+	if ( y > 32 || y < 0 ) y = 16;
+
 	setPosition(x, y);
 }
 
