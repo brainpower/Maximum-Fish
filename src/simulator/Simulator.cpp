@@ -17,6 +17,8 @@ Simulator* Simulator::Instance = nullptr;
 Simulator::Simulator():
 m_pause(false) {
 
+	Instance = this;
+
 	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 	RegisterForEvent("EVT_TICK");

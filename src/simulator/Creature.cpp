@@ -12,7 +12,7 @@
 
 Creature::Creature()
 {
-	
+
 }
 
 void Creature::HandleEvent(Event& e)
@@ -77,11 +77,11 @@ void Creature::mate()
 
 void Creature::move()
 {
-	//std::uniform_real_distribution<float> rnd(0, 2);
-	//float x = rnd(Simulator::GetEngine());
-	//float y = rnd(Simulator::GetEngine());
+	std::uniform_real_distribution<float> rnd(-2, 2);
+	float x = Position.x() + rnd(Simulator::GetEngine());
+	float y = Position.y() + rnd(Simulator::GetEngine());
 
-	//setPosition(x, y);
+	setPosition(x, y);
 }
 
 void Creature::calcEnv()
@@ -100,5 +100,3 @@ void Creature::calcEnv()
 
 	currentHealth = currentHealth - damage;
 }
-
-
