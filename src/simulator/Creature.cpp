@@ -77,11 +77,11 @@ void Creature::mate()
 
 void Creature::move()
 {
-	std::uniform_real_distribution<float> rnd(0, 2);
-	float x = rnd(Simulator::GetEngine());
-	float y = rnd(Simulator::GetEngine());
+	//std::uniform_real_distribution<float> rnd(0, 2);
+	//float x = rnd(Simulator::GetEngine());
+	//float y = rnd(Simulator::GetEngine());
 
-	setPosition(x, y);
+	//setPosition(x, y);
 }
 
 void Creature::calcEnv()
