@@ -107,15 +107,18 @@ void SimView::SetupCamera()
 
 void SimView::Render()
 {
-	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	std::shared_ptr<ImageSet> CreatureImgSet = Engine::GetResMgr()->get<ImageSet>("Creatures");
 
 
 	Engine::GetApp().setView(Camera);
 
-	if (!ImgSet->getTexture()) return;
 
-	Engine::GetApp().draw( Tiles, ImgSet->getTexture().get());
-	Engine::GetApp().draw( Creatures , ImgSet->getTexture().get());
+	if (TileImgSet->getTexture())
+		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
+	
+	if (CreatureImgSet->getTexture())
+		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 }
