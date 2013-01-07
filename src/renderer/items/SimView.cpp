@@ -21,7 +21,18 @@ SimView::SimView()
 void SimView::HandleEvent(Event& e)
 {
 	if(e.Is("UpdateCreatureRenderList"))
-	{
+	{		// check event datatype
+		
+		if (e.Data().type() == typeid( std::list<std::shared_ptr<Creature>> ))
+		{
+			// cast into desired type
+			std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
+			ReadCreatureRenderList( r );
+		}
+		else
+		{
+			Engine::out() << "[SimView] Wrong eventdata at UpdateCreatureRenderList!" << std::endl;
+		}
 		//Engine::out() << "[SimView] Creatures NOT updated" << std::endl;
 	}
 	else if ( e.Is("UpdateTileRenderList"))
@@ -98,10 +109,13 @@ void SimView::Render()
 {
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 
+
 	Engine::GetApp().setView(Camera);
 
-	Engine::GetApp().draw( Tiles, sf::RenderStates( ImgSet->getTexture().get() ) );
-	//Engine::GetApp()->draw( Creatures );
+	if (!ImgSet->getTexture()) return;
+
+	Engine::GetApp().draw( Tiles, ImgSet->getTexture().get());
+	Engine::GetApp().draw( Creatures , ImgSet->getTexture().get());
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 }
@@ -114,6 +128,13 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
 
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	ImgSet->updateTexture();
+
+	if (!ImgSet->getTexture())
+	{
+		Engine::out() << "[SimView] Unable to get texture for tile rendering!" << std::endl;
+		return;
+	}
 
 	int i = 0;
 
@@ -122,12 +143,33 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 		ImgSet->CreateQuad( DetermineTileSpriteIndex( T ) , Tiles, DetermineTilePos( T ) , (i++ * 4));
 	}
 
-	Engine::out() << "[SimView] Recreated tile vertexarray!" << std::endl;
+	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
 }
 
 
 void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 {
+	Creatures.clear();
+	Creatures.resize( 4 * r.size() );
+	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
+
+	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Creatures");
+	ImgSet->updateTexture();
+
+	if (!ImgSet->getTexture())
+	{
+		//Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
+		return;
+	}
+
+	int i = 0;
+
+	for ( std::shared_ptr<Creature> T : r)
+	{
+		ImgSet->CreateQuad( DetermineCreatureSpriteIndex( T ), Creatures, DetermineCreaturePos(T), (i++ * 4) );
+	}
+
+	//Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
 }
 
 sf::Vector2f SimView::CalculateRequisition()
@@ -149,6 +191,20 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 	return re;
 }
 
+sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
+{
+	sf::FloatRect re;
+	
+	const inst CreatureSize = 16;
+
+	re.left 	= TileSize * c->getPosition().x() - CreatureSize/2;
+	re.top 		= TileSize * c->getPosition().y() - CreatureSize/2;
+	re.width 	= CreatureSize;
+	re.height 	= CreatureSize;
+
+	return re;
+}
+
 int SimView::DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t)
 {
 	/// FIXME: hard coded max height only fits for debug terrain!
@@ -158,4 +214,10 @@ int SimView::DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t)
 	if ( heightpercentage < .05) return 1;
 	if ( heightpercentage < .9) return 2;
 	return 3;
+}
+
+int SimView::DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t)
+{
+	/// FIXME: hard coded
+	return 2;
 }

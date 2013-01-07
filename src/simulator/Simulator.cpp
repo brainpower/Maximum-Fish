@@ -67,24 +67,36 @@ void Simulator::init()
 
 	Engine::out() << "[Simulator] Simulation is in paused" << std::endl;
 
-	m_pause = true;
+	m_pause = false;
+
+	for(int i = 0; i < 1000; i++)
+	{
+		addCreature();
+
+	}
+
 }
 
 void Simulator::tick()
 {
 //	Engine::out() << "[Simulator] tick" << std::endl;
 
-	while(!m_pause)
+	if(!m_pause)
 	{
+		int count = 0;
+
 		for(std::shared_ptr<Creature> c_ptr: Creatures)
 		{
-
-
 			//and ya god said live creature !... LIVE !!!
 			c_ptr->live();
+
+			//for debug count Creatures
+			count++;
 		}
 
-				//make some freaking event, man
+		//Engine::out() << "Living Creatures: " << count << std::endl;
+
+		//make some freaking event, man
 		Event e("UpdateCreatureRenderList");
 		e.SetData ( Creatures );
 		Module::Get()->QueueEvent(e, true);
@@ -107,3 +119,11 @@ void Simulator::registerIOPlugins()
 	Engine::out() << "[Simulator] IO Plugins loaded." << std::endl;
 }
 
+void Simulator::addCreature()
+{
+	std::uniform_real_distribution<float> rnd(0, 32);
+	std::shared_ptr<Creature> ptr_creature = *(new std::shared_ptr<Creature>(new Creature()));
+	ptr_creature->setPosition(rnd(gen),rnd(gen));
+
+	Creatures.push_back(ptr_creature);
+}

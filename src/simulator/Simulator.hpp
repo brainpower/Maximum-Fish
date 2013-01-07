@@ -20,6 +20,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 		void init();
 
+		void addCreature();
+
 		void tick();
 
 		static std::shared_ptr<Terrain> GetTerrain()
@@ -27,11 +29,16 @@ class Simulator : public EventUser, public sf::NonCopyable
 			return Instance->Terra;
 		}
 
+		static std::default_random_engine& GetEngine()
+		{
+			return Instance->gen;
+		}
+
 	private:
 
 		void registerIOPlugins();
 
-
+		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
 		std::shared_ptr<Terrain> Terra;
 
