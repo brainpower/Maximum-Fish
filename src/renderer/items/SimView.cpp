@@ -16,7 +16,8 @@
 SimView::SimView()
 : Name("SimView"),
  TileSize( 128 ),
- RenderGrid ( true )
+ RenderGrid ( true ),
+ Scrolling( false )
 {
 
 	RegisterForEvent("UpdateCreatureRenderList");
@@ -60,7 +61,6 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-
 	if (e.type == sf::Event::EventType::KeyPressed)
 	{
 
@@ -103,6 +103,43 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			default:
 				break;
 		}
+	}
+	else if (e.type == sf::Event::EventType::MouseWheelMoved)
+	{
+		const float WheelZoomFactor = .2f;
+		
+		for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
+		{
+			TargetSize *= (e.mouseWheel.delta > 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
+		}
+	}
+	else if (e.type == sf::Event::EventType::MouseMoved)
+	{
+		const float ScrollFactor = 2.0f;
+
+		if (Scrolling)
+		{
+			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor ); 
+			//TargetCenter = Camera.getCenter(); 
+			
+			TargetCenter.x += (e.mouseMove.x - lastMousePos.x)*ScrollFactor;
+			TargetCenter.y += (e.mouseMove.y - lastMousePos.y)*ScrollFactor; 
+		}
+
+		lastMousePos.x = e.mouseMove.x;
+		lastMousePos.y = e.mouseMove.y;
+	}
+	else if (e.type == sf::Event::EventType::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Middle )
+	{
+		Scrolling = true;
+	}
+	else if (e.type == sf::Event::EventType::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Middle )
+	{
+		Scrolling = false;
+	}
+	else if (e.type == sf::Event::EventType::MouseLeft)
+	{
+		Scrolling = false;
 	}
 	else if (e.type == sf::Event::EventType::Resized)
 	{

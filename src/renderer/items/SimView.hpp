@@ -68,12 +68,16 @@ class SimView : public EventUser, public sfg::Widget
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;
 
+		bool Scrolling;
+		sf::Vector2i lastMousePos;
+
 		bool RenderGrid;
 		sf::Color GridColor;
 		sf::VertexArray Grid;
 
 		/// how big should each tile be rendered edge length ( sprites are 32x32 )
 		int TileSize;
+		
 		const std::string Name;
 };
 
