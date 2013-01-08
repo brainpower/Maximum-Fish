@@ -25,6 +25,7 @@ class DebugWindow : public EventUser
 		sfg::Window::Ptr Win;
 		sfg::ScrolledWindow::Ptr scrolledwindow;
 		unsigned int currentlabeltext;
+		unsigned int updateCounter;
 
 		// a list of debugging strings which are set by event
 		std::map<std::string, std::string> DebugStrings;

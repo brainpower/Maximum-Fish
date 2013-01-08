@@ -8,6 +8,7 @@ DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "TOGGLE_SHOW_CONSOLE" );
 
+	updateCounter = 0;
 	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
 }
@@ -83,7 +84,12 @@ void DebugWindow::HandleEvent( Event& e )
 	}
 	else if (e.Is("EVT_FRAME"))
 	{
-		UpdateText();
+		if ( updateCounter > 20 )
+		{
+			updateCounter = 0;
+			UpdateText();
+		}
+		updateCounter++;
 	}
 	else if (e.Is("TOGGLE_SHOW_CONSOLE"))
     {
@@ -116,9 +122,9 @@ void DebugWindow::UpdateText()
 		currentlabeltext += newtext.size();
 		Engine::GetLogger()->ClearCache();
 
-		if (currentlabeltext > 1000)
+		if (currentlabeltext > 2000)
 		{
-			//Engine::out() << " Adding one more label.. " << std::endl;
+			Engine::out() << " Adding one more label.. " << std::endl;
 			LogText = sfg::Label::Create();
 			LogText->SetAlignment( sf::Vector2f(0.f, 0.f) );
 			LogBox->Pack(LogText, true, true);
