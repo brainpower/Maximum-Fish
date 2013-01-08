@@ -12,6 +12,7 @@
 
 #include "sbe/ImageSet.hpp"
 
+#include "renderer/items/CreatureDetails.hpp"
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
@@ -62,9 +63,10 @@ void Screen::Init()
 	// top-level container for all SFGUI widgets
 	Desktop.reset ( new sfg::Desktop() );
 
-	DbgWin.reset ( new DebugWindow() );
+    CreDet.reset  ( new CreatureDetails() );
+	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
-	MiMap.reset ( new MiniMap() );
+	MiMap.reset   ( new MiniMap() );
 
 
 	SimulatorView.reset ( new SimView() );

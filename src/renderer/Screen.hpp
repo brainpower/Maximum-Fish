@@ -5,6 +5,7 @@
 #include "sbe/event/EventUser.hpp"
 
 class SFMLEventConverter;
+class CreatureDetails;
 class DebugWindow;
 class MainMenu;
 class MiniMap;
@@ -35,6 +36,7 @@ class Screen : public EventUser
 		void Init();
 		std::shared_ptr<SFMLEventConverter> EvtConv;
 
+        std::shared_ptr<CreatureDetails> CreDet;
 		std::shared_ptr<DebugWindow> DbgWin;
 		std::shared_ptr<MainMenu> MnMnWin;
 		std::shared_ptr<MiniMap> MiMap;
