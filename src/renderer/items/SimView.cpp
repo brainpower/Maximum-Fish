@@ -10,12 +10,17 @@
 
 #include <SFML/Window/Keyboard.hpp>
 
+#include <cmath>
+
 SimView::SimView()
 : Name("SimView"),
- TileSize( 32 )
+ TileSize( 128 ),
+ RenderGrid ( true )
 {
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
+
+	GridColor = sf::Color( 42, 42, 42 );
 }
 
 void SimView::HandleEvent(Event& e)
@@ -117,6 +122,9 @@ void SimView::Render()
 	if (TileImgSet->getTexture())
 		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
 	
+	if (RenderGrid)
+		Engine::GetApp().draw( Grid );
+
 	if (CreatureImgSet->getTexture())
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
@@ -147,6 +155,9 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	}
 
 	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
+
+	// and create the corresponding grid
+	CreateGrid( std::sqrt( r.size() ) );
 }
 
 
@@ -173,6 +184,37 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 	}
 
 	//Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
+}
+
+void SimView::CreateGrid( int TerrainSize )
+{
+	Engine::out() << "[SimView] Updated Grid" << std::endl;
+
+	Grid.setPrimitiveType ( sf::PrimitiveType::Lines );
+	Grid.clear();
+	Grid.resize( 2* ((TerrainSize+1) * 2 ) );
+
+	for ( int i = 0; i <= TerrainSize; ++i)
+	{
+		int pos = 2*i;
+		Grid[ pos ].position = sf::Vector2f( 0, i * TileSize );
+		Grid[ pos + 1 ].position = sf::Vector2f( TerrainSize * TileSize, i * TileSize );
+		
+		Grid[ pos ].color = GridColor;
+		Grid[ pos + 1 ].color = GridColor;
+	}
+	
+	for ( int i = 0; i <= TerrainSize; ++i)
+	{
+		int pos = (TerrainSize+1)*2 + 2*i;
+		Grid[ pos  ].position = sf::Vector2f( i * TileSize, 0 );
+		Grid[ pos + 1 ].position = sf::Vector2f( i * TileSize, TerrainSize * TileSize );
+		
+		Grid[ pos ].color = GridColor;
+		Grid[ pos + 1 ].color = GridColor;
+	}
+
+	
 }
 
 sf::Vector2f SimView::CalculateRequisition()

@@ -43,6 +43,8 @@ class SimView : public EventUser, public sfg::Widget
 
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
+		void CreateGrid( int TerrainSize );
+
 
 		/**
 			Determines which Sprite from the tileset should be used do render this tile.
@@ -60,6 +62,10 @@ class SimView : public EventUser, public sfg::Widget
 
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;
+
+		bool RenderGrid;
+		sf::Color GridColor;
+		sf::VertexArray Grid;
 
 		/// how big should each tile be rendered edge length ( sprites are 32x32 )
 		int TileSize;
