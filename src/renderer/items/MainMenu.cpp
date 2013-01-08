@@ -11,6 +11,7 @@ MainMenu::MainMenu( const Geom::Vec2 Size)
 
     currentlabeltext = 0;
     CreateWindow(Size);
+    Win->Show(false);
 }
 
 void MainMenu::CreateWindow( const Geom::Vec2 Size )

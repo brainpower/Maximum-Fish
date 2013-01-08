@@ -4,10 +4,11 @@
 
 CreatureDetails::CreatureDetails( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
-    //RegisterForEvent( "EVENT_NAME" );
+    RegisterForEvent( "TOGGLE_SHOW_CREATUREDETAILS" );
 
 	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
+	Win->Show(false);
 }
 
 void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
@@ -35,15 +36,33 @@ void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const G
 
 void CreatureDetails::HandleEvent( Event& e )
 {
-	//if (e.Is("EVENT_NAME"))
-	{
-
-	}
+	if (e.Is("MOUSE_BUTTON_1"))
+    {
+        //@TODO: buttonclick
+    }
+	else if (e.Is("TOGGLE_SHOW_CREATUREDETAILS"))
+    {
+        if (Win->IsGloballyVisible())
+		{
+			Win->Show(false);
+		}
+        else
+		{
+			updatePosition();
+			Win->Show(true);
+			Win->GrabFocus();
+		}
+    }
 }
 
 void CreatureDetails::updatePosition()
 {
+    //get size:
 	sf::FloatRect Allocation = Win->GetAllocation();
+	//get new position:
 	sf::Vector2u winSize =  Engine::GetApp().getSize();
-	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width ) , ( winSize.y - Allocation.height ) ) );
-}
+	//set new size:
+	Win->SetRequisition(sf::Vector2f((Allocation.width),(winSize.y)));
+	//set new position:
+	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width ) , 0 ) );
+	}
