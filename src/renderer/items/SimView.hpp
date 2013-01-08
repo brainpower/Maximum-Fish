@@ -3,6 +3,8 @@
 
 #include <SFGUI/Widget.hpp>
 
+#include <SFML/System/Vector2.hpp>
+
 #include "sbe/event/EventUser.hpp"
 
 #include <string>
@@ -58,7 +60,10 @@ class SimView : public EventUser, public sfg::Widget
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
 
 		void SetupCamera();
+		void UpdateCamera();
 		sf::View Camera;
+		sf::Vector2f TargetSize;
+		sf::Vector2f TargetCenter;
 
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;

@@ -9,6 +9,7 @@
 #include "sbe/ImageSet.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include <cmath>
 
@@ -17,6 +18,7 @@ SimView::SimView()
  TileSize( 128 ),
  RenderGrid ( true )
 {
+
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
 
@@ -59,7 +61,7 @@ void SimView::HandleEvent(Event& e)
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
 
-	if (e.type == sf::Event::EventType::KeyReleased)
+	if (e.type == sf::Event::EventType::KeyPressed)
 	{
 
 		int delta = 10;
@@ -69,28 +71,34 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 		switch (e.key.code)
 		{
 			case sf::Keyboard::Key::Up:
-				Camera.move(0, -delta);
+				TargetCenter.y += -delta;
+				//Camera.move(0, -delta);
 				break;
 
 			case sf::Keyboard::Key::Down:
-				Camera.move(0, delta);
+				TargetCenter.y += delta;
+				//Camera.move(0, delta);
 				break;
 
 			case sf::Keyboard::Key::Left:
-				Camera.move(-delta, 0);
+				TargetCenter.x += -delta;
+				//Camera.move(-delta, 0);
 				break;
 
 			case sf::Keyboard::Key::Right:
-				Camera.move(delta, 0);
+				TargetCenter.x += delta;
+				//Camera.move(delta, 0);
 				break;
 
 
 
 			case sf::Keyboard::Key::PageUp:
-				Camera.zoom(1.1);
+				TargetSize *= 1.1f;
+				//Camera.zoom(1.1);
 				break;
 			case sf::Keyboard::Key::PageDown:
-				Camera.zoom(0.9);
+				TargetSize *= 0.9f;
+				//Camera.zoom(0.9);
 				break;
 			default:
 				break;
@@ -98,7 +106,8 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 	}
 	else if (e.type == sf::Event::EventType::Resized)
 	{
-		Camera.setSize(e.size.width, e.size.height);
+		TargetSize = sf::Vector2f( e.size.width, e.size.height );
+		//Camera.setSize(e.size.width, e.size.height);
 	}
 }
 
@@ -107,7 +116,46 @@ void SimView::SetupCamera()
 	Camera.setSize(800, 600);
 	Camera.setCenter(400,300);
 
+	TargetSize = sf::Vector2f(800,600);
+	TargetCenter = sf::Vector2f(400,300);
+
 	//Camera.move(0,500);
+}
+
+void SimView::UpdateCamera()
+{
+	const float ZoomFactor = 0.1f;
+	// minimum difference between Target and current position to be smoothed
+	const int minDiff = 2;
+	sf::Vector2f CurrentSize = Camera.getSize();
+	sf::Vector2f CurrentCenter = Camera.getCenter();
+
+	float tmp;
+	sf::Vector2f Target;
+
+	if ( TargetSize != CurrentSize )
+	{
+		//Engine::out() << "Size: " << CurrentSize.x << "/" << CurrentSize.y << std::endl;
+		//Engine::out() << "Target: " << TargetSize.x << "/" << TargetSize.y << std::endl;
+		
+		Target.x = CurrentSize.x + (TargetSize.x - CurrentSize.x)*ZoomFactor;
+		Target.y = CurrentSize.y + (TargetSize.y - CurrentSize.y)*ZoomFactor;
+		if ( std::abs(CurrentSize.x - TargetSize.x) < minDiff ) Target.x = TargetSize.x;
+		if ( std::abs(CurrentSize.y - TargetSize.y) < minDiff ) Target.y = TargetSize.y;
+		
+		Camera.setSize( Target );
+	}
+
+	if ( TargetCenter != CurrentCenter )
+	{
+		Target.x = CurrentCenter.x + (TargetCenter.x - CurrentCenter.x)*ZoomFactor;
+		Target.y = CurrentCenter.y + (TargetCenter.y - CurrentCenter.y)*ZoomFactor;
+		if ( std::abs(CurrentCenter.x - TargetCenter.x) < minDiff ) Target.x = TargetCenter.x;
+		if ( std::abs(CurrentCenter.y - TargetCenter.y) < minDiff ) Target.y = TargetCenter.y;
+
+		Camera.setCenter( Target );
+	}
+
 }
 
 void SimView::Render()
@@ -115,6 +163,8 @@ void SimView::Render()
 	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 	std::shared_ptr<ImageSet> CreatureImgSet = Engine::GetResMgr()->get<ImageSet>("Creatures");
 
+
+	UpdateCamera();
 
 	Engine::GetApp().setView(Camera);
 
