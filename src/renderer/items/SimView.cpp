@@ -110,7 +110,7 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 		
 		for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
 		{
-			TargetSize *= (e.mouseWheel.delta > 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
+			TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
 		}
 	}
 	else if (e.type == sf::Event::EventType::MouseMoved)
@@ -122,8 +122,8 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor ); 
 			//TargetCenter = Camera.getCenter(); 
 			
-			TargetCenter.x += (e.mouseMove.x - lastMousePos.x)*ScrollFactor;
-			TargetCenter.y += (e.mouseMove.y - lastMousePos.y)*ScrollFactor; 
+			TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
+			TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor; 
 		}
 
 		lastMousePos.x = e.mouseMove.x;
