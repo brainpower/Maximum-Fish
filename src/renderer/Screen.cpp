@@ -45,7 +45,7 @@ Screen::Screen()
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOOGLE_SIM_PAUSE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOGGLE_SIM_PAUSE", true );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,      "TOGGLE_FULLSCREEN" );
 
 	Init();

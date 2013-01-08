@@ -15,7 +15,7 @@
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
-m_pause(false) {
+isPaused(false) {
 
 	Instance = this;
 
@@ -23,6 +23,8 @@ m_pause(false) {
 
 	RegisterForEvent("EVT_TICK");
 	RegisterForEvent("EVT_QUIT");
+
+	RegisterForEvent("TOGGLE_SIM_PAUSE");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 
@@ -37,12 +39,7 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
-		if(m_pause == false)
-		{
-			m_pause = true;
-		} else {
-			m_pause = false;
-		}
+		isPaused = !isPaused;
 	}
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
@@ -69,7 +66,7 @@ void Simulator::init()
 
 	Engine::out() << "[Simulator] Simulation is in paused" << std::endl;
 
-	m_pause = false;
+	isPaused = false;
 
 	for(int i = 0; i < 1000; i++)
 	{
@@ -83,7 +80,7 @@ void Simulator::tick()
 {
 //	Engine::out() << "[Simulator] tick" << std::endl;
 
-	if(!m_pause)
+	if(!isPaused)
 	{
 		int count = 0;
 
