@@ -13,17 +13,13 @@ class CreatureDetails : public EventUser
 		virtual ~CreatureDetails() {};
 
 		virtual void HandleEvent( Event& e);
-
 	private:
 		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
 		void UpdateText();
+		void updatePosition();
 
-		sfg::Label::Ptr LogText;
-		sfg::Label::Ptr DbgText;
-		sfg::Label::Ptr DbgLabels;
-		sfg::Box::Ptr	LogBox;
+
 		sfg::Window::Ptr Win;
-		sfg::ScrolledWindow::Ptr scrolledwindow;
 		unsigned int currentlabeltext;
 
 		// a list of debugging strings which are set by event
