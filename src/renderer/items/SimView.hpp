@@ -3,6 +3,8 @@
 
 #include <SFGUI/Widget.hpp>
 
+#include <SFML/System/Vector2.hpp>
+
 #include "sbe/event/EventUser.hpp"
 
 #include <string>
@@ -43,6 +45,8 @@ class SimView : public EventUser, public sfg::Widget
 
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
+		void CreateGrid( int TerrainSize );
+
 
 		/**
 			Determines which Sprite from the tileset should be used do render this tile.
@@ -56,13 +60,24 @@ class SimView : public EventUser, public sfg::Widget
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
 
 		void SetupCamera();
+		void UpdateCamera();
 		sf::View Camera;
+		sf::Vector2f TargetSize;
+		sf::Vector2f TargetCenter;
 
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;
 
+		bool Scrolling;
+		sf::Vector2i lastMousePos;
+
+		bool RenderGrid;
+		sf::Color GridColor;
+		sf::VertexArray Grid;
+
 		/// how big should each tile be rendered edge length ( sprites are 32x32 )
 		int TileSize;
+		
 		const std::string Name;
 };
 

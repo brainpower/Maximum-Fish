@@ -12,6 +12,7 @@
 
 #include "sbe/ImageSet.hpp"
 
+#include "renderer/items/CreatureDetails.hpp"
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
@@ -44,7 +45,8 @@ Screen::Screen()
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOOGLE_SIM_PAUSE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOGGLE_SIM_PAUSE", true );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "TOGGLE_SHOW_CREATUREDETAILS" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,      "TOGGLE_FULLSCREEN" );
 
 	Init();
@@ -62,9 +64,10 @@ void Screen::Init()
 	// top-level container for all SFGUI widgets
 	Desktop.reset ( new sfg::Desktop() );
 
-	DbgWin.reset ( new DebugWindow() );
+    CreDet.reset  ( new CreatureDetails() );
+	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
-	MiMap.reset ( new MiniMap() );
+	MiMap.reset   ( new MiniMap() );
 
 
 	SimulatorView.reset ( new SimView() );

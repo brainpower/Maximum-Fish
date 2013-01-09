@@ -9,13 +9,21 @@
 #include "sbe/ImageSet.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/System/Vector2.hpp>
+
+#include <cmath>
 
 SimView::SimView()
 : Name("SimView"),
- TileSize( 32 )
+ TileSize( 128 ),
+ RenderGrid ( true ),
+ Scrolling( false )
 {
+
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
+
+	GridColor = sf::Color( 42, 42, 42 );
 }
 
 void SimView::HandleEvent(Event& e)
@@ -53,8 +61,7 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-
-	if (e.type == sf::Event::EventType::KeyReleased)
+	if (e.type == sf::Event::EventType::KeyPressed)
 	{
 
 		int delta = 10;
@@ -64,36 +71,80 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 		switch (e.key.code)
 		{
 			case sf::Keyboard::Key::Up:
-				Camera.move(0, -delta);
+				TargetCenter.y += -delta;
+				//Camera.move(0, -delta);
 				break;
 
 			case sf::Keyboard::Key::Down:
-				Camera.move(0, delta);
+				TargetCenter.y += delta;
+				//Camera.move(0, delta);
 				break;
 
 			case sf::Keyboard::Key::Left:
-				Camera.move(-delta, 0);
+				TargetCenter.x += -delta;
+				//Camera.move(-delta, 0);
 				break;
 
 			case sf::Keyboard::Key::Right:
-				Camera.move(delta, 0);
+				TargetCenter.x += delta;
+				//Camera.move(delta, 0);
 				break;
 
 
 
 			case sf::Keyboard::Key::PageUp:
-				Camera.zoom(1.1);
+				TargetSize *= 1.1f;
+				//Camera.zoom(1.1);
 				break;
 			case sf::Keyboard::Key::PageDown:
-				Camera.zoom(0.9);
+				TargetSize *= 0.9f;
+				//Camera.zoom(0.9);
 				break;
 			default:
 				break;
 		}
 	}
+	else if (e.type == sf::Event::EventType::MouseWheelMoved)
+	{
+		const float WheelZoomFactor = .2f;
+		
+		for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
+		{
+			TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
+		}
+	}
+	else if (e.type == sf::Event::EventType::MouseMoved)
+	{
+		const float ScrollFactor = 2.0f;
+
+		if (Scrolling)
+		{
+			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor ); 
+			//TargetCenter = Camera.getCenter(); 
+			
+			TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
+			TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor; 
+		}
+
+		lastMousePos.x = e.mouseMove.x;
+		lastMousePos.y = e.mouseMove.y;
+	}
+	else if (e.type == sf::Event::EventType::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Middle )
+	{
+		Scrolling = true;
+	}
+	else if (e.type == sf::Event::EventType::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Middle )
+	{
+		Scrolling = false;
+	}
+	else if (e.type == sf::Event::EventType::MouseLeft)
+	{
+		Scrolling = false;
+	}
 	else if (e.type == sf::Event::EventType::Resized)
 	{
-		Camera.setSize(e.size.width, e.size.height);
+		TargetSize = sf::Vector2f( e.size.width, e.size.height );
+		//Camera.setSize(e.size.width, e.size.height);
 	}
 }
 
@@ -102,20 +153,67 @@ void SimView::SetupCamera()
 	Camera.setSize(800, 600);
 	Camera.setCenter(400,300);
 
+	TargetSize = sf::Vector2f(800,600);
+	TargetCenter = sf::Vector2f(400,300);
+
 	//Camera.move(0,500);
+}
+
+void SimView::UpdateCamera()
+{
+	const float ZoomFactor = 0.1f;
+	// minimum difference between Target and current position to be smoothed
+	const int minDiff = 2;
+	sf::Vector2f CurrentSize = Camera.getSize();
+	sf::Vector2f CurrentCenter = Camera.getCenter();
+
+	float tmp;
+	sf::Vector2f Target;
+
+	if ( TargetSize != CurrentSize )
+	{
+		//Engine::out() << "Size: " << CurrentSize.x << "/" << CurrentSize.y << std::endl;
+		//Engine::out() << "Target: " << TargetSize.x << "/" << TargetSize.y << std::endl;
+		
+		Target.x = CurrentSize.x + (TargetSize.x - CurrentSize.x)*ZoomFactor;
+		Target.y = CurrentSize.y + (TargetSize.y - CurrentSize.y)*ZoomFactor;
+		if ( std::abs(CurrentSize.x - TargetSize.x) < minDiff ) Target.x = TargetSize.x;
+		if ( std::abs(CurrentSize.y - TargetSize.y) < minDiff ) Target.y = TargetSize.y;
+		
+		Camera.setSize( Target );
+	}
+
+	if ( TargetCenter != CurrentCenter )
+	{
+		Target.x = CurrentCenter.x + (TargetCenter.x - CurrentCenter.x)*ZoomFactor;
+		Target.y = CurrentCenter.y + (TargetCenter.y - CurrentCenter.y)*ZoomFactor;
+		if ( std::abs(CurrentCenter.x - TargetCenter.x) < minDiff ) Target.x = TargetCenter.x;
+		if ( std::abs(CurrentCenter.y - TargetCenter.y) < minDiff ) Target.y = TargetCenter.y;
+
+		Camera.setCenter( Target );
+	}
+
 }
 
 void SimView::Render()
 {
-	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	std::shared_ptr<ImageSet> CreatureImgSet = Engine::GetResMgr()->get<ImageSet>("Creatures");
 
+
+	UpdateCamera();
 
 	Engine::GetApp().setView(Camera);
 
-	if (!ImgSet->getTexture()) return;
 
-	Engine::GetApp().draw( Tiles, ImgSet->getTexture().get());
-	Engine::GetApp().draw( Creatures , ImgSet->getTexture().get());
+	if (TileImgSet->getTexture())
+		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
+	
+	if (RenderGrid)
+		Engine::GetApp().draw( Grid );
+
+	if (CreatureImgSet->getTexture())
+		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 }
@@ -144,6 +242,9 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	}
 
 	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
+
+	// and create the corresponding grid
+	CreateGrid( std::sqrt( r.size() ) );
 }
 
 
@@ -170,6 +271,37 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 	}
 
 	//Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
+}
+
+void SimView::CreateGrid( int TerrainSize )
+{
+	Engine::out() << "[SimView] Updated Grid" << std::endl;
+
+	Grid.setPrimitiveType ( sf::PrimitiveType::Lines );
+	Grid.clear();
+	Grid.resize( 2* ((TerrainSize+1) * 2 ) );
+
+	for ( int i = 0; i <= TerrainSize; ++i)
+	{
+		int pos = 2*i;
+		Grid[ pos ].position = sf::Vector2f( 0, i * TileSize );
+		Grid[ pos + 1 ].position = sf::Vector2f( TerrainSize * TileSize, i * TileSize );
+		
+		Grid[ pos ].color = GridColor;
+		Grid[ pos + 1 ].color = GridColor;
+	}
+	
+	for ( int i = 0; i <= TerrainSize; ++i)
+	{
+		int pos = (TerrainSize+1)*2 + 2*i;
+		Grid[ pos  ].position = sf::Vector2f( i * TileSize, 0 );
+		Grid[ pos + 1 ].position = sf::Vector2f( i * TileSize, TerrainSize * TileSize );
+		
+		Grid[ pos ].color = GridColor;
+		Grid[ pos + 1 ].color = GridColor;
+	}
+
+	
 }
 
 sf::Vector2f SimView::CalculateRequisition()
