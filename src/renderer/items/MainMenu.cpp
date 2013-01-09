@@ -60,6 +60,7 @@ void MainMenu::HandleEvent( Event& e)
 		{
 			updatePosition();
 			Win->Show(true);
+			Win->GrabFocus();
 		}
     }
 }

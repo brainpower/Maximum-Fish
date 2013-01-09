@@ -2,7 +2,8 @@
 #define DGB_WINDOW_H
 
 #include "sbe/event/EventUser.hpp"
-
+#include "../Screen.hpp"
+#include <memory>
 #include <SFGUI/SFGUI.hpp>
 
 class DebugWindow : public EventUser
@@ -17,6 +18,9 @@ class DebugWindow : public EventUser
 	private:
 		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
 		void UpdateText();
+		void OnConsoleInputActivation();
+
+        std::shared_ptr<Screen> screenObj;
 
 		sfg::Label::Ptr LogText;
 		sfg::Label::Ptr DbgText;
