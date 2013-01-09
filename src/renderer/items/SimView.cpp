@@ -35,11 +35,12 @@ void SimView::HandleEvent(Event& e)
 		{
 			// cast into desired type
 			std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
+			//std::list<std::shared_ptr<Creature>> CullRenderList( r );
 			ReadCreatureRenderList( r );
 		}
 		else
 		{
-			Engine::out() << "[SimView] Wrong eventdata at UpdateCreatureRenderList!" << std::endl;
+			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateCreatureRenderList!" << std::endl;
 		}
 		//Engine::out() << "[SimView] Creatures NOT updated" << std::endl;
 	}
@@ -54,7 +55,7 @@ void SimView::HandleEvent(Event& e)
 		}
 		else
 		{
-			Engine::out() << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
+			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
 		}
 	}
 }
@@ -230,7 +231,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 
 	if (!ImgSet->getTexture())
 	{
-		Engine::out() << "[SimView] Unable to get texture for tile rendering!" << std::endl;
+		Engine::out(Engine::WARNING) << "[SimView] Unable to get texture for tile rendering!" << std::endl;
 		return;
 	}
 
@@ -259,7 +260,7 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 
 	if (!ImgSet->getTexture())
 	{
-		Engine::out() << "[SimView] Unable to get texture for creature rendering!" << std::endl;
+		Engine::out(Engine::WARNING) << "[SimView] Unable to get texture for creature rendering!" << std::endl;
 		return;
 	}
 

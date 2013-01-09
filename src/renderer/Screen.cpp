@@ -54,7 +54,7 @@ Screen::Screen()
 
 void Screen::Init()
 {
-	Engine::out() << "[Screen] Creating Window..." << std::endl;
+	Engine::out(Engine::INFO) << "[Screen] Creating Window..." << std::endl;
 	// create the renderwindow
 	Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
 

@@ -13,7 +13,7 @@ Renderer::~Renderer()
 }
 void Renderer::Init()
 {
-	Engine::out() << "[Renderer] Screen..." << std::endl;
+	Engine::out(Engine::INFO) << "[Renderer] Screen..." << std::endl;
 	Scr.reset( new Screen() );
 }
 

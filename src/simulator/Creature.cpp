@@ -77,7 +77,8 @@ void Creature::mate()
 
 void Creature::move()
 {
-	std::uniform_real_distribution<float> rnd(-2, 2);
+	// init random number generator
+	std::uniform_real_distribution<float> rnd(-1, 1);
 	float x = Position.x() + rnd(Simulator::GetEngine());
 	float y = Position.y() + rnd(Simulator::GetEngine());
 
