@@ -7,6 +7,11 @@
 
 class DebugWindow : public EventUser
 {
+	enum FilterLevel
+	{
+		DEFAULT, VERBOSE, PEDANTIC
+	};
+
 	public:
 
 		DebugWindow( const Geom::Point& RelativePosition = Geom::Point(0,0), const Geom::Vec2 Size = Geom::Vec2(600, 280));
@@ -16,7 +21,7 @@ class DebugWindow : public EventUser
 
 	private:
 		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
-		void UpdateText();
+		void UpdateText(FilterLevel level = FilterLevel::VERBOSE);
 
 		sfg::Label::Ptr LogText;
 		sfg::Label::Ptr DbgText;

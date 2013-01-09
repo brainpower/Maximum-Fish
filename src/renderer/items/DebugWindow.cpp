@@ -100,10 +100,11 @@ void DebugWindow::HandleEvent( Event& e )
     }
 }
 
-void DebugWindow::UpdateText()
+void DebugWindow::UpdateText(FilterLevel level)
 {
 	std::string values;
 	std::string labels;
+
 	for ( auto dbgString : DebugStrings )
 	{
 		labels += dbgString.first  + "\n";
@@ -115,12 +116,31 @@ void DebugWindow::UpdateText()
 	DbgLabels->SetText( labels );
 	DbgText->SetText( values );
 
-	std::string newtext =  Engine::GetLogger()->GetLog();
+	std::string newtext = "";
+
+	switch ( level )
+	{
+		case FilterLevel::DEFAULT:
+		newtext += Engine::GetLogger()->GetLog();
+		break;
+		case FilterLevel::VERBOSE:
+		newtext = Engine::GetLogger(Engine::INFO)->GetLog();
+		newtext += Engine::GetLogger(Engine::WARNING)->GetLog();
+		newtext += Engine::GetLogger(Engine::ERROR)->GetLog();
+		break;
+		case FilterLevel::PEDANTIC:
+		break;
+	} 
+
 	if (!newtext.empty())
 	{
 		LogText->SetText( LogText->GetText()+ newtext);
 		currentlabeltext += newtext.size();
-		Engine::GetLogger()->ClearCache();
+
+		Engine::GetLogger(Engine::SPAM)->ClearCache();
+		Engine::GetLogger(Engine::INFO)->ClearCache();
+		Engine::GetLogger(Engine::WARNING)->ClearCache();
+		Engine::GetLogger(Engine::ERROR)->ClearCache();
 
 		if (currentlabeltext > 2000)
 		{
