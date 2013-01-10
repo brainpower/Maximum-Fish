@@ -8,6 +8,8 @@ DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "TOGGLE_SHOW_CONSOLE" );
 
+    screenObj = Screen::GetScreenObj();
+
 	updateCounter = 0;
 	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
@@ -29,6 +31,10 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 
     // create Inputbox for console commands.
     sfg::Entry::Ptr consoleInput = sfg::Entry::Create();
+
+                                                // maybe change methode onconsoleinputactivation to boolchange directly in screen
+    consoleInput->GetSignal( sfg::Entry::OnTextChanged ).Connect( &DebugWindow::OnConsoleInputActivation , this );
+
     consoleInput->AppendText( "Not yet implemented." );
 
 	Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
@@ -94,9 +100,14 @@ void DebugWindow::HandleEvent( Event& e )
 	else if (e.Is("TOGGLE_SHOW_CONSOLE"))
     {
         if (Win->IsGloballyVisible())
-            Win->Show(false);
-        else if (!Win->IsGloballyVisible())
-            Win->Show(true);
+		{
+			Win->Show(false);
+		}
+        else
+		{
+			Win->Show(true);
+			Win->GrabFocus();
+		}
     }
 }
 
@@ -155,4 +166,10 @@ void DebugWindow::UpdateText(FilterLevel level)
 	}
 
 }
+void DebugWindow::OnConsoleInputActivation()
+{
+    screenObj->KeyEventCatcher = true;
 
+    //DebugMessage
+	Engine::out() << "[DebugWindow]KeyEventCatcher" << std::endl;
+}

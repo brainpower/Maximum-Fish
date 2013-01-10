@@ -5,6 +5,7 @@
 CreatureDetails::CreatureDetails( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
     RegisterForEvent( "TOGGLE_SHOW_CREATUREDETAILS" );
+    RegisterForEvent( "WINDOW_RESIZE" );
 
 	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
@@ -15,14 +16,13 @@ void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const G
 {
 	Win = sfg::Window::Create();
     Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::TITLEBAR | sfg::Window::Style::SHADOW  | sfg::Window::Style::RESIZE );
-
-	//Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
-	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+    Win->SetRequisition( sf::Vector2f( 10 , 10 ) );
 
 
-
-    Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
-    updatePosition();
+	//get current Application size:
+	sf::Vector2u appSize =  Engine::GetApp().getSize();
+    // set Allocation (instead of calling updatePosition, because size is unknown)
+    Win->SetAllocation(sf::FloatRect( ( appSize.x - 300 ) , 0 , 300 , appSize.y ));
 
 
 	// Create a window and add the box layouter to it. Also set the window's title.
@@ -36,9 +36,9 @@ void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const G
 
 void CreatureDetails::HandleEvent( Event& e )
 {
-	if (e.Is("MOUSE_BUTTON_1"))
+	if (e.Is("WINDOW_RESIZE"))
     {
-        //@TODO: buttonclick
+        updatePosition();
     }
 	else if (e.Is("TOGGLE_SHOW_CREATUREDETAILS"))
     {
@@ -57,12 +57,10 @@ void CreatureDetails::HandleEvent( Event& e )
 
 void CreatureDetails::updatePosition()
 {
-    //get size:
-	sf::FloatRect Allocation = Win->GetAllocation();
-	//get new position:
-	sf::Vector2u winSize =  Engine::GetApp().getSize();
-	//set new size:
-	Win->SetRequisition(sf::Vector2f((Allocation.width),(winSize.y)));
-	//set new position:
-	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width ) , 0 ) );
+    //get widgetAllocation:
+	sf::FloatRect widgetAllocation = Win->GetAllocation();
+	//get current Application size:
+	sf::Vector2u appSize =  Engine::GetApp().getSize();
+	//set new widgetAllocation:
+	Win->SetAllocation(	sf::FloatRect( ( appSize.x - (widgetAllocation.width) ) , 0 , widgetAllocation.width , appSize.y ) );
 	}
