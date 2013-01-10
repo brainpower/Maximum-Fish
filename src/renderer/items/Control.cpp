@@ -14,7 +14,8 @@ Control::Control( const Geom::Vec2 Size)
 
 void Control::CreateWindow( const Geom::Vec2 Size )
 {
-    Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::SHADOW );
+    Win = sfg::Window::Create();
+    Win->SetStyle(0);
 
 
     Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
@@ -22,7 +23,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 
 
     // main box, vertical
-    sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
+    sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 5.0f ) );
 
     sfg::Button::Ptr btnDbgWin(    sfg::Button::Create( "Debug" ) );
     sfg::Button::Ptr btnCreDetWin( sfg::Button::Create( "Creature" ) );
@@ -66,7 +67,7 @@ void Control::updatePosition()
 {
 	sf::FloatRect Allocation = Win->GetAllocation();
 	sf::Vector2u winSize =  Engine::GetApp().getSize();
-	Win->SetPosition( sf::Vector2f( 0 , ( winSize.y - Allocation.height ) ) );
+	Win->SetPosition( sf::Vector2f( -5 , ( winSize.y - Allocation.height + 5 ) ) );
 }
 void Control::BtnDbgWinClick()
 {
