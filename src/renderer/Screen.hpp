@@ -32,7 +32,7 @@ class Screen : public EventUser, public sf::NonCopyable
 		bool KeyEventCatcher;
 
 
-		static std::shared_ptr<Screen> GetScreenObj()
+		static Screen* GetScreenObj()
 		{
 			return Instance;
 		}
@@ -54,7 +54,7 @@ class Screen : public EventUser, public sf::NonCopyable
 		std::shared_ptr<sf::Clock> guiclock;
 		std::shared_ptr<SimView> SimulatorView;
 
-		static std::shared_ptr<Screen> Instance;
+		static Screen* Instance;
 };
 
 #endif // SCREEN_H

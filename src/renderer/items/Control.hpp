@@ -20,6 +20,8 @@ class Control : public EventUser
         void BtnCreDetWinClick();
         void BtnMnMnWinClick();
         void BtnMiMapWinClick();
+        void BtnSimPauseClick();
+
 		void updatePosition();
 
 		sfg::Window::Ptr Win;

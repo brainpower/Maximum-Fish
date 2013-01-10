@@ -25,14 +25,14 @@
 
 // ############# SCREEN ####
 
-std::shared_ptr<Screen> Screen::Instance = nullptr;
+Screen* Screen::Instance = nullptr;
 
 
 Screen::Screen()
  : Fullscreen(false)
 {
 
-	Instance.reset(this);
+	Instance = this;
 	KeyEventCatcher = false;
 
 	EvtConv.reset( new SFMLEventConverter() );

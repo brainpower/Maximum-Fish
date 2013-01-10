@@ -25,8 +25,6 @@ class DebugWindow : public EventUser
 
 		void OnConsoleInputActivation();
 
-        std::shared_ptr<Screen> screenObj;
-
 		void UpdateText(FilterLevel level = FilterLevel::VERBOSE);
 
 

@@ -8,8 +8,6 @@ DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "TOGGLE_SHOW_CONSOLE" );
 
-    screenObj = Screen::GetScreenObj();
-
 	updateCounter = 0;
 	currentlabeltext = 0;
 	CreateWindow(RelativePosition, Size);
@@ -141,7 +139,7 @@ void DebugWindow::UpdateText(FilterLevel level)
 		break;
 		case FilterLevel::PEDANTIC:
 		break;
-	} 
+	}
 
 	if (!newtext.empty())
 	{
@@ -168,7 +166,7 @@ void DebugWindow::UpdateText(FilterLevel level)
 }
 void DebugWindow::OnConsoleInputActivation()
 {
-    screenObj->KeyEventCatcher = true;
+    Screen::GetScreenObj()->KeyEventCatcher = true;
 
     //DebugMessage
 	Engine::out() << "[DebugWindow]KeyEventCatcher" << std::endl;

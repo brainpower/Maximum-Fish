@@ -24,22 +24,23 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     // main box, vertical
     sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
 
-    sfg::Button::Ptr btnDbgWin( sfg::Button::Create( "Debug" ) );
-    btnDbgWin->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Control::BtnDbgWinClick, this );
-
+    sfg::Button::Ptr btnDbgWin(    sfg::Button::Create( "Debug" ) );
     sfg::Button::Ptr btnCreDetWin( sfg::Button::Create( "Creature" ) );
+    sfg::Button::Ptr btnMnMnWin(   sfg::Button::Create( "MainMenu" ) );
+    sfg::Button::Ptr btnMiMapWin(  sfg::Button::Create( "MiniMap" ) );
+    sfg::Button::Ptr btnSimPause(  sfg::Button::Create( "SimPause" ) );
+
+    btnDbgWin->GetSignal(    sfg::Widget::OnLeftClick ).Connect( &Control::BtnDbgWinClick, this );
     btnCreDetWin->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Control::BtnCreDetWinClick, this );
+    btnMnMnWin->GetSignal(   sfg::Widget::OnLeftClick ).Connect( &Control::BtnMnMnWinClick, this );
+    btnMiMapWin->GetSignal(  sfg::Widget::OnLeftClick ).Connect( &Control::BtnMiMapWinClick, this );
+    btnSimPause->GetSignal(  sfg::Widget::OnLeftClick ).Connect( &Control::BtnSimPauseClick, this );
 
-    sfg::Button::Ptr btnMnMnWin( sfg::Button::Create( "MainMenu" ) );
-    btnMnMnWin->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Control::BtnMnMnWinClick, this );
-
-    sfg::Button::Ptr btnMiMapWin( sfg::Button::Create( "MiniMap" ) );
-    btnMiMapWin->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Control::BtnMiMapWinClick, this );
-
-    box->Pack( btnDbgWin, false, false);
+    box->Pack( btnDbgWin,    false, false);
     box->Pack( btnCreDetWin, false, false);
-    box->Pack( btnMnMnWin, false, false);
-    box->Pack( btnMiMapWin, false, false);
+    box->Pack( btnMnMnWin,   false, false);
+    box->Pack( btnMiMapWin,  false, false);
+    box->Pack( btnSimPause,  false, false);
 
 
     // Create a window and add the box layouter to it.
@@ -85,4 +86,9 @@ void Control::BtnMnMnWinClick()
 void Control::BtnMiMapWinClick()
 {
     Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MINIMAP") , true );
+}
+
+void Control::BtnSimPauseClick()
+{
+    Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE") , true );
 }
