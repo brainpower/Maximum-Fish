@@ -31,6 +31,7 @@ void Logic::Init()
 
 void Logic::DeInit()
 {
+	Engine::out() << "[Logic] Destructing Sim" << std::endl;
 	Sim.reset();
 }
 
