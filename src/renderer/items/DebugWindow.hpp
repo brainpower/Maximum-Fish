@@ -26,6 +26,7 @@ class DebugWindow : public EventUser
 		void OnConsoleInputActivation();
 
 		void UpdateText(FilterLevel level = FilterLevel::VERBOSE);
+		void AddLogText( std::string& newtext, int labelTextLimit );
 
 
 		sfg::Label::Ptr LogText;
