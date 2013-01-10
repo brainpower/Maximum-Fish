@@ -114,6 +114,9 @@ void DebugWindow::UpdateText(FilterLevel level)
 	std::string values;
 	std::string labels;
 
+	const int maxTextPerFrame = 1000;
+	const int labelTextLimit = 2000;
+
 	for ( auto dbgString : DebugStrings )
 	{
 		labels += dbgString.first  + "\n";
@@ -126,6 +129,7 @@ void DebugWindow::UpdateText(FilterLevel level)
 	DbgText->SetText( values );
 
 	std::string newtext = "";
+	int lastsize;
 
 	switch ( level )
 	{
@@ -133,9 +137,17 @@ void DebugWindow::UpdateText(FilterLevel level)
 		newtext += Engine::GetLogger()->GetLog();
 		break;
 		case FilterLevel::VERBOSE:
-		newtext = Engine::GetLogger(Engine::INFO)->GetLog();
-		newtext += Engine::GetLogger(Engine::WARNING)->GetLog();
-		newtext += Engine::GetLogger(Engine::ERROR)->GetLog();
+			newtext = Engine::GetLogger(Engine::INFO)->GetLog().substr(0, maxTextPerFrame);
+			Engine::GetLogger(Engine::INFO)->ClearCache( newtext.size() );
+			lastsize = newtext.size();
+			
+			newtext += Engine::GetLogger(Engine::WARNING)->GetLog().substr(0, maxTextPerFrame);
+			Engine::GetLogger(Engine::WARNING)->ClearCache( newtext.size() - lastsize);
+			lastsize = newtext.size();
+			
+			newtext += Engine::GetLogger(Engine::ERROR)->GetLog().substr(0, maxTextPerFrame);
+			Engine::GetLogger(Engine::ERROR)->ClearCache( lastsize - newtext.size());
+
 		break;
 		case FilterLevel::PEDANTIC:
 		break;
@@ -147,11 +159,8 @@ void DebugWindow::UpdateText(FilterLevel level)
 		currentlabeltext += newtext.size();
 
 		Engine::GetLogger(Engine::SPAM)->ClearCache();
-		Engine::GetLogger(Engine::INFO)->ClearCache();
-		Engine::GetLogger(Engine::WARNING)->ClearCache();
-		Engine::GetLogger(Engine::ERROR)->ClearCache();
 
-		if (currentlabeltext > 2000)
+		if (currentlabeltext > labelTextLimit)
 		{
 			Engine::out() << " Adding one more label.. " << std::endl;
 			LogText = sfg::Label::Create();
