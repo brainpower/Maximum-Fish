@@ -15,7 +15,7 @@ CreatureDetails::CreatureDetails( const Geom::Point& RelativePosition, const Geo
 void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
 {
 	Win = sfg::Window::Create();
-    Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::TITLEBAR | sfg::Window::Style::SHADOW  | sfg::Window::Style::RESIZE );
+    Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::SHADOW /* | sfg::Window::Style::RESIZE */);
     Win->SetRequisition( sf::Vector2f( 10 , 10 ) );
 
 
@@ -24,10 +24,32 @@ void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const G
     // set Allocation (instead of calling updatePosition, because size is unknown)
     Win->SetAllocation(sf::FloatRect( ( appSize.x - 300 ) , 0 , 300 , appSize.y ));
 
+    //create wholebox
+    sfg::Box::Ptr wholeBox( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ));
 
-	// Create a window and add the box layouter to it. Also set the window's title.
+    //create notebook
+    sfg::Notebook::Ptr tabs( sfg::Notebook::Create() );
+    //create box for notebook
+    sfg::Box::Ptr creatures( sfg::Box::Create() );
+    sfg::Box::Ptr species(   sfg::Box::Create() );
+    //create label for box
+    sfg::Label::Ptr creaturesLabel( sfg::Label::Create("Creatures") );
+    sfg::Label::Ptr speciesLabel(   sfg::Label::Create("Species") );
+    //add box to notebook
+    tabs->AppendPage(creatures,creaturesLabel);
+    tabs->AppendPage(species,speciesLabel);
 
-	Win->SetTitle( "Creature Details" );
+    //create details
+    sfg::Box::Ptr details( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ));
+    sfg::Label::Ptr x( sfg::Label::Create("Details") );
+    details->Pack(x);
+
+    //pack all into wholebox
+    wholeBox->Pack(tabs);
+    wholeBox->Pack(details);
+
+    //add wholebox to window
+    Win->Add(wholeBox);
 
 	Event e("SCREEN_ADD_WINDOW");
 	e.SetData( Win );

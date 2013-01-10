@@ -26,3 +26,11 @@ float Tile::calcTemperature()
 
 	return temp_h;
 }
+
+float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
+{
+	float hum = getHumidity();
+	float tmp = calcTemperature();
+	float ret = ((float)food/(float)sp->getFoodRequirement())*(hum/sp->getWaterRequirement())*(1/pow(tmp - sp->getOptimalTemperature(),2));
+	return ret;
+}

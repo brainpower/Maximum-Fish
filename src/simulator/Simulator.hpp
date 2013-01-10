@@ -2,6 +2,7 @@
 #define SIMULATOR_H
 
 #include "sbe/event/EventUser.hpp"
+#include "Species.hpp"
 
 class Tile;
 class Terrain;
@@ -40,6 +41,7 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
+		std::list<std::shared_ptr<Species>> SpeciesList;
 		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;

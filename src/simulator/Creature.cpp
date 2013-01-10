@@ -28,9 +28,9 @@ void Creature::live()
 	// damage from environment
 	//calcEnv();
 	// feed
-	//huntFood();
+	int found = 10; // = huntFood(); <-- use this as soon as it works
 	// move ( or not )
-	move();
+	move(found);
 	// and try to reproduce
 	//mate();
 }
@@ -75,17 +75,64 @@ void Creature::mate()
 {
 }
 
-void Creature::move()
+bool Creature::moveYourAss()
 {
-	// init random number generator
-	std::uniform_real_distribution<float> rnd(-1, 1);
+	std::uniform_real_distribution<float> rnd(-(mySpecies->getMaxSpeed()), mySpecies->getMaxSpeed());
+	
+	float x = Position.x();
+	float y = Position.y();
+	
+	x = x + rnd(Simulator::GetEngine());
+	y = y + rnd(Simulator::GetEngine());
+	
+	if((sqrt(pow(x,2)+sqrt(pow(y,2))) > mySpecies->getMaxSpeed()))
+	{
+		if(( x > 32 || x < 0 ) || ( y > 32 || y < 0 ))
+		{
+			return false;
+		}
+		else
+		{
+			setPosition(x, y);	
+			currentTile = Simulator::GetTerrain()->getTile(Position);
+			return true;
+		}
+	}
+	else {
+		return false;
+	}
+}
+
+void Creature::move(int found)
+{
+	float migProb = 20;
+	
+	float hab = currentTile->getHabitability(found, mySpecies);
+	
+	std::uniform_real_distribution<float> rnd(0, 100);
+	
+	
+	if(hab < 1)
+	{
+		//GTFO
+		while(!moveYourAss()){}
+	}
+	else
+	{
+		//maybe GTFO
+		if(rnd(Simulator::GetEngine()) < migProb) {
+			while(!moveYourAss()){}
+		}
+	}
+
+	/*std::uniform_real_distribution<float> rnd(-2, 2);
+
 	float x = Position.x() + rnd(Simulator::GetEngine());
 	float y = Position.y() + rnd(Simulator::GetEngine());
 
 	if ( x > 32 || x < 0 ) x = 16;
-	if ( y > 32 || y < 0 ) y = 16;
+	if ( y > 32 || y < 0 ) y = 16;*/
 
-	setPosition(x, y);
 }
 
 void Creature::calcEnv()
