@@ -24,17 +24,17 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     // main box, vertical
     sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ) );
 
-    sfg::Button::Ptr btnDbgWin(    sfg::Button::Create( "Debug" ) );
-    sfg::Button::Ptr btnCreDetWin( sfg::Button::Create( "Creature" ) );
-    sfg::Button::Ptr btnMnMnWin(   sfg::Button::Create( "MainMenu" ) );
-    sfg::Button::Ptr btnMiMapWin(  sfg::Button::Create( "MiniMap" ) );
-    sfg::Button::Ptr btnSimPause(  sfg::Button::Create( "SimPause" ) );
+    sfg::Button::Ptr btnDbgWin(    sfg::ToggleButton::Create( "Debug" ) );
+    sfg::Button::Ptr btnCreDetWin( sfg::ToggleButton::Create( "Creature" ) );
+    sfg::Button::Ptr btnMnMnWin(   sfg::ToggleButton::Create( "MainMenu" ) );
+    sfg::Button::Ptr btnMiMapWin(  sfg::ToggleButton::Create( "MiniMap" ) );
+    sfg::Button::Ptr btnSimPause(  sfg::ToggleButton::Create( "SimPause" ) );
 
-    btnDbgWin->GetSignal(    sfg::Widget::OnLeftClick ).Connect( &Control::BtnDbgWinClick, this );
-    btnCreDetWin->GetSignal( sfg::Widget::OnLeftClick ).Connect( &Control::BtnCreDetWinClick, this );
-    btnMnMnWin->GetSignal(   sfg::Widget::OnLeftClick ).Connect( &Control::BtnMnMnWinClick, this );
-    btnMiMapWin->GetSignal(  sfg::Widget::OnLeftClick ).Connect( &Control::BtnMiMapWinClick, this );
-    btnSimPause->GetSignal(  sfg::Widget::OnLeftClick ).Connect( &Control::BtnSimPauseClick, this );
+    btnDbgWin->GetSignal(    sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
+    btnCreDetWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnCreDetWinClick, this );
+    btnMnMnWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
+    btnMiMapWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
+    btnSimPause->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
 
     box->Pack( btnDbgWin,    false, false);
     box->Pack( btnCreDetWin, false, false);
@@ -70,25 +70,25 @@ void Control::updatePosition()
 }
 void Control::BtnDbgWinClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CONSOLE") , true );
+    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CONSOLE") );
 }
 
 void Control::BtnCreDetWinClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CREATUREDETAILS") , true );
+    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CREATUREDETAILS") );
 }
 
 void Control::BtnMnMnWinClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MAINMENU") , true );
+    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MAINMENU") );
 }
 
 void Control::BtnMiMapWinClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MINIMAP") , true );
+    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MINIMAP") );
 }
 
 void Control::BtnSimPauseClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE") , true );
+    Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE"), true );
 }
