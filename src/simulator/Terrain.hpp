@@ -14,6 +14,7 @@ class Terrain
 
 		void UpdateTerrain();
 		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
+		void setMaxElevation(const float e) {maxElevation = e;}
 		float getHumidityFactor( ) const { return humidityFactor;}
 
 		float getTileElevation(Geom::Vec2f pos);

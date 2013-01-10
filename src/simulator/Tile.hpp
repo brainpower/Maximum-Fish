@@ -2,6 +2,7 @@
 #define TILE_H
 
 #include "sbe/Geom.hpp"
+#include "Species.hpp"
 
 class Tile
 {
@@ -15,6 +16,7 @@ class Tile
 		float getHumidity(){return humidity;}
 		float calcTemperature();
 		Geom::Point getPosition() { return Position; }
+		float getHabitability(int food, std::shared_ptr<Species> sp);
 
 	private:
 

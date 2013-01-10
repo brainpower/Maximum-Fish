@@ -22,8 +22,10 @@ class Creature : public EventUser
 		void live();
 
 		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
+		inline void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		inline void setAge(const int a){ age = a; }
 		inline void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
+		inline void setSpecies(const std::shared_ptr<Species> s){mySpecies = s;}
 		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); } // TODO: update tile on pos update
 
 		inline int getCurrentHealth() const { return currentHealth; }
@@ -36,7 +38,8 @@ class Creature : public EventUser
 		friend class CreatureIOPlugin;
 		int huntFood();
 		void mate();
-		void move();
+		void move(int found);
+		bool moveYourAss();
 		/**
 			Calculates environmental effects (damage from temperature etc)
 		*/
