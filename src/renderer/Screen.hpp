@@ -5,6 +5,7 @@
 #include "sbe/event/EventUser.hpp"
 
 class SFMLEventConverter;
+class Control;
 class CreatureDetails;
 class DebugWindow;
 class MainMenu;
@@ -19,7 +20,7 @@ They are propagated to all subitems.
 This layout allows for multiple sets of interface controls to be used and displayed, e.g if the game menu is opened
 the hud for the menu would be set as "main" -ui item and the normal ingame hud would no longer receive key/mouse events
 */
-class Screen : public EventUser
+class Screen : public EventUser, public sf::NonCopyable
 {
 	public:
 		Screen();
@@ -28,6 +29,13 @@ class Screen : public EventUser
 
 		void Render();
 		virtual void HandleEvent(Event& e);
+		bool KeyEventCatcher;
+
+
+		static Screen* GetScreenObj()
+		{
+			return Instance;
+		}
 
 	private:
 
@@ -36,6 +44,7 @@ class Screen : public EventUser
 		void Init();
 		std::shared_ptr<SFMLEventConverter> EvtConv;
 
+        std::shared_ptr<Control> Contr;
         std::shared_ptr<CreatureDetails> CreDet;
 		std::shared_ptr<DebugWindow> DbgWin;
 		std::shared_ptr<MainMenu> MnMnWin;
@@ -44,6 +53,8 @@ class Screen : public EventUser
 		std::shared_ptr<sfg::Desktop> Desktop;
 		std::shared_ptr<sf::Clock> guiclock;
 		std::shared_ptr<SimView> SimulatorView;
+
+		static Screen* Instance;
 };
 
 #endif // SCREEN_H

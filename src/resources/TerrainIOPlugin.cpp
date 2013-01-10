@@ -28,7 +28,7 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 						auto pt_t = e.second;
 
 						std::shared_ptr<Tile> t_ptr(new Tile(
-						    Geom::Vec2(pt_t.get<int>("pos.x"), pt_t.get<int>("pos.y")),
+						    Geom::Point(pt_t.get<int>("pos.x"), pt_t.get<int>("pos.y")),
 						    pt_t.get<float>("height"),
 						    pt_t.get<float>("nutrition"),
 						    pt_t.get<float>("baseHumidity")));

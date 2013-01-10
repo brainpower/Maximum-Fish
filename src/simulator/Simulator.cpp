@@ -56,15 +56,15 @@ void Simulator::init()
 
 	registerIOPlugins();
 
-	Engine::out() << "[Simulator] Creating Terrain" << std::endl;
+	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 
 	Terra.reset ( new Terrain() );
 
-	Engine::out() << "[Simulator] Generating Debug Terrain" << std::endl;
+	Engine::out(Engine::INFO) << "[Simulator] Generating Debug Terrain" << std::endl;
 
 	Terra->CreateDebugTerrain();
 
-	Engine::out() << "[Simulator] Simulation is in paused" << std::endl;
+	Engine::out(Engine::INFO) << "[Simulator] Simulation is in paused" << std::endl;
 
 	isPaused = false;
 	
@@ -118,7 +118,7 @@ void Simulator::tick()
 
 void Simulator::registerIOPlugins()
 {
-	Engine::out() << "[Simulator] Loading IO plugins:" << std::endl;
+	Engine::out(Engine::INFO) << "[Simulator] Loading IO plugins:" << std::endl;
 
 	std::shared_ptr<IOPlugin> CreatureIOP ( new CreatureIOPlugin() );
 	Engine::GetResMgr()->registerResource<Creature>( iResource::createResInfo("Creature", true, false), CreatureIOP);
@@ -129,7 +129,7 @@ void Simulator::registerIOPlugins()
 	std::shared_ptr<IOPlugin> TerrainIOP ( new TerrainIOPlugin() );
 	Engine::GetResMgr()->registerResource<Terrain>( iResource::createResInfo("Terrain", true, false), TerrainIOP);
 
-	Engine::out() << "[Simulator] IO Plugins loaded." << std::endl;
+	Engine::out(Engine::INFO) << "[Simulator] IO Plugins loaded." << std::endl;
 }
 
 void Simulator::addCreature()

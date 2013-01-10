@@ -126,6 +126,7 @@ void Creature::move(int found)
 	}
 
 	/*std::uniform_real_distribution<float> rnd(-2, 2);
+
 	float x = Position.x() + rnd(Simulator::GetEngine());
 	float y = Position.y() + rnd(Simulator::GetEngine());
 

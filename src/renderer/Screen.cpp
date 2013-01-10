@@ -12,6 +12,7 @@
 
 #include "sbe/ImageSet.hpp"
 
+#include "renderer/items/Control.hpp"
 #include "renderer/items/CreatureDetails.hpp"
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
@@ -24,9 +25,15 @@
 
 // ############# SCREEN ####
 
+Screen* Screen::Instance = nullptr;
+
+
 Screen::Screen()
  : Fullscreen(false)
 {
+
+	Instance = this;
+	KeyEventCatcher = false;
 
 	EvtConv.reset( new SFMLEventConverter() );
 	RegisterForEvent( "EVT_FRAME" );
@@ -47,14 +54,15 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOGGLE_SIM_PAUSE", true );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "TOGGLE_SHOW_CREATUREDETAILS" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,      "TOGGLE_FULLSCREEN" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,    "TOGGLE_FULLSCREEN" );
+	EvtConv->AddEventConversion( sf::Event::Resized ,      "WINDOW_RESIZE" );
 
 	Init();
 }
 
 void Screen::Init()
 {
-	Engine::out() << "[Screen] Creating Window..." << std::endl;
+	Engine::out(Engine::INFO) << "[Screen] Creating Window..." << std::endl;
 	// create the renderwindow
 	Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
 
@@ -64,6 +72,7 @@ void Screen::Init()
 	// top-level container for all SFGUI widgets
 	Desktop.reset ( new sfg::Desktop() );
 
+    Contr.reset   ( new Control() );
     CreDet.reset  ( new CreatureDetails() );
 	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
