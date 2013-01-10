@@ -23,7 +23,6 @@ class DebugWindow : public EventUser
 	private:
 		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
 
-		void UpdateText();
 		void OnConsoleInputActivation();
 
         std::shared_ptr<Screen> screenObj;
