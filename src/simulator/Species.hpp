@@ -15,7 +15,7 @@ class Species : public EventUser
 		//-1 to lazy, oh boy
 		int getMaxAge() const    {return maxAge;}
 		int getMaxHealth() const {return maxHealth;}
-		int getMaxSpeed() const  {return maxSpeed;}
+		float getMaxSpeed() const  {return maxSpeed;}
 		int getReach() const     {return Reach;}
 		int getResistance()const  {return resistance;}
 		int getBreedingSpeed() const {return breedingSpeed;}
@@ -27,7 +27,7 @@ class Species : public EventUser
 		//+1 style
 		void setMaxAge(int ma) {                        maxAge = ma;}
 		void setMaxHealth(int mh) {                  maxHealth = mh;}
-		void setMaxSpeed(int ms) {                    maxSpeed = ms;}
+		void setMaxSpeed(float ms) {                  maxSpeed = ms;}
 		void setReach(int r) {                            Reach = r;}
 		void setResistance(int re){                 resistance = re;}
 		void setBreedingSpeed(int bs) {          breedingSpeed = bs;}
@@ -44,7 +44,7 @@ class Species : public EventUser
 		std::string name;
 		int maxAge;
 		int maxHealth;
-		int maxSpeed;
+		float maxSpeed;
 		int Reach;
 		int resistance;
 		int breedingSpeed;

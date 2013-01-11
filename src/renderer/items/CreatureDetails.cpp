@@ -2,67 +2,76 @@
 
 
 
-CreatureDetails::CreatureDetails( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
+CreatureDetails::CreatureDetails( const Creature*)
 {
-    RegisterForEvent( "TOGGLE_SHOW_CREATUREDETAILS" );
-
-	currentlabeltext = 0;
-	CreateWindow(RelativePosition, Size);
-	Win->Show(false);
+	CreateBox();
 }
 
-void CreatureDetails::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
+void CreatureDetails::CreateBox()
 {
-	Win = sfg::Window::Create();
-    Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::TITLEBAR | sfg::Window::Style::SHADOW  | sfg::Window::Style::RESIZE );
-
-	//Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
-	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
 
 
 
-    Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
-    updatePosition();
+    //create details
 
+    Details = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+        sfg::Label::Ptr title(sfg::Label::Create("Details"));
+        sfg::Box::Ptr ub(sfg::Box::Create( sfg::Box::HORIZONTAL,3.0f ));
+            sfg::Scale::Ptr u( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
+            u->SetValue(200);
+            sfg::Label::Ptr ul( sfg::Label::Create( "ValueChanger1" ));
+            ub->Pack(u);
+            ub->Pack(ul);
+        sfg::Box::Ptr vb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
+            sfg::Scale::Ptr v( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
+            v->SetValue(200);
+            sfg::Label::Ptr vl( sfg::Label::Create("ValueChanger2" ));
+            vb->Pack(v);
+            vb->Pack(vl);
+        sfg::Box::Ptr wb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
+            sfg::Scale::Ptr w( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
+            w->SetValue(200);
+            sfg::Label::Ptr wl( sfg::Label::Create("ValueChanger3" ));
+            wb->Pack(w);
+            wb->Pack(wl);
+        sfg::Box::Ptr xb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
+            sfg::Scale::Ptr x( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
+            x->SetValue(200);
+            sfg::Label::Ptr xl( sfg::Label::Create("ValueChanger4" ));
+            xb->Pack(x);
+            xb->Pack(xl);
+        sfg::Box::Ptr yb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
+            sfg::Scale::Ptr y( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
+            y->SetValue(200);
+            sfg::Label::Ptr yl( sfg::Label::Create("ValueChanger5" ));
+            yb->Pack(y);
+            yb->Pack(yl);
+        sfg::Box::Ptr zb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
+            sfg::Scale::Ptr z( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
+            z->SetValue(200);
+            sfg::Label::Ptr zl( sfg::Label::Create("ValueChanger6" ));
+            zb->Pack(z);
+            zb->Pack(zl);
 
-	// Create a window and add the box layouter to it. Also set the window's title.
+    Details->Pack(title);
+    Details->Pack(ub);
+    Details->Pack(vb);
+    Details->Pack(wb);
+    Details->Pack(xb);
+    Details->Pack(yb);
+    Details->Pack(zb);
 
-	Win->SetTitle( "Creature Details" );
-
-	Event e("SCREEN_ADD_WINDOW");
-	e.SetData( Win );
-	Module::Get()->QueueEvent( e );
 }
 
 void CreatureDetails::HandleEvent( Event& e )
 {
-	if (e.Is("MOUSE_BUTTON_1"))
-    {
-        //@TODO: buttonclick
-    }
-	else if (e.Is("TOGGLE_SHOW_CREATUREDETAILS"))
-    {
-        if (Win->IsGloballyVisible())
-		{
-			Win->Show(false);
-		}
-        else
-		{
-			updatePosition();
-			Win->Show(true);
-			Win->GrabFocus();
-		}
+	//if (e.Is("EVENTNAME"))
+	{
+
     }
 }
 
-void CreatureDetails::updatePosition()
+sfg::Box::Ptr CreatureDetails::Get()
 {
-    //get size:
-	sf::FloatRect Allocation = Win->GetAllocation();
-	//get new position:
-	sf::Vector2u winSize =  Engine::GetApp().getSize();
-	//set new size:
-	Win->SetRequisition(sf::Vector2f((Allocation.width),(winSize.y)));
-	//set new position:
-	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width ) , 0 ) );
-	}
+    return Details;
+}

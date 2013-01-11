@@ -6,6 +6,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "sbe/event/EventUser.hpp"
+#include "sbe/util/QuadTree.hpp"
 
 #include <string>
 #include <vector>
@@ -32,8 +33,9 @@ class SimView : public EventUser, public sfg::Widget
 		*/
 
 		void HandleEvent( Event& e );
-		// handles key input for scrolling/zooming/etc
 		void HandleSfmlEvent ( const sf::Event& e);
+
+		void CullRenderList();
 
 		// from sfg::Widget
 
@@ -46,6 +48,9 @@ class SimView : public EventUser, public sfg::Widget
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
 		void CreateGrid( int TerrainSize );
+
+		std::list<std::shared_ptr<Creature>> CullCreatures();
+		std::vector<std::shared_ptr<Tile>> CullTerrain();
 
 
 		/**
