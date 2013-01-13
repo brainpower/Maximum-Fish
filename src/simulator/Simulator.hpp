@@ -37,6 +37,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 	private:
 
+		//void HandleClick( const Geom::Pointf& Pos );
+
 		void registerIOPlugins();
 
 		std::default_random_engine gen;

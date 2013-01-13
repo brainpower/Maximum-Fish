@@ -34,8 +34,8 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 
     consoleInput->AppendText( "Not yet implemented." );
 
-	Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
-	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+	Win->SetPosition( sf::Vector2f(RelativePosition.x, RelativePosition.y ) );
+	//Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
 
 	// main box, vertical
 	sfg::Box::Ptr wholeBox( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ) );

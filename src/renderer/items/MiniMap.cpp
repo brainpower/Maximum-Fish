@@ -20,7 +20,7 @@ void MiniMap::CreateWindow( const Geom::Vec2 Size )
 
     //@TODO: create minimap
 
-    Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+    Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
     updatePosition();
 
 

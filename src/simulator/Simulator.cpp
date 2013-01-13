@@ -67,19 +67,19 @@ void Simulator::init()
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is in paused" << std::endl;
 
 	isPaused = false;
-	
-	
+
+
 	GetTerrain()->setMaxElevation(1500);
 	//TEST########################
 	std::uniform_real_distribution<float> rnd(0, 32);
-	
+
 	std::shared_ptr<Species> ptr_species = std::shared_ptr<Species>(new Species("Deimuada"));
 	ptr_species->setMaxSpeed(0.09);
 	ptr_species->setFoodRequirement(10);
 	ptr_species->setWaterRequirement(10);
-	ptr_species->setOptimalTemperature(20);	
-	
-	SpeciesList.push_back(ptr_species);	
+	ptr_species->setOptimalTemperature(20);
+
+	SpeciesList.push_back(ptr_species);
 	//END TEST####################
 
 	for(int i = 0; i < 1000; i++)
@@ -116,6 +116,18 @@ void Simulator::tick()
 	}
 }
 
+//
+//void Simulator::HandleClick( const Geom::Pointf& Pos)
+//{
+//	Event e("TILE_CLICKED");
+//
+//	int index = (Pos.x / TileSize) * TerrainSize + (Pos.y / TileSize) ;
+//	e.SetData(CullTerrain[ index ]);
+//
+//	Module::QueueEvent(e);
+//}
+
+
 void Simulator::registerIOPlugins()
 {
 	Engine::out(Engine::INFO) << "[Simulator] Loading IO plugins:" << std::endl;
@@ -133,7 +145,7 @@ void Simulator::registerIOPlugins()
 }
 
 void Simulator::addCreature()
-{	
+{
 	std::uniform_real_distribution<float> rnd(0,32);
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature());
 	ptr_creature->setPosition(rnd(gen),rnd(gen));

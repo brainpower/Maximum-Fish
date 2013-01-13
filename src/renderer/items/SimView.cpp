@@ -16,6 +16,7 @@
 SimView::SimView()
 : Name("SimView"),
  TileSize( 128 ),
+ TerrainSize( 32 ),
  RenderGrid ( true ),
  Scrolling( false )
 {
@@ -30,7 +31,7 @@ void SimView::HandleEvent(Event& e)
 {
 	if(e.Is("UpdateCreatureRenderList"))
 	{		// check event datatype
-		
+
 		if (e.Data().type() == typeid( std::list<std::shared_ptr<Creature>> ))
 		{
 			// cast into desired type
@@ -108,7 +109,7 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 	else if (e.type == sf::Event::EventType::MouseWheelMoved)
 	{
 		const float WheelZoomFactor = .2f;
-		
+
 		for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
 		{
 			TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
@@ -120,11 +121,11 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 		if (Scrolling)
 		{
-			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor ); 
-			//TargetCenter = Camera.getCenter(); 
-			
+			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor );
+			//TargetCenter = Camera.getCenter();
+
 			TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
-			TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor; 
+			TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor;
 		}
 
 		lastMousePos.x = e.mouseMove.x;
@@ -175,12 +176,12 @@ void SimView::UpdateCamera()
 	{
 		//Engine::out() << "Size: " << CurrentSize.x << "/" << CurrentSize.y << std::endl;
 		//Engine::out() << "Target: " << TargetSize.x << "/" << TargetSize.y << std::endl;
-		
+
 		Target.x = CurrentSize.x + (TargetSize.x - CurrentSize.x)*ZoomFactor;
 		Target.y = CurrentSize.y + (TargetSize.y - CurrentSize.y)*ZoomFactor;
 		if ( std::abs(CurrentSize.x - TargetSize.x) < minDiff ) Target.x = TargetSize.x;
 		if ( std::abs(CurrentSize.y - TargetSize.y) < minDiff ) Target.y = TargetSize.y;
-		
+
 		Camera.setSize( Target );
 	}
 
@@ -209,7 +210,7 @@ void SimView::Render()
 
 	if (TileImgSet->getTexture())
 		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
-	
+
 	if (RenderGrid)
 		Engine::GetApp().draw( Grid );
 
@@ -225,6 +226,8 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	Tiles.clear();
 	Tiles.resize( 4 * r.size() );
 	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
+
+	TerrainSize = std::sqrt( r.size() );
 
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 	ImgSet->updateTexture();
@@ -245,7 +248,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
 
 	// and create the corresponding grid
-	CreateGrid( std::sqrt( r.size() ) );
+	CreateGrid();
 }
 
 
@@ -274,7 +277,7 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 	//Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
 }
 
-void SimView::CreateGrid( int TerrainSize )
+void SimView::CreateGrid()
 {
 	Engine::out() << "[SimView] Updated Grid" << std::endl;
 
@@ -287,27 +290,25 @@ void SimView::CreateGrid( int TerrainSize )
 		int pos = 2*i;
 		Grid[ pos ].position = sf::Vector2f( 0, i * TileSize );
 		Grid[ pos + 1 ].position = sf::Vector2f( TerrainSize * TileSize, i * TileSize );
-		
+
 		Grid[ pos ].color = GridColor;
 		Grid[ pos + 1 ].color = GridColor;
 	}
-	
+
 	for ( int i = 0; i <= TerrainSize; ++i)
 	{
 		int pos = (TerrainSize+1)*2 + 2*i;
 		Grid[ pos  ].position = sf::Vector2f( i * TileSize, 0 );
 		Grid[ pos + 1 ].position = sf::Vector2f( i * TileSize, TerrainSize * TileSize );
-		
+
 		Grid[ pos ].color = GridColor;
 		Grid[ pos + 1 ].color = GridColor;
 	}
 
-	
+
 }
 
-sf::Vector2f SimView::CalculateRequisition()
-{
-}
+
 
 
 // ### TERRAIN/TILE STUFF ##
@@ -316,8 +317,8 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 {
 	sf::FloatRect re;
 
-	re.left 	= TileSize * t->getPosition().x();
-	re.top 		= TileSize * t->getPosition().y();
+	re.left 	= TileSize * t->getPosition().x;
+	re.top 		= TileSize * t->getPosition().y;
 	re.width 	= TileSize;
 	re.height 	= TileSize;
 
@@ -327,11 +328,11 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
 {
 	sf::FloatRect re;
-	
+
 	const int CreatureSize = 16;
 
-	re.left 	= TileSize * c->getPosition().x() - CreatureSize/2;
-	re.top 		= TileSize * c->getPosition().y() - CreatureSize/2;
+	re.left 	= TileSize * c->getPosition().x - CreatureSize/2;
+	re.top 		= TileSize * c->getPosition().y - CreatureSize/2;
 	re.width 	= CreatureSize;
 	re.height 	= CreatureSize;
 

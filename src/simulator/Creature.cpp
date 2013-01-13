@@ -78,13 +78,13 @@ void Creature::mate()
 bool Creature::moveYourAss()
 {
 	std::uniform_real_distribution<float> rnd(-(mySpecies->getMaxSpeed()), mySpecies->getMaxSpeed());
-	
-	float x = Position.x();
-	float y = Position.y();
-	
+
+	float x = Position.x;
+	float y = Position.y;
+
 	x = x + rnd(Simulator::GetEngine());
 	y = y + rnd(Simulator::GetEngine());
-	
+
 	if((sqrt(pow(x,2)+sqrt(pow(y,2))) > mySpecies->getMaxSpeed()))
 	{
 		if(( x > 32 || x < 0 ) || ( y > 32 || y < 0 ))
@@ -93,8 +93,16 @@ bool Creature::moveYourAss()
 		}
 		else
 		{
-			setPosition(x, y);	
-			currentTile = Simulator::GetTerrain()->getTile(Position);
+			setPosition(x, y);
+			auto& newTile = Simulator::GetTerrain()->getTile(Position);
+
+			if ( currentTile != newTile)
+			{
+				currentTile->removeCreature( shared_from_this() );
+				newTile->addCreature( shared_from_this() );
+				currentTile = newTile;
+			}
+
 			return true;
 		}
 	}
@@ -106,12 +114,12 @@ bool Creature::moveYourAss()
 void Creature::move(int found)
 {
 	float migProb = 20;
-	
+
 	float hab = currentTile->getHabitability(found, mySpecies);
-	
+
 	std::uniform_real_distribution<float> rnd(0, 100);
-	
-	
+
+
 	if(hab < 1)
 	{
 		//GTFO
@@ -127,8 +135,8 @@ void Creature::move(int found)
 
 	/*std::uniform_real_distribution<float> rnd(-2, 2);
 
-	float x = Position.x() + rnd(Simulator::GetEngine());
-	float y = Position.y() + rnd(Simulator::GetEngine());
+	float x = Position.x + rnd(Simulator::GetEngine());
+	float y = Position.y + rnd(Simulator::GetEngine());
 
 	if ( x > 32 || x < 0 ) x = 16;
 	if ( y > 32 || y < 0 ) y = 16;*/
