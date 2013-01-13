@@ -42,7 +42,7 @@ void CreatureList::CreateWindow( const Geom::Point& RelativePosition, const Geom
             tabs->AppendPage(environment,environmentLabel);
 
             //create details
-            Details =  new CreatureDetails(new Creature());
+            Details =  new CreatureDetails( nullptr );
 
 
         //pack all into wholebox

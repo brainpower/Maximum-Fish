@@ -23,6 +23,11 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 		void tick();
 
+		static std::shared_ptr<Species> GetSpecies(const std::string& name)
+		{
+			return Instance->getSpecies(name);
+		}
+
 		static std::shared_ptr<Terrain> GetTerrain()
 		{
 			return Instance->Terra;
@@ -35,6 +40,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 	private:
 
+		std::shared_ptr<Species>& getSpecies( const std::string& name );
+
 		void HandleClick( const Geom::Pointf& pos );
 
 		void addRandomCreature();
@@ -44,7 +51,7 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
-		std::list<std::shared_ptr<Species>> SpeciesList;
+		std::vector<std::shared_ptr<Species>> SpeciesList;
 		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;

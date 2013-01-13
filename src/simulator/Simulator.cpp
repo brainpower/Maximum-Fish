@@ -12,6 +12,8 @@
 #include "resources/SpeciesIOPlugin.hpp"
 #include "resources/TerrainIOPlugin.hpp"
 
+#include <string>
+
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
@@ -30,6 +32,16 @@ isPaused(false) {
 	RegisterForEvent("TERRAIN_CLICKED");
 
 	init();
+}
+
+std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
+{
+	for ( auto& S : SpeciesList )
+	{
+		if ( S->getName() == name) return S;
+	}
+
+	return SpeciesList[0];
 }
 
 void Simulator::HandleEvent(Event& e)
@@ -78,23 +90,14 @@ void Simulator::init()
 
 
 	GetTerrain()->setMaxElevation(1500);
-	//TEST########################
-	std::uniform_real_distribution<float> rnd(0, 32);
 
-	std::shared_ptr<Species> ptr_species = std::shared_ptr<Species>(new Species("Deimuada"));
-	ptr_species->setMaxSpeed(0.09);
-	ptr_species->setFoodRequirement(10);
-	ptr_species->setWaterRequirement(10);
-	ptr_species->setOptimalTemperature(20);
+	// add default speciees
+	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
+	SpeciesList.push_back( S );
 
-	SpeciesList.push_back(ptr_species);
-	//END TEST####################
+	for (int i= 0; i < 10; ++i) addRandomSpecies();
+	for(int i = 0; i < 1000; ++i) addRandomCreature();
 
-	for(int i = 0; i < 1000; i++)
-	{
-		addCreature();
-
-	}
 
 }
 
@@ -145,7 +148,7 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 
 	for ( std::shared_ptr<Creature>& C : T->getCreatures())
 	{
-		if ( Geom::distance(pos, C->getPosition()) > .01 )
+		if ( Geom::distance(pos, C->getPosition()) < .1 )
 		{
 			Event e("CREATURE_CLICKED");
 			e.SetData( C );
@@ -177,16 +180,40 @@ void Simulator::registerIOPlugins()
 
 void Simulator::addRandomSpecies()
 {
+	std::uniform_int_distribution<int> type_rnd(0,2);
+	std::uniform_int_distribution<int> temp_rnd(0,255);
 
+	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
+
+	std::string name;
+	switch (t)
+	{
+	case Species::SPECIES_TYPE::HERBA:
+		name = "plant";
+		break;
+	case Species::SPECIES_TYPE::HERBIVORE:
+		name = "herbivore";
+		break;
+	case Species::SPECIES_TYPE::CARNIVORE:
+		name = "carnivore";
+		break;
+	}
+
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(SpeciesList.size())) );
+
+	S->setType( t );
+	S->setOptimalTemperature( temp_rnd( gen ) );
+
+	SpeciesList.push_back( S );
 }
 
 void Simulator::addRandomCreature()
 {
 	std::uniform_real_distribution<float> rnd(0,32);
-	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature());
+	std::uniform_int_distribution<int> species_rnd(0,SpeciesList.size()-1);
+
+	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( SpeciesList[species_rnd(gen)] ));
 	ptr_creature->setPosition( Geom::Pointf(rnd(gen),rnd(gen)) );
-	ptr_creature->setSpecies(SpeciesList.front());
-	ptr_creature->setCurrentTile(Simulator::GetTerrain()->getTile(ptr_creature->getPosition()));
 
 	Creatures.push_back(ptr_creature);
 }

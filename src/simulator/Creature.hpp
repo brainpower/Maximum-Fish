@@ -24,13 +24,12 @@ class Creature : public EventUser, public std::enable_shared_from_this<Creature>
 		void setCurrentHealth(const int ch){ currentHealth = ch;}
 		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
-		void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
-		void setSpecies(const std::shared_ptr<Species> s){mySpecies = s;}
 		void setPosition(const Geom::Pointf& pos);
 
 		int getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
-		const std::string& getSpeciesString() const { return mySpecies->getName(); }
+		const std::string& getSpeciesString() const;
+		const std::shared_ptr<Species>& getSpecies() const {return mySpecies;};
 		const Geom::Vec2f& getPosition() const { return Position; }
 
 	private:
@@ -46,7 +45,7 @@ class Creature : public EventUser, public std::enable_shared_from_this<Creature>
 		void calcEnv();
 
 
-		//Attributes
+		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
 		int currentHealth;
 		int age;
 		Geom::Vec2f Position;

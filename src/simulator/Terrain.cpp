@@ -43,7 +43,7 @@ void Terrain::CreateDebugTerrain()
 	Size = Geom::Vec2( 32, 32 );
 
 	float maxHeight = 1500;
-	float minheight = 0;
+	//float minheight = 0;
 
 	float maxFallofDist = Size.x/2;
 

@@ -13,7 +13,10 @@
 Creature::Creature( const std::shared_ptr<Species>& Species)
  : mySpecies (Species)
 {
-
+	if (!Species)
+	{
+		Engine::out(Engine::ERROR) << "[Creature] constructed with invalid Species" << std::endl;
+	}
 }
 
 void Creature::HandleEvent(Event& e)
@@ -24,6 +27,11 @@ void Creature::HandleEvent(Event& e)
 	}
 }
 
+const std::string& Creature::getSpeciesString() const
+{
+	return mySpecies->getName();
+}
+
 void Creature::setPosition( const Geom::Pointf& pos)
 {
 	auto& newTile = Simulator::GetTerrain()->getTile(pos);
@@ -32,7 +40,7 @@ void Creature::setPosition( const Geom::Pointf& pos)
 
 	if ( currentTile != newTile)
 	{
-		currentTile->removeCreature( shared_from_this() );
+		if (currentTile) currentTile->removeCreature( shared_from_this() );
 		newTile->addCreature( shared_from_this() );
 		currentTile = newTile;
 	}
@@ -55,30 +63,29 @@ int Creature::huntFood()
 	const float pNutritionDiv = 4;	//reduces importance of nutrition to plants
 	int foodFound = 0;
 
-
-	//check if this creature is a plant, carnivore or herbivore
-	if(mySpecies->getMaxSpeed() != 0) {
-		if(mySpecies->IsCarnivore()) {
+	switch (mySpecies->getType())
+	{
+		case Species::HERBA:
+			//only plant-related calculations ###NO_AI###
+			break;
+		case Species::CARNIVORE:
 			/*CARNIVORE*/
 			//look for prey, hunt ###AI###
 			//possibly:
 			//foodFound = prey(); <-- will be defined in creature
-		}
-		else {
+			break;
+		case Species::HERBIVORE:
 			/*HERBIVORE*/
 			//look for plants ###AI###
 			//possibly:
 			//foodFound = forage(); <-- will be defined in creature
-		}
-	}
-	else {
-		//only plant-related calculations ###NO_AI###
+			break;
 	}
 
 	int damage = 0;
 
 	//to calculate health effects due to nutrition check if this creature is a plant or an animal
-	if(mySpecies->getMaxSpeed() != 0) {
+	if(mySpecies->getType() != Species::HERBA) {
 		damage = damage + (mySpecies->getFoodRequirement() - foodFound);
 	}
 	else {
