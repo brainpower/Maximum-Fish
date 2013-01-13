@@ -37,6 +37,8 @@ class SimView : public EventUser
 
 		void CullRenderList();
 
+		void setCameraViewport ( const sf::FloatRect& FR) { Camera.setViewport( FR ); }
+
 		void Render();
 	private:
 

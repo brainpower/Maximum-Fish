@@ -37,6 +37,7 @@ class Screen : public EventUser, public sf::NonCopyable
 			return Instance;
 		}
 
+		void setCameraViewPort ( const sf::FloatRect& FR);
 	private:
 
 		bool Fullscreen;
