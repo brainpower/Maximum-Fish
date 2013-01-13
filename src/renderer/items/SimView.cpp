@@ -27,6 +27,7 @@ SimView::SimView()
 	RegisterForEvent("UpdateTileRenderList");
 
 	GridColor = sf::Color( 42, 42, 42 );
+	SetupCamera();
 }
 
 void SimView::HandleEvent(Event& e)
@@ -183,6 +184,7 @@ void SimView::SetupCamera()
 
 	TargetSize = sf::Vector2f(800,600);
 	TargetCenter = sf::Vector2f(400,300);
+
 
 	//Camera.move(0,500);
 }
