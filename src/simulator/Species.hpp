@@ -24,6 +24,8 @@ class Species : public EventUser
 		int getWaterRequirement() const {return waterRequirement;}
 		int getOptimalTemperature() const {return optimalTemperature;}
 
+		const std::string& getName() { return name; }
+
 		//+1 style
 		void setMaxAge(int ma) {                        maxAge = ma;}
 		void setMaxHealth(int mh) {                  maxHealth = mh;}

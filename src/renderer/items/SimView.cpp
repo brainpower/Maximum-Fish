@@ -14,11 +14,12 @@
 #include <cmath>
 
 SimView::SimView()
-: Name("SimView"),
+:
+ Scrolling( false ),
+ RenderGrid ( true ),
  TileSize( 128 ),
  TerrainSize( 32 ),
- RenderGrid ( true ),
- Scrolling( false )
+ Name("SimView")
 {
 
 	RegisterForEvent("UpdateCreatureRenderList");
@@ -63,91 +64,115 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-	if (e.type == sf::Event::EventType::KeyPressed)
+	const float ScrollFactor = 2.0f;
+	int delta = 10;
+	const float WheelZoomFactor = .2f;
+
+	switch (e.type)
 	{
-
-		int delta = 10;
-
-		if (e.key.shift) delta *= 10;
-
-		switch (e.key.code)
-		{
-			case sf::Keyboard::Key::Up:
-				TargetCenter.y += -delta;
-				//Camera.move(0, -delta);
-				break;
-
-			case sf::Keyboard::Key::Down:
-				TargetCenter.y += delta;
-				//Camera.move(0, delta);
-				break;
-
-			case sf::Keyboard::Key::Left:
-				TargetCenter.x += -delta;
-				//Camera.move(-delta, 0);
-				break;
-
-			case sf::Keyboard::Key::Right:
-				TargetCenter.x += delta;
-				//Camera.move(delta, 0);
-				break;
+		case sf::Event::KeyPressed:
 
 
 
-			case sf::Keyboard::Key::PageUp:
-				TargetSize *= 1.1f;
-				//Camera.zoom(1.1);
-				break;
-			case sf::Keyboard::Key::PageDown:
-				TargetSize *= 0.9f;
-				//Camera.zoom(0.9);
-				break;
-			default:
-				break;
-		}
+			if (e.key.shift) delta *= 10;
+
+			switch (e.key.code)
+			{
+				case sf::Keyboard::Key::Up:
+					TargetCenter.y += -delta;
+					//Camera.move(0, -delta);
+					break;
+
+				case sf::Keyboard::Key::Down:
+					TargetCenter.y += delta;
+					//Camera.move(0, delta);
+					break;
+
+				case sf::Keyboard::Key::Left:
+					TargetCenter.x += -delta;
+					//Camera.move(-delta, 0);
+					break;
+
+				case sf::Keyboard::Key::Right:
+					TargetCenter.x += delta;
+					//Camera.move(delta, 0);
+					break;
+
+
+
+				case sf::Keyboard::Key::PageUp:
+					TargetSize *= 1.1f;
+					//Camera.zoom(1.1);
+					break;
+				case sf::Keyboard::Key::PageDown:
+					TargetSize *= 0.9f;
+					//Camera.zoom(0.9);
+					break;
+
+				default:
+					break;
+			}
+			break;
+
+		case sf::Event::MouseWheelMoved:
+
+
+			for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
+			{
+				TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
+			}
+			break;
+
+		case sf::Event::MouseMoved:
+
+			if (Scrolling)
+			{
+				//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor );
+				//TargetCenter = Camera.getCenter();
+
+				TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
+				TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor;
+			}
+
+			lastMousePos.x = e.mouseMove.x;
+			lastMousePos.y = e.mouseMove.y;
+
+			break;
+
+		case sf::Event::MouseButtonPressed:
+			if (e.mouseButton.button == sf::Mouse::Middle) Scrolling = true;
+
+			if (e.mouseButton.button == sf::Mouse::Left)
+			{
+				// Translate the click position to Terrain Coordinates (float)
+				sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
+				sf::Vector2f RealPos = Engine::GetApp().convertCoords( ClickPos, Camera);
+
+				RealPos = RealPos / (float)TileSize;
+
+				Event e("TERRAIN_CLICKED");
+				e.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
+
+				Module::Get()->QueueEvent( e, true);
+			}
+
+			break;
+
+		case sf::Event::MouseButtonReleased:
+			if (e.mouseButton.button == sf::Mouse::Middle) Scrolling = false;
+			break;
+
+		case sf::Event::Resized:
+			TargetSize = sf::Vector2f( e.size.width, e.size.height );
+			//Camera.setSize(e.size.width, e.size.height);
+			break;
+
+		default:
+
+			break;
 	}
-	else if (e.type == sf::Event::EventType::MouseWheelMoved)
-	{
-		const float WheelZoomFactor = .2f;
 
-		for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
-		{
-			TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
-		}
-	}
-	else if (e.type == sf::Event::EventType::MouseMoved)
-	{
-		const float ScrollFactor = 2.0f;
 
-		if (Scrolling)
-		{
-			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor );
-			//TargetCenter = Camera.getCenter();
-
-			TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
-			TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor;
-		}
-
-		lastMousePos.x = e.mouseMove.x;
-		lastMousePos.y = e.mouseMove.y;
-	}
-	else if (e.type == sf::Event::EventType::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Middle )
-	{
-		Scrolling = true;
-	}
-	else if (e.type == sf::Event::EventType::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Middle )
-	{
-		Scrolling = false;
-	}
-	else if (e.type == sf::Event::EventType::MouseLeft)
-	{
-		Scrolling = false;
-	}
-	else if (e.type == sf::Event::EventType::Resized)
-	{
-		TargetSize = sf::Vector2f( e.size.width, e.size.height );
-		//Camera.setSize(e.size.width, e.size.height);
-	}
 }
 
 void SimView::SetupCamera()
@@ -169,7 +194,6 @@ void SimView::UpdateCamera()
 	sf::Vector2f CurrentSize = Camera.getSize();
 	sf::Vector2f CurrentCenter = Camera.getCenter();
 
-	float tmp;
 	sf::Vector2f Target;
 
 	if ( TargetSize != CurrentSize )

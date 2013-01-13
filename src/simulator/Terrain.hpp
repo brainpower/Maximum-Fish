@@ -21,6 +21,7 @@ class Terrain
 		float getTileElevation(Geom::Vec2f pos);
 		float getMaxElevation();
 		float getGlobalTemp();
+		const Geom::Vec2& getSize() const { return Size; };
 
 		std::shared_ptr<Tile>& getTile( Geom::Vec2f pos );
 
