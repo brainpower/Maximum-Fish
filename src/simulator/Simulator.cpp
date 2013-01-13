@@ -27,6 +27,7 @@ isPaused(false) {
 	RegisterForEvent("TOGGLE_SIM_PAUSE");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
+	RegisterForEvent("TERRAIN_CLICKED");
 
 	init();
 }
@@ -40,6 +41,13 @@ void Simulator::HandleEvent(Event& e)
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
 		isPaused = !isPaused;
+	}
+	else if(e.Is("TERRAIN_CLICKED"))
+	{
+		// check event datatype
+		if (e.Data().type() != typeid( Geom::Pointf )) return;
+		// cast into desired type
+		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
 	}
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
@@ -116,16 +124,39 @@ void Simulator::tick()
 	}
 }
 
-//
-//void Simulator::HandleClick( const Geom::Pointf& Pos)
-//{
-//	Event e("TILE_CLICKED");
-//
-//	int index = (Pos.x / TileSize) * TerrainSize + (Pos.y / TileSize) ;
-//	e.SetData(CullTerrain[ index ]);
-//
-//	Module::QueueEvent(e);
-//}
+
+void Simulator::HandleClick( const Geom::Pointf& pos)
+{
+	// Check if the Coordinates are valid
+	if (!(
+			(0 <= pos.x && pos.x < Terra->getSize().x + 1 )
+		 && (0 <= pos.y && pos.y < Terra->getSize().y +1 )
+		))
+		return;
+
+
+
+	std::shared_ptr<Tile>& T = Terra->getTile( pos );
+
+
+	Event e("TILE_CLICKED");
+	e.SetData( T );
+	Module::Get()->QueueEvent(e, true);
+
+	for ( std::shared_ptr<Creature>& C : T->getCreatures())
+	{
+		if ( Geom::distance(pos, C->getPosition()) > .01 )
+		{
+			Event e("CREATURE_CLICKED");
+			e.SetData( C );
+			Module::Get()->QueueEvent(e, true);
+
+			// only return 1 Creature
+			return;
+		}
+	}
+
+}
 
 
 void Simulator::registerIOPlugins()
@@ -144,11 +175,16 @@ void Simulator::registerIOPlugins()
 	Engine::out(Engine::INFO) << "[Simulator] IO Plugins loaded." << std::endl;
 }
 
-void Simulator::addCreature()
+void Simulator::addRandomSpecies()
+{
+
+}
+
+void Simulator::addRandomCreature()
 {
 	std::uniform_real_distribution<float> rnd(0,32);
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature());
-	ptr_creature->setPosition(rnd(gen),rnd(gen));
+	ptr_creature->setPosition( Geom::Pointf(rnd(gen),rnd(gen)) );
 	ptr_creature->setSpecies(SpeciesList.front());
 	ptr_creature->setCurrentTile(Simulator::GetTerrain()->getTile(ptr_creature->getPosition()));
 

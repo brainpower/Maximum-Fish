@@ -21,8 +21,6 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 		void init();
 
-		void addCreature();
-
 		void tick();
 
 		static std::shared_ptr<Terrain> GetTerrain()
@@ -37,7 +35,10 @@ class Simulator : public EventUser, public sf::NonCopyable
 
 	private:
 
-		//void HandleClick( const Geom::Pointf& Pos );
+		void HandleClick( const Geom::Pointf& pos );
+
+		void addRandomCreature();
+		void addRandomSpecies();
 
 		void registerIOPlugins();
 
