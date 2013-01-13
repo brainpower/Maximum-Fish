@@ -15,23 +15,23 @@ Also basic calculation are happening here.
 class Creature : public EventUser, public std::enable_shared_from_this<Creature>
 {
 	public:
-		Creature();
+		Creature( const std::shared_ptr<Species>& Species);
 		virtual ~Creature() {};
 		virtual void HandleEvent( Event& e);
 
 		void live();
 
-		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
-		inline void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
-		inline void setAge(const int a){ age = a; }
-		inline void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
-		inline void setSpecies(const std::shared_ptr<Species> s){mySpecies = s;}
-		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); } // TODO: update tile on pos update
+		void setCurrentHealth(const int ch){ currentHealth = ch;}
+		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
+		void setAge(const int a){ age = a; }
+		void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
+		void setSpecies(const std::shared_ptr<Species> s){mySpecies = s;}
+		void setPosition(const Geom::Pointf& pos);
 
-		inline int getCurrentHealth() const { return currentHealth; }
-		inline int getAge() const { return age; }
-		inline std::string getSpeciesString() const { /* TODO: same magic here, but the other way round */ }
-		inline Geom::Vec2f getPosition() const { return Position; }
+		int getCurrentHealth() const { return currentHealth; }
+		int getAge() const { return age; }
+		const std::string& getSpeciesString() const { return mySpecies->getName(); }
+		const Geom::Vec2f& getPosition() const { return Position; }
 
 	private:
 

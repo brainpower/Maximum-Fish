@@ -10,7 +10,8 @@
 #include "Simulator.hpp"
 #include "Tile.hpp"
 
-Creature::Creature()
+Creature::Creature( const std::shared_ptr<Species>& Species)
+ : mySpecies (Species)
 {
 
 }
@@ -20,6 +21,20 @@ void Creature::HandleEvent(Event& e)
 	if (e.Is("EVT_TICK"))
 	{
 		live();
+	}
+}
+
+void Creature::setPosition( const Geom::Pointf& pos)
+{
+	auto& newTile = Simulator::GetTerrain()->getTile(pos);
+
+	Position = pos;
+
+	if ( currentTile != newTile)
+	{
+		currentTile->removeCreature( shared_from_this() );
+		newTile->addCreature( shared_from_this() );
+		currentTile = newTile;
 	}
 }
 
@@ -93,16 +108,7 @@ bool Creature::moveYourAss()
 		}
 		else
 		{
-			setPosition(x, y);
-			auto& newTile = Simulator::GetTerrain()->getTile(Position);
-
-			if ( currentTile != newTile)
-			{
-				currentTile->removeCreature( shared_from_this() );
-				newTile->addCreature( shared_from_this() );
-				currentTile = newTile;
-			}
-
+			setPosition( Geom::Pointf(x, y));
 			return true;
 		}
 	}
