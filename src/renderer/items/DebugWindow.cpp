@@ -15,7 +15,6 @@ DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 
 
 void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
 {
-	Win = sfg::Window::Create();
     Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::TITLEBAR | sfg::Window::Style::SHADOW  | sfg::Window::Style::RESIZE );
 
     //DbgText and DbgLabels are different, so it looks like two columns.
