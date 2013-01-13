@@ -3,6 +3,7 @@
 #include "simulator/Simulator.hpp"
 #include "simulator/Terrain.hpp"
 #include "simulator/Creature.hpp"
+#include "simulator/Species.hpp"
 #include "simulator/Tile.hpp"
 
 #include "sbe/ResourceManager.hpp"
@@ -377,5 +378,5 @@ int SimView::DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t)
 int SimView::DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t)
 {
 	/// FIXME: hard coded
-	return 2;
+	return t->getSpecies()->getType();
 }
