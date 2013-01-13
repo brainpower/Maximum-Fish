@@ -140,17 +140,17 @@ void DebugWindow::UpdateText(FilterLevel level)
 			newtext = Engine::GetLogger(Engine::INFO)->GetLog().substr(0, maxTextPerFrame);
 			Engine::GetLogger(Engine::INFO)->ClearCache( newtext.size() );
 			lastsize = newtext.size();
-			
+
 			//Engine::out(Engine::SPAM) << "newtextsize (info) " << lastsize << std::endl;
 
 			newtext += Engine::GetLogger(Engine::WARNING)->GetLog().substr(0, maxTextPerFrame);
 			Engine::GetLogger(Engine::WARNING)->ClearCache( newtext.size() - lastsize);
 			lastsize = newtext.size();
-			
+
 			//Engine::out(Engine::SPAM) << "newtextsize (warning) " << lastsize << std::endl;
-			
+
 			newtext += Engine::GetLogger(Engine::ERROR)->GetLog().substr(0, maxTextPerFrame);
-			Engine::GetLogger(Engine::ERROR)->ClearCache( lastsize - newtext.size());
+			Engine::GetLogger(Engine::ERROR)->ClearCache( newtext.size() - lastsize);
 
 			//Engine::out(Engine::SPAM) << "newtextsize (ERROR) " << lastsize << std::endl;
 
@@ -170,17 +170,17 @@ void DebugWindow::UpdateText(FilterLevel level)
 void DebugWindow::AddLogText( std::string& newtext, int labelTextLimit )
 {
 
-	if ((newtext.size() + LogText->GetText().getSize()) > labelTextLimit ) 
+	if ((newtext.size() + LogText->GetText().getSize()) > labelTextLimit )
 	{
 		std::string labeltext = newtext.substr(0, labelTextLimit - LogText->GetText().getSize() );
 
 		LogText->SetText( LogText->GetText() + labeltext);
-		
+
 		Engine::out() << " Adding one more label.. " << std::endl;
 		LogText = sfg::Label::Create();
 		LogText->SetAlignment( sf::Vector2f(0.f, 0.f) );
 		LogBox->Pack(LogText, true, true);
-		
+
 		newtext = newtext.substr( labeltext.size() );
 		AddLogText( newtext, labelTextLimit );
 	}
@@ -188,7 +188,7 @@ void DebugWindow::AddLogText( std::string& newtext, int labelTextLimit )
 	{
 		LogText->SetText( LogText->GetText() + newtext);
 	}
-		
+
 	scrolledwindow->GetVerticalAdjustment()->SetValue( scrolledwindow->GetVerticalAdjustment()->GetUpper() );
 
 }
