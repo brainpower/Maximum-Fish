@@ -19,6 +19,7 @@ class Tile
 		float calcTemperature();
 		Geom::Point getPosition() { return Position; }
 		float getHabitability(int food, std::shared_ptr<Species> sp);
+		int getNumConspecifics(std::shared_ptr<Species> sp, int radius);
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 
