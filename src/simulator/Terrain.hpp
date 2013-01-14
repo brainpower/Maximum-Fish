@@ -18,6 +18,8 @@ class Terrain
 		void setMaxElevation(const float e) {maxElevation = e;}
 		float getHumidityFactor( ) const { return humidityFactor;}
 
+		std::vector<std::shared_ptr<Tile>> get_nearby(Tile &tile, unsigned int radius);
+
 		float getTileElevation(Geom::Vec2f pos);
 		float getMaxElevation();
 		float getGlobalTemp();
