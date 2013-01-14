@@ -74,7 +74,8 @@ void MainMenu::updatePosition()
 
 void MainMenu::BtnResumeClick()
 {
-    Win->Show(false);
+    //Win->Show(false);
+    Module::Get()->QueueEvent( Event("KEY_SHOW_MAINMENU") );
 }
 
 void MainMenu::BtnExitClick()
