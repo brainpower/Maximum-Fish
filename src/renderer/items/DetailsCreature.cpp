@@ -1,25 +1,16 @@
-#include "CreatureDetails.hpp"
+#include "DetailsCreature.hpp"
 
-
-
-CreatureDetails::CreatureDetails( const Creature*)
+DetailsCreature::DetailsCreature(const std::shared_ptr<Creature>& _creature)
 {
-	CreateBox();
-}
+    currentCreature = _creature;
 
-void CreatureDetails::CreateBox()
-{
-
-
-
-    //create details
-
-    Details = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
-        sfg::Label::Ptr title(sfg::Label::Create("Details"));
+    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+        sfg::Label::Ptr title(sfg::Label::Create("Details Creature"));
+        sfg::Label::Ptr spec(sfg::Label::Create("Spezies: " + currentCreature->getSpeciesString() ));
         sfg::Box::Ptr ub(sfg::Box::Create( sfg::Box::HORIZONTAL,3.0f ));
             sfg::Scale::Ptr u( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
             u->SetValue(200);
-            sfg::Label::Ptr ul( sfg::Label::Create( "ValueChanger1" ));
+            sfg::Label::Ptr ul( sfg::Label::Create( "Age: " + std::to_string(currentCreature->getAge())));
             ub->Pack(u);
             ub->Pack(ul);
         sfg::Box::Ptr vb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
@@ -53,25 +44,25 @@ void CreatureDetails::CreateBox()
             zb->Pack(z);
             zb->Pack(zl);
 
-    Details->Pack(title);
-    Details->Pack(ub);
-    Details->Pack(vb);
-    Details->Pack(wb);
-    Details->Pack(xb);
-    Details->Pack(yb);
-    Details->Pack(zb);
-
+    DetailsBox->Pack(title);
+    DetailsBox->Pack(spec);
+    DetailsBox->Pack(ub);
+    DetailsBox->Pack(vb);
+    DetailsBox->Pack(wb);
+    DetailsBox->Pack(xb);
+    DetailsBox->Pack(yb);
+    DetailsBox->Pack(zb);
 }
 
-void CreatureDetails::HandleEvent( Event& e )
+sfg::Box::Ptr DetailsCreature::Get()
+{
+    return DetailsBox;
+}
+
+void DetailsCreature::HandleEvent( Event& e )
 {
 	//if (e.Is("EVENTNAME"))
 	{
 
     }
-}
-
-sfg::Box::Ptr CreatureDetails::Get()
-{
-    return Details;
 }
