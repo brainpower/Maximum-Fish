@@ -65,6 +65,9 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
+	else if (e.Is("EVT_SAVE_WHOLE")){
+		saveEvent(boost::any_cast<std::string>(e.Data()));
+	}
 	else if (e.Is("EVT_QUIT"))
 	{
 		Module::Get()->RequestQuit();
@@ -216,4 +219,46 @@ void Simulator::addRandomCreature()
 	ptr_creature->setPosition( Geom::Pointf(rnd(gen),rnd(gen)) );
 
 	Creatures.push_back(ptr_creature);
+}
+
+void Simulator::saveEvent(const std::string &savePath){
+	bool wasPaused = isPaused;
+
+	isPaused = true; // pause sim while saving
+
+	if(!savePath.empty())
+		Engine::GetIO()->addPath(savePath); // add save path to IO stack
+
+	// do some saving...
+	if(!Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true)){  // should we overwrite?
+
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Error saving Terrain!") );
+		Module::Get()->QueueEvent(e, true);
+
+	}	else if(!Engine::GetResMgr()->saveAllObjects<Creature>(true)){
+
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Error saving Creatures!") );
+		Module::Get()->QueueEvent(e, true);
+
+	} else if(!Engine::GetResMgr()->saveAllObjects<Species>(true)){ // should we overwrite?
+
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Error saving Species'!") );
+		Module::Get()->QueueEvent(e, true);
+
+	} else {
+
+		Event e("EVT_SAVE_GOOD");
+		Module::Get()->QueueEvent(e, true);
+
+	}
+
+
+	if(!savePath.empty())
+		Engine::GetIO()->popPath(); // pop save path from IO stack
+
+	isPaused = wasPaused; // continue, if not wasPaused
+
 }

@@ -48,6 +48,7 @@ class Simulator : public EventUser, public sf::NonCopyable
 		void addRandomSpecies();
 
 		void registerIOPlugins();
+		void saveEvent(const std::string &savePath);
 
 		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
