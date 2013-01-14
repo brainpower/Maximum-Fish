@@ -17,13 +17,13 @@ class Control : public EventUser
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
 		sfg::ToggleButton::Ptr BtnDbgWin;
-        sfg::ToggleButton::Ptr BtnCreDetWin;
+        sfg::ToggleButton::Ptr BtnIPanWin;
         sfg::ToggleButton::Ptr BtnMnMnWin;
         sfg::ToggleButton::Ptr BtnMiMapWin;
         sfg::ToggleButton::Ptr BtnSimPause;
 
         void BtnDbgWinClick();
-        void BtnCreDetWinClick();
+        void BtnIPanWinClick();
         void BtnMnMnWinClick();
         void BtnMiMapWinClick();
         void BtnSimPauseClick();

@@ -1,5 +1,5 @@
-#ifndef CREATURE_LIST_H
-#define CREATURE_LIST_H
+#ifndef INFOPANEL_H
+#define INFOPANEL_H
 
 #include "sbe/event/EventUser.hpp"
 #include "renderer/items/DetailsEmpty.hpp"
@@ -9,12 +9,12 @@
 
 #include <SFGUI/SFGUI.hpp>
 
-class CreatureList : public EventUser
+class InfoPanel : public EventUser
 {
 	public:
 
-		CreatureList( const Geom::Point& RelativePosition = Geom::Point(280, 0), const Geom::Vec2 Size = Geom::Vec2(300, 600));
-		virtual ~CreatureList() {};
+		InfoPanel( const Geom::Point& RelativePosition = Geom::Point(280, 0), const Geom::Vec2 Size = Geom::Vec2(300, 600));
+		virtual ~InfoPanel() {};
 
 		virtual void HandleEvent( Event& e);
 	private:
@@ -33,5 +33,5 @@ class CreatureList : public EventUser
 		std::shared_ptr<Details> CurrentDetailsTile;
 };
 
-#endif // CREATURE_LIST_H
+#endif // INFOPANEL_H
 
