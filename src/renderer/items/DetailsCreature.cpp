@@ -9,6 +9,7 @@ DetailsCreature::DetailsCreature(const std::shared_ptr<Creature>& _creature)
     currentCreature = _creature;
 
     DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+    Update();
 }
 
 void DetailsCreature::Update()

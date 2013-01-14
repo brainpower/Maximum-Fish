@@ -94,6 +94,7 @@ void InfoPanel::HandleEvent( Event& e )
         {
             std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>(e.Data());
             SetDetail(c);
+			SetDetail(c->getSpecies());
             Engine::out() << "[InfoPanel]: DetailsCreature updated." << std::endl;
         }
     }

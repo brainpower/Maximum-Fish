@@ -15,7 +15,9 @@ class Details
 
 		void AddLabel( sfg::Box::Ptr Box, const std::string& key, const std::string& value )
 		{
-			Box->Pack(sfg::Label::Create( key +": "+ value ));
+			sfg::Label::Ptr L = sfg::Label::Create( key +": "+ value );
+			L->SetAlignment( sf::Vector2f(0.f, 0.f) );
+			Box->Pack( L );
 		}
 
 	protected:
