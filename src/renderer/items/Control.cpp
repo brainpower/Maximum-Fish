@@ -18,7 +18,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     Win->SetStyle(0);
 
 
-    Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+    Win->SetRequisition( sf::Vector2f(Size.x, Size.y) );
     updatePosition();
 
 

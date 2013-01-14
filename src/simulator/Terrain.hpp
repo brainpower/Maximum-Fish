@@ -4,6 +4,7 @@
 #include <list>
 #include <memory>
 
+#include "sbe/util/QuadTree.hpp"
 #include "sbe/Geom.hpp"
 #include "Tile.hpp"
 
@@ -20,8 +21,9 @@ class Terrain
 		float getTileElevation(Geom::Vec2f pos);
 		float getMaxElevation();
 		float getGlobalTemp();
+		const Geom::Vec2& getSize() const { return Size; };
 
-		std::shared_ptr<Tile> getTile( Geom::Vec2f pos );
+		std::shared_ptr<Tile>& getTile( Geom::Vec2f pos );
 
 		void CreateDebugTerrain();
 
@@ -42,7 +44,7 @@ class Terrain
 		float maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
 
 		std::vector<std::shared_ptr<Tile>> Tiles;
-
+		QuadTreeNode<Tile> CullTree;
 };
 
 #endif // TERRAIN_H

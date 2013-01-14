@@ -20,11 +20,11 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 
 		re->maxAge             = pt.get<int>("maxAge");
 		re->maxHealth          = pt.get<int>("maxHealth");
-		re->maxSpeed           = pt.get<int>("maxSpeed");
-		re->Reach              = pt.get<int>("reach");
-		re->resistance         = pt.get<int>("resistance");
+		re->maxSpeed           = pt.get<float>("maxSpeed");
+		re->Reach              = pt.get<float>("reach");
+		re->resistance         = pt.get<float>("resistance");
 		re->breedingSpeed      = pt.get<int>("breedingSpead");
-		re->isCarnivore        = pt.get<bool>("carnivore");
+		re->type        = (Species::SPECIES_TYPE)pt.get<int>("type");
 		re->foodRequirement    = pt.get<int>("foodRequirement");
 		re->waterRequirement   = pt.get<int>("waterRequirement");
 		re->optimalTemperature = pt.get<int>("optimalTemperature");
@@ -50,11 +50,11 @@ bool SpeciesIOPlugin::saveObject( const std::string& name, const Species &s, boo
 		pt.put<std::string>("Name",       name);
 		pt.put<int>("maxAge",             s.maxAge);
 		pt.put<int>("maxHealth",          s.maxHealth );
-		pt.put<int>("maxSpeed",           s.maxSpeed );
-		pt.put<int>("reach",              s.Reach );
-		pt.put<int>("resistance",         s.resistance );
+		pt.put<float>("maxSpeed",           s.maxSpeed );
+		pt.put<float>("reach",              s.Reach );
+		pt.put<float>("resistance",         s.resistance );
 		pt.put<int>("breedingSpead",      s.breedingSpeed );
-		pt.put<bool>("carnivore",         s.isCarnivore );
+		pt.put<int>("type",         s.type );
 		pt.put<int>("foodRequirement",    s.foodRequirement );
 		pt.put<int>("waterRequirement",   s.waterRequirement );
 		pt.put<int>("optimalTemperature", s.optimalTemperature );

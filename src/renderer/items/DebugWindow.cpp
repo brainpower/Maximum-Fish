@@ -34,8 +34,8 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 
     consoleInput->AppendText( "Not yet implemented." );
 
-	Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
-	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+	Win->SetPosition( sf::Vector2f(RelativePosition.x, RelativePosition.y ) );
+	//Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
 
 	// main box, vertical
 	sfg::Box::Ptr wholeBox( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ) );
@@ -149,7 +149,7 @@ void DebugWindow::UpdateText(FilterLevel level)
 			//Engine::out(Engine::SPAM) << "newtextsize (warning) " << lastsize << std::endl;
 
 			newtext += Engine::GetLogger(Engine::ERROR)->GetLog().substr(0, maxTextPerFrame);
-			Engine::GetLogger(Engine::ERROR)->ClearCache( lastsize - newtext.size());
+			Engine::GetLogger(Engine::ERROR)->ClearCache( newtext.size() - lastsize);
 
 			//Engine::out(Engine::SPAM) << "newtextsize (ERROR) " << lastsize << std::endl;
 

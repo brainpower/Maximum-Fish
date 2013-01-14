@@ -24,7 +24,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
     sfg::Button::Ptr btnExit( sfg::Button::Create( "Exit Program" ) );
     btnExit->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnExitClick, this );
 
-    Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+    Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
     updatePosition();
 
 

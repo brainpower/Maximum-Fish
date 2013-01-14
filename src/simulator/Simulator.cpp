@@ -12,6 +12,8 @@
 #include "resources/SpeciesIOPlugin.hpp"
 #include "resources/TerrainIOPlugin.hpp"
 
+#include <string>
+
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
@@ -27,8 +29,19 @@ isPaused(false) {
 	RegisterForEvent("TOGGLE_SIM_PAUSE");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
+	RegisterForEvent("TERRAIN_CLICKED");
 
 	init();
+}
+
+std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
+{
+	for ( auto& S : SpeciesList )
+	{
+		if ( S->getName() == name) return S;
+	}
+
+	return SpeciesList[0];
 }
 
 void Simulator::HandleEvent(Event& e)
@@ -41,9 +54,19 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = !isPaused;
 	}
+	else if(e.Is("TERRAIN_CLICKED"))
+	{
+		// check event datatype
+		if (e.Data().type() != typeid( Geom::Pointf )) return;
+		// cast into desired type
+		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
+	}
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
+	}
+	else if (e.Is("EVT_SAVE_WHOLE")){
+		saveEvent(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_QUIT"))
 	{
@@ -67,26 +90,17 @@ void Simulator::init()
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is in paused" << std::endl;
 
 	isPaused = false;
-	
-	
+
+
 	GetTerrain()->setMaxElevation(1500);
-	//TEST########################
-	std::uniform_real_distribution<float> rnd(0, 32);
-	
-	std::shared_ptr<Species> ptr_species = std::shared_ptr<Species>(new Species("Deimuada"));
-	ptr_species->setMaxSpeed(0.09);
-	ptr_species->setFoodRequirement(10);
-	ptr_species->setWaterRequirement(10);
-	ptr_species->setOptimalTemperature(20);	
-	
-	SpeciesList.push_back(ptr_species);	
-	//END TEST####################
 
-	for(int i = 0; i < 1000; i++)
-	{
-		addCreature();
+	// add default speciees
+	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
+	SpeciesList.push_back( S );
 
-	}
+	for (int i= 0; i < 10; ++i) addRandomSpecies();
+	for(int i = 0; i < 1000; ++i) addRandomCreature();
+
 
 }
 
@@ -116,6 +130,41 @@ void Simulator::tick()
 	}
 }
 
+
+void Simulator::HandleClick( const Geom::Pointf& pos)
+{
+	// Check if the Coordinates are valid
+	if (!(
+			(0 <= pos.x && pos.x < Terra->getSize().x + 1 )
+		 && (0 <= pos.y && pos.y < Terra->getSize().y +1 )
+		))
+		return;
+
+
+
+	std::shared_ptr<Tile>& T = Terra->getTile( pos );
+
+
+	Event e("TILE_CLICKED");
+	e.SetData( T );
+	Module::Get()->QueueEvent(e, true);
+
+	for ( std::shared_ptr<Creature>& C : T->getCreatures())
+	{
+		if ( Geom::distance(pos, C->getPosition()) < .1 )
+		{
+			Event e("CREATURE_CLICKED");
+			e.SetData( C );
+			Module::Get()->QueueEvent(e, true);
+
+			// only return 1 Creature
+			return;
+		}
+	}
+
+}
+
+
 void Simulator::registerIOPlugins()
 {
 	Engine::out(Engine::INFO) << "[Simulator] Loading IO plugins:" << std::endl;
@@ -132,13 +181,84 @@ void Simulator::registerIOPlugins()
 	Engine::out(Engine::INFO) << "[Simulator] IO Plugins loaded." << std::endl;
 }
 
-void Simulator::addCreature()
-{	
+void Simulator::addRandomSpecies()
+{
+	std::uniform_int_distribution<int> type_rnd(0,2);
+	std::uniform_int_distribution<int> temp_rnd(0,255);
+
+	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
+
+	std::string name;
+	switch (t)
+	{
+	case Species::SPECIES_TYPE::HERBA:
+		name = "plant";
+		break;
+	case Species::SPECIES_TYPE::HERBIVORE:
+		name = "herbivore";
+		break;
+	case Species::SPECIES_TYPE::CARNIVORE:
+		name = "carnivore";
+		break;
+	}
+
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(SpeciesList.size())) );
+
+	S->setType( t );
+	S->setOptimalTemperature( temp_rnd( gen ) );
+
+	SpeciesList.push_back( S );
+}
+
+void Simulator::addRandomCreature()
+{
 	std::uniform_real_distribution<float> rnd(0,32);
-	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature());
-	ptr_creature->setPosition(rnd(gen),rnd(gen));
-	ptr_creature->setSpecies(SpeciesList.front());
-	ptr_creature->setCurrentTile(Simulator::GetTerrain()->getTile(ptr_creature->getPosition()));
+	std::uniform_int_distribution<int> species_rnd(0,SpeciesList.size()-1);
+
+	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( SpeciesList[species_rnd(gen)] ));
+	ptr_creature->setPosition( Geom::Pointf(rnd(gen),rnd(gen)) );
 
 	Creatures.push_back(ptr_creature);
+}
+
+void Simulator::saveEvent(const std::string &savePath){
+	bool wasPaused = isPaused;
+
+	isPaused = true; // pause sim while saving
+
+	if(!savePath.empty())
+		Engine::GetIO()->addPath(savePath); // add save path to IO stack
+
+	// do some saving...
+	if(!Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true)){  // should we overwrite?
+
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Error saving Terrain!") );
+		Module::Get()->QueueEvent(e, true);
+
+	}	else if(!Engine::GetResMgr()->saveAllObjects<Creature>(true)){
+
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Error saving Creatures!") );
+		Module::Get()->QueueEvent(e, true);
+
+	} else if(!Engine::GetResMgr()->saveAllObjects<Species>(true)){ // should we overwrite?
+
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Error saving Species'!") );
+		Module::Get()->QueueEvent(e, true);
+
+	} else {
+
+		Event e("EVT_SAVE_GOOD");
+		Module::Get()->QueueEvent(e, true);
+
+	}
+
+
+	if(!savePath.empty())
+		Engine::GetIO()->popPath(); // pop save path from IO stack
+
+	isPaused = wasPaused; // continue, if not wasPaused
+
 }

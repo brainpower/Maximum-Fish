@@ -4,6 +4,8 @@
 #include "sbe/Geom.hpp"
 #include "Species.hpp"
 
+class Creature;
+
 class Tile
 {
 	public:
@@ -17,6 +19,12 @@ class Tile
 		float calcTemperature();
 		Geom::Point getPosition() { return Position; }
 		float getHabitability(int food, std::shared_ptr<Species> sp);
+
+		void addCreature ( const std::shared_ptr<Creature>& p );
+
+		void removeCreature( const std::shared_ptr<Creature>& p);
+
+		std::list<std::shared_ptr<Creature>>& getCreatures() { return Creatures; }
 
 	private:
 
@@ -34,6 +42,10 @@ class Tile
 		int biomass;
 		/// current humidity, decreased through "feeding" plants
 		float humidity;
+
+		/// a list of all Creatures on that Tile
+		std::list<std::shared_ptr<Creature>> Creatures;
+
 };
 
 

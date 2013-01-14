@@ -3,6 +3,8 @@
 #include "Simulator.hpp"
 #include <memory>
 
+#include "Creature.hpp"
+
 Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity )
  : Position(_Position),
   height(_height),
@@ -33,4 +35,14 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 	float tmp = calcTemperature();
 	float ret = ((float)food/(float)sp->getFoodRequirement())*(hum/sp->getWaterRequirement())*(1/pow(tmp - sp->getOptimalTemperature(),2));
 	return ret;
+}
+
+void Tile::addCreature ( const std::shared_ptr<Creature>& p )
+{
+	Creatures.push_back(p);
+}
+
+void Tile::removeCreature( const std::shared_ptr<Creature>& p)
+{
+	Creatures.remove( p );
 }

@@ -60,6 +60,8 @@ Screen::Screen()
 	Init();
 }
 
+void Screen::setCameraViewPort ( const sf::FloatRect& FR) { SimulatorView->setCameraViewport( FR ); }
+
 void Screen::Init()
 {
 	Engine::out(Engine::INFO) << "[Screen] Creating Window..." << std::endl;

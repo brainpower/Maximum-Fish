@@ -16,7 +16,7 @@
 class Creature;
 class Tile;
 
-class SimView : public EventUser, public sfg::Widget
+class SimView : public EventUser
 {
 	public:
 
@@ -37,17 +37,14 @@ class SimView : public EventUser, public sfg::Widget
 
 		void CullRenderList();
 
-		// from sfg::Widget
-
-		virtual const std::string& GetName() const { return Name; }
-		virtual sf::Vector2f CalculateRequisition();
+		void setCameraViewport ( const sf::FloatRect& FR) { Camera.setViewport( FR ); }
 
 		void Render();
 	private:
 
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
-		void CreateGrid( int TerrainSize );
+		void CreateGrid();
 
 		std::list<std::shared_ptr<Creature>> CullCreatures();
 		std::vector<std::shared_ptr<Tile>> CullTerrain();
@@ -59,7 +56,7 @@ class SimView : public EventUser, public sfg::Widget
 		*/
 		int DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t);
 		int DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t);
-		
+
 			/// determines where a Tile should be rendered on the viewport
 		sf::FloatRect DetermineTilePos ( std::shared_ptr<Tile>& t);
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
@@ -82,7 +79,9 @@ class SimView : public EventUser, public sfg::Widget
 
 		/// how big should each tile be rendered edge length ( sprites are 32x32 )
 		int TileSize;
-		
+		/// how big is the terrain ( it's assumed to be square right now )
+		int TerrainSize;
+
 		const std::string Name;
 };
 

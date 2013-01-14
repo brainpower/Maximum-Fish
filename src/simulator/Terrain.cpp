@@ -6,15 +6,15 @@
 
 #include <random>
 
-std::shared_ptr<Tile> Terrain::getTile( Geom::Vec2f pos )
+std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
-	int index = (int)(pos.x()) * Size.x() + (int)(pos.y());
+	int index = (int)(pos.x) * Size.x + (int)(pos.y);
 	return Tiles[ index ];
 }
 
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
-	int index = (int)(pos.x()) * Size.x() + (int)(pos.y());
+	int index = (int)(pos.x) * Size.x + (int)(pos.y);
 	return Tiles[ index ]->getHeight();
 }
 
@@ -43,20 +43,20 @@ void Terrain::CreateDebugTerrain()
 	Size = Geom::Vec2( 32, 32 );
 
 	float maxHeight = 1500;
-	float minheight = 0;
+	//float minheight = 0;
 
-	float maxFallofDist = Size.x()/2;
+	float maxFallofDist = Size.x/2;
 
-	Geom::Pointf Mid = Geom::Pointf( Size.x()/2, Size.y()/2 );
+	Geom::Pointf Mid = Geom::Pointf( Size.x/2, Size.y/2 );
 
 
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> rnd;
 
 
-	for ( int x = 0; x < Size.x(); ++x)
+	for ( int x = 0; x < Size.x; ++x)
 	{
-		for ( int y = 0; y < Size.y(); ++y)
+		for ( int y = 0; y < Size.y; ++y)
 		{
 			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
 			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist ) ;
