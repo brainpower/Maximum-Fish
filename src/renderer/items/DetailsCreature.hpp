@@ -7,14 +7,15 @@
 
 #include <SFGUI/SFGUI.hpp>
 
-class DetailsCreature : public EventUser, public Details
+class DetailsCreature : public Details
 {
 	public:
 
 		DetailsCreature(const std::shared_ptr<Creature>& _creature);
 		virtual ~DetailsCreature() {}
+
         virtual sfg::Box::Ptr Get();
-		virtual void HandleEvent( Event& e);
+        virtual void Update();
     protected:
         sfg::Box::Ptr DetailsBox;
 	private:

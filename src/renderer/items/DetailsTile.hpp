@@ -8,14 +8,14 @@
 #include <SFGUI/SFGUI.hpp>
 #include <boost/lexical_cast.hpp>
 
-class DetailsTile : public EventUser, public Details
+class DetailsTile : public Details
 {
 	public:
 
 		DetailsTile(const std::shared_ptr<Tile>& _tile);
 		virtual ~DetailsTile() {}
         virtual sfg::Box::Ptr Get();
-		virtual void HandleEvent( Event& e);
+        virtual void Update();
     protected:
         sfg::Box::Ptr DetailsBox;
 	private:
