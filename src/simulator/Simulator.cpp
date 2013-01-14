@@ -21,7 +21,7 @@ isPaused(false) {
 
 	Instance = this;
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	// boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 	RegisterForEvent("EVT_TICK");
 	RegisterForEvent("EVT_QUIT");

@@ -36,6 +36,21 @@ void Terrain::UpdateTerrain()
 	Module::Get()->QueueEvent(e, true);
 }
 
+std::vector<std::shared_ptr<Tile>> Terrain::get_nearby(Tile &tile, unsigned int radius)
+{
+	std::vector<std::shared_ptr<Tile>> ret;
+
+	for(std::shared_ptr<Tile> t: Tiles)
+	{
+		if( ((t->getPosition().y < tile.getPosition().y-radius)  &&  (t->getPosition().y < tile.getPosition().y+radius))
+			&& ((t->getPosition().x < tile.getPosition().x+radius) && (t->getPosition().x > tile.getPosition().x-radius)) )
+		{
+			ret.push_back(t);
+		}
+	}
+	return ret;
+}
+
 void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
@@ -62,11 +77,19 @@ void Terrain::CreateDebugTerrain()
 			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist ) ;
 			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float TileHeight = maxHeight*HeightFactor;
+			float Humidity = 0;
+
 
 			if (TileHeight > maxElevation) maxElevation = TileHeight;
 
-			std::shared_ptr<Tile> T ( new Tile( Geom::Point(x,y), TileHeight, rnd(gen), 0 ) );
+			if(TileHeight < 0.02)
+			{
+				Humidity = 1;
+			}
+			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, rnd(gen), Humidity );
+			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
+			Humidity = 0;
 		}
 	}
 
