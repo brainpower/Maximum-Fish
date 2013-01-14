@@ -26,6 +26,11 @@ class Creature : public EventUser, public std::enable_shared_from_this<Creature>
 		void setAge(const int a){ age = a; }
 		void setPosition(const Geom::Pointf& pos);
 
+		std::list<std::shared_ptr<Creature>>& get_nearby(Tile &tile)
+		{
+
+		}
+
 		int getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
 		const std::string& getSpeciesString() const;
