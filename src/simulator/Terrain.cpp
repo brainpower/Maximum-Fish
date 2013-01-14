@@ -9,12 +9,14 @@
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
 	int index = (int)(pos.x) * Size.x + (int)(pos.y);
+	if (index < 0 || index > Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
 	int index = (int)(pos.x) * Size.x + (int)(pos.y);
+	if (index < 0 || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
 

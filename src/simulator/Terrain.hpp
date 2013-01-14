@@ -45,6 +45,8 @@ class Terrain
 		float globalTemp;              //temperature at sea level
 		float maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
 
+		// returned in some cases instead of a valid Tile ( e.g. tile index out of range )
+		std::shared_ptr<Tile> InvalidTile;
 		std::vector<std::shared_ptr<Tile>> Tiles;
 		QuadTreeNode<Tile> CullTree;
 };

@@ -110,10 +110,14 @@ bool Creature::moveYourAss()
 	x = x + rnd(Simulator::GetEngine());
 	y = y + rnd(Simulator::GetEngine());
 
-	
-	// ONLY FOR FUCKING DEBBUGING YOU FUCKING HATERS (Yes i meant you Lirrec)
 
-	float hab = Simulator::GetTerrain()->getTile( *(new Geom::Vec2f(x,y)) )->getHabitability(1,mySpecies);
+	// ONLY FOR FUCKING DEBBUGING YOU FUCKING HATERS (Yes i meant you Lirrec)
+	// gtfo and write code that actually doesn't crash because you're to dumb to check your coords for validity
+	// i added some checks, specially for you
+
+	float hab = 0;
+	std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( Geom::Vec2f(x,y) );
+	if (newtile) hab = newtile->getHabitability(1,mySpecies);
 
 	if((sqrt(pow(x,2)+sqrt(pow(y,2))) > mySpecies->getMaxSpeed()))
 	{
