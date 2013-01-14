@@ -9,6 +9,15 @@ class Details
 
 		virtual ~Details() {}
 		virtual sfg::Box::Ptr Get() = 0;
+
+		/// update the contents of the box returned by Get
+		virtual void Update() = 0;
+
+		void AddLabel( sfg::Box::Ptr Box, const std::string& key, const std::string& value )
+		{
+			Box->Pack(sfg::Label::Create( key +": "+ value ));
+		}
+
 	protected:
 		sfg::Box::Ptr DetailsBox;
 };
