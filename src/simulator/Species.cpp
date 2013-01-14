@@ -18,29 +18,6 @@ Species::Species(const std::string& _name)
 	if (type == HERBA) maxSpeed = 0;
 }
 
-std::string name;
-/// age in ticks
-int maxAge;
-/// maximum health, should be around 100
-int maxHealth;
-/// maximum speed a.k.a. range the creature can move in one tick
-float maxSpeed;
-/// range the creature can detect prey
-float Reach;
-/// resistance, just a modifier for other values ( tbd )
-int resistance;
-/// determines time till next reproduction
-int breedingSpeed;
-bool isCarnivore;
-/// how much food is required to keep the current health level
-int foodRequirement;
-/// how much water is required to keep the current health level
-int waterRequirement;
-///	Determines the optimal Height for the species to live and
-/// also the required temperature
-int optimalTemperature;
-
-
 Species::~Species()
 {
 
