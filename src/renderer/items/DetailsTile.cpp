@@ -5,14 +5,13 @@ DetailsTile::DetailsTile(const std::shared_ptr<Tile>& _tile)
     currentTile = _tile;
 
     DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
-        sfg::Label::Ptr title(sfg::Label::Create("Details Tile"));
-     /*   sfg::Box::Ptr ub(sfg::Box::Create( sfg::Box::HORIZONTAL,3.0f ));
+        sfg::Box::Ptr ub(sfg::Box::Create( sfg::Box::HORIZONTAL,3.0f ));
             sfg::Scale::Ptr u( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
             u->SetValue(200);
             sfg::Label::Ptr ul( sfg::Label::Create( "Height: " + boost::lexical_cast<std::string>(currentTile->getHeight())));
             ub->Pack(u);
             ub->Pack(ul);
-        sfg::Box::Ptr vb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
+     /*   sfg::Box::Ptr vb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
             sfg::Scale::Ptr v( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
             v->SetValue(200);
             sfg::Label::Ptr vl( sfg::Label::Create("ValueChanger2" ));
@@ -43,8 +42,7 @@ DetailsTile::DetailsTile(const std::shared_ptr<Tile>& _tile)
             zb->Pack(z);
             zb->Pack(zl);*/
 
-    DetailsBox->Pack(title);/*
-    DetailsBox->Pack(ub);
+    DetailsBox->Pack(ub);/*
     DetailsBox->Pack(vb);
     DetailsBox->Pack(wb);
     DetailsBox->Pack(xb);

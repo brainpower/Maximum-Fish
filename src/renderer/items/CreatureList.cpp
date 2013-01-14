@@ -1,5 +1,5 @@
 #include "CreatureList.hpp"
-
+#include "renderer/Screen.hpp"
 
 CreatureList::CreatureList( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
@@ -42,14 +42,23 @@ void CreatureList::CreateWindow( const Geom::Point& RelativePosition, const Geom
             tabs->AppendPage(tile,tileLabel);
 
             //create details
-            DetailsWin = sfg::Window::Create();
-            DetailsWin->SetStyle(0);
-                CurrentDetails.reset(new DetailsEmpty());
-            DetailsWin->Add(CurrentDetails->Get());
+            CreatureFrame = sfg::Frame::Create("Creat");
+                CurrentDetailsCreature.reset(new DetailsEmpty());
+            CreatureFrame->Add(CurrentDetailsCreature->Get());
+            //create details
+            SpeciesFrame = sfg::Frame::Create("Spec");
+                CurrentDetailsSpecies.reset(new DetailsEmpty());
+            SpeciesFrame->Add(CurrentDetailsSpecies->Get());
+            //create details
+            TileFrame = sfg::Frame::Create("Til");
+                CurrentDetailsTile.reset(new DetailsEmpty());
+            TileFrame->Add(CurrentDetailsTile->Get());
 
         //pack all into wholebox
         wholeBox->Pack(tabs);
-        wholeBox->Pack(DetailsWin, false, true);
+        wholeBox->Pack(CreatureFrame, false, true);
+        wholeBox->Pack(SpeciesFrame, false, true);
+        wholeBox->Pack(TileFrame, false, true);
 
     //add wholebox to window
     Win->Add(wholeBox);
@@ -71,6 +80,7 @@ void CreatureList::HandleEvent( Event& e )
         if (Win->IsGloballyVisible())
 		{
 			Win->Show(false);
+            Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
 		}
         else
 		{
@@ -85,6 +95,7 @@ void CreatureList::HandleEvent( Event& e )
         {
             std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>(e.Data());
             SetDetail(c);
+            Engine::out() << "[CreatureList]: DetailsCreature updated." << std::endl;
         }
     }
     else if (e.Is("TILE_CLICKED"))
@@ -93,52 +104,53 @@ void CreatureList::HandleEvent( Event& e )
         {
             std::shared_ptr<Tile> t = boost::any_cast<std::shared_ptr<Tile>>(e.Data());
             SetDetail(t);
+            Engine::out() << "[CreatureList]: DetailsTile updated." << std::endl;
         }
     }
 }
 
 void CreatureList::SetDetail(const std::shared_ptr<Creature>& _creature)
 {
-    DetailsWin->RemoveAll();
+    CreatureFrame->RemoveAll();
 
-    if (!_creature)
+    if (_creature)
     {
-        CurrentDetails.reset(new DetailsCreature(_creature));
-        DetailsWin->Add(CurrentDetails->Get());
+        CurrentDetailsCreature.reset(new DetailsCreature(_creature));
+        CreatureFrame->Add(CurrentDetailsCreature->Get());
     }
     else
     {
-        DetailsWin->Add(sfg::Label::Create("Something went wrong!\nThis Creature is not available."));
+        CreatureFrame->Add(sfg::Label::Create("Something went wrong!\nThis Creature is not available."));
     }
 }
 
 void CreatureList::SetDetail( const std::shared_ptr<Species>& _species)
 {
-    DetailsWin->RemoveAll();
+    SpeciesFrame->RemoveAll();
 
-    if (!_species)
+    if (_species)
     {
-        CurrentDetails.reset(new DetailsSpecies(_species));
-        DetailsWin->Add(CurrentDetails->Get());
+        CurrentDetailsSpecies.reset(new DetailsSpecies(_species));
+        SpeciesFrame->Add(CurrentDetailsSpecies->Get());
     }
     else
     {
-        DetailsWin->Add(sfg::Label::Create("Something went wrong!\nThis Species is not available."));
+        SpeciesFrame->Add(sfg::Label::Create("Something went wrong!\nThis Species is not available."));
     }
 }
 
 void CreatureList::SetDetail( const std::shared_ptr<Tile>& _tile)
 {
-    DetailsWin->RemoveAll();
+    TileFrame->RemoveAll();
 
-    if (!_tile)
+    if (_tile)
     {
-        CurrentDetails.reset(new DetailsTile(_tile));
-        DetailsWin->Add(CurrentDetails->Get());
+        CurrentDetailsTile.reset(new DetailsTile(_tile));
+        TileFrame->Add(CurrentDetailsTile->Get());
     }
     else
     {
-        DetailsWin->Add(sfg::Label::Create("Something went wrong!\nThis Tile is not available."));
+        TileFrame->Add(sfg::Label::Create("Something went wrong!\nThis Tile is not available."));
     }
 }
 
@@ -151,13 +163,12 @@ void CreatureList::updatePosition()
 	//set new widgetAllocation:
 	Win->SetAllocation(	sf::FloatRect( ( appSize.x - (widgetAllocation.width) ) , 0 , widgetAllocation.width , appSize.y ) );
     //set new ViewPort
-    //std::shared_ptr<Screen> screen = Screen::GetScreenObj();
     if (Win->IsGloballyVisible())
     {
-        //screen->setCameraViewPort( sf::FloatRect( 0,0,(1-widgetAllocation.width/appSize.x),1 ) );
+        Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,(1-widgetAllocation.width/appSize.x),1 ) );
     }
     else
     {
-        //screen->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
+        Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
     }
 }

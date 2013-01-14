@@ -25,8 +25,12 @@ class CreatureList : public EventUser
 		void updatePosition();
 
 		sfg::Window::Ptr Win;
-		sfg::Window::Ptr DetailsWin;
-		std::shared_ptr<Details> CurrentDetails;
+		sfg::Frame::Ptr CreatureFrame;
+		sfg::Frame::Ptr SpeciesFrame;
+		sfg::Frame::Ptr TileFrame;
+		std::shared_ptr<Details> CurrentDetailsCreature;
+		std::shared_ptr<Details> CurrentDetailsSpecies;
+		std::shared_ptr<Details> CurrentDetailsTile;
 };
 
 #endif // CREATURE_LIST_H

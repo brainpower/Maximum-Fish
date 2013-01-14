@@ -5,7 +5,6 @@ DetailsCreature::DetailsCreature(const std::shared_ptr<Creature>& _creature)
     currentCreature = _creature;
 
     DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
-        sfg::Label::Ptr title(sfg::Label::Create("Details Creature"));
         sfg::Label::Ptr spec(sfg::Label::Create("Spezies: " + currentCreature->getSpeciesString() ));
         sfg::Box::Ptr ub(sfg::Box::Create( sfg::Box::HORIZONTAL,3.0f ));
             sfg::Scale::Ptr u( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
@@ -44,7 +43,6 @@ DetailsCreature::DetailsCreature(const std::shared_ptr<Creature>& _creature)
             zb->Pack(z);
             zb->Pack(zl);
 
-    DetailsBox->Pack(title);
     DetailsBox->Pack(spec);
     DetailsBox->Pack(ub);
     DetailsBox->Pack(vb);
