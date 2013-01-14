@@ -11,10 +11,10 @@
 #include "Tile.hpp"
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
- : mySpecies (Species)
+ : mySpecies (Species),
 	currentHealth(100),
 	age(0),
-	Position( 0, 0 );
+	Position( 0, 0 )
 {
 	if (!Species)
 	{
