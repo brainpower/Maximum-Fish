@@ -206,6 +206,7 @@ void Simulator::addRandomSpecies()
 
 	S->setType( t );
 	S->setOptimalTemperature( temp_rnd( gen ) );
+	S->setWaterRequirement(10);
 
 	SpeciesList.push_back( S );
 }
@@ -218,7 +219,16 @@ void Simulator::addRandomCreature()
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( SpeciesList[species_rnd(gen)] ));
 	ptr_creature->setPosition( Geom::Pointf(rnd(gen),rnd(gen)) );
 
-	Creatures.push_back(ptr_creature);
+	//std::cout << !Simulator::GetTerrain()->getTile(ptr_creature->getPosition())->getHabitability(1,ptr_creature->getSpecies()) << std::endl;
+
+	// ONLY FOR DEBBUGING FUCKING HATERS
+
+	float hab = Simulator::GetTerrain()->getTile(ptr_creature->getPosition())->getHabitability(1,ptr_creature->getSpecies());
+
+	if( hab > 0.0f )
+	{
+		Creatures.push_back(ptr_creature);
+	}
 }
 
 void Simulator::saveEvent(const std::string &savePath){

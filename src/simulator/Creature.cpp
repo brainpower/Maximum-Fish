@@ -110,9 +110,14 @@ bool Creature::moveYourAss()
 	x = x + rnd(Simulator::GetEngine());
 	y = y + rnd(Simulator::GetEngine());
 
+	
+	// ONLY FOR FUCKING DEBBUGING YOU FUCKING HATERS (Yes i meant you Lirrec)
+
+	float hab = Simulator::GetTerrain()->getTile( *(new Geom::Vec2f(x,y)) )->getHabitability(1,mySpecies);
+
 	if((sqrt(pow(x,2)+sqrt(pow(y,2))) > mySpecies->getMaxSpeed()))
 	{
-		if(( x > 32 || x < 0 ) || ( y > 32 || y < 0 ))
+		if(( x > 32 || x < 0 ) || ( y > 32 || y < 0 ) ||  !(hab > 0.0f))
 		{
 			return false;
 		}
@@ -127,19 +132,9 @@ bool Creature::moveYourAss()
 	}
 }
 
-<<<<<<< HEAD
-std::list<std::shared_ptr<Creature>> get_nearby(Tile &tile)
-{
-	std::list<std::shared_ptr<Creature>> tmp;
-	
-
-}
-
-=======
->>>>>>> da68ad5345140ee1af23991ef2a474a2353eefbe
 void Creature::move(int found)
 {
-	float migProb = 20;
+	float migProb = 0;
 
 	float hab = currentTile->getHabitability(found, mySpecies);
 

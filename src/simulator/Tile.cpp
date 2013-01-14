@@ -31,24 +31,28 @@ float Tile::calcTemperature()
 
 float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 {	
-	float hum = getHumidity();
+	float hum = getBaseHumidity();
 	float wReq = sp->getWaterRequirement();
 	
-	if(hum == 1)
+	if(hum > 0.95)
 	{
 		return 0;
 	}
 	else if(hum >= wReq)
 	{
 		hum = 1;
-	}
-	else {
+	} else {
 		hum = hum/wReq;
 	}
 	
 	float tmp = calcTemperature();
 	//float consp = getNumConspecifics(sp); << hasn't been implemented yet
-	float ret = /* (1-(1/(1+Artgenossen))) * */ (1/(1+pow((tmp-sp->getOptimalTemperature()),2))) * (1-(1/(1+food))) * hum;
+	float r1 = (10000/(1+pow((tmp-(float)sp->getOptimalTemperature()),2)));
+	float r2 = (1-(1/(1+(float)food)));
+	
+	std::cout << "r1: " << r1 << " r2: " << r2 << " hum: " << hum << std::endl;
+	
+	float ret = /* (1-(1/(1+Artgenossen))) * */ r1 * r2 * 1/*hum*/;
 	
 	return ret;
 }
