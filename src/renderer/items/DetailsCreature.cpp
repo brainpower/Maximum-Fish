@@ -8,22 +8,24 @@ DetailsCreature::DetailsCreature(const std::shared_ptr<Creature>& _creature)
 {
     currentCreature = _creature;
 
-    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+    DetailsLabel = sfg::Label::Create();
+    DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
+
     Update();
 }
 
 void DetailsCreature::Update()
 {
-	DetailsBox->RemoveAll();
 
-	AddLabel(DetailsBox, "Spezies", currentCreature->getSpeciesString());
-	AddLabel(DetailsBox, "Age", str( format("%d") % currentCreature->getAge() ) );
-	AddLabel(DetailsBox, "Health", str( format("%d") % currentCreature->getCurrentHealth() ));
-	AddLabel(DetailsBox, "Position", str( format("%.2f,%.2f") % currentCreature->getPosition().x %  currentCreature->getPosition().y ));
+	DetailsLabel->SetText("");
+	AddToLabel(DetailsLabel, "Spezies", currentCreature->getSpeciesString());
+	AddToLabel(DetailsLabel, "Age", str( format("%d") % currentCreature->getAge() ) );
+	AddToLabel(DetailsLabel, "Health", str( format("%d") % currentCreature->getCurrentHealth() ));
+	AddToLabel(DetailsLabel, "Position", str( format("%.2f,%.2f") % currentCreature->getPosition().x %  currentCreature->getPosition().y ));
 
 }
 
-sfg::Box::Ptr DetailsCreature::Get()
+sfg::Widget::Ptr DetailsCreature::Get()
 {
-    return DetailsBox;
+    return DetailsLabel;
 }

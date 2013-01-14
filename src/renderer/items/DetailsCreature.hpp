@@ -14,11 +14,11 @@ class DetailsCreature : public Details
 		DetailsCreature(const std::shared_ptr<Creature>& _creature);
 		virtual ~DetailsCreature() {}
 
-        virtual sfg::Box::Ptr Get();
+        virtual sfg::Widget::Ptr Get();
         virtual void Update();
-    protected:
-        sfg::Box::Ptr DetailsBox;
-	private:
+    private:
+        sfg::Label::Ptr DetailsLabel;
+
 		std::shared_ptr<Creature> currentCreature;
 };
 

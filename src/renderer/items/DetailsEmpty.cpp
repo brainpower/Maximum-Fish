@@ -2,12 +2,11 @@
 
 DetailsEmpty::DetailsEmpty()
 {
-    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
-    sfg::Label::Ptr label( sfg::Label::Create("Select a Creature,\nSpecies or Tile\nto see its details.") );
-    DetailsBox->Pack(label);
+    DetailsLabel = sfg::Label::Create("Select a Creature,\nSpecies or Tile\nto see its details.");
+    DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 }
 
-sfg::Box::Ptr DetailsEmpty::Get()
+sfg::Widget::Ptr DetailsEmpty::Get()
 {
-    return DetailsBox;
+    return DetailsLabel;
 }

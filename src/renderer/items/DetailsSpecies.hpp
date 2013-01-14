@@ -7,18 +7,18 @@
 
 #include <SFGUI/SFGUI.hpp>
 
-class DetailsSpecies : public EventUser, public Details
+class DetailsSpecies : public Details
 {
 	public:
 
 		DetailsSpecies(const std::shared_ptr<Species>& _species);
 		virtual ~DetailsSpecies() {}
 
-        virtual sfg::Box::Ptr Get();
+        virtual sfg::Widget::Ptr Get();
         virtual void Update();
-    protected:
-        sfg::Box::Ptr DetailsBox;
-	private:
+    private:
+        sfg::Label::Ptr DetailsLabel;
+
 		std::shared_ptr<Species> currentSpecies;
 };
 
