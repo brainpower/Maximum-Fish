@@ -124,11 +124,6 @@ bool Creature::moveYourAss()
 	}
 }
 
-std::list<std::shared_ptr<Creature>> get_nearby(Tile &tile)
-{
-	std::list<std::shared_ptr<Creature>> tmp;
-}
-
 void Creature::move(int found)
 {
 	float migProb = 20;
@@ -150,8 +145,6 @@ void Creature::move(int found)
 			while(!moveYourAss()){}
 		}
 	}
-
-
 
 	/*std::uniform_real_distribution<float> rnd(-2, 2);
 
