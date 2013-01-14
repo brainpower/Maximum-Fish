@@ -42,15 +42,15 @@ void CreatureList::CreateWindow( const Geom::Point& RelativePosition, const Geom
             tabs->AppendPage(tile,tileLabel);
 
             //create details
-            CreatureFrame = sfg::Frame::Create("Creat");
+            CreatureFrame = sfg::Frame::Create("Creature");
                 CurrentDetailsCreature.reset(new DetailsEmpty());
             CreatureFrame->Add(CurrentDetailsCreature->Get());
             //create details
-            SpeciesFrame = sfg::Frame::Create("Spec");
+            SpeciesFrame = sfg::Frame::Create("Species");
                 CurrentDetailsSpecies.reset(new DetailsEmpty());
             SpeciesFrame->Add(CurrentDetailsSpecies->Get());
             //create details
-            TileFrame = sfg::Frame::Create("Til");
+            TileFrame = sfg::Frame::Create("Tile");
                 CurrentDetailsTile.reset(new DetailsEmpty());
             TileFrame->Add(CurrentDetailsTile->Get());
 
