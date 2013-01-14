@@ -1,13 +1,11 @@
-
 #include "Control.hpp"
-
 
 Control::Control( const Geom::Vec2 Size)
 
 {
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "KEY_SHOW_CONSOLE" );
-    RegisterForEvent( "KEY_SHOW_CREATURELIST" );
+    RegisterForEvent( "KEY_SHOW_INFOPANEL" );
     RegisterForEvent( "KEY_SHOW_MAINMENU" );
     RegisterForEvent( "KEY_SHOW_MINIMAP" );
     RegisterForEvent( "KEY_SIM_PAUSE" );
@@ -30,26 +28,27 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     // main box, vertical
     sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 5.0f ) );
 
-    BtnDbgWin =    sfg::ToggleButton::Create( "Console" );
-    BtnCreDetWin = sfg::ToggleButton::Create( "Creature" );
-    BtnMnMnWin =   sfg::ToggleButton::Create( "MainMenu" );
-    BtnMiMapWin =  sfg::ToggleButton::Create( "MiniMap" );
-    BtnSimPause =  sfg::ToggleButton::Create( "SimPause" );
+    BtnDbgWin =   sfg::ToggleButton::Create( "Console" );
+    BtnIPanWin =  sfg::ToggleButton::Create( "InfoPanel" );
+    BtnMnMnWin =  sfg::ToggleButton::Create( "MainMenu" );
+    BtnMiMapWin = sfg::ToggleButton::Create( "MiniMap" );
+    BtnSimPause = sfg::ToggleButton::Create( "SimPause" );
 
     //init the first look of the buttons BEFORE they are connected with their actions.
     BtnDbgWin->SetActive(true);
+    BtnIPanWin->SetActive(true);
 
-    BtnDbgWin->GetSignal(    sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
-    BtnCreDetWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnCreDetWinClick, this );
-    BtnMnMnWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
-    BtnMiMapWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
-    BtnSimPause->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    BtnDbgWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
+    BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
+    BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
+    BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
+    BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
 
-    box->Pack( BtnDbgWin,    false, false);
-    box->Pack( BtnCreDetWin, false, false);
-    box->Pack( BtnMnMnWin,   false, false);
-    box->Pack( BtnMiMapWin,  false, false);
-    box->Pack( BtnSimPause,  false, false);
+    box->Pack( BtnDbgWin,   false, false);
+    box->Pack( BtnIPanWin,  false, false);
+    box->Pack( BtnMnMnWin,  false, false);
+    box->Pack( BtnMiMapWin, false, false);
+    box->Pack( BtnSimPause, false, false);
 
 
     // Create a window and add the box layouter to it.
@@ -72,9 +71,9 @@ void Control::HandleEvent( Event& e)
     {
         BtnDbgWin->SetActive(!BtnDbgWin->IsActive());
     }
-    else if (e.Is("KEY_SHOW_CREATURELIST"))
+    else if (e.Is("KEY_SHOW_INFOPANEL"))
     {
-        BtnCreDetWin->SetActive(!BtnCreDetWin->IsActive());
+        BtnIPanWin->SetActive(!BtnIPanWin->IsActive());
     }
     else if (e.Is("KEY_SHOW_MAINMENU"))
     {
@@ -102,9 +101,9 @@ void Control::BtnDbgWinClick()
     Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CONSOLE") );
 }
 
-void Control::BtnCreDetWinClick()
+void Control::BtnIPanWinClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CREATURELIST") );
+    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_INFOPANEL") );
 }
 
 void Control::BtnMnMnWinClick()

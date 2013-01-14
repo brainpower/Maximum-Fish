@@ -1,18 +1,17 @@
-#include "CreatureList.hpp"
+#include "InfoPanel.hpp"
 #include "renderer/Screen.hpp"
 
-CreatureList::CreatureList( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
+InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
-    RegisterForEvent( "TOGGLE_SHOW_CREATURELIST" );
+    RegisterForEvent( "TOGGLE_SHOW_INFOPANEL" );
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "CREATURE_CLICKED" );
     RegisterForEvent( "TILE_CLICKED" );
 
 	CreateWindow(RelativePosition, Size);
-	Win->Show(false);
 }
 
-void CreatureList::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
+void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
 {
     //make and configure window
     Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::SHADOW);
@@ -69,18 +68,18 @@ void CreatureList::CreateWindow( const Geom::Point& RelativePosition, const Geom
 	Module::Get()->QueueEvent( e );
 }
 
-void CreatureList::HandleEvent( Event& e )
+void InfoPanel::HandleEvent( Event& e )
 {
 	if (e.Is("WINDOW_RESIZE"))
     {
         updatePosition();
     }
-	else if (e.Is("TOGGLE_SHOW_CREATURELIST"))
+	else if (e.Is("TOGGLE_SHOW_INFOPANEL"))
     {
         if (Win->IsGloballyVisible())
 		{
 			Win->Show(false);
-            Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
+            //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
 		}
         else
 		{
@@ -95,7 +94,8 @@ void CreatureList::HandleEvent( Event& e )
         {
             std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>(e.Data());
             SetDetail(c);
-            Engine::out() << "[CreatureList]: DetailsCreature updated." << std::endl;
+			SetDetail(c->getSpecies());
+            Engine::out() << "[InfoPanel]: DetailsCreature updated." << std::endl;
         }
     }
     else if (e.Is("TILE_CLICKED"))
@@ -104,12 +104,12 @@ void CreatureList::HandleEvent( Event& e )
         {
             std::shared_ptr<Tile> t = boost::any_cast<std::shared_ptr<Tile>>(e.Data());
             SetDetail(t);
-            Engine::out() << "[CreatureList]: DetailsTile updated." << std::endl;
+            Engine::out() << "[InfoPanel]: DetailsTile updated." << std::endl;
         }
     }
 }
 
-void CreatureList::SetDetail(const std::shared_ptr<Creature>& _creature)
+void InfoPanel::SetDetail(const std::shared_ptr<Creature>& _creature)
 {
     CreatureFrame->RemoveAll();
 
@@ -124,7 +124,7 @@ void CreatureList::SetDetail(const std::shared_ptr<Creature>& _creature)
     }
 }
 
-void CreatureList::SetDetail( const std::shared_ptr<Species>& _species)
+void InfoPanel::SetDetail( const std::shared_ptr<Species>& _species)
 {
     SpeciesFrame->RemoveAll();
 
@@ -139,7 +139,7 @@ void CreatureList::SetDetail( const std::shared_ptr<Species>& _species)
     }
 }
 
-void CreatureList::SetDetail( const std::shared_ptr<Tile>& _tile)
+void InfoPanel::SetDetail( const std::shared_ptr<Tile>& _tile)
 {
     TileFrame->RemoveAll();
 
@@ -154,7 +154,7 @@ void CreatureList::SetDetail( const std::shared_ptr<Tile>& _tile)
     }
 }
 
-void CreatureList::updatePosition()
+void InfoPanel::updatePosition()
 {
     //get widgetAllocation:
 	sf::FloatRect widgetAllocation = Win->GetAllocation();
@@ -165,10 +165,10 @@ void CreatureList::updatePosition()
     //set new ViewPort
     if (Win->IsGloballyVisible())
     {
-        Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,(1-widgetAllocation.width/appSize.x),1 ) );
+        //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,(1-widgetAllocation.width/appSize.x),1 ) );
     }
     else
     {
-        Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
+        //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
     }
 }

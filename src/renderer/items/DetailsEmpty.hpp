@@ -11,6 +11,7 @@ class DetailsEmpty : public Details
 
 		DetailsEmpty();
 		virtual ~DetailsEmpty() {}
+		virtual void Update() {}
         virtual sfg::Box::Ptr Get();
     protected:
         sfg::Box::Ptr DetailsBox;

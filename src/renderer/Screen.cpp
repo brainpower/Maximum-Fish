@@ -13,7 +13,7 @@
 #include "sbe/ImageSet.hpp"
 
 #include "renderer/items/Control.hpp"
-#include "renderer/items/CreatureList.hpp"
+#include "renderer/items/InfoPanel.hpp"
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
@@ -53,7 +53,7 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "KEY_SHOW_MAINMENU" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "KEY_SIM_PAUSE" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "KEY_SHOW_CREATURELIST" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "KEY_SHOW_INFOPANEL" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,    "TOGGLE_FULLSCREEN" );
 	EvtConv->AddEventConversion( sf::Event::Resized ,      "WINDOW_RESIZE" );
 
@@ -75,7 +75,7 @@ void Screen::Init()
 	Desktop.reset ( new sfg::Desktop() );
 
     Contr.reset   ( new Control() );
-    CreLi.reset   ( new CreatureList() );
+    IPan.reset    ( new InfoPanel() );
 	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
 	MiMap.reset   ( new MiniMap() );

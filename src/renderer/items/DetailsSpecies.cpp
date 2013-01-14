@@ -1,64 +1,34 @@
 #include "DetailsSpecies.hpp"
 
+#include <boost/format.hpp>
+using boost::format;
+using boost::io::group;
+
 DetailsSpecies::DetailsSpecies(const std::shared_ptr<Species>& _species)
 {
     currentSpecies = _species;
 
-    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
-        sfg::Box::Ptr ub(sfg::Box::Create( sfg::Box::HORIZONTAL,3.0f ));
-            sfg::Scale::Ptr u( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
-            u->SetValue(200);
-            sfg::Label::Ptr ul( sfg::Label::Create( "Max Age: " + std::to_string(currentSpecies->getMaxAge())));
-            ub->Pack(u);
-            ub->Pack(ul);
-        sfg::Box::Ptr vb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
-            sfg::Scale::Ptr v( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
-            v->SetValue(200);
-            sfg::Label::Ptr vl( sfg::Label::Create("ValueChanger2" ));
-            vb->Pack(v);
-            vb->Pack(vl);
-        sfg::Box::Ptr wb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
-            sfg::Scale::Ptr w( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
-            w->SetValue(200);
-            sfg::Label::Ptr wl( sfg::Label::Create("ValueChanger3" ));
-            wb->Pack(w);
-            wb->Pack(wl);
-        sfg::Box::Ptr xb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
-            sfg::Scale::Ptr x( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
-            x->SetValue(200);
-            sfg::Label::Ptr xl( sfg::Label::Create("ValueChanger4" ));
-            xb->Pack(x);
-            xb->Pack(xl);
-        sfg::Box::Ptr yb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
-            sfg::Scale::Ptr y( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
-            y->SetValue(200);
-            sfg::Label::Ptr yl( sfg::Label::Create("ValueChanger5" ));
-            yb->Pack(y);
-            yb->Pack(yl);
-        sfg::Box::Ptr zb(sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f ));
-            sfg::Scale::Ptr z( sfg::Scale::Create(0,255,1,sfg::Range::HORIZONTAL) );
-            z->SetValue(200);
-            sfg::Label::Ptr zl( sfg::Label::Create("ValueChanger6" ));
-            zb->Pack(z);
-            zb->Pack(zl);
+	DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+	Update();
+}
 
-    DetailsBox->Pack(ub);
-    DetailsBox->Pack(vb);
-    DetailsBox->Pack(wb);
-    DetailsBox->Pack(xb);
-    DetailsBox->Pack(yb);
-    DetailsBox->Pack(zb);
+void DetailsSpecies::Update()
+{
+    DetailsBox->RemoveAll();
+
+	AddLabel( DetailsBox, "Name", str( format("%s") % currentSpecies->getName()));
+	AddLabel( DetailsBox, "Max age", str( format("%d") % currentSpecies->getMaxAge()));
+	AddLabel( DetailsBox, "Max health", str( format("%d") % currentSpecies->getMaxHealth()));
+	AddLabel( DetailsBox, "Max speed", str( format("%.2f") % currentSpecies->getMaxSpeed()));
+	AddLabel( DetailsBox, "Reach", str( format("%.2f") % currentSpecies->getReach()));
+	AddLabel( DetailsBox, "Resistance", str( format(": %.2f") % currentSpecies->getResistance()));
+	AddLabel( DetailsBox, "Breeding speed", str( format("%.2f") % currentSpecies->getBreedingSpeed()));
+	AddLabel( DetailsBox, "Food requirement", str( format("%d") % currentSpecies->getFoodRequirement()));
+	AddLabel( DetailsBox, "Water requirement", str( format("%d") % currentSpecies->getWaterRequirement()));
+	AddLabel( DetailsBox, "Optimal temperature", str( format("%d") % currentSpecies->getOptimalTemperature()));
 }
 
 sfg::Box::Ptr DetailsSpecies::Get()
 {
     return DetailsBox;
-}
-
-void DetailsSpecies::HandleEvent( Event& e )
-{
-	//if (e.Is("EVENTNAME"))
-	{
-
-    }
 }
