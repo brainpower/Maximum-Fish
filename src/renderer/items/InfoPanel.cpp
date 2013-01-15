@@ -4,11 +4,13 @@
 InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
     RegisterForEvent( "TOGGLE_SHOW_INFOPANEL" );
+    RegisterForEvent( "TOGGLE_IPAN_MAN" );
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "CREATURE_CLICKED" );
     RegisterForEvent( "TILE_CLICKED" );
 
 	CreateWindow(RelativePosition, Size);
+	ThisNotManipulator = true;
 }
 
 void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
@@ -62,19 +64,28 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
     //add wholebox to window
     Win->Add(wholeBox);
 
+    //set Events
+    CreatureFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );
+    SpeciesFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );
+    TileFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );
 
 	Event e( "SCREEN_ADD_WINDOW" );
 	e.SetData( Win );
 	Module::Get()->QueueEvent( e );
 }
 
+void InfoPanel::SwitchToManipulator()
+{
+    Module::Get()->QueueEvent(Event("TOGGLE_IPAN_MAN"));
+}
+
 void InfoPanel::HandleEvent( Event& e )
 {
-	if (e.Is("WINDOW_RESIZE"))
+	if (e.Is("WINDOW_RESIZE") && Win->IsGloballyVisible())
     {
         updatePosition();
     }
-	else if (e.Is("TOGGLE_SHOW_INFOPANEL"))
+	else if (e.Is("TOGGLE_SHOW_INFOPANEL") && ThisNotManipulator == true)
     {
         if (Win->IsGloballyVisible())
 		{
@@ -106,6 +117,12 @@ void InfoPanel::HandleEvent( Event& e )
             SetDetail(t);
             Engine::out() << "[InfoPanel]: DetailsTile updated." << std::endl;
         }
+    }
+    else if (e.Is("TOGGLE_IPAN_MAN"))
+    {
+        Win->Show(!Win->IsGloballyVisible());
+        ThisNotManipulator = !ThisNotManipulator;
+        if (Win->IsGloballyVisible()) Win->GrabFocus();
     }
 }
 

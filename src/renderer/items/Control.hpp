@@ -28,6 +28,8 @@ class Control : public EventUser
         void BtnMiMapWinClick();
         void BtnSimPauseClick();
 
+        /// This updates the position of the ControlMenu to the bottom left corner of the application.
+        /// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
 		sfg::Window::Ptr Win;

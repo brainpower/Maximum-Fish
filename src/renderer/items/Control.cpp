@@ -64,27 +64,40 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 void Control::HandleEvent( Event& e)
 {
    if (e.Is("WINDOW_RESIZE"))
-    {
+    {   // WINDOW_RESIZE is used here to ensure the Bottom position
+        // of the ControlButtons.
         updatePosition();
     }
     else if (e.Is("KEY_SHOW_CONSOLE"))
-    {
+    {   // KEY_SHOW_CONSOLE is sent whenever an action toggles the
+        // visibility of the DebugWindow other than the ControlButton.
+        // (Most likely this is the assigned keyboardkey.)
         BtnDbgWin->SetActive(!BtnDbgWin->IsActive());
     }
     else if (e.Is("KEY_SHOW_INFOPANEL"))
-    {
+    {   // KEY_SHOW_INFOPANEL is sent whenever an action toggles the
+        // visibility of the InfoPanel other than the ControlButton.
+        // (Most likely this is the assigned keyboardkey.)
         BtnIPanWin->SetActive(!BtnIPanWin->IsActive());
     }
     else if (e.Is("KEY_SHOW_MAINMENU"))
-    {
+    {   // KEY_SHOW_MAINMENU is sent whenever an action toggles the
+        // visipility of the MainMenu other than the ControlButton.
+        // (Most likely this is the assigned keyboardkey or the Resume
+        // in the Mainmenu.)
         BtnMnMnWin->SetActive(!BtnMnMnWin->IsActive());
     }
     else if (e.Is("KEY_SHOW_MINIMAP"))
-    {
+    {   // KEY_SHOW_MINIMAP is sent whenever an action toggles the
+        // visibility of the MiniMap other than the ControlButton.
+        // (Most likely this is the assigned keyboardkey.)
         BtnMiMapWin->SetActive(!BtnMiMapWin->IsActive());
     }
     else if (e.Is("KEY_SIM_PAUSE"))
-    {
+    {   // KEY_SIM_PAUSE is sent whenever an action toggles the Simulation
+        // to its paused state other than the ControlButton.
+        // (Most likely this is the assigned keyboardkey or some
+        // kind of OptionsWindow.)
         BtnSimPause->SetActive(!BtnSimPause->IsActive());
     }
 
@@ -96,6 +109,7 @@ void Control::updatePosition()
 	sf::Vector2u winSize =  Engine::GetApp().getSize();
 	Win->SetPosition( sf::Vector2f( -5 , ( winSize.y - Allocation.height + 5 ) ) );
 }
+
 void Control::BtnDbgWinClick()
 {
     Module::Get()->QueueEvent( Event("TOGGLE_SHOW_CONSOLE") );
