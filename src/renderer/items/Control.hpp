@@ -32,6 +32,9 @@ class Control : public EventUser
         /// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
+		unsigned int simPauseConnectionSerial;
+		bool simPauseLock;
+
 		sfg::Window::Ptr Win;
 		unsigned int currentlabeltext;
 

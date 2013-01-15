@@ -9,10 +9,12 @@ Control::Control( const Geom::Vec2 Size)
     RegisterForEvent( "KEY_SHOW_MAINMENU" );
     RegisterForEvent( "KEY_SHOW_MINIMAP" );
     RegisterForEvent( "KEY_SIM_PAUSE" );
+    RegisterForEvent( "LOCK_SIM_ON_PAUSE" );
 
     currentlabeltext = 0;
     CreateWindow(Size);
     Win->Show(true);
+    simPauseLock = false;
 }
 
 void Control::CreateWindow( const Geom::Vec2 Size )
@@ -42,7 +44,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
     BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
     BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
-    BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
 
     box->Pack( BtnDbgWin,   false, false);
     box->Pack( BtnIPanWin,  false, false);
@@ -87,7 +89,7 @@ void Control::HandleEvent( Event& e)
         // in the Mainmenu.)
         BtnMnMnWin->SetActive(!BtnMnMnWin->IsActive());
     }
-    else if (e.Is("KEY_SHOW_MINIMAP"))
+    else if (e.Is("KEY_SHOW_MINIMAP") && !simPauseLock)
     {   // KEY_SHOW_MINIMAP is sent whenever an action toggles the
         // visibility of the MiniMap other than the ControlButton.
         // (Most likely this is the assigned keyboardkey.)
@@ -100,7 +102,13 @@ void Control::HandleEvent( Event& e)
         // kind of OptionsWindow.)
         BtnSimPause->SetActive(!BtnSimPause->IsActive());
     }
-
+    else if (e.Is("LOCK_SIM_ON_PAUSE"))
+    {
+        simPauseLock = !simPauseLock;
+        BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Disconnect(simPauseConnectionSerial);
+        BtnSimPause->SetActive(!BtnSimPause->IsActive());
+        simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    }
 }
 
 void Control::updatePosition()
@@ -132,5 +140,11 @@ void Control::BtnMiMapWinClick()
 
 void Control::BtnSimPauseClick()
 {
+    if (simPauseLock)
+    {
+        BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Disconnect(simPauseConnectionSerial);
+        BtnSimPause->SetActive(!BtnSimPause->IsActive());
+        simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    }
     Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE"), true );
 }

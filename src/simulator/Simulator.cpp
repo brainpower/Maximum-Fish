@@ -27,6 +27,7 @@ isPaused(false) {
 	RegisterForEvent("EVT_QUIT");
 
 	RegisterForEvent("TOGGLE_SIM_PAUSE");
+	RegisterForEvent("LOCK_SIM_ON_PAUSE");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("TERRAIN_CLICKED");
@@ -50,9 +51,24 @@ void Simulator::HandleEvent(Event& e)
 	{
 		tick();
 	}
-	else if(e.Is("TOGGLE_SIM_PAUSE"))
+	else if(e.Is("TOGGLE_SIM_PAUSE") && !isPauseLocked)
 	{
 		isPaused = !isPaused;
+	}
+	else if(e.Is("LOCK_SIM_ON_PAUSE"))
+	{
+	    if (!isPauseLocked) //if simulator will be paused: set waspaused on state of current sim-state
+	    {
+            wasPausedBeforeLock = isPaused;
+            isPaused = true;
+	    }
+	    else if (isPauseLocked)  //if simulator will be released
+	    {
+	        isPaused = wasPausedBeforeLock;
+	    }
+	    isPauseLocked = !isPauseLocked; //toggle
+
+	    Engine::out() << "[Simulator] isPauseLocked toggled successfully." << endl;
 	}
 	else if(e.Is("TERRAIN_CLICKED"))
 	{
@@ -90,7 +106,8 @@ void Simulator::init()
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is in paused" << std::endl;
 
 	isPaused = false;
-
+	isPauseLocked = false;
+    wasPausedBeforeLock = false;
 
 	GetTerrain()->setMaxElevation(1500);
 

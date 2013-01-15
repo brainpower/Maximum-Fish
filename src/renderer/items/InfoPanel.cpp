@@ -76,12 +76,13 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
 
 void InfoPanel::SwitchToManipulator()
 {
-    Module::Get()->QueueEvent(Event("TOGGLE_IPAN_MAN"));
+    Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
+    Module::Get()->QueueEvent( Event( "LOCK_SIM_ON_PAUSE" ), true );
 }
 
 void InfoPanel::HandleEvent( Event& e )
 {
-	if (e.Is("WINDOW_RESIZE") && Win->IsGloballyVisible())
+	if (e.Is( "WINDOW_RESIZE" ) && Win->IsGloballyVisible())
     {
         updatePosition();
     }
@@ -99,7 +100,7 @@ void InfoPanel::HandleEvent( Event& e )
 			Win->GrabFocus();
 		}
     }
-    else if (e.Is("CREATURE_CLICKED"))
+    else if (e.Is("CREATURE_CLICKED") && Win->IsGloballyVisible())
     {
         if (e.Data().type() == typeid(std::shared_ptr<Creature>))
         {
@@ -109,7 +110,7 @@ void InfoPanel::HandleEvent( Event& e )
             Engine::out() << "[InfoPanel]: DetailsCreature updated." << std::endl;
         }
     }
-    else if (e.Is("TILE_CLICKED"))
+    else if (e.Is("TILE_CLICKED") && Win->IsGloballyVisible())
     {
         if (e.Data().type() == typeid(std::shared_ptr<Tile>))
         {

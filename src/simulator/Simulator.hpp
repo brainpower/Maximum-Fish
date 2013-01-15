@@ -56,6 +56,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;
+        bool isPauseLocked;
+        bool wasPausedBeforeLock;
 
 		static Simulator* Instance;
 };
