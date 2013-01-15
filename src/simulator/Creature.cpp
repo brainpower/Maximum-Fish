@@ -138,14 +138,14 @@ bool Creature::moveYourAss()
 
 void Creature::move(int found)
 {
-	float migProb = 0;
+	float migProb = 1;
 
 	float hab = currentTile->getHabitability(found, mySpecies);
 
-	std::uniform_real_distribution<float> rnd(0, 100);
+	std::uniform_real_distribution<float> rnd(0, 99);
 
 
-	if(hab < 1)
+	if(hab < 10)
 	{
 		//GTFO
 		while(!moveYourAss()){}
