@@ -20,6 +20,8 @@ class Tile
 		Geom::Point getPosition() { return Position; }
 		float getHabitability(int food, std::shared_ptr<Species> sp);
 		int getNumConspecifics(std::shared_ptr<Species> sp, int radius);
+		bool isWater() {return baseHumidity > 0.95;}
+		int getTileSpriteIndex();
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 

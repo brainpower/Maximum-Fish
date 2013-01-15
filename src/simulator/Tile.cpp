@@ -74,6 +74,16 @@ int Tile::getNumConspecifics(std::shared_ptr<Species> sp, int radius)
 	return num;
 }
 
+int Tile::getTileSpriteIndex()
+{
+	if(this->isWater()) return 0;
+	
+	float maxElev = Simulator::GetTerrain()->getMaxElevation();
+	if(this->height < maxElevation * .05) return 1;
+	if(this->height < maxElevation * .9) return 3;
+	return 2;
+}
+
 void Tile::addCreature ( const std::shared_ptr<Creature>& p )
 {
 	Creatures.push_back(p);
