@@ -80,8 +80,8 @@ int Tile::getTileSpriteIndex()
 	
 	float maxElev = Simulator::GetTerrain()->getMaxElevation();
 	if(this->height < maxElev * .05) return 1;
-	if(this->height < maxElev * .9) return 3;
-	return 2;
+	if(this->height < maxElev * .9) return 2;
+	return 3;
 }
 
 void Tile::addCreature ( const std::shared_ptr<Creature>& p )
