@@ -30,6 +30,7 @@ isPaused(false) {
 	RegisterForEvent("LOCK_SIM_ON_PAUSE");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
+	RegisterForEvent("EVT_SAVE_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
 
 	init();
