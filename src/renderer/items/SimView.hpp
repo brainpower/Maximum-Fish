@@ -49,12 +49,6 @@ class SimView : public EventUser
 		std::list<std::shared_ptr<Creature>> CullCreatures();
 		std::vector<std::shared_ptr<Tile>> CullTerrain();
 
-
-		/**
-			Determines which Sprite from the tileset should be used do render this tile.
-			Right now this just uses a simple height formula to determine what to render.
-		*/
-		int DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t);
 		int DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t);
 
 			/// determines where a Tile should be rendered on the viewport

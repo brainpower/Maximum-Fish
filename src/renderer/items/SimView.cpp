@@ -269,7 +269,7 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 
 	for ( std::shared_ptr<Tile> T : r)
 	{
-		ImgSet->CreateQuad( DetermineTileSpriteIndex( T ) , Tiles, DetermineTilePos( T ) , (i++ * 4));
+		ImgSet->CreateQuad( T->getTileSpriteIndex() , Tiles, DetermineTilePos( T ) , (i++ * 4));
 	}
 
 	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
@@ -364,17 +364,6 @@ sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
 	re.height 	= CreatureSize;
 
 	return re;
-}
-
-int SimView::DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t)
-{
-	/// FIXME: hard coded max height only fits for debug terrain!
-	float heightpercentage = t->getHeight() / 1500;
-
-	if ( heightpercentage < .01) return 0;
-	if ( heightpercentage < .05) return 1;
-	if ( heightpercentage < .9) return 2;
-	return 3;
 }
 
 int SimView::DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t)
