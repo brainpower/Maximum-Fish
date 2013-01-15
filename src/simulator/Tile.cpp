@@ -79,8 +79,8 @@ int Tile::getTileSpriteIndex()
 	if(this->isWater()) return 0;
 	
 	float maxElev = Simulator::GetTerrain()->getMaxElevation();
-	if(this->height < maxElevation * .05) return 1;
-	if(this->height < maxElevation * .9) return 3;
+	if(this->height < maxElev * .05) return 1;
+	if(this->height < maxElev * .9) return 3;
 	return 2;
 }
 
