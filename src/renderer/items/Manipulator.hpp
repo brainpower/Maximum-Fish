@@ -21,10 +21,10 @@ class Manipulator : public EventUser
     private:
 		void SwitchToInfoPanel();
         void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
-        void SetDetail( const std::shared_ptr<Creature>& _creature);
-        void SetDetail( const std::shared_ptr<Species>& _species);
-      	void SetDetail( const std::shared_ptr<Tile>& _tile);
-		void updatePosition();
+        void updatePosition();
+		void SetInformation_1();
+		void SetInformation_2();
+		void ResetInformation();
 
 		sfg::Window::Ptr Win;
         sfg::Label::Ptr Information;

@@ -28,13 +28,17 @@ void Manipulator::CreateWindow( const Geom::Point& RelativePosition, const Geom:
             sfg::Frame::Ptr infoFrame( sfg::Frame::Create("Information") );
             infoFrame->SetRequisition( sf::Vector2f(200,200) );
             Information = sfg::Label::Create();
-            Information->SetText("Hover over an option below\nto show more information\nabout it.");
+            ResetInformation();
             infoFrame->Add(Information);
 
             //create manipulation1
             sfg::Frame::Ptr m1( sfg::Frame::Create("m1") );
+            unsigned int serial1on  = m1->GetSignal( sfg::Frame::OnMouseEnter).Connect( &Manipulator::SetInformation_1, this);
+            unsigned int serial1off = m1->GetSignal( sfg::Frame::OnMouseLeave).Connect( &Manipulator::ResetInformation, this);
             //create manipulation2
             sfg::Frame::Ptr m2( sfg::Frame::Create("m2") );
+            unsigned int serial2on  = m2->GetSignal( sfg::Frame::OnMouseEnter).Connect( &Manipulator::SetInformation_2, this);
+            unsigned int serial2off = m2->GetSignal( sfg::Frame::OnMouseLeave).Connect( &Manipulator::ResetInformation, this);
 
         //pack all into wholebox
         wholeBox->Pack(infoFrame, false, true);
@@ -60,12 +64,24 @@ void Manipulator::SwitchToInfoPanel()
     Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
     Module::Get()->QueueEvent( Event( "LOCK_SIM_ON_PAUSE" ), true );
 }
-/*
-void InfoPanel::SwichFromInfoPanel()
+
+void Manipulator::ResetInformation()
 {
-    Win->Show(true);
-    ThisNotInfoPanel = true;
-}*/
+    Information->RequestResize();
+    Information->SetText("Hover over an option below\nto show more information\nabout it.");
+}
+
+void Manipulator::SetInformation_1()
+{
+    Information->RequestResize();
+    Information->SetText("This is some Information to m1.\nThere is no minimal or maximal Value,\nnor is anything displayed,\nso this is useless for now");
+}
+
+void Manipulator::SetInformation_2()
+{
+    Information->RequestResize();
+    Information->SetText("Information for m2");
+}
 
 void Manipulator::HandleEvent( Event& e )
 {
@@ -84,12 +100,14 @@ void Manipulator::HandleEvent( Event& e )
 		{
 			updatePosition();
 			Win->Show(true);
+			ResetInformation();
 			Win->GrabFocus();
 		}
     }
     else if (e.Is("TOGGLE_IPAN_MAN"))
     {
         Win->Show(!Win->IsGloballyVisible());
+        ResetInformation();
         ThisNotInfoPanel = !ThisNotInfoPanel;
         if (Win->IsGloballyVisible()) Win->GrabFocus();
     }
