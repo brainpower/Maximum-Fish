@@ -39,6 +39,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     //init the first look of the buttons BEFORE they are connected with their actions.
     BtnDbgWin->SetActive(true);
     BtnIPanWin->SetActive(true);
+    BtnSimPause->SetActive(true);
 
     BtnDbgWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
     BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
