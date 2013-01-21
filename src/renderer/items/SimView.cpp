@@ -12,7 +12,12 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <boost/format.hpp>
+
 #include <cmath>
+
+using boost::format;
+using boost::io::group;
 
 SimView::SimView()
 :
@@ -245,6 +250,14 @@ void SimView::Render()
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
+
+	PostDebugInfo();
+}
+
+void SimView::PostDebugInfo()
+{
+	Module::Get()->DebugString("View Size",  str(format("%.0f x %.0f") % TargetSize.x % TargetSize.y));
+	Module::Get()->DebugString("View Pos", str(format("%.0f x %.0f") % TargetCenter.x % TargetCenter.y));
 }
 
 void SimView::ReadTileRenderList(TileRenderList& r)

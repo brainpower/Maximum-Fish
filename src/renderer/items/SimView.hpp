@@ -42,6 +42,8 @@ class SimView : public EventUser
 		void Render();
 	private:
 
+		void PostDebugInfo();
+
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
 		void CreateGrid();

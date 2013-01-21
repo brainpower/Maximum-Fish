@@ -11,22 +11,14 @@
 #include "Tile.hpp"
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
- : mySpecies (Species),
-	currentHealth(100),
+ : 	currentHealth(100),
 	age(0),
-	Position( 0, 0 )
+	Position( 0, 0 ),
+	mySpecies (Species)
 {
 	if (!Species)
 	{
 		Engine::out(Engine::ERROR) << "[Creature] constructed with invalid Species" << std::endl;
-	}
-}
-
-void Creature::HandleEvent(Event& e)
-{
-	if (e.Is("EVT_TICK"))
-	{
-		live();
 	}
 }
 

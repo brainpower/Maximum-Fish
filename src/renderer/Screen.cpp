@@ -163,7 +163,7 @@ void Screen::HandleEvent(Event& e)
 			}
 			else
 			{
-				Engine::out() << "[Screen] No supported fullscreen mode found!" << std::endl;
+				Engine::out(Engine::WARNING) << "[Screen] No supported fullscreen mode found!" << std::endl;
 			}
 		}
 		else
@@ -183,7 +183,7 @@ void Screen::HandleEvent(Event& e)
 		}
 		else
 		{
-			Engine::out() << "[Screen] SCREEN_ADD_WIDGET Event with wrong parameters" << std::endl;
+			Engine::out(Engine::ERROR) << "[Screen] SCREEN_ADD_WIDGET Event with wrong parameters" << std::endl;
 		}
 	}
 	else if (e.Is("EVT_QUIT"))

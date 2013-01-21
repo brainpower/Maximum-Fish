@@ -104,9 +104,9 @@ void Simulator::init()
 
 	Terra->CreateDebugTerrain();
 
-	Engine::out(Engine::INFO) << "[Simulator] Simulation is in paused" << std::endl;
+	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
-	isPaused = false;
+	isPaused = true;
 	isPauseLocked = false;
     wasPausedBeforeLock = false;
 

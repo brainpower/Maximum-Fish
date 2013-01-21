@@ -82,7 +82,7 @@ void DebugWindow::HandleEvent( Event& e )
 		}
 		else
 		{
-			Engine::out() << "[DebugWindow] DebugString Event with wrong parameters" << std::endl;
+			Engine::out(Engine::ERROR) << "[DebugWindow] DebugString Event with wrong parameters" << std::endl;
 		}
 	}
 	else if (e.Is("EVT_FRAME"))
@@ -197,6 +197,5 @@ void DebugWindow::OnConsoleInputActivation()
 {
     Screen::GetScreenObj()->KeyEventCatcher = true;
 
-    //DebugMessage
-	Engine::out() << "[DebugWindow]KeyEventCatcher" << std::endl;
+	//Engine::out() << "[DebugWindow] KeyEventCatcher" << std::endl;
 }

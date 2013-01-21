@@ -12,12 +12,11 @@ class Tile;
 The Creature class is the main scaff for simulation, this is where als the basic stuff is initialized.
 Also basic calculation are happening here.
 */
-class Creature : public EventUser, public std::enable_shared_from_this<Creature>
+class Creature : public std::enable_shared_from_this<Creature>
 {
 	public:
 		Creature( const std::shared_ptr<Species>& Species);
 		virtual ~Creature() {};
-		virtual void HandleEvent( Event& e);
 
 		void live();
 
