@@ -123,20 +123,24 @@ void Simulator::tick()
 
 		for(auto it = Creatures.begin(); it != Creatures.end();)
 		{
-			//and ya god said live creature !... LIVE !!!
-			(*it)->live();
 
 			if((*it)->getCurrentHealth() <= 0)
 			{
+				(*it)->getTile()->removeCreature(*it);
 				auto it2 = it++;
 				Creatures.erase( it2 );
 			}
 			else
 			{
 				++it;
+				
+				//and ya god said live creature !... LIVE !!!
+				(*it)->live();
 			}
 			//for debug count Creatures
 			count++;
+			
+			
 		}
 
 		//Engine::out() << "Living Creatures: " << count << std::endl;
@@ -233,16 +237,13 @@ void Simulator::addRandomCreature()
 	std::uniform_int_distribution<int> species_rnd(0,SpeciesList.size()-1);
 
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( SpeciesList[species_rnd(gen)] ));
-	ptr_creature->setPosition( Geom::Pointf(rnd(gen),rnd(gen)) );
+	Geom::Pointf Position (rnd(gen),rnd(gen));
 
-	//std::cout << !Simulator::GetTerrain()->getTile(ptr_creature->getPosition())->getHabitability(1,ptr_creature->getSpecies()) << std::endl;
+	float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
 
-	// ONLY FOR DEBBUGING FUCKING HATERS
-
-	float hab = Simulator::GetTerrain()->getTile(ptr_creature->getPosition())->getHabitability(1,ptr_creature->getSpecies());
-
-	if( hab > 0.0f )
+	if( hab > 0.0f && ptr_creature->validPos( Position ) )
 	{
+		ptr_creature->setPosition( Position );
 		Creatures.push_back(ptr_creature);
 	}
 }

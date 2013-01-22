@@ -3,6 +3,8 @@
 #include "sbe/event/Event.hpp"
 #include "sbe/Module.hpp"
 #include "sbe/Geom.hpp"
+#include "simulator/Creature.hpp"
+
 
 #include <random>
 
@@ -13,14 +15,14 @@ Terrain::Terrain()
 
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
-	int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (index < 0 || index > Tiles.size()) return InvalidTile;
+	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
+	if (!validPos(pos) || index < 0 || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
-	int index = (int)(pos.x) * Size.x + (int)(pos.y);
+	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
 	if (index < 0 || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
@@ -42,20 +44,45 @@ void Terrain::UpdateTerrain()
 	Module::Get()->QueueEvent(e, true);
 }
 
-std::vector<std::shared_ptr<Tile>> Terrain::get_nearby(Tile &tile, unsigned int radius)
+std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T)
 {
-	std::vector<std::shared_ptr<Tile>> ret;
+	std::list<std::shared_ptr<Tile>> ret;
 
-	for(std::shared_ptr<Tile> t: Tiles)
+	for (int x = T.getPosition().x-1; x < T.getPosition().x+1; ++x)
 	{
-		if( ((t->getPosition().y < tile.getPosition().y-radius)  &&  (t->getPosition().y < tile.getPosition().y+radius))
-			&& ((t->getPosition().x < tile.getPosition().x+radius) && (t->getPosition().x > tile.getPosition().x-radius)) )
+		for (int y = T.getPosition().y-1; y < T.getPosition().y+1; ++y)
 		{
-			ret.push_back(t);
-		}
+			auto _T = getTile( Geom::Vec2f(x,y) );
+			if (!_T || (x = T.getPosition().x && y == T.getPosition().y)) break;
+			
+			ret.push_back(_T);
+		}		
 	}
+
 	return ret;
 }
+
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+{
+	std::list<std::shared_ptr<Creature>> ret;
+
+	for (int x = Position.x-radius; x < Position.x+radius; ++x)
+	{
+		for (int y = Position.y-radius; y < Position.y+radius; ++y)
+		{
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			if (!T) break;
+						
+			for (std::shared_ptr<Creature>& C : T->getCreatures())
+			{
+				if ( Geom::distance( C->getPosition(), Position ) < radius && filter ( C ) ) ret.push_back(C);
+			}
+		}		
+	}
+
+	return ret;
+}
+
 
 void Terrain::CreateDebugTerrain()
 {
@@ -95,7 +122,6 @@ void Terrain::CreateDebugTerrain()
 			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, rnd(gen), Humidity );
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
-			Humidity = 0;
 		}
 	}
 }

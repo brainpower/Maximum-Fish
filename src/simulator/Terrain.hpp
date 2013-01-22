@@ -1,13 +1,15 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include <list>
-#include <memory>
-
 #include "sbe/util/QuadTree.hpp"
 #include "sbe/Geom.hpp"
 #include "Tile.hpp"
 
+#include <list>
+#include <memory>
+#include <functional>
+
+class Creature;
 
 class Terrain
 {
@@ -21,12 +23,18 @@ class Terrain
 		void setMaxElevation(const float e) {maxElevation = e;}
 		float getHumidityFactor( ) const { return humidityFactor;}
 
-		std::vector<std::shared_ptr<Tile>> get_nearby(Tile &tile, unsigned int radius);
+		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = []{return true;} );
+		std::list<std::shared_ptr<Tile>> getNeighbours(Tile& T);
 
 		float getTileElevation(Geom::Vec2f pos);
 		float getMaxElevation();
 		float getGlobalTemp();
 		const Geom::Vec2& getSize() const { return Size; };
+
+		bool validPos( const Geom::Pointf& Pos )
+		{
+			return (!( Pos.x >= Size.x || Pos.x < 0 || Pos.y >= Size.y || Pos.y < 0));
+		}
 
 		std::shared_ptr<Tile>& getTile( Geom::Vec2f pos );
 
