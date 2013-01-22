@@ -21,12 +21,14 @@ class Control : public EventUser
         sfg::ToggleButton::Ptr BtnMnMnWin;
         sfg::ToggleButton::Ptr BtnMiMapWin;
         sfg::ToggleButton::Ptr BtnSimPause;
+        sfg::Button::Ptr BtnSimReset;
 
         void BtnDbgWinClick();
         void BtnIPanWinClick();
         void BtnMnMnWinClick();
         void BtnMiMapWinClick();
         void BtnSimPauseClick();
+        void BtnSimResetClick();
 
         /// This updates the position of the ControlMenu to the bottom left corner of the application.
         /// Its called whenever a change of Application-size occures.
