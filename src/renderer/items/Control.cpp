@@ -34,7 +34,8 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     BtnIPanWin =  sfg::ToggleButton::Create( "InfoPanel" );
     BtnMnMnWin =  sfg::ToggleButton::Create( "MainMenu" );
     BtnMiMapWin = sfg::ToggleButton::Create( "MiniMap" );
-    BtnSimPause = sfg::ToggleButton::Create( "SimPause" );
+    BtnSimPause = sfg::ToggleButton::Create( "Pause" );
+    BtnSimReset =       sfg::Button::Create( "Reset" );
 
     //init the first look of the buttons BEFORE they are connected with their actions.
     BtnDbgWin->SetActive(true);
@@ -46,12 +47,14 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
     BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
     simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    BtnSimReset->GetSignal( sfg::Button::OnLeftClick ).Connect( &Control::BtnSimResetClick, this );
 
     box->Pack( BtnDbgWin,   false, false);
     box->Pack( BtnIPanWin,  false, false);
     box->Pack( BtnMnMnWin,  false, false);
     box->Pack( BtnMiMapWin, false, false);
     box->Pack( BtnSimPause, false, false);
+    box->Pack( BtnSimReset, false, false);
 
 
     // Create a window and add the box layouter to it.
@@ -148,4 +151,9 @@ void Control::BtnSimPauseClick()
         simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
     }
     Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE"), true );
+}
+
+void Control::BtnSimResetClick()
+{
+    Module::Get()->QueueEvent( Event("RESET_SIMULATION"), true );
 }
