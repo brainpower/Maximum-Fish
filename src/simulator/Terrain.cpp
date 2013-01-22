@@ -32,7 +32,6 @@ float Terrain::getGlobalTemp()
 
 void Terrain::UpdateTerrain()
 {
-	//make a freakin Event, man
 	Event e("UpdateTileRenderList");
 	e.SetData( Tiles );
 	Module::Get()->QueueEvent(e, true);
@@ -94,6 +93,4 @@ void Terrain::CreateDebugTerrain()
 			Humidity = 0;
 		}
 	}
-
-	UpdateTerrain();
 }

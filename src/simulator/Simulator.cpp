@@ -120,6 +120,12 @@ void Simulator::init()
 	for(int i = 0; i < 1000; ++i) addRandomCreature();
 
 
+	// send terrain to renderer
+	Terra->UpdateTerrain();
+	// send creatures to renderer
+	Event e("UpdateCreatureRenderList");
+	e.SetData ( Creatures );
+	Module::Get()->QueueEvent(e, true);
 }
 
 void Simulator::tick()

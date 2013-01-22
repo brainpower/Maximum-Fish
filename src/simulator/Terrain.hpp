@@ -13,6 +13,7 @@ class Terrain
 {
 	public:
 
+		/// will do some weather calculations in the future, for now just sends the current terrain to the renderer
 		void UpdateTerrain();
 		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
 		void setMaxElevation(const float e) {maxElevation = e;}
