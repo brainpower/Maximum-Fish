@@ -34,7 +34,7 @@ class Species : public EventUser
 
 		//-1 to lazy, oh boy
 		int getMaxAge() const    {return maxAge;}
-		int getMaxHealth() const {return maxHealth;}
+		float getMaxHealth() const {return maxHealth;}
 		float getMaxSpeed() const  {return maxSpeed;}
 		float getReach() const     {return Reach;}
 		float getResistance()const  {return resistance;}
@@ -48,7 +48,7 @@ class Species : public EventUser
 
 		//+1 style
 		void setMaxAge(int ma) {                        maxAge = ma;}
-		void setMaxHealth(int mh) {                  maxHealth = mh;}
+		void setMaxHealth(float mh) {                  maxHealth = mh;}
 		void setMaxSpeed(float ms) {                  maxSpeed = ms;}
 		void setReach(float r) {                            Reach = r;}
 		void setResistance(float re){                 resistance = re;}
@@ -67,7 +67,7 @@ class Species : public EventUser
 		/// age in ticks
 		int maxAge;
 		/// maximum health, should be around 100
-		int maxHealth;
+		float maxHealth;
 		/// maximum speed a.k.a. range the creature can move in one tick
 		float maxSpeed;
 		/// range the creature can detect prey
@@ -84,8 +84,7 @@ class Species : public EventUser
 		int waterRequirement;
 
 		/**
-			Determines the optimal Height for the species to live and
-			also the required temperature
+			Determines the optimal Temperature for the species to live in °C
 		*/
 		int optimalTemperature;
 

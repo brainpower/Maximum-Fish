@@ -20,6 +20,10 @@ Creature::Creature( const std::shared_ptr<Species>& Species)
 	{
 		Engine::out(Engine::ERROR) << "[Creature] constructed with invalid Species" << std::endl;
 	}
+	else
+	{
+		this->setCurrentHealth(Species->getMaxHealth());
+	}
 }
 
 const std::string& Creature::getSpeciesString() const
@@ -44,7 +48,7 @@ void Creature::setPosition( const Geom::Pointf& pos)
 void Creature::live()
 {
 	// damage from environment
-	//calcEnv();
+	calcEnv();
 	// feed
 	int found = 10; // = huntFood(); <-- use this as soon as it works
 	// move ( or not )
@@ -161,13 +165,15 @@ void Creature::calcEnv()
 
 	//modifiers
 	const float altModifier1 = 16;	//stretches out the range where creatures don't take much damage from wrong elevation \__/ -> \____/
-	const float altModifier2 = 4;	//higher values here mean steeper rise in damage from moving further away from optimal elevation; only use even numbers! \__/ -> |__|
+	const float altModifier2 = 2;	//higher values here mean steeper rise in damage from moving further away from optimal elevation; only use even numbers! \__/ -> |__|
 
 
 	//--damage from wrong elevation/temperature
 	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
 	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
+	
+	float fdmg = (float)(damage)/100000;
 
-	currentHealth -= damage;
+	currentHealth -= fdmg;
 }

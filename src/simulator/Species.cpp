@@ -11,7 +11,7 @@ Species::Species(const std::string& _name)
  type( HERBIVORE ),
  foodRequirement( 10 ), /// a creature with 100hp lasts for 10 days?
  waterRequirement( 10 ), /// just
- optimalTemperature( 128 ), /// 256/2
+ optimalTemperature( 20 ), /// 20°C
  ImageSetName("Creatures_serious"),
  Frame( type )
 {

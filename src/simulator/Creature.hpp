@@ -20,12 +20,12 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		void live();
 
-		void setCurrentHealth(const int ch){ currentHealth = ch;}
+		void setCurrentHealth(const float ch){ currentHealth = ch;}
 		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
 		void setPosition(const Geom::Pointf& pos);
 
-		int getCurrentHealth() const { return currentHealth; }
+		float getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
 		const std::string& getSpeciesString() const;
 		const std::shared_ptr<Species>& getSpecies() const {return mySpecies;};
@@ -45,7 +45,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 
 		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
-		int currentHealth;
+		float currentHealth;
 		int age;
 		Geom::Vec2f Position;
 

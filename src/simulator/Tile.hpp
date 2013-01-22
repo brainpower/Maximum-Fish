@@ -48,6 +48,9 @@ class Tile
 
 		/// a list of all Creatures on that Tile
 		std::list<std::shared_ptr<Creature>> Creatures;
+		
+		///temperature decreases by approximately 0.007°C per meter
+		static const float d;
 
 };
 

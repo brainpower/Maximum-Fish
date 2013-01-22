@@ -6,6 +6,11 @@
 
 #include <random>
 
+Terrain::Terrain()
+ : globalTemp(20)
+{
+}
+
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
 	int index = (int)(pos.x) * Size.x + (int)(pos.y);

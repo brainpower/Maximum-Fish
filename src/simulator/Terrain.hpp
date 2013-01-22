@@ -13,6 +13,8 @@ class Terrain
 {
 	public:
 
+		Terrain();
+
 		/// will do some weather calculations in the future, for now just sends the current terrain to the renderer
 		void UpdateTerrain();
 		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
@@ -43,8 +45,12 @@ class Terrain
 		Geom::Vec2 Size;
 
 		float humidityFactor;
-		float globalTemp;              //temperature at sea level
-		float maxElevation;              //highest elevation (in m) on the map, lowest is 0 (sea level)
+		
+		///temperature at sea level (default 20)
+		float globalTemp;              
+		
+		///highest elevation (in m) on the map, lowest is 0 (sea level)
+		float maxElevation;              
 
 		// returned in some cases instead of a valid Tile ( e.g. tile index out of range )
 		std::shared_ptr<Tile> InvalidTile;

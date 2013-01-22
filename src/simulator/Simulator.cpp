@@ -136,11 +136,20 @@ void Simulator::tick()
 	{
 		int count = 0;
 
-		for(std::shared_ptr<Creature> c_ptr: Creatures)
+		for(auto it = Creatures.begin(); it != Creatures.end();)
 		{
 			//and ya god said live creature !... LIVE !!!
-			c_ptr->live();
-
+			(*it)->live();
+			
+			if((*it)->getCurrentHealth() <= 0)
+			{
+				auto it2 = it++;
+				Creatures.erase( it2 );
+			}
+			else
+			{
+				++it;
+			}
 			//for debug count Creatures
 			count++;
 		}
@@ -208,7 +217,7 @@ void Simulator::registerIOPlugins()
 void Simulator::addRandomSpecies()
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(0,255);
+	std::uniform_int_distribution<int> temp_rnd(-20,40);
 
 	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
 
@@ -230,8 +239,6 @@ void Simulator::addRandomSpecies()
 
 	S->setType( t );
 	S->setOptimalTemperature( temp_rnd( gen ) );
-	S->setWaterRequirement(10);
-
 	SpeciesList.push_back( S );
 }
 
