@@ -9,12 +9,11 @@ Control::Control( const Geom::Vec2 Size)
     RegisterForEvent( "KEY_SHOW_MAINMENU" );
     RegisterForEvent( "KEY_SHOW_MINIMAP" );
     RegisterForEvent( "KEY_SIM_PAUSE" );
-    RegisterForEvent( "LOCK_SIM_ON_PAUSE" );
+    RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
+    RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
 
-    currentlabeltext = 0;
     CreateWindow(Size);
     Win->Show(true);
-    simPauseLock = false;
 }
 
 void Control::CreateWindow( const Geom::Vec2 Size )
@@ -46,8 +45,9 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
     BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
     BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
-    simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
-    BtnSimReset->GetSignal( sfg::Button::OnLeftClick ).Connect( &Control::BtnSimResetClick, this );
+        simPauseConnectionSerial =
+    BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    BtnSimReset->GetSignal( sfg::Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
 
     box->Pack( BtnDbgWin,   false, false);
     box->Pack( BtnIPanWin,  false, false);
@@ -105,14 +105,31 @@ void Control::HandleEvent( Event& e)
         // (Most likely this is the assigned keyboardkey or some
         // kind of OptionsWindow.)
         BtnSimPause->SetActive(!BtnSimPause->IsActive());
+
     }
-    else if (e.Is("LOCK_SIM_ON_PAUSE"))
+    else if (e.Is("SIM_ON_PAUSE_LOCK"))
     {
-        simPauseLock = !simPauseLock;
-        BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Disconnect(simPauseConnectionSerial);
-        BtnSimPause->SetActive(!BtnSimPause->IsActive());
-        simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+        //if ( BtnSimPause->IsActive() )
+        //{
+            SimPause(true);
+        //}
+        //else
+        //{
+        //    BtnSimPause->SetActive(true);
+        //}
     }
+    else if (e.Is("SIM_FROM_PAUSE_RELEASE"))
+    {
+        //if ( !BtnSimPause->IsActive() )
+        //{
+            SimPause(false);
+        //}
+        //else
+        //{
+        //    BtnSimPause->SetActive(false);
+        //}
+    }
+
 }
 
 void Control::updatePosition()
@@ -144,13 +161,39 @@ void Control::BtnMiMapWinClick()
 
 void Control::BtnSimPauseClick()
 {
-    if (simPauseLock)
+    SimPause( BtnSimPause->IsActive() );
+}
+
+void Control::SimPause(bool _p)
+{
+    if (_p) //on locking
     {
-        BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Disconnect(simPauseConnectionSerial);
-        BtnSimPause->SetActive(!BtnSimPause->IsActive());
-        simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+        if (simPauseLockLevel == 0) //first locking with pause
+        {
+            Module::Get()->QueueEvent( Event( "TOGGLE_SIM_PAUSE" ), true );
+        }
+        /******/int dbg = simPauseLockLevel;
+        simPauseLockLevel++;
+
+        /******/Engine::out() << "[Renderer]======= simpauselevel: " << dbg << " -> " << simPauseLockLevel << " ↑" << std::endl;
+        //BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Disconnect(simPauseConnectionSerial);
+        //BtnSimPause->SetActive(false);
+        //simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
     }
-    Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE"), true );
+    else if (!_p)  //on releasing
+    {
+        /******/int dbg = simPauseLockLevel;
+        if ( simPauseLockLevel > 1 )
+        {
+            simPauseLockLevel--;
+        }
+        else //on last release and continue
+        {
+            simPauseLockLevel = 0;
+            Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE"), true );
+        }
+        /******/Engine::out() << "[Renderer]======= simpauselevel: " << dbg << " -> " << simPauseLockLevel << " ↓" << std::endl;
+    }
 }
 
 void Control::BtnSimResetClick()

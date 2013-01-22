@@ -52,24 +52,9 @@ void Simulator::HandleEvent(Event& e)
 	{
 		tick();
 	}
-	else if(e.Is("TOGGLE_SIM_PAUSE") && !isPauseLocked)
+	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
 		isPaused = !isPaused;
-	}
-	else if(e.Is("LOCK_SIM_ON_PAUSE"))
-	{
-	    if (!isPauseLocked) //if simulator will be paused: set waspaused on state of current sim-state
-	    {
-            wasPausedBeforeLock = isPaused;
-            isPaused = true;
-	    }
-	    else if (isPauseLocked)  //if simulator will be released
-	    {
-	        isPaused = wasPausedBeforeLock;
-	    }
-	    isPauseLocked = !isPauseLocked; //toggle
-
-	    Engine::out() << "[Simulator] isPauseLocked toggled successfully." << endl;
 	}
 	else if(e.Is("TERRAIN_CLICKED"))
 	{
@@ -140,7 +125,7 @@ void Simulator::tick()
 		{
 			//and ya god said live creature !... LIVE !!!
 			(*it)->live();
-			
+
 			if((*it)->getCurrentHealth() <= 0)
 			{
 				auto it2 = it++;
