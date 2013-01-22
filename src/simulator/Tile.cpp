@@ -59,23 +59,6 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 	return ret;
 }
 
-int Tile::getNumConspecifics(std::shared_ptr<Species> sp, int radius)
-{
-	int num = 0;
-	std::vector<std::shared_ptr<Tile>> tiles = Simulator::GetTerrain()->get_nearby(*this, radius);
-	for(std::shared_ptr<Tile> t : tiles)
-	{
-		for(std::shared_ptr<Creature> c : t->getCreatures())
-		{
-			if(c->getSpecies() == sp)
-			{
-				num++;
-			}
-		}
-	}
-	return num;
-}
-
 int Tile::getTileSpriteIndex()
 {
 	if(this->isWater()) return 0;

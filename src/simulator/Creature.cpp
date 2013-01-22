@@ -50,17 +50,29 @@ void Creature::live()
 	// damage from environment
 	calcEnv();
 	// feed
-	int found = 10; // = huntFood(); <-- use this as soon as it works
+	int found = 0;
+	if(currentHealth/mySpecies->getMaxHealth() < 0.75)
+	{
+		huntFood(); 
+	}
+	//else if(Artgenossen in der Naehe)
+	//{
+	//	mate();
+	//}
+	else
+	{
+		move(found);
+	}
 	// move ( or not )
-	move(found);
 	// and try to reproduce
-	//mate();
+	//
 }
 
-int Creature::huntFood()
+void Creature::huntFood()
 {
 	const float pNutritionDiv = 4;	//reduces importance of nutrition to plants
 	int foodFound = 0;
+	std::shared_ptr<Terrain> terra = Simulator::GetTerrain();
 
 	switch (mySpecies->getType())
 	{
@@ -68,11 +80,28 @@ int Creature::huntFood()
 			//only plant-related calculations ###NO_AI###
 			break;
 		case Species::CARNIVORE:
+			{
 			/*CARNIVORE*/
 			//look for prey, hunt ###AI###
+			float min_dist 	= mySpecies->getReach();
+			std::shared_ptr<Creature> nearest;
+			
+			terra->getNearby(Position, mySpecies->getReach(), 
+				[&]( const std::shared_ptr<Creature>& C ) 
+				{ 
+					if (C->getSpecies()->getType() != Species::HERBIVORE) return false;
+					if ( float dist = Geom::distance( C->getPosition(), Position ) < min_dist)
+					{ 
+						min_dist = dist; nearest = C; 
+					}
+					return  false;
+				});
+				
+			
 			//possibly:
 			//foodFound = prey(); <-- will be defined in creature
 			break;
+			}
 		case Species::HERBIVORE:
 			/*HERBIVORE*/
 			//look for plants ###AI###
@@ -162,6 +191,7 @@ void Creature::move(int found)
 void Creature::calcEnv()
 {
 	//####### calculate external effects on creature ########
+	float mult = 0.00001;
 
 	//modifiers
 	const float altModifier1 = 16;	//stretches out the range where creatures don't take much damage from wrong elevation \__/ -> \____/
@@ -173,7 +203,7 @@ void Creature::calcEnv()
 
 	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
 	
-	float fdmg = (float)(damage)/100000;
+	float fdmg = (float)(damage)*mult;
 
 	currentHealth -= fdmg;
 }

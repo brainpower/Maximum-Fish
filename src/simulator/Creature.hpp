@@ -34,7 +34,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 	private:
 
 		friend class CreatureIOPlugin;
-		int huntFood();
+		void huntFood();
 		void mate();
 		void move(int found);
 		bool moveYourAss();
