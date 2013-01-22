@@ -81,10 +81,10 @@ int Creature::huntFood()
 
 	//to calculate health effects due to nutrition check if this creature is a plant or an animal
 	if(mySpecies->getType() != Species::HERBA) {
-		damage = damage + (mySpecies->getFoodRequirement() - foodFound);
+		damage += mySpecies->getFoodRequirement() - foodFound;
 	}
 	else {
-		damage = damage + pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
+		damage += pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
 	}
 }
 
@@ -99,13 +99,8 @@ bool Creature::moveYourAss()
 	float x = Position.x;
 	float y = Position.y;
 
-	x = x + rnd(Simulator::GetEngine());
-	y = y + rnd(Simulator::GetEngine());
-
-
-	// ONLY FOR FUCKING DEBBUGING YOU FUCKING HATERS (Yes i meant you Lirrec)
-	// gtfo and write code that actually doesn't crash because you're to dumb to check your coords for validity
-	// i added some checks, specially for you
+	x += rnd(Simulator::GetEngine());
+	y += rnd(Simulator::GetEngine());
 
 	float hab = 0;
 	std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( Geom::Vec2f(x,y) );
@@ -172,7 +167,7 @@ void Creature::calcEnv()
 	//--damage from wrong elevation/temperature
 	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
-	damage = damage + (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
+	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
 
-	currentHealth = currentHealth - damage;
+	currentHealth -= damage;
 }
