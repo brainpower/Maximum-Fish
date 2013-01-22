@@ -31,6 +31,11 @@ class Terrain
 		float getGlobalTemp();
 		const Geom::Vec2& getSize() const { return Size; };
 
+		bool validPos( const Geom::Pointf& Pos )
+		{
+			return (!( Pos.x >= Size.x || Pos.x < 0 || Pos.y >= Size.y || Pos.y < 0));
+		}
+
 		std::shared_ptr<Tile>& getTile( Geom::Vec2f pos );
 
 		void CreateDebugTerrain();

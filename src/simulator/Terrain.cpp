@@ -16,7 +16,7 @@ Terrain::Terrain()
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (index < 0 || index > Tiles.size()) return InvalidTile;
+	if (!validPos(pos) || index < 0 || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
@@ -70,7 +70,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			auto T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
 			if (!T) break;
 						
 			for (std::shared_ptr<Creature>& C : T->getCreatures())
@@ -122,7 +122,6 @@ void Terrain::CreateDebugTerrain()
 			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, rnd(gen), Humidity );
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
-			Humidity = 0;
 		}
 	}
 }

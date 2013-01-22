@@ -132,7 +132,7 @@ void Screen::Render()
 	Desktop->Update( guiclock->restart().asSeconds() );
 
 	// Clear screen
-	Engine::GetApp().clear();
+	Engine::GetApp().clear(sf::Color(180,180,180));
 
 	SimulatorView->Render();
 
