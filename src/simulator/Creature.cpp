@@ -58,7 +58,7 @@ void Creature::live()
 	int found = 0;
 	if(currentHealth/mySpecies->getMaxHealth() < 0.75)
 	{
-		huntFood(); 
+		huntFood();
 	}
 	//else if(Artgenossen in der Naehe)
 	//{
@@ -77,67 +77,52 @@ void Creature::huntFood()
 {
 	const float pNutritionDiv = 4;	//reduces importance of nutrition to plants
 	int foodFound = 0;
-	std::shared_ptr<Terrain> terra = Simulator::GetTerrain();
+	int damage = 0;
 
 	switch (mySpecies->getType())
 	{
 		case Species::HERBA:
-			//only plant-related calculations ###NO_AI###
+			// TODO: calculate damage from insufficient water or nutrition in our tile
+			damage += pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
 			break;
+
 		case Species::CARNIVORE:
-			{
-			//look for prey, hunt ###AI###
-			float min_dist 	= mySpecies->getReach();
-			std::shared_ptr<Creature> nearest;
-			
-			terra->getNearby(Position, mySpecies->getReach(), 
-				[&]( const std::shared_ptr<Creature>& C ) 
-				{ 
-					if (C->getSpecies()->getType() != Species::HERBIVORE) return false;
-					if ( float dist = Geom::distance( C->getPosition(), Position ) < min_dist)
-					{ 
-						min_dist = dist; nearest = C; 
-					}
-					return  false;
-				});
-			
-			if ( !nearest )
-			{
-				move(0);
-				break;
-			}
-			
-			if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
-			{
-				Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
-				target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
-				target += Position;
-				if (validPos( target ) )
-					setPosition( target );
-				
-			} else {
-				currentHealth += nearest->getCurrentHealth();
-				if(currentHealth > mySpecies->getMaxHealth()) currentHealth = mySpecies->getMaxHealth();
-				nearest->setCurrentHealth(0);
-			}
-			
+			huntNearest( [&]( const std::shared_ptr<Creature>& C ) { return (C->getSpecies()->getType() == Species::HERBIVORE); });
+			damage += mySpecies->getFoodRequirement() - foodFound;
 			break;
-			}
+
 		case Species::HERBIVORE:
-			//look for plants ###AI###
-			//possibly:
-			//foodFound = forage(); <-- will be defined in creature
+			huntNearest( [&]( const std::shared_ptr<Creature>& C ) { return (C->getSpecies()->getType() == Species::HERBA); });
+			damage += mySpecies->getFoodRequirement() - foodFound;
 			break;
 	}
 
-	int damage = 0;
+}
 
-	//to calculate health effects due to nutrition check if this creature is a plant or an animal
-	if(mySpecies->getType() != Species::HERBA) {
-		damage += mySpecies->getFoodRequirement() - foodFound;
+void Creature::huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter )
+{
+	// get nearest creature
+	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), filter);
+	// nothing found? move randomly
+	if ( !nearest ) {
+		move(0);
+		return;
 	}
-	else {
-		damage += pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
+
+	// check if we can reach our target in a single tick
+	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
+	{
+		// move in direction of the target
+		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
+		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		target += Position;
+		if (validPos( target ) )
+			setPosition( target );
+	} else {
+		// consume our prey
+		currentHealth += nearest->getCurrentHealth();
+		if(currentHealth > mySpecies->getMaxHealth()) currentHealth = mySpecies->getMaxHealth();
+		nearest->setCurrentHealth(0);
 	}
 }
 
@@ -175,13 +160,13 @@ bool Creature::moveYourAss()
 		return true;
 	}
 
-	return false;	
+	return false;
 }
 
 void Creature::move(int found)
 {
 	if ( mySpecies->getMaxSpeed() == 0 ) return;
-	
+
 	float migProb = 1;
 
 	float hab = currentTile->getHabitability(found, mySpecies);
@@ -213,8 +198,8 @@ void Creature::move(int found)
 bool Creature::validPos( Geom::Pointf NewPosition )
 {
 	std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
-	
-	if (!newtile) return false;	
+
+	if (!newtile) return false;
 	if (!newtile->isWater()) return true;
 	return false;
 }
@@ -233,7 +218,7 @@ void Creature::calcEnv()
 	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
 	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
-	
+
 	float fdmg = (float)(damage)*mult;
 
 	currentHealth -= fdmg;
