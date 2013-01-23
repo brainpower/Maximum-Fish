@@ -52,7 +52,7 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "KEY_SHOW_MAINMENU" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
+	//EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "KEY_SIM_PAUSE" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "KEY_SHOW_INFOPANEL" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,    "TOGGLE_FULLSCREEN" );

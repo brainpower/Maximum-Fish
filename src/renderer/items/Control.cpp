@@ -68,7 +68,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
         box->Pack( BtnDbgWin,   false, false);
         box->Pack( BtnIPanWin,  false, false);
         box->Pack( BtnMnMnWin,  false, false);
-        box->Pack( BtnMiMapWin, false, false);
+        //box->Pack( BtnMiMapWin, false, false);
         box->Pack( BtnSimPause, false, false);
         box->Pack( BtnSimReset, false, false);
         box->Pack( framesframe );
