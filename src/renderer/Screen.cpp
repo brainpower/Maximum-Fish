@@ -171,7 +171,8 @@ void Screen::HandleEvent(Event& e)
 			Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
 			Fullscreen = false;
 		}
-
+		Event e("WINDOW_RESIZE");
+		Module::Get()->QueueEvent(e, true);
 	}
 	else if (e.Is("SCREEN_ADD_WINDOW"))
 	{

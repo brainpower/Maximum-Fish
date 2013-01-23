@@ -30,6 +30,7 @@ SimView::SimView()
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
+	RegisterForEvent("WINDOW_RESIZE");
 
 	GridColor = sf::Color( 42, 42, 42 );
 	SetupCamera();
@@ -66,6 +67,8 @@ void SimView::HandleEvent(Event& e)
 		{
 			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
 		}
+	} else if(e.Is("WINDOW_RESIZE")){
+		TargetSize = sf::Vector2f( Engine::GetApp().getSize().x, Engine::GetApp().getSize().y);
 	}
 }
 
@@ -170,7 +173,7 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			break;
 
 		case sf::Event::Resized:
-			TargetSize = sf::Vector2f( e.size.width, e.size.height );
+
 			//Camera.setSize(e.size.width, e.size.height);
 			break;
 
