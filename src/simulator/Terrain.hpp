@@ -24,9 +24,9 @@ class Terrain
 		float getHumidityFactor( ) const { return humidityFactor;}
 
 		/// returns a list of Creatures in the given radius around Position for which filter returns true
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = []{return true;} );
+		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
 		/// returns the nearest Creatures in radius around Position for which the filter returns true
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = []{return true;} );
+		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
 		/// returns the eight neighbours of a tile
 		std::list<std::shared_ptr<Tile>> getNeighbours(Tile& T);
 
