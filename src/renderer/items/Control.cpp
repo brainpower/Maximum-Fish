@@ -1,7 +1,8 @@
 #include "Control.hpp"
 
 Control::Control( const Geom::Vec2 Size)
-
+// simulation starts paused, so start with one lock
+ : simPauseLockLevel(1)
 {
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "KEY_SHOW_CONSOLE" );
@@ -169,34 +170,24 @@ void Control::SimPause(bool _p)
     if (_p) //on locking
     {
         if (simPauseLockLevel == 0) //first locking with pause
-        {
-            Module::Get()->QueueEvent( Event( "TOGGLE_SIM_PAUSE" ), true );
-        }
-        /******/int dbg = simPauseLockLevel;
+			Module::Get()->QueueEvent( Event( "SIM_PAUSE" ), true );
         simPauseLockLevel++;
 
-        /******/Engine::out() << "[Renderer]======= simpauselevel: " << dbg << " -> " << simPauseLockLevel << " ↑" << std::endl;
         //BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Disconnect(simPauseConnectionSerial);
         //BtnSimPause->SetActive(false);
         //simPauseConnectionSerial = BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+    } else     {
+        simPauseLockLevel--;
+
+        if ( simPauseLockLevel == 0 )
+            Module::Get()->QueueEvent( Event("SIM_UNPAUSE"), true );
     }
-    else if (!_p)  //on releasing
-    {
-        /******/int dbg = simPauseLockLevel;
-        if ( simPauseLockLevel > 1 )
-        {
-            simPauseLockLevel--;
-        }
-        else //on last release and continue
-        {
-            simPauseLockLevel = 0;
-            Module::Get()->QueueEvent( Event("TOGGLE_SIM_PAUSE"), true );
-        }
-        /******/Engine::out() << "[Renderer]======= simpauselevel: " << dbg << " -> " << simPauseLockLevel << " ↓" << std::endl;
-    }
+
+    Engine::out() << "[Control] PauseLock: " << simPauseLockLevel << std::endl;
 }
 
 void Control::BtnSimResetClick()
 {
+    BtnSimPause->SetActive(true);
     Module::Get()->QueueEvent( Event("RESET_SIMULATION"), true );
 }

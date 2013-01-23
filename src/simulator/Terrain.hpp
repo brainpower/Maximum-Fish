@@ -67,7 +67,7 @@ class Terrain
 		// returned in some cases instead of a valid Tile ( e.g. tile index out of range )
 		std::shared_ptr<Tile> InvalidTile;
 		std::vector<std::shared_ptr<Tile>> Tiles;
-		QuadTreeNode<Tile> CullTree;
+		//QuadTreeNode<Tile> CullTree;
 };
 
 #endif // TERRAIN_H
