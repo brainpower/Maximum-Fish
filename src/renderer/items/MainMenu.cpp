@@ -55,12 +55,14 @@ void MainMenu::HandleEvent( Event& e)
         if (Win->IsGloballyVisible())
 		{
 			Win->Show(false);
+            Module::Get()->QueueEvent( Event( "SIM_FROM_PAUSE_RELEASE" ), true );
 		}
         else
 		{
 			updatePosition();
 			Win->Show(true);
 			Win->GrabFocus();
+            Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ), true );
 		}
     }
 }

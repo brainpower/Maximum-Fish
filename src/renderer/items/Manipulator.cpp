@@ -62,7 +62,7 @@ void Manipulator::CreateWindow( const Geom::Point& RelativePosition, const Geom:
 void Manipulator::SwitchToInfoPanel()
 {
     Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
-    Module::Get()->QueueEvent( Event( "LOCK_SIM_ON_PAUSE" ), true );
+    Module::Get()->QueueEvent( Event( "SIM_FROM_PAUSE_RELEASE" ) );
 }
 
 void Manipulator::ResetInformation()

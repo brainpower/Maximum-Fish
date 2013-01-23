@@ -22,6 +22,10 @@ class Control : public EventUser
         sfg::ToggleButton::Ptr BtnMiMapWin;
         sfg::ToggleButton::Ptr BtnSimPause;
         sfg::Button::Ptr BtnSimReset;
+        sfg::Entry::Ptr Framesdisplay;
+        unsigned int Frames = 20;
+        void BtnFramesUpClick();
+        void BtnFramesDownClick();
 
         void BtnDbgWinClick();
         void BtnIPanWinClick();
@@ -34,11 +38,13 @@ class Control : public EventUser
         /// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
+        void SimPause(bool _p);
+
 		unsigned int simPauseConnectionSerial;
 		bool simPauseLock;
+		int simPauseLockLevel = 1;
 
 		sfg::Window::Ptr Win;
-		unsigned int currentlabeltext;
 
 };
 

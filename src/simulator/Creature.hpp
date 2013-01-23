@@ -24,17 +24,23 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
 		void setPosition(const Geom::Pointf& pos);
+		void movePosition(const Geom::Pointf& pos);
 
 		float getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
 		const std::string& getSpeciesString() const;
 		const std::shared_ptr<Species>& getSpecies() const {return mySpecies;};
 		const Geom::Vec2f& getPosition() const { return Position; }
+		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
+
+		bool validPos( Geom::Pointf NewPosition );
 
 	private:
 
 		friend class CreatureIOPlugin;
-		int huntFood();
+		void huntFood();
+		/// handles eating the nearest possible prey defined by the filter lambda
+		void huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
 		void mate();
 		void move(int found);
 		bool moveYourAss();
