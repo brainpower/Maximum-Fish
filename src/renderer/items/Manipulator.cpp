@@ -6,6 +6,7 @@ Manipulator::Manipulator( const Geom::Point& RelativePosition, const Geom::Vec2 
     RegisterForEvent( "TOGGLE_SHOW_INFOPANEL" );
     RegisterForEvent( "TOGGLE_IPAN_MAN" );
     RegisterForEvent( "WINDOW_RESIZE" );
+    RegisterForEvent( "TOGGLE_FULLSCREEN" );
 	CreateWindow(RelativePosition, Size);
 	Win->Show(false);
 	ThisNotInfoPanel=false;
@@ -85,31 +86,30 @@ void Manipulator::SetInformation_2()
 
 void Manipulator::HandleEvent( Event& e )
 {
-	if (e.Is("WINDOW_RESIZE") && Win->IsGloballyVisible())
+	if ( e.Is( "WINDOW_RESIZE" ) || e.Is( "TOGGLE_FULLSCREEN" ) )
     {
         updatePosition();
     }
-	else if (e.Is("TOGGLE_SHOW_INFOPANEL") && ThisNotInfoPanel == true)
+	else if ( e.Is( "TOGGLE_SHOW_INFOPANEL" ) && ThisNotInfoPanel == true )
     {
-        if (Win->IsGloballyVisible())
+        if ( Win->IsGloballyVisible() )
 		{
-			Win->Show(false);
+			Win->Show( false );
             //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
 		}
         else
 		{
-			updatePosition();
-			Win->Show(true);
+			Win->Show( true );
 			ResetInformation();
 			Win->GrabFocus();
 		}
     }
-    else if (e.Is("TOGGLE_IPAN_MAN"))
+    else if ( e.Is( "TOGGLE_IPAN_MAN" ) )
     {
-        Win->Show(!Win->IsGloballyVisible());
+        Win->Show( !Win->IsGloballyVisible() );
         ResetInformation();
         ThisNotInfoPanel = !ThisNotInfoPanel;
-        if (Win->IsGloballyVisible()) Win->GrabFocus();
+        if ( Win->IsGloballyVisible() ) Win->GrabFocus();
     }
 }
 
