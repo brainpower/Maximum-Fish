@@ -20,15 +20,7 @@ Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseH
 
 float Tile::calcTemperature()
 {
-
-	std::shared_ptr<Terrain> t = Simulator::GetTerrain();
-
-	//int max_h = t->getMaxElevation();
-	float t_0 = t->getGlobalTemp();
-	//float temp_h = t_0 - ((max_h/n)*d)*height;
-	float temp_h = t_0 - d*height;
-
-	return temp_h;
+	return Simulator::GetTerrain()->getGlobalTemp() - d*height;
 }
 
 float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
@@ -37,10 +29,9 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 	float wReq = sp->getWaterRequirement();
 
 	if(hum > 0.95)
-	{
 		return 0;
-	}
-	else if(hum >= wReq)
+
+	if(hum >= wReq)
 	{
 		hum = 1;
 	} else {
@@ -62,7 +53,7 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 int Tile::getTileSpriteIndex()
 {
 	if(this->isWater()) return 0;
-	
+
 	float maxElev = Simulator::GetTerrain()->getMaxElevation();
 	if(this->height < maxElev * .05) return 1;
 	if(this->height < maxElev * .9) return 2;
