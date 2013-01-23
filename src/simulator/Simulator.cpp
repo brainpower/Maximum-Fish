@@ -38,6 +38,8 @@ isPaused(false) {
 	RegisterForEvent("EVT_SAVE_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
 
+	RegisterForEvent("SET_SIM_TPS");
+
 	init();
 }
 
@@ -75,6 +77,10 @@ void Simulator::HandleEvent(Event& e)
 		if (e.Data().type() != typeid( Geom::Pointf )) return;
 		// cast into desired type
 		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
+	}
+	else if (e.Is("SET_SIM_TPS"))
+	{
+		Module::Get()->SetTPS(boost::any_cast<int>(e.Data()));
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
