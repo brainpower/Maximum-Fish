@@ -64,6 +64,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 		int currentSeed;
 		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
+		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
+		unsigned int CreatureCounts[3];
 		std::vector<std::shared_ptr<Species>> SpeciesList;
 		std::shared_ptr<Terrain> Terra;
 

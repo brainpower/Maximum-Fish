@@ -21,13 +21,18 @@ isPaused(false) {
 
 	Instance = this;
 
-	// boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
 
 	RegisterForEvent("EVT_TICK");
 	RegisterForEvent("EVT_QUIT");
 
 	RegisterForEvent("TOGGLE_SIM_PAUSE");
+	RegisterForEvent("SIM_PAUSE");
+	RegisterForEvent("SIM_UNPAUSE");
 	RegisterForEvent("LOCK_SIM_ON_PAUSE");
+	RegisterForEvent("RESET_SIMULATION");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("EVT_SAVE_WHOLE");
@@ -52,6 +57,14 @@ void Simulator::HandleEvent(Event& e)
 	{
 		tick();
 	}
+	else if(e.Is("SIM_PAUSE"))
+	{
+		isPaused = true;
+	}
+	else if(e.Is("SIM_UNPAUSE"))
+	{
+		isPaused = false;
+	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
 		isPaused = !isPaused;
@@ -62,6 +75,10 @@ void Simulator::HandleEvent(Event& e)
 		if (e.Data().type() != typeid( Geom::Pointf )) return;
 		// cast into desired type
 		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
+	}
+	else if (e.Is("RESET_SIMULATION"))
+	{
+		NewSimulation();
 	}
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
@@ -79,6 +96,9 @@ void Simulator::HandleEvent(Event& e)
 void Simulator::init()
 {
 	registerIOPlugins();
+	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
+	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+
 	NewSimulation();
 }
 
@@ -111,6 +131,9 @@ void Simulator::NewSimulation( int seed )
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
 	isPaused = true;
+	// count Creatures once
+	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
+		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
 
 	// send terrain to renderer
 	Terra->UpdateTerrain();
@@ -118,21 +141,21 @@ void Simulator::NewSimulation( int seed )
 	Event e("UpdateCreatureRenderList");
 	e.SetData ( Creatures );
 	Module::Get()->QueueEvent(e, true);
+
+	RendererUpdate.restart();
 }
 
 void Simulator::tick()
 {
 	if(!isPaused)
 	{
-		// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
-		unsigned int CreatureCounts[3];
 		CreatureCounts[0] = 0;
 		CreatureCounts[1] = 0;
 		CreatureCounts[2] = 0;
 
+
 		for(auto it = Creatures.begin(); it != Creatures.end();)
 		{
-
 			if((*it)->getCurrentHealth() <= 0)
 			{
 				(*it)->getTile()->removeCreature(*it);
@@ -141,29 +164,30 @@ void Simulator::tick()
 			}
 			else
 			{
-				++it;
 				//and ya god said live creature !... LIVE !!!
 				(*it)->live();
+				CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+				++it;
 			}
-			//for debug count Creatures
-			CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
-
 		}
+	}
 
-		// update the renderer at up to 30 fps
-		if (RendererUpdate.getElapsedTime() > sf::milliseconds(33))
+	// update the renderer at up to 30 fps
+	if (RendererUpdate.getElapsedTime() > sf::milliseconds(33))
+	{
+		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(SpeciesList.size()));
+		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
+		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
+		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
+
+		if ( !isPaused )
 		{
-			Module::Get()->DebugString("Species", boost::lexical_cast<std::string>(SpeciesList.size()));
-			Module::Get()->DebugString("Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
-			Module::Get()->DebugString("Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
-			Module::Get()->DebugString("Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
-
 			Event e("UpdateCreatureRenderList");
 			e.SetData ( Creatures );
 			Module::Get()->QueueEvent(e, true);
-
-			RendererUpdate.restart();
 		}
+
+		RendererUpdate.restart();
 	}
 }
 
