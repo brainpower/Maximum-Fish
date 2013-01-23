@@ -80,7 +80,12 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("SET_SIM_TPS"))
 	{
-		Module::Get()->SetTPS(boost::any_cast<int>(e.Data()));
+		if ( e.Data().type() != typeid(unsigned int))
+		{
+			Engine::out(Engine::ERROR) << "[Simulator] got invalid eventdata for SET_SIM_TPS!" << std::endl;
+			return;
+		}
+		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -91,6 +96,12 @@ void Simulator::HandleEvent(Event& e)
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
 	else if (e.Is("EVT_SAVE_WHOLE")){
+		if ( e.Data().type() != typeid(std::string))
+		{
+			Engine::out(Engine::ERROR) << "[Simulator] got invalid eventdata for EVT_SAVE_WHOLE!" << std::endl;
+			return;
+		}
+
 		saveEvent(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_QUIT"))
@@ -125,6 +136,10 @@ void Simulator::NewSimulation( int seed )
 
 	SpeciesList.clear();
 	Creatures.clear();
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
 
 	// add default speciees
 	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
