@@ -22,6 +22,10 @@ class Control : public EventUser
         sfg::ToggleButton::Ptr BtnMiMapWin;
         sfg::ToggleButton::Ptr BtnSimPause;
         sfg::Button::Ptr BtnSimReset;
+        sfg::Entry::Ptr Framesdisplay;
+        unsigned int Frames = 20;
+        void BtnFramesUpClick();
+        void BtnFramesDownClick();
 
         void BtnDbgWinClick();
         void BtnIPanWinClick();

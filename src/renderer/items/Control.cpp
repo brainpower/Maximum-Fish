@@ -29,32 +29,47 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     // main box, vertical
     sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::HORIZONTAL, 5.0f ) );
 
-    BtnDbgWin =   sfg::ToggleButton::Create( "Console" );
-    BtnIPanWin =  sfg::ToggleButton::Create( "InfoPanel" );
-    BtnMnMnWin =  sfg::ToggleButton::Create( "MainMenu" );
-    BtnMiMapWin = sfg::ToggleButton::Create( "MiniMap" );
-    BtnSimPause = sfg::ToggleButton::Create( "Pause" );
-    BtnSimReset =       sfg::Button::Create( "Reset" );
+        BtnDbgWin =   sfg::ToggleButton::Create( "Console" );
+        BtnIPanWin =  sfg::ToggleButton::Create( "InfoPanel" );
+        BtnMnMnWin =  sfg::ToggleButton::Create( "MainMenu" );
+        BtnMiMapWin = sfg::ToggleButton::Create( "MiniMap" );
+        BtnSimPause = sfg::ToggleButton::Create( "Pause" );
+        BtnSimReset =       sfg::Button::Create( "Reset" );
 
-    //init the first look of the buttons BEFORE they are connected with their actions.
-    BtnDbgWin->SetActive(true);
-    BtnIPanWin->SetActive(true);
-    BtnSimPause->SetActive(true);
+        sfg::Box::Ptr framesframe( sfg::Box::Create( sfg::Box::HORIZONTAL, 0 ) );
+            Framesdisplay = sfg::Entry::Create();
+            Framesdisplay->SetRequisition( sf::Vector2f( 40, 0 ) );
+            Framesdisplay->SetState( sfg::Widget::State::INSENSITIVE );
+            Framesdisplay->SetText( boost::lexical_cast<std::string>(Frames) );
+            sfg::Button::Ptr down = sfg::Button::Create( "<" );
+            sfg::Button::Ptr up   = sfg::Button::Create( ">" );
+                down->GetSignal( sfg::Button::OnLeftClick ).Connect( &Control::BtnFramesDownClick, this );
+                up->GetSignal(   sfg::Button::OnLeftClick ).Connect( &Control::BtnFramesUpClick, this );
 
-    BtnDbgWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
-    BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
-    BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
-    BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
-        simPauseConnectionSerial =
-    BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
-    BtnSimReset->GetSignal( sfg::Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
+            framesframe->Pack( down, false, false );
+            framesframe->Pack( Framesdisplay, false, false );
+            framesframe->Pack( up, false, false );
 
-    box->Pack( BtnDbgWin,   false, false);
-    box->Pack( BtnIPanWin,  false, false);
-    box->Pack( BtnMnMnWin,  false, false);
-    box->Pack( BtnMiMapWin, false, false);
-    box->Pack( BtnSimPause, false, false);
-    box->Pack( BtnSimReset, false, false);
+        //init the first look of the buttons BEFORE they are connected with their actions.
+        BtnDbgWin->SetActive(true);
+        BtnIPanWin->SetActive(true);
+        BtnSimPause->SetActive(true);
+
+        BtnDbgWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
+        BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
+        BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
+        BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
+            simPauseConnectionSerial =
+        BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+        BtnSimReset->GetSignal( sfg::Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
+
+        box->Pack( BtnDbgWin,   false, false);
+        box->Pack( BtnIPanWin,  false, false);
+        box->Pack( BtnMnMnWin,  false, false);
+        box->Pack( BtnMiMapWin, false, false);
+        box->Pack( BtnSimPause, false, false);
+        box->Pack( BtnSimReset, false, false);
+        box->Pack( framesframe );
 
 
     // Create a window and add the box layouter to it.
@@ -199,4 +214,24 @@ void Control::SimPause(bool _p)
 void Control::BtnSimResetClick()
 {
     Module::Get()->QueueEvent( Event("RESET_SIMULATION"), true );
+}
+
+void Control::BtnFramesDownClick()
+{
+    if ( Frames <= 5 ){return;}
+    Frames -= 5;
+    Framesdisplay->SetText(boost::lexical_cast<std::string>(Frames));
+    Event e = Event("SET_SIM_TPS");
+    e.SetData(Frames);
+    Module::Get()->QueueEvent( e, true );
+}
+
+void Control::BtnFramesUpClick()
+{
+    if ( Frames >= 500 ){return;}
+    Frames += 5;
+    Framesdisplay->SetText( boost::lexical_cast<std::string>(Frames) );
+    Event e = Event("SET_SIM_TPS");
+    e.SetData(Frames);
+    Module::Get()->QueueEvent( e, true );
 }
