@@ -34,7 +34,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
         BtnIPanWin =  sfg::ToggleButton::Create( "InfoPanel" );
         BtnMnMnWin =  sfg::ToggleButton::Create( "MainMenu" );
         BtnMiMapWin = sfg::ToggleButton::Create( "MiniMap" );
-        BtnSimPause = sfg::ToggleButton::Create( "Pause" );
+        BtnSimPause = sfg::ToggleButton::Create( "Pause ||" );
         BtnSimReset =       sfg::Button::Create( "Reset" );
 
         sfg::Box::Ptr framesframe( sfg::Box::Create( sfg::Box::HORIZONTAL, 0 ) );
@@ -178,6 +178,7 @@ void Control::BtnMiMapWinClick()
 void Control::BtnSimPauseClick()
 {
     SimPause( BtnSimPause->IsActive() );
+    BtnSimPause->SetLabel(BtnSimPause->IsActive()?"Play >":"Pause ||");
 }
 
 void Control::SimPause(bool _p)
