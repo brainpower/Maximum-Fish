@@ -6,6 +6,7 @@ InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size
     RegisterForEvent( "TOGGLE_SHOW_INFOPANEL" );
     RegisterForEvent( "TOGGLE_IPAN_MAN" );
     RegisterForEvent( "WINDOW_RESIZE" );
+    RegisterForEvent( "TOGGLE_FULLSCREEN" );
     RegisterForEvent( "CREATURE_CLICKED" );
     RegisterForEvent( "TILE_CLICKED" );
 
@@ -82,27 +83,27 @@ void InfoPanel::SwitchToManipulator()
 
 void InfoPanel::HandleEvent( Event& e )
 {
-	if (e.Is( "WINDOW_RESIZE" ) && Win->IsGloballyVisible())
+	if ( e.Is( "WINDOW_RESIZE" ) || e.Is( "TOGGLE_FULLSCREEN" ) )
     {
         updatePosition();
     }
-	else if (e.Is("TOGGLE_SHOW_INFOPANEL") && ThisNotManipulator == true)
+	else if ( e.Is( "TOGGLE_SHOW_INFOPANEL" ) && ThisNotManipulator == true )
     {
-        if (Win->IsGloballyVisible())
+        if ( Win->IsGloballyVisible() )
 		{
-			Win->Show(false);
+			Win->Show( false );
             //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
 		}
         else
 		{
 			updatePosition();
-			Win->Show(true);
+			Win->Show( true );
 			Win->GrabFocus();
 		}
     }
-    else if (e.Is("CREATURE_CLICKED") && Win->IsGloballyVisible())
+    else if ( e.Is( "CREATURE_CLICKED" ) && Win->IsGloballyVisible() )
     {
-        if (e.Data().type() == typeid(std::shared_ptr<Creature>))
+        if ( e.Data().type() == typeid( std::shared_ptr<Creature> ) )
         {
             std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>(e.Data());
             SetDetail(c);

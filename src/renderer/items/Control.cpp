@@ -5,6 +5,7 @@ Control::Control( const Geom::Vec2 Size)
  : simPauseLockLevel(1)
 {
     RegisterForEvent( "WINDOW_RESIZE" );
+    RegisterForEvent( "TOGGLE_FULLSCREEN" );
     RegisterForEvent( "KEY_SHOW_CONSOLE" );
     RegisterForEvent( "KEY_SHOW_INFOPANEL" );
     RegisterForEvent( "KEY_SHOW_MAINMENU" );
@@ -67,7 +68,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
         box->Pack( BtnDbgWin,   false, false);
         box->Pack( BtnIPanWin,  false, false);
         box->Pack( BtnMnMnWin,  false, false);
-        box->Pack( BtnMiMapWin, false, false);
+        //box->Pack( BtnMiMapWin, false, false);
         box->Pack( BtnSimPause, false, false);
         box->Pack( BtnSimReset, false, false);
         box->Pack( framesframe );
@@ -85,7 +86,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 
 void Control::HandleEvent( Event& e)
 {
-   if (e.Is("WINDOW_RESIZE"))
+   if (e.Is("WINDOW_RESIZE") || e.Is( "TOGGLE_FULLSCREEN" ) )
     {   // WINDOW_RESIZE is used here to ensure the Bottom position
         // of the ControlButtons.
         updatePosition();
