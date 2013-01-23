@@ -9,7 +9,10 @@
 #include <random>
 
 Terrain::Terrain()
- : globalTemp(20)
+ : Size(0,0),
+ humidityFactor(1.0),
+ globalTemp(20),
+ maxElevation(0)
 {
 }
 
@@ -23,7 +26,7 @@ std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (index < 0 || index > Tiles.size()) return -1;
+	if (!validPos(pos) || index < 0 || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
 
