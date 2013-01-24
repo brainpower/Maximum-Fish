@@ -24,7 +24,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
     sfg::Button::Ptr btnExit( sfg::Button::Create( "Exit Program" ) );
     btnExit->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnExitClick, this );
 
-    Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+    Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
     updatePosition();
 
 
@@ -55,12 +55,14 @@ void MainMenu::HandleEvent( Event& e)
         if (Win->IsGloballyVisible())
 		{
 			Win->Show(false);
+            Module::Get()->QueueEvent( Event( "SIM_FROM_PAUSE_RELEASE" ), true );
 		}
         else
 		{
 			updatePosition();
 			Win->Show(true);
 			Win->GrabFocus();
+            Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ), true );
 		}
     }
 }
@@ -74,7 +76,8 @@ void MainMenu::updatePosition()
 
 void MainMenu::BtnResumeClick()
 {
-    Win->Show(false);
+    //Win->Show(false);
+    Module::Get()->QueueEvent( Event("KEY_SHOW_MAINMENU") );
 }
 
 void MainMenu::BtnExitClick()

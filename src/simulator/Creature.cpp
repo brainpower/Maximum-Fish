@@ -10,64 +10,119 @@
 #include "Simulator.hpp"
 #include "Tile.hpp"
 
-Creature::Creature()
+Creature::Creature( const std::shared_ptr<Species>& Species)
+ : 	currentHealth(100),
+	age(0),
+	Position( 0, 0 ),
+	mySpecies (Species)
 {
-
+	if (!Species)
+	{
+		Engine::out(Engine::ERROR) << "[Creature] constructed with invalid Species" << std::endl;
+	}
+	else
+	{
+		this->setCurrentHealth(Species->getMaxHealth());
+	}
 }
 
-void Creature::HandleEvent(Event& e)
+const std::string& Creature::getSpeciesString() const
 {
-	if (e.Is("EVT_TICK"))
+	return mySpecies->getName();
+}
+
+void Creature::setPosition( const Geom::Pointf& pos)
+{
+	auto& newTile = Simulator::GetTerrain()->getTile(pos);
+
+	Position = pos;
+
+	if ( currentTile != newTile)
 	{
-		live();
+		if (currentTile) currentTile->removeCreature( shared_from_this() );
+		newTile->addCreature( shared_from_this() );
+		currentTile = newTile;
 	}
+}
+
+void Creature::movePosition( const Geom::Pointf& pos)
+{
+	setPosition( Position + pos );
 }
 
 void Creature::live()
 {
 	// damage from environment
-	//calcEnv();
+	calcEnv();
 	// feed
-	int found = 10; // = huntFood(); <-- use this as soon as it works
+	int found = 0;
+	if(currentHealth/mySpecies->getMaxHealth() < 0.75)
+	{
+		huntFood();
+	}
+	//else if(Artgenossen in der Naehe)
+	//{
+	//	mate();
+	//}
+	else
+	{
+		move(found);
+	}
 	// move ( or not )
-	move(found);
 	// and try to reproduce
-	//mate();
+	//
 }
 
-int Creature::huntFood()
+void Creature::huntFood()
 {
 	const float pNutritionDiv = 4;	//reduces importance of nutrition to plants
 	int foodFound = 0;
-
-
-	//check if this creature is a plant, carnivore or herbivore
-	if(mySpecies->getMaxSpeed() != 0) {
-		if(mySpecies->IsCarnivore()) {
-			/*CARNIVORE*/
-			//look for prey, hunt ###AI###
-			//possibly:
-			//foodFound = prey(); <-- will be defined in creature
-		}
-		else {
-			/*HERBIVORE*/
-			//look for plants ###AI###
-			//possibly:
-			//foodFound = forage(); <-- will be defined in creature
-		}
-	}
-	else {
-		//only plant-related calculations ###NO_AI###
-	}
-
 	int damage = 0;
 
-	//to calculate health effects due to nutrition check if this creature is a plant or an animal
-	if(mySpecies->getMaxSpeed() != 0) {
-		damage = damage + (mySpecies->getFoodRequirement() - foodFound);
+	switch (mySpecies->getType())
+	{
+		case Species::HERBA:
+			// TODO: calculate damage from insufficient water or nutrition in our tile
+			damage += pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
+			break;
+
+		case Species::CARNIVORE:
+			huntNearest( [&]( const std::shared_ptr<Creature>& C ) { return (C->getSpecies()->getType() == Species::HERBIVORE); });
+			damage += mySpecies->getFoodRequirement() - foodFound;
+			break;
+
+		case Species::HERBIVORE:
+			huntNearest( [&]( const std::shared_ptr<Creature>& C ) { return (C->getSpecies()->getType() == Species::HERBA); });
+			damage += mySpecies->getFoodRequirement() - foodFound;
+			break;
 	}
-	else {
-		damage = damage + pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
+
+}
+
+void Creature::huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter )
+{
+	// get nearest creature
+	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), filter);
+	// nothing found? move randomly
+	if ( !nearest ) {
+		move(0);
+		return;
+	}
+
+	// check if we can reach our target in a single tick
+	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
+	{
+		// move in direction of the target
+		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
+		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		target += Position;
+		if (validPos( target ) )
+			setPosition( target );
+	} else {
+		// consume our prey
+		currentHealth += nearest->getCurrentHealth();
+		if(currentHealth > mySpecies->getMaxHealth()) currentHealth = mySpecies->getMaxHealth();
+		nearest->setCurrentHealth(0);
 	}
 }
 
@@ -78,76 +133,93 @@ void Creature::mate()
 bool Creature::moveYourAss()
 {
 	std::uniform_real_distribution<float> rnd(-(mySpecies->getMaxSpeed()), mySpecies->getMaxSpeed());
-	
-	float x = Position.x();
-	float y = Position.y();
-	
-	x = x + rnd(Simulator::GetEngine());
-	y = y + rnd(Simulator::GetEngine());
-	
-	if((sqrt(pow(x,2)+sqrt(pow(y,2))) > mySpecies->getMaxSpeed()))
+
+	Geom::Pointf NewPosition = Position;
+
+	NewPosition.x += rnd(Simulator::GetEngine());
+	NewPosition.y += rnd(Simulator::GetEngine());
+
+	float hab = 0;
+	std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
+	if (newtile) hab = newtile->getHabitability(1,mySpecies);
+
+	/*
+	Engine::out() << "Pos: " << Position << std::endl;
+	Engine::out() << "NewPos: " << NewPosition << std::endl;
+	Engine::out() << "Hab: " << hab << std::endl;
+	Engine::out() << "dist: " << Geom::distance( Position, NewPosition) << std::endl;
+	Engine::out() << "maxspeed: " << mySpecies->getMaxSpeed() << std::endl;
+	*/
+
+	if( Geom::distance( Position, NewPosition) < mySpecies->getMaxSpeed())
 	{
-		if(( x > 32 || x < 0 ) || ( y > 32 || y < 0 ))
-		{
+		if( !validPos( NewPosition ) ||  (hab <= 0.0f))
 			return false;
-		}
-		else
-		{
-			setPosition(x, y);	
-			currentTile = Simulator::GetTerrain()->getTile(Position);
-			return true;
-		}
+
+		setPosition( NewPosition );
+		return true;
 	}
-	else {
-		return false;
-	}
+
+	return false;
 }
 
 void Creature::move(int found)
 {
-	float migProb = 20;
-	
+	if ( mySpecies->getMaxSpeed() == 0 ) return;
+
+	float migProb = 1;
+
 	float hab = currentTile->getHabitability(found, mySpecies);
-	
-	std::uniform_real_distribution<float> rnd(0, 100);
-	
-	
-	if(hab < 1)
-	{
-		//GTFO
-		while(!moveYourAss()){}
+
+	std::uniform_real_distribution<float> rnd(0, 99);
+
+
+	if(hab < 10) {
+		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
 	}
 	else
 	{
-		//maybe GTFO
-		if(rnd(Simulator::GetEngine()) < migProb) {
-			while(!moveYourAss()){}
-		}
+	//maybe GTFO
+	if(rnd(Simulator::GetEngine()) < migProb)
+		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
 	}
+
 
 	/*std::uniform_real_distribution<float> rnd(-2, 2);
 
-	float x = Position.x() + rnd(Simulator::GetEngine());
-	float y = Position.y() + rnd(Simulator::GetEngine());
+	float x = Position.x + rnd(Simulator::GetEngine());
+	float y = Position.y + rnd(Simulator::GetEngine());
 
 	if ( x > 32 || x < 0 ) x = 16;
 	if ( y > 32 || y < 0 ) y = 16;*/
 
 }
 
+bool Creature::validPos( Geom::Pointf NewPosition )
+{
+	std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
+
+	if (!newtile) return false;
+	if (!newtile->isWater()) return true;
+	return false;
+}
+
 void Creature::calcEnv()
 {
 	//####### calculate external effects on creature ########
+	float mult = 0.0001;
 
 	//modifiers
 	const float altModifier1 = 16;	//stretches out the range where creatures don't take much damage from wrong elevation \__/ -> \____/
-	const float altModifier2 = 4;	//higher values here mean steeper rise in damage from moving further away from optimal elevation; only use even numbers! \__/ -> |__|
+	const float altModifier2 = 2;	//higher values here mean steeper rise in damage from moving further away from optimal elevation; only use even numbers! \__/ -> |__|
 
 
 	//--damage from wrong elevation/temperature
 	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
-	damage = damage + (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
+	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
 
-	currentHealth = currentHealth - damage;
+	float fdmg = (float)(damage)*mult;
+
+	currentHealth -= fdmg;
 }

@@ -6,11 +6,12 @@
 
 class SFMLEventConverter;
 class Control;
-class CreatureList;
+class InfoPanel;
 class DebugWindow;
 class MainMenu;
 class MiniMap;
 class SimView;
+class Manipulator;
 
 namespace sfg { class Desktop; class SFGUI; }
 namespace sf { class Clock; }
@@ -37,6 +38,7 @@ class Screen : public EventUser, public sf::NonCopyable
 			return Instance;
 		}
 
+		void setCameraViewPort ( const sf::FloatRect& FR);
 	private:
 
 		bool Fullscreen;
@@ -45,7 +47,8 @@ class Screen : public EventUser, public sf::NonCopyable
 		std::shared_ptr<SFMLEventConverter> EvtConv;
 
         std::shared_ptr<Control> Contr;
-        std::shared_ptr<CreatureList> CreLi;
+        std::shared_ptr<InfoPanel> IPan;
+        std::shared_ptr<Manipulator> Man;
 		std::shared_ptr<DebugWindow> DbgWin;
 		std::shared_ptr<MainMenu> MnMnWin;
 		std::shared_ptr<MiniMap> MiMap;

@@ -13,7 +13,8 @@
 #include "sbe/ImageSet.hpp"
 
 #include "renderer/items/Control.hpp"
-#include "renderer/items/CreatureList.hpp"
+#include "renderer/items/InfoPanel.hpp"
+#include "renderer/items/Manipulator.hpp"
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
@@ -46,19 +47,21 @@ Screen::Screen()
 
 	// convert key inputs to an event
 	EvtConv->AddEventConversion( sf::Event::Closed ,       "EVT_QUIT", true );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "TOGGLE_SHOW_CONSOLE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "KEY_SHOW_CONSOLE" );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
 
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "TOGGLE_SHOW_MAINMENU" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "TOGGLE_SHOW_MINIMAP" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "TOGGLE_SIM_PAUSE", true );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "TOGGLE_SHOW_CREATURELIST" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "KEY_SHOW_MAINMENU" );
+	//EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "KEY_SIM_PAUSE" );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "KEY_SHOW_INFOPANEL" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,    "TOGGLE_FULLSCREEN" );
 	EvtConv->AddEventConversion( sf::Event::Resized ,      "WINDOW_RESIZE" );
 
 	Init();
 }
+
+void Screen::setCameraViewPort ( const sf::FloatRect& FR) { SimulatorView->setCameraViewport( FR ); }
 
 void Screen::Init()
 {
@@ -73,7 +76,8 @@ void Screen::Init()
 	Desktop.reset ( new sfg::Desktop() );
 
     Contr.reset   ( new Control() );
-    CreLi.reset   ( new CreatureList() );
+    IPan.reset    ( new InfoPanel() );
+    Man.reset     ( new Manipulator() );
 	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
 	MiMap.reset   ( new MiniMap() );
@@ -128,7 +132,7 @@ void Screen::Render()
 	Desktop->Update( guiclock->restart().asSeconds() );
 
 	// Clear screen
-	Engine::GetApp().clear();
+	Engine::GetApp().clear(sf::Color(180,180,180));
 
 	SimulatorView->Render();
 
@@ -159,7 +163,7 @@ void Screen::HandleEvent(Event& e)
 			}
 			else
 			{
-				Engine::out() << "[Screen] No supported fullscreen mode found!" << std::endl;
+				Engine::out(Engine::WARNING) << "[Screen] No supported fullscreen mode found!" << std::endl;
 			}
 		}
 		else
@@ -167,7 +171,8 @@ void Screen::HandleEvent(Event& e)
 			Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
 			Fullscreen = false;
 		}
-
+		Event e("WINDOW_RESIZE");
+		Module::Get()->QueueEvent(e, true);
 	}
 	else if (e.Is("SCREEN_ADD_WINDOW"))
 	{
@@ -179,7 +184,7 @@ void Screen::HandleEvent(Event& e)
 		}
 		else
 		{
-			Engine::out() << "[Screen] SCREEN_ADD_WIDGET Event with wrong parameters" << std::endl;
+			Engine::out(Engine::ERROR) << "[Screen] SCREEN_ADD_WIDGET Event with wrong parameters" << std::endl;
 		}
 	}
 	else if (e.Is("EVT_QUIT"))

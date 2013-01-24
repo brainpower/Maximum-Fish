@@ -12,31 +12,35 @@ class Tile;
 The Creature class is the main scaff for simulation, this is where als the basic stuff is initialized.
 Also basic calculation are happening here.
 */
-class Creature : public EventUser
+class Creature : public std::enable_shared_from_this<Creature>
 {
 	public:
-		Creature();
+		Creature( const std::shared_ptr<Species>& Species);
 		virtual ~Creature() {};
-		virtual void HandleEvent( Event& e);
 
 		void live();
 
-		inline void setCurrentHealth(const int ch){ currentHealth = ch;}
-		inline void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
-		inline void setAge(const int a){ age = a; }
-		inline void setSpecies(const std::string &s){ /* TODO: do some magic here ;) */}
-		inline void setSpecies(const std::shared_ptr<Species> s){mySpecies = s;}
-		inline void setPosition(const float x, const float y) { Position = Geom::Vec2f(x,y); } // TODO: update tile on pos update
+		void setCurrentHealth(const float ch){ currentHealth = ch;}
+		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
+		void setAge(const int a){ age = a; }
+		void setPosition(const Geom::Pointf& pos);
+		void movePosition(const Geom::Pointf& pos);
 
-		inline int getCurrentHealth() const { return currentHealth; }
-		inline int getAge() const { return age; }
-		inline std::string getSpeciesString() const { /* TODO: same magic here, but the other way round */ }
-		inline Geom::Vec2f getPosition() const { return Position; }
+		float getCurrentHealth() const { return currentHealth; }
+		int getAge() const { return age; }
+		const std::string& getSpeciesString() const;
+		const std::shared_ptr<Species>& getSpecies() const {return mySpecies;};
+		const Geom::Vec2f& getPosition() const { return Position; }
+		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
+
+		bool validPos( Geom::Pointf NewPosition );
 
 	private:
 
 		friend class CreatureIOPlugin;
-		int huntFood();
+		void huntFood();
+		/// handles eating the nearest possible prey defined by the filter lambda
+		void huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
 		void mate();
 		void move(int found);
 		bool moveYourAss();
@@ -46,8 +50,8 @@ class Creature : public EventUser
 		void calcEnv();
 
 
-		//Attributes
-		int currentHealth;
+		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
+		float currentHealth;
 		int age;
 		Geom::Vec2f Position;
 

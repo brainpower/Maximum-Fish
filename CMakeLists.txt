@@ -8,8 +8,10 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Mod
 #######################################################
 ######################## Cmake Options ################
 #######################################################
-
 option(DEBUG "enable debug build" ON)
+if (CMAKE_BUILD_TYPE MATCHES Release)
+	set(DEBUG FALSE)
+endif()
 option(USE_CUSTOM_BOOST "" OFF)
 option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")

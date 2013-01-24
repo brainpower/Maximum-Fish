@@ -32,10 +32,11 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
                                                 // maybe change methode onconsoleinputactivation to boolchange directly in screen
     consoleInput->GetSignal( sfg::Entry::OnTextChanged ).Connect( &DebugWindow::OnConsoleInputActivation , this );
 
-    consoleInput->AppendText( "Not yet implemented." );
+    //consoleInput->AppendText( "Not yet implemented." );
+    consoleInput->SetState( sfg::Widget::State::INSENSITIVE );
 
-	Win->SetPosition( sf::Vector2f(RelativePosition.x(), RelativePosition.y() ) );
-	//Win->SetRequisition( sf::Vector2f(Size.x(), Size.y() ) );
+	Win->SetPosition( sf::Vector2f(RelativePosition.x, RelativePosition.y ) );
+	//Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
 
 	// main box, vertical
 	sfg::Box::Ptr wholeBox( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ) );
@@ -82,7 +83,7 @@ void DebugWindow::HandleEvent( Event& e )
 		}
 		else
 		{
-			Engine::out() << "[DebugWindow] DebugString Event with wrong parameters" << std::endl;
+			Engine::out(Engine::ERROR) << "[DebugWindow] DebugString Event with wrong parameters" << std::endl;
 		}
 	}
 	else if (e.Is("EVT_FRAME"))
@@ -149,7 +150,7 @@ void DebugWindow::UpdateText(FilterLevel level)
 			//Engine::out(Engine::SPAM) << "newtextsize (warning) " << lastsize << std::endl;
 
 			newtext += Engine::GetLogger(Engine::ERROR)->GetLog().substr(0, maxTextPerFrame);
-			Engine::GetLogger(Engine::ERROR)->ClearCache( lastsize - newtext.size());
+			Engine::GetLogger(Engine::ERROR)->ClearCache( newtext.size() - lastsize);
 
 			//Engine::out(Engine::SPAM) << "newtextsize (ERROR) " << lastsize << std::endl;
 
@@ -197,6 +198,5 @@ void DebugWindow::OnConsoleInputActivation()
 {
     Screen::GetScreenObj()->KeyEventCatcher = true;
 
-    //DebugMessage
-	Engine::out() << "[DebugWindow]KeyEventCatcher" << std::endl;
+	//Engine::out() << "[DebugWindow] KeyEventCatcher" << std::endl;
 }

@@ -16,16 +16,35 @@ class Control : public EventUser
 
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
+		sfg::ToggleButton::Ptr BtnDbgWin;
+        sfg::ToggleButton::Ptr BtnIPanWin;
+        sfg::ToggleButton::Ptr BtnMnMnWin;
+        sfg::ToggleButton::Ptr BtnMiMapWin;
+        sfg::ToggleButton::Ptr BtnSimPause;
+        sfg::Button::Ptr BtnSimReset;
+        sfg::Entry::Ptr Framesdisplay;
+        unsigned int Frames = 20;
+        void BtnFramesUpClick();
+        void BtnFramesDownClick();
+
         void BtnDbgWinClick();
-        void BtnCreDetWinClick();
+        void BtnIPanWinClick();
         void BtnMnMnWinClick();
         void BtnMiMapWinClick();
         void BtnSimPauseClick();
+        void BtnSimResetClick();
 
+        /// This updates the position of the ControlMenu to the bottom left corner of the application.
+        /// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
+        void SimPause(bool _p);
+
+		unsigned int simPauseConnectionSerial;
+		bool simPauseLock;
+		int simPauseLockLevel = 1;
+
 		sfg::Window::Ptr Win;
-		unsigned int currentlabeltext;
 
 };
 

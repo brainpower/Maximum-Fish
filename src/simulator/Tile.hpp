@@ -4,6 +4,8 @@
 #include "sbe/Geom.hpp"
 #include "Species.hpp"
 
+class Creature;
+
 class Tile
 {
 	public:
@@ -14,9 +16,18 @@ class Tile
 		float getNutrition(){return nutrition;}
 		float getBaseHumidity(){return baseHumidity;}
 		float getHumidity(){return humidity;}
-		float calcTemperature();
 		Geom::Point getPosition() { return Position; }
-		float getHabitability(int food, std::shared_ptr<Species> sp);
+		int getTileSpriteIndex();
+		
+		float calcTemperature();
+		Geom::Pointf getCenter() { return Geom::Pointf(Position.x+0.5, Position.y+0.5); }
+		float getHabitability(int food, std::shared_ptr<Species> sp)	;
+		bool isWater() {return baseHumidity > 0.95;}
+		
+
+		void addCreature ( const std::shared_ptr<Creature>& p );
+		void removeCreature( const std::shared_ptr<Creature>& p);
+		std::list<std::shared_ptr<Creature>>& getCreatures() { return Creatures; }
 
 	private:
 
@@ -34,6 +45,13 @@ class Tile
 		int biomass;
 		/// current humidity, decreased through "feeding" plants
 		float humidity;
+
+		/// a list of all Creatures on that Tile
+		std::list<std::shared_ptr<Creature>> Creatures;
+		
+		///temperature decreases by approximately 0.007°C per meter
+		static const float d;
+
 };
 
 

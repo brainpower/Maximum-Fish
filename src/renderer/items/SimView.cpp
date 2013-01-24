@@ -3,6 +3,7 @@
 #include "simulator/Simulator.hpp"
 #include "simulator/Terrain.hpp"
 #include "simulator/Creature.hpp"
+#include "simulator/Species.hpp"
 #include "simulator/Tile.hpp"
 
 #include "sbe/ResourceManager.hpp"
@@ -11,26 +12,35 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <boost/format.hpp>
+
 #include <cmath>
 
+using boost::format;
+using boost::io::group;
+
 SimView::SimView()
-: Name("SimView"),
- TileSize( 128 ),
+:
+ Scrolling( false ),
  RenderGrid ( true ),
- Scrolling( false )
+ TileSize( 128 ),
+ TerrainSize( 32 ),
+ Name("SimView")
 {
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
+	RegisterForEvent("WINDOW_RESIZE");
 
 	GridColor = sf::Color( 42, 42, 42 );
+	SetupCamera();
 }
 
 void SimView::HandleEvent(Event& e)
 {
 	if(e.Is("UpdateCreatureRenderList"))
 	{		// check event datatype
-		
+
 		if (e.Data().type() == typeid( std::list<std::shared_ptr<Creature>> ))
 		{
 			// cast into desired type
@@ -57,96 +67,122 @@ void SimView::HandleEvent(Event& e)
 		{
 			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
 		}
+	} else if(e.Is("WINDOW_RESIZE")){
+		TargetSize = sf::Vector2f( Engine::GetApp().getSize().x, Engine::GetApp().getSize().y);
 	}
 }
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-	if (e.type == sf::Event::EventType::KeyPressed)
+	const float ScrollFactor = 2.0f;
+	int delta = 10;
+	const float WheelZoomFactor = .2f;
+
+	switch (e.type)
 	{
-
-		int delta = 10;
-
-		if (e.key.shift) delta *= 10;
-
-		switch (e.key.code)
-		{
-			case sf::Keyboard::Key::Up:
-				TargetCenter.y += -delta;
-				//Camera.move(0, -delta);
-				break;
-
-			case sf::Keyboard::Key::Down:
-				TargetCenter.y += delta;
-				//Camera.move(0, delta);
-				break;
-
-			case sf::Keyboard::Key::Left:
-				TargetCenter.x += -delta;
-				//Camera.move(-delta, 0);
-				break;
-
-			case sf::Keyboard::Key::Right:
-				TargetCenter.x += delta;
-				//Camera.move(delta, 0);
-				break;
+		case sf::Event::KeyPressed:
 
 
 
-			case sf::Keyboard::Key::PageUp:
-				TargetSize *= 1.1f;
-				//Camera.zoom(1.1);
-				break;
-			case sf::Keyboard::Key::PageDown:
-				TargetSize *= 0.9f;
-				//Camera.zoom(0.9);
-				break;
-			default:
-				break;
-		}
+			if (e.key.shift) delta *= 10;
+
+			switch (e.key.code)
+			{
+				case sf::Keyboard::Key::Up:
+					TargetCenter.y += -delta;
+					//Camera.move(0, -delta);
+					break;
+
+				case sf::Keyboard::Key::Down:
+					TargetCenter.y += delta;
+					//Camera.move(0, delta);
+					break;
+
+				case sf::Keyboard::Key::Left:
+					TargetCenter.x += -delta;
+					//Camera.move(-delta, 0);
+					break;
+
+				case sf::Keyboard::Key::Right:
+					TargetCenter.x += delta;
+					//Camera.move(delta, 0);
+					break;
+
+
+
+				case sf::Keyboard::Key::PageUp:
+					TargetSize *= 1.1f;
+					//Camera.zoom(1.1);
+					break;
+				case sf::Keyboard::Key::PageDown:
+					TargetSize *= 0.9f;
+					//Camera.zoom(0.9);
+					break;
+
+				default:
+					break;
+			}
+			break;
+
+		case sf::Event::MouseWheelMoved:
+
+
+			for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
+			{
+				TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
+			}
+			break;
+
+		case sf::Event::MouseMoved:
+
+			if (Scrolling)
+			{
+				//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor );
+				//TargetCenter = Camera.getCenter();
+
+				TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
+				TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor;
+			}
+
+			lastMousePos.x = e.mouseMove.x;
+			lastMousePos.y = e.mouseMove.y;
+
+			break;
+
+		case sf::Event::MouseButtonPressed:
+			if (e.mouseButton.button == sf::Mouse::Middle) Scrolling = true;
+
+			if (e.mouseButton.button == sf::Mouse::Left)
+			{
+				// Translate the click position to Terrain Coordinates (float)
+				sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
+				sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Camera);
+
+				RealPos = RealPos / (float)TileSize;
+
+				Event e("TERRAIN_CLICKED");
+				e.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
+
+				Module::Get()->QueueEvent( e, true);
+			}
+
+			break;
+
+		case sf::Event::MouseButtonReleased:
+			if (e.mouseButton.button == sf::Mouse::Middle) Scrolling = false;
+			break;
+
+		case sf::Event::Resized:
+
+			//Camera.setSize(e.size.width, e.size.height);
+			break;
+
+		default:
+
+			break;
 	}
-	else if (e.type == sf::Event::EventType::MouseWheelMoved)
-	{
-		const float WheelZoomFactor = .2f;
-		
-		for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
-		{
-			TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
-		}
-	}
-	else if (e.type == sf::Event::EventType::MouseMoved)
-	{
-		const float ScrollFactor = 2.0f;
 
-		if (Scrolling)
-		{
-			//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor ); 
-			//TargetCenter = Camera.getCenter(); 
-			
-			TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
-			TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor; 
-		}
 
-		lastMousePos.x = e.mouseMove.x;
-		lastMousePos.y = e.mouseMove.y;
-	}
-	else if (e.type == sf::Event::EventType::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Middle )
-	{
-		Scrolling = true;
-	}
-	else if (e.type == sf::Event::EventType::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Middle )
-	{
-		Scrolling = false;
-	}
-	else if (e.type == sf::Event::EventType::MouseLeft)
-	{
-		Scrolling = false;
-	}
-	else if (e.type == sf::Event::EventType::Resized)
-	{
-		TargetSize = sf::Vector2f( e.size.width, e.size.height );
-		//Camera.setSize(e.size.width, e.size.height);
-	}
 }
 
 void SimView::SetupCamera()
@@ -156,6 +192,7 @@ void SimView::SetupCamera()
 
 	TargetSize = sf::Vector2f(800,600);
 	TargetCenter = sf::Vector2f(400,300);
+
 
 	//Camera.move(0,500);
 }
@@ -168,19 +205,18 @@ void SimView::UpdateCamera()
 	sf::Vector2f CurrentSize = Camera.getSize();
 	sf::Vector2f CurrentCenter = Camera.getCenter();
 
-	float tmp;
 	sf::Vector2f Target;
 
 	if ( TargetSize != CurrentSize )
 	{
 		//Engine::out() << "Size: " << CurrentSize.x << "/" << CurrentSize.y << std::endl;
 		//Engine::out() << "Target: " << TargetSize.x << "/" << TargetSize.y << std::endl;
-		
+
 		Target.x = CurrentSize.x + (TargetSize.x - CurrentSize.x)*ZoomFactor;
 		Target.y = CurrentSize.y + (TargetSize.y - CurrentSize.y)*ZoomFactor;
 		if ( std::abs(CurrentSize.x - TargetSize.x) < minDiff ) Target.x = TargetSize.x;
 		if ( std::abs(CurrentSize.y - TargetSize.y) < minDiff ) Target.y = TargetSize.y;
-		
+
 		Camera.setSize( Target );
 	}
 
@@ -209,7 +245,7 @@ void SimView::Render()
 
 	if (TileImgSet->getTexture())
 		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
-	
+
 	if (RenderGrid)
 		Engine::GetApp().draw( Grid );
 
@@ -217,6 +253,14 @@ void SimView::Render()
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
+
+	PostDebugInfo();
+}
+
+void SimView::PostDebugInfo()
+{
+	Module::Get()->DebugString("View Size",  str(format("%.0f x %.0f") % TargetSize.x % TargetSize.y));
+	Module::Get()->DebugString("View Pos", str(format("%.0f x %.0f") % TargetCenter.x % TargetCenter.y));
 }
 
 void SimView::ReadTileRenderList(TileRenderList& r)
@@ -225,6 +269,8 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 	Tiles.clear();
 	Tiles.resize( 4 * r.size() );
 	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
+
+	TerrainSize = std::sqrt( r.size() );
 
 	std::shared_ptr<ImageSet> ImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 	ImgSet->updateTexture();
@@ -239,13 +285,13 @@ void SimView::ReadTileRenderList(TileRenderList& r)
 
 	for ( std::shared_ptr<Tile> T : r)
 	{
-		ImgSet->CreateQuad( DetermineTileSpriteIndex( T ) , Tiles, DetermineTilePos( T ) , (i++ * 4));
+		ImgSet->CreateQuad( T->getTileSpriteIndex() , Tiles, DetermineTilePos( T ) , (i++ * 4));
 	}
 
 	Engine::out() << "[SimView] Recreated tiles vertexarray!" << std::endl;
 
 	// and create the corresponding grid
-	CreateGrid( std::sqrt( r.size() ) );
+	CreateGrid();
 }
 
 
@@ -274,7 +320,7 @@ void SimView::ReadCreatureRenderList(CreatureRenderList& r)
 	//Engine::out() << "[SimView] Recreated creature vertexarray!" << std::endl;
 }
 
-void SimView::CreateGrid( int TerrainSize )
+void SimView::CreateGrid()
 {
 	Engine::out() << "[SimView] Updated Grid" << std::endl;
 
@@ -287,27 +333,25 @@ void SimView::CreateGrid( int TerrainSize )
 		int pos = 2*i;
 		Grid[ pos ].position = sf::Vector2f( 0, i * TileSize );
 		Grid[ pos + 1 ].position = sf::Vector2f( TerrainSize * TileSize, i * TileSize );
-		
+
 		Grid[ pos ].color = GridColor;
 		Grid[ pos + 1 ].color = GridColor;
 	}
-	
+
 	for ( int i = 0; i <= TerrainSize; ++i)
 	{
 		int pos = (TerrainSize+1)*2 + 2*i;
 		Grid[ pos  ].position = sf::Vector2f( i * TileSize, 0 );
 		Grid[ pos + 1 ].position = sf::Vector2f( i * TileSize, TerrainSize * TileSize );
-		
+
 		Grid[ pos ].color = GridColor;
 		Grid[ pos + 1 ].color = GridColor;
 	}
 
-	
+
 }
 
-sf::Vector2f SimView::CalculateRequisition()
-{
-}
+
 
 
 // ### TERRAIN/TILE STUFF ##
@@ -316,8 +360,8 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 {
 	sf::FloatRect re;
 
-	re.left 	= TileSize * t->getPosition().x();
-	re.top 		= TileSize * t->getPosition().y();
+	re.left 	= TileSize * t->getPosition().x;
+	re.top 		= TileSize * t->getPosition().y;
 	re.width 	= TileSize;
 	re.height 	= TileSize;
 
@@ -327,30 +371,19 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
 {
 	sf::FloatRect re;
-	
+
 	const int CreatureSize = 16;
 
-	re.left 	= TileSize * c->getPosition().x() - CreatureSize/2;
-	re.top 		= TileSize * c->getPosition().y() - CreatureSize/2;
+	re.left 	= TileSize * c->getPosition().x - CreatureSize/2;
+	re.top 		= TileSize * c->getPosition().y - CreatureSize/2;
 	re.width 	= CreatureSize;
 	re.height 	= CreatureSize;
 
 	return re;
 }
 
-int SimView::DetermineTileSpriteIndex ( std::shared_ptr<Tile>& t)
-{
-	/// FIXME: hard coded max height only fits for debug terrain!
-	float heightpercentage = t->getHeight() / 1500;
-
-	if ( heightpercentage < .01) return 0;
-	if ( heightpercentage < .05) return 1;
-	if ( heightpercentage < .9) return 2;
-	return 3;
-}
-
 int SimView::DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t)
 {
 	/// FIXME: hard coded
-	return 2;
+	return t->getSpecies()->getType();
 }
