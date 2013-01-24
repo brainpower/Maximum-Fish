@@ -9,7 +9,10 @@
 #include <random>
 
 Terrain::Terrain()
- : globalTemp(20)
+ : Size(0,0),
+ humidityFactor(1.0),
+ globalTemp(20),
+ maxElevation(0)
 {
 }
 
@@ -23,7 +26,7 @@ std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (index < 0 || index > Tiles.size()) return -1;
+	if (!validPos(pos) || index < 0 || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
 
@@ -54,9 +57,9 @@ std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T)
 		{
 			auto _T = getTile( Geom::Vec2f(x,y) );
 			if (!_T || (x = T.getPosition().x && y == T.getPosition().y)) break;
-			
+
 			ret.push_back(_T);
-		}		
+		}
 	}
 
 	return ret;
@@ -72,24 +75,47 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 		{
 			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
 			if (!T) break;
-						
+
 			for (std::shared_ptr<Creature>& C : T->getCreatures())
 			{
 				if ( Geom::distance( C->getPosition(), Position ) < radius && filter ( C ) ) ret.push_back(C);
 			}
-		}		
+		}
 	}
 
 	return ret;
 }
 
+std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+{
+	std::shared_ptr<Creature> nearest;
+	float mindist = radius;
+
+	for (int x = Position.x-radius; x < Position.x+radius; ++x)
+	{
+		for (int y = Position.y-radius; y < Position.y+radius; ++y)
+		{
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			if (!T) break;
+
+			for (std::shared_ptr<Creature>& C : T->getCreatures())
+			{
+				float curdist = Geom::distance( C->getPosition(), Position );
+				if ( curdist < mindist && filter ( C ) )
+				{
+					nearest = C;
+					mindist = curdist;
+	}	}	}	}
+
+	return nearest;
+}
 
 void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
 
 	Size = Geom::Vec2( 32, 32 );
-
+	// maximum height to generate
 	float maxHeight = 1500;
 	//float minheight = 0;
 
@@ -107,7 +133,7 @@ void Terrain::CreateDebugTerrain()
 		for ( int y = 0; y < Size.y; ++y)
 		{
 			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
-			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist ) ;
+			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
 			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float TileHeight = maxHeight*HeightFactor;
 			float Humidity = 0;
@@ -124,4 +150,6 @@ void Terrain::CreateDebugTerrain()
 			Tiles.push_back ( T );
 		}
 	}
+
+
 }

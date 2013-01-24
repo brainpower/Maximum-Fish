@@ -52,7 +52,7 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "KEY_SHOW_MAINMENU" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
+	//EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "KEY_SIM_PAUSE" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "KEY_SHOW_INFOPANEL" );
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,    "TOGGLE_FULLSCREEN" );
@@ -171,7 +171,8 @@ void Screen::HandleEvent(Event& e)
 			Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
 			Fullscreen = false;
 		}
-
+		Event e("WINDOW_RESIZE");
+		Module::Get()->QueueEvent(e, true);
 	}
 	else if (e.Is("SCREEN_ADD_WINDOW"))
 	{

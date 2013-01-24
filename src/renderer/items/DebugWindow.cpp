@@ -32,7 +32,8 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
                                                 // maybe change methode onconsoleinputactivation to boolchange directly in screen
     consoleInput->GetSignal( sfg::Entry::OnTextChanged ).Connect( &DebugWindow::OnConsoleInputActivation , this );
 
-    consoleInput->AppendText( "Not yet implemented." );
+    //consoleInput->AppendText( "Not yet implemented." );
+    consoleInput->SetState( sfg::Widget::State::INSENSITIVE );
 
 	Win->SetPosition( sf::Vector2f(RelativePosition.x, RelativePosition.y ) );
 	//Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
