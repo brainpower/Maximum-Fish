@@ -64,6 +64,7 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
 
     //add wholebox to window
     Win->Add(wholeBox);
+    updatePosition();
 
     //set Events
     CreatureFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );

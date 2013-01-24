@@ -25,7 +25,6 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 
 
     Win->SetRequisition( sf::Vector2f(Size.x, Size.y) );
-    updatePosition();
 
 
     // main box, vertical
@@ -78,6 +77,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 
 
     Win->Add( box );
+    updatePosition();
 
     Event e("SCREEN_ADD_WINDOW");
     e.SetData( Win );
