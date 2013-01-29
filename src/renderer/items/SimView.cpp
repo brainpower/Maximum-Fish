@@ -156,7 +156,12 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			{
 				// Translate the click position to Terrain Coordinates (float)
 				sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
+
+#ifdef USE_MAPPIXELTOCOORDS
+				sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Camera);
+#else
 				sf::Vector2f RealPos = Engine::GetApp().convertCoords( ClickPos, Camera);
+#endif
 
 				RealPos = RealPos / (float)TileSize;
 
