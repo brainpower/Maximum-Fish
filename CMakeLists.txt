@@ -139,7 +139,7 @@ endif()
 execute_process(COMMAND grep "mapPixelToCoords" ${SFML_INCLUDE_DIR}/SFML/Graphics/RenderTarget.hpp RESULT_VARIABLE CONVERT_COORDS_NOT_FOUND OUTPUT_VARIABLE XXX)
 if(CONVERT_COORDS_NOT_FOUND EQUAL 0)
 	add_definitions( -DUSE_MAPPIXELTOCOORDS )
-	message(STATUS "Found and useing 'mapPixelToCoords'")
+	message(STATUS "Found and using 'mapPixelToCoords'")
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
