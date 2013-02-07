@@ -74,7 +74,7 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-	const float ScrollFactor = 2.0f;
+	const float ScrollFactor = 1.0f;
 	int delta = 10;
 	const float WheelZoomFactor = .2f;
 
@@ -90,33 +90,26 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			{
 				case sf::Keyboard::Key::Up:
 					TargetCenter.y += -delta;
-					//Camera.move(0, -delta);
 					break;
 
 				case sf::Keyboard::Key::Down:
 					TargetCenter.y += delta;
-					//Camera.move(0, delta);
 					break;
 
 				case sf::Keyboard::Key::Left:
 					TargetCenter.x += -delta;
-					//Camera.move(-delta, 0);
 					break;
 
 				case sf::Keyboard::Key::Right:
 					TargetCenter.x += delta;
-					//Camera.move(delta, 0);
 					break;
-
-
 
 				case sf::Keyboard::Key::PageUp:
 					TargetSize *= 1.1f;
-					//Camera.zoom(1.1);
 					break;
+
 				case sf::Keyboard::Key::PageDown:
 					TargetSize *= 0.9f;
-					//Camera.zoom(0.9);
 					break;
 
 				default:
@@ -134,19 +127,25 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 			break;
 
 		case sf::Event::MouseMoved:
+		{
+			sf::Vector2i mouseMove(e.mouseMove.x, e.mouseMove.y);
+
+#ifdef USE_MAPPIXELTOCOORDS
+				sf::Vector2f glLastMousePos = Engine::GetApp().mapPixelToCoords( lastMousePos, Camera);
+				sf::Vector2f glMouseMove = Engine::GetApp().mapPixelToCoords( mouseMove, Camera);
+#else
+				sf::Vector2f glLastMousePos = Engine::GetApp().convertCoords( lastMousePos, Camera);
+				sf::Vector2f glMouseMove = Engine::GetApp().convertCoords( mouseMove, Camera);
+#endif
 
 			if (Scrolling)
 			{
-				//Camera.move( (e.mouseMove.x - lastMousePos.x)*ScrollFactor , (e.mouseMove.y - lastMousePos.y)*ScrollFactor );
-				//TargetCenter = Camera.getCenter();
-
-				TargetCenter.x += (lastMousePos.x - e.mouseMove.x )*ScrollFactor;
-				TargetCenter.y += (lastMousePos.y - e.mouseMove.y )*ScrollFactor;
+				TargetCenter += (glLastMousePos - glMouseMove )*ScrollFactor;
 			}
 
 			lastMousePos.x = e.mouseMove.x;
 			lastMousePos.y = e.mouseMove.y;
-
+			}
 			break;
 
 		case sf::Event::MouseButtonPressed:

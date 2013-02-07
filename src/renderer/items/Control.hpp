@@ -23,7 +23,7 @@ class Control : public EventUser
         sfg::ToggleButton::Ptr BtnSimPause;
         sfg::Button::Ptr BtnSimReset;
         sfg::Entry::Ptr Framesdisplay;
-        unsigned int Frames = 20;
+        unsigned int Frames;
         void BtnFramesUpClick();
         void BtnFramesDownClick();
 
@@ -42,7 +42,7 @@ class Control : public EventUser
 
 		unsigned int simPauseConnectionSerial;
 		bool simPauseLock;
-		int simPauseLockLevel = 1;
+		int simPauseLockLevel;
 
 		sfg::Window::Ptr Win;
 

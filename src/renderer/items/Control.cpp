@@ -2,7 +2,7 @@
 
 Control::Control( const Geom::Vec2 Size)
 // simulation starts paused, so start with one lock
- : simPauseLockLevel(1)
+ : simPauseLockLevel(1), Frames(20)
 {
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "TOGGLE_FULLSCREEN" );
