@@ -13,6 +13,7 @@ Control::Control( const Geom::Vec2 Size)
     RegisterForEvent( "KEY_SIM_PAUSE" );
     RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
     RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
+    Frames = 20;
 
     CreateWindow(Size);
     Win->Show(true);
