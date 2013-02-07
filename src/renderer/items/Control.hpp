@@ -42,7 +42,7 @@ class Control : public EventUser
 
 		unsigned int simPauseConnectionSerial;
 		bool simPauseLock;
-		int simPauseLockLevel = 1;
+		int simPauseLockLevel;
 
 		sfg::Window::Ptr Win;
 
