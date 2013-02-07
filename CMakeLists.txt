@@ -105,7 +105,7 @@ else()
 	add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
 endif()
 
-# get gcc compiler version 
+# get gcc compiler version
 if (CMAKE_COMPILER_IS_GNUCXX)
 	# if newer cmake, CMAKE_CXX_COMPILER_VERSION is set, so use it...
 	# if not, call 'c++ -dumpversion' and get it from there
@@ -136,6 +136,10 @@ else()
 	endif()
 endif()
 
+execute_process(COMMAND grep "convertCoords" ${SFML_INCLUDE_DIR}/SFML/Graphics/RenderTarget.hpp RESULT_VARIABLE CONVERT_COORDS_NOT_FOUND)
+if(CONVERT_COORDS_NOT_FOUND EQUAL 1)
+	add_definitions( -DUSE_MAPPIXELTOCOORDS )
+endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
 target_link_libraries(MaximumFish sbe sfgui )
