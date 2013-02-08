@@ -92,7 +92,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
 endif()
 
 
-add_definitions( -BOOST_THREAD_USE_LIB )
+add_definitions( -DBOOST_THREAD_USE_LIB )
 
 if(NOT SHARED)
 	add_definitions( -DSFML_STATIC -DSFGUI_STATIC)
