@@ -10,7 +10,7 @@
 
 #include "sbe/Module.hpp"
 
-#include "sbe/ImageSet.hpp"
+#include "sbe/gfx/ImageSet.hpp"
 
 #include "renderer/items/Control.hpp"
 #include "renderer/items/InfoPanel.hpp"

@@ -7,7 +7,7 @@
 #include "simulator/Tile.hpp"
 
 #include "sbe/ResourceManager.hpp"
-#include "sbe/ImageSet.hpp"
+#include "sbe/gfx/ImageSet.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/Vector2.hpp>
