@@ -130,13 +130,8 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 		{
 			sf::Vector2i mouseMove(e.mouseMove.x, e.mouseMove.y);
 
-#ifdef USE_MAPPIXELTOCOORDS
-				sf::Vector2f glLastMousePos = Engine::GetApp().mapPixelToCoords( lastMousePos, Camera);
-				sf::Vector2f glMouseMove = Engine::GetApp().mapPixelToCoords( mouseMove, Camera);
-#else
-				sf::Vector2f glLastMousePos = Engine::GetApp().convertCoords( lastMousePos, Camera);
-				sf::Vector2f glMouseMove = Engine::GetApp().convertCoords( mouseMove, Camera);
-#endif
+			sf::Vector2f glLastMousePos = Engine::GetApp().mapPixelToCoords( lastMousePos, Camera);
+			sf::Vector2f glMouseMove = Engine::GetApp().mapPixelToCoords( mouseMove, Camera);
 
 			if (Scrolling)
 			{
@@ -156,11 +151,7 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 				// Translate the click position to Terrain Coordinates (float)
 				sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
 
-#ifdef USE_MAPPIXELTOCOORDS
 				sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Camera);
-#else
-				sf::Vector2f RealPos = Engine::GetApp().convertCoords( ClickPos, Camera);
-#endif
 
 				RealPos = RealPos / (float)TileSize;
 
