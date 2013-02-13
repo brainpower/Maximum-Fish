@@ -11,10 +11,10 @@ DetailsTile::DetailsTile(const std::shared_ptr<Tile>& _tile)
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
-    Update();
+    UpdateLabel();
 }
 
-void DetailsTile::Update()
+void DetailsTile::UpdateLabel()
 {
 
     DetailsLabel->SetText("");

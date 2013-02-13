@@ -11,10 +11,10 @@ DetailsSpecies::DetailsSpecies(const std::shared_ptr<Species>& _species)
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
-	Update();
+	UpdateLabel();
 }
 
-void DetailsSpecies::Update()
+void DetailsSpecies::UpdateLabel()
 {
 	DetailsLabel->SetText("");
 	AddToLabel( DetailsLabel, "Name", str( format("%s") % currentSpecies->getName()));

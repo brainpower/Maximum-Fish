@@ -15,9 +15,8 @@ class DetailsSpecies : public Details
 		virtual ~DetailsSpecies() {}
 
         virtual sfg::Widget::Ptr Get();
-        virtual void Update();
+        virtual void UpdateLabel();
     private:
-        sfg::Label::Ptr DetailsLabel;
 
 		std::shared_ptr<Species> currentSpecies;
 };

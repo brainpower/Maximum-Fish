@@ -24,8 +24,13 @@ class InfoPanel : public EventUser
         void SetDetail( const std::shared_ptr<Tile>& _tile);
 		void updatePosition();
 
-        void SwitchToManipulator();
+        void SwitchToCreatureManipulator();
+        void SwitchToSpeciesManipulator();
+        void SwitchToTileManipulator();
         bool ThisNotManipulator;
+        bool CreatureEmpty;
+        bool SpeciesEmpty;
+        bool TileEmpty;
 
 		sfg::Window::Ptr Win;
 		sfg::Frame::Ptr CreatureFrame;

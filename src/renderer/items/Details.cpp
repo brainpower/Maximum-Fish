@@ -11,7 +11,7 @@ void Details::HandleEvent(Event& e)
 {
 	if (UpdateTimer.getElapsedTime() > sf::seconds(1.0))
 	{
-		Update();
+		UpdateLabel();
 		UpdateTimer.restart();
 	}
 }
