@@ -8,10 +8,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Mod
 #######################################################
 ######################## Cmake Options ################
 #######################################################
-option(DEBUG "enable debug build" ON)
-if (CMAKE_BUILD_TYPE MATCHES Release)
-	set(DEBUG FALSE)
-endif()
+#option(DEBUG "enable debug build" ON)
 option(USE_CUSTOM_BOOST "" OFF)
 option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
@@ -59,7 +56,7 @@ endif()
 #
 # SBE
 #
-set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
+#set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
 add_subdirectory(libsbe)
 
 #######################################################
@@ -98,9 +95,8 @@ if(NOT SHARED)
 	add_definitions( -DSFML_STATIC -DSFGUI_STATIC)
 endif()
 
-if (DEBUG)
-	message(STATUS "-- System is ${CMAKE_SYSTEM_NAME}")
-	add_definitions( -DDEBUG )
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
 else()
 	add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
 endif()
@@ -122,9 +118,9 @@ if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
 
 		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
 			add_definitions ( -D__GCC_4_8__ )
-			if(DEBUG)
+			if(CMAKE_BUILD_TYPE MATCHES Debug)
 				add_definitions( -Og )
-			endif(DEBUG)
+			endif()
 		endif()
 else()
 	if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
