@@ -36,6 +36,7 @@ isPaused(false) {
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("EVT_SAVE_WHOLE");
+	RegisterForEvent("EVT_LOAD_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
 
 	RegisterForEvent("SET_SIM_TPS");
@@ -102,7 +103,16 @@ void Simulator::HandleEvent(Event& e)
 			return;
 		}
 
-		saveEvent(boost::any_cast<std::string>(e.Data()));
+		saveWhole(boost::any_cast<std::string>(e.Data()));
+	}
+	else if (e.Is("EVT_LOAD_WHOLE")){
+		if ( e.Data().type() != typeid(std::string))
+		{
+			Engine::out(Engine::ERROR) << "[Simulator] got invalid eventdata for EVT_LOAD_WHOLE!" << std::endl;
+			return;
+		}
+
+		loadWhole(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_QUIT"))
 	{
@@ -374,7 +384,7 @@ std::string Simulator::addSpecies( Species::SPECIES_TYPE type )
 	return S->getName();
 }
 
-void Simulator::saveEvent(const std::string &savePath){
+void Simulator::saveWhole(const std::string &savePath){
 	bool wasPaused = isPaused;
 
 	isPaused = true; // pause sim while saving
@@ -414,4 +424,32 @@ void Simulator::saveEvent(const std::string &savePath){
 
 	isPaused = wasPaused; // continue, if not wasPaused
 
+}
+
+void Simulator::loadWhole(const std::string &loadPath){
+	bool wasPaused = isPaused;
+	isPaused = true; // pause sim while saving
+
+	if(!loadPath.empty())
+		Engine::GetIO()->addPath(loadPath); // add load path to IO stack
+
+	// do some loading...
+
+	//discardOldState() somehow...
+
+	//if(!Engine::GetResMgr()->load()){
+	//	Event e("EVT_LOAD_BAD");
+	//	e.SetData(std::string("Error loading"));
+	//  Module::Get()->QueueEvent(e, true);
+	//} else {
+	//	Event e("EVT_LOAD_GOOD");
+	//	Module::Get()->QueueEvent(e, true);
+	//}
+
+	// loading done...
+
+	if(!loadPath.empty())
+		Engine::GetIO()->popPath(); // pop save path from IO stack
+
+	isPaused = wasPaused;
 }

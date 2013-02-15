@@ -59,7 +59,8 @@ class Simulator : public EventUser, public sf::NonCopyable
 		std::string addSpecies( Species::SPECIES_TYPE type );
 
 		void registerIOPlugins();
-		void saveEvent(const std::string &savePath);
+		void saveWhole(const std::string &savePath);
+		void loadWhole(const std::string &loadPath);
 
 		int currentSeed;
 		std::default_random_engine gen;
