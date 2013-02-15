@@ -213,7 +213,9 @@ void Control::BtnSimResetClick()
 void Control::BtnFramesDownClick()
 {
     if ( Frames <= 5 ){return;}
-    Frames -= 5;
+    if ( Frames <= 50 ){Frames -= 5;}
+    else if ( Frames <= 150 ) {Frames -= 10;}
+    else {Frames -= 25;}
     Framesdisplay->SetText(boost::lexical_cast<std::string>(Frames));
     Event e = Event("SET_SIM_TPS");
     e.SetData(Frames);
@@ -223,7 +225,9 @@ void Control::BtnFramesDownClick()
 void Control::BtnFramesUpClick()
 {
     if ( Frames >= 500 ){return;}
-    Frames += 5;
+    if ( Frames >= 150 ){Frames += 25;}
+    else if ( Frames >= 50 ){Frames += 10;}
+    else {Frames += 5;}
     Framesdisplay->SetText( boost::lexical_cast<std::string>(Frames) );
     Event e = Event("SET_SIM_TPS");
     e.SetData(Frames);
