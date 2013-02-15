@@ -3,6 +3,8 @@
 #include <boost/thread.hpp>
 
 #include "sbe/ResourceManager.hpp"
+#include "sbe/gfx/GraphPlotter.hpp"
+
 
 #include "Terrain.hpp"
 #include "Creature.hpp"
@@ -39,6 +41,8 @@ isPaused(false) {
 	RegisterForEvent("TERRAIN_CLICKED");
 
 	RegisterForEvent("SET_SIM_TPS");
+
+	RegisterForEvent("PLOT_COUNTS");
 
 	init();
 }
@@ -86,6 +90,14 @@ void Simulator::HandleEvent(Event& e)
 			return;
 		}
 		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
+	}
+	else if (e.Is("PLOT_COUNTS"))
+	{
+		Event e("DISPLAY_GRAPH");
+		std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
+		e.SetData( p );
+		Module::Get()->QueueEvent(e, true);
+
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -191,6 +203,8 @@ void Simulator::tick()
 				++it;
 			}
 		}
+
+		logTickStats();
 	}
 
 	// update the renderer at up to 30 fps
@@ -212,6 +226,30 @@ void Simulator::tick()
 	}
 }
 
+void Simulator::logTickStats()
+{
+	HerbaeCounts.push_back(CreatureCounts[(int)Species::HERBA]);
+	HerbivoreCounts.push_back(CreatureCounts[(int)Species::HERBIVORE]);
+	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
+
+	//ProcessingTimes.push_back(  )
+}
+
+std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
+{
+	std::shared_ptr<GraphPlotter> re( new GraphPlotter );
+
+	Graph g;
+	g.Size = Geom::Point( 512,512);
+	g.AxisSize = Geom::Point(5000, 5000);
+	g.Curves.push_back( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
+	g.Curves.push_back( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
+	g.Curves.push_back( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+
+	re->setGraph( g );
+
+	return re;
+}
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
 {
@@ -415,3 +453,4 @@ void Simulator::saveEvent(const std::string &savePath){
 	isPaused = wasPaused; // continue, if not wasPaused
 
 }
+

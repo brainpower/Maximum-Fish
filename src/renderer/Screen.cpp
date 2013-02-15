@@ -11,6 +11,7 @@
 #include "sbe/Module.hpp"
 
 #include "sbe/gfx/ImageSet.hpp"
+#include "sbe/gfx/GraphPlotter.hpp"
 
 #include "renderer/items/Control.hpp"
 #include "renderer/items/InfoPanel.hpp"
@@ -42,6 +43,8 @@ Screen::Screen()
 	RegisterForEvent( "SCREEN_ADD_WINDOW" );
 	RegisterForEvent( "TOGGLE_FULLSCREEN" );
 
+	RegisterForEvent( "DISPLAY_GRAPH" );
+
 	//RegisterForSFMLEvent(sf::Event::EventType::KeyReleased);
 	//RegisterForSFMLEvent(sf::Event::EventType::MouseButtonReleased);
 
@@ -50,6 +53,8 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "KEY_SHOW_CONSOLE" );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
+
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F8 ,     "PLOT_COUNTS", true );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "KEY_SHOW_MAINMENU" );
 	//EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
@@ -186,6 +191,39 @@ void Screen::HandleEvent(Event& e)
 		{
 			Engine::out(Engine::ERROR) << "[Screen] SCREEN_ADD_WIDGET Event with wrong parameters" << std::endl;
 		}
+	}
+	else if (e.Is("DISPLAY_GRAPH"))
+	{
+		if (e.Data().type() == typeid( std::shared_ptr<GraphPlotter> ) )
+		{
+
+			std::shared_ptr<GraphPlotter> p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
+			if (!p)
+			{
+				Engine::out() << "[Screen] INVALID POINTER!" << std::endl;
+			}
+
+			sf::RenderTexture tex;
+			tex.create(p->getGraph().Size.x, p->getGraph().Size.y);
+			p->updateVertexArrays();
+			p->draw( tex );
+			tex.display();
+
+			sfg::Window::Ptr P = sfg::Window::Create();
+			sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
+			P->Add(I);
+
+			Event e( "SCREEN_ADD_WINDOW");
+			e.SetData( P );
+			Module::Get()->QueueEvent(e);
+		}
+		else
+		{
+			Engine::out(Engine::ERROR) << "[Screen] DISPLAY_GRAPH Event with wrong parameters" << std::endl;
+		}
+
+
+
 	}
 	else if (e.Is("EVT_QUIT"))
 	{

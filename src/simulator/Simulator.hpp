@@ -8,6 +8,8 @@ class Tile;
 class Terrain;
 class Creature;
 
+class GraphPlotter;
+
 #include <list>
 
 #include <SFML/System/NonCopyable.hpp>
@@ -58,20 +60,33 @@ class Simulator : public EventUser, public sf::NonCopyable
 		*/
 		std::string addSpecies( Species::SPECIES_TYPE type );
 
+
+		void logTickStats();
+		std::shared_ptr<GraphPlotter> CreateCountPlotter();
+
 		void registerIOPlugins();
 		void saveEvent(const std::string &savePath);
 
 		int currentSeed;
 		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
-		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
-		unsigned int CreatureCounts[3];
 		std::vector<std::shared_ptr<Species>> SpeciesList;
 		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;
 
 		static Simulator* Instance;
+
+
+		// Statistics
+		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
+		int CreatureCounts[3];
+		std::vector<int> CarnivoreCounts;
+		std::vector<int> HerbivoreCounts;
+		std::vector<int> HerbaeCounts;
+
+		std::vector<int> ProcessingTimes;
+
 };
 
 #endif // SIMULATOR_H
