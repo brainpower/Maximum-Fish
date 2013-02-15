@@ -11,10 +11,8 @@ class DetailsEmpty : public Details
 
 		DetailsEmpty();
 		virtual ~DetailsEmpty() {}
-		virtual void Update() {}
+		virtual void UpdateLabel() {}
         virtual sfg::Widget::Ptr Get();
-    protected:
-		sfg::Label::Ptr DetailsLabel;
 };
 
 #endif // DETAILS_EMPTY_H
