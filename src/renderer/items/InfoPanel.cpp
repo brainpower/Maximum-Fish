@@ -12,6 +12,9 @@ InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size
 
 	CreateWindow(RelativePosition, Size);
 	ThisNotManipulator = true;
+	CreatureEmpty = true;
+	SpeciesEmpty = true;
+	TileEmpty = true;
 }
 
 void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
@@ -67,19 +70,40 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
     updatePosition();
 
     //set Events
-    CreatureFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );
-    SpeciesFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );
-    TileFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToManipulator, this );
+    CreatureFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToCreatureManipulator, this );
+    SpeciesFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToSpeciesManipulator, this );
+    TileFrame->GetSignal(   sfg::Frame::OnRightClick ).Connect( &InfoPanel::SwitchToTileManipulator, this );
 
 	Event e( "SCREEN_ADD_WINDOW" );
 	e.SetData( Win );
 	Module::Get()->QueueEvent( e );
 }
 
-void InfoPanel::SwitchToManipulator()
+void InfoPanel::SwitchToCreatureManipulator()
 {
-    Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
-    Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+    if (!CreatureEmpty)
+    {
+        Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
+        Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+    }
+}
+
+void InfoPanel::SwitchToSpeciesManipulator()
+{
+    if (!SpeciesEmpty)
+    {
+        Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
+        Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+    }
+}
+
+void InfoPanel::SwitchToTileManipulator()
+{
+    if (!TileEmpty)
+    {
+        Module::Get()->QueueEvent( Event( "TOGGLE_IPAN_MAN" ) );
+        Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+    }
 }
 
 void InfoPanel::HandleEvent( Event& e )
@@ -137,10 +161,12 @@ void InfoPanel::SetDetail(const std::shared_ptr<Creature>& _creature)
     {
         CurrentDetailsCreature.reset(new DetailsCreature(_creature));
         CreatureFrame->Add(CurrentDetailsCreature->Get());
+        CreatureEmpty = false;
     }
     else
     {
         CreatureFrame->Add(sfg::Label::Create("Something went wrong!\nThis Creature is not available."));
+        CreatureEmpty = true;
     }
 }
 
@@ -152,10 +178,12 @@ void InfoPanel::SetDetail( const std::shared_ptr<Species>& _species)
     {
         CurrentDetailsSpecies.reset(new DetailsSpecies(_species));
         SpeciesFrame->Add(CurrentDetailsSpecies->Get());
+        SpeciesEmpty = false;
     }
     else
     {
         SpeciesFrame->Add(sfg::Label::Create("Something went wrong!\nThis Species is not available."));
+        SpeciesEmpty = true;
     }
 }
 
@@ -167,10 +195,12 @@ void InfoPanel::SetDetail( const std::shared_ptr<Tile>& _tile)
     {
         CurrentDetailsTile.reset(new DetailsTile(_tile));
         TileFrame->Add(CurrentDetailsTile->Get());
+        TileEmpty = false;
     }
     else
     {
         TileFrame->Add(sfg::Label::Create("Something went wrong!\nThis Tile is not available."));
+        TileEmpty = true;
     }
 }
 

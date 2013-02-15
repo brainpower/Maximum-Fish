@@ -8,13 +8,17 @@ DetailsCreature::DetailsCreature(const std::shared_ptr<Creature>& _creature)
 {
     currentCreature = _creature;
 
+    //Label
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
-    Update();
+    //Box
+    DetailsBox = sfg::Box::Create();
+
+    UpdateLabel();
 }
 
-void DetailsCreature::Update()
+void DetailsCreature::UpdateLabel()
 {
 
 	DetailsLabel->SetText("");
