@@ -38,6 +38,7 @@ isPaused(false) {
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("EVT_SAVE_WHOLE");
+	RegisterForEvent("EVT_SAVE_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
 
@@ -107,6 +108,9 @@ void Simulator::HandleEvent(Event& e)
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
+	}
+	else if (e.Is("EVT_SAVE_WHOLE_TEST")){
+		saveWhole(std::string("/tmp/maxfish/debug-save/"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE")){
 		if ( e.Data().type() != typeid(std::string))
@@ -430,20 +434,25 @@ void Simulator::saveWhole(const std::string &savePath){
 	if(!savePath.empty())
 		Engine::GetIO()->addPath(savePath); // add save path to IO stack
 
+	Engine::out(Engine::SPAM) << "========" << Engine::GetIO()->topPath() << std::endl;
+
 	// do some saving...
-	if(!Engine::GetResMgr()->saveObject( "Terrain", Terra, true)){  // should we overwrite?
+	//if(!Engine::GetResMgr()->saveObject( "Terrain", Terra, true)){  // should we overwrite?
+	if(!Engine::GetIO()->saveObject( "Terrain", *Terra, true)){  // should we overwrite?
 
 		Event e("EVT_SAVE_BAD");
 		e.SetData( std::string("Error saving Terrain!") );
 		Module::Get()->QueueEvent(e, true);
 
-	}	else if(!Engine::GetResMgr()->saveAllObjects<Creature>(true)){
+	//}	else if(!Engine::GetResMgr()->saveAllObjects<Creature>(true)){
+	}	else if(!Engine::GetIO()->saveObjects<Creature>(Creatures.begin(), Creatures.end(), true)){
 
 		Event e("EVT_SAVE_BAD");
 		e.SetData( std::string("Error saving Creatures!") );
 		Module::Get()->QueueEvent(e, true);
 
-	} else if(!Engine::GetResMgr()->saveAllObjects<Species>(true)){ // should we overwrite?
+	//} else if(!Engine::GetResMgr()->saveAllObjects<Species>(true)){ // should we overwrite?
+	} else if(!Engine::GetIO()->saveObjects<Species>(SpeciesList.begin(), SpeciesList.end(), true)){ // should we overwrite?
 
 		Event e("EVT_SAVE_BAD");
 		e.SetData( std::string("Error saving Species'!") );

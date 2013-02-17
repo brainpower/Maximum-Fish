@@ -53,6 +53,7 @@ Screen::Screen()
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "KEY_SHOW_CONSOLE" );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
+	EvtConv->AddKeyConversion( sf::Keyboard::Key::F6 ,     "EVT_SAVE_WHOLE_TEST", true );
 
 	EvtConv->AddKeyConversion( sf::Keyboard::Key::F8 ,     "PLOT_COUNTS", true );
 
