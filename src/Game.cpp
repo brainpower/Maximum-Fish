@@ -3,6 +3,9 @@
 #include "modules/Renderer.hpp"
 #include "modules/Logic.hpp"
 
+#include "sbe/Config.hpp"
+#include "sbe/Engine.hpp"
+
 Game* Game::Instance;
 
 Game::Game()
@@ -32,7 +35,7 @@ void Game::ModuleInit()
 	RegisterModule( new Renderer(),
 					ModuleStartInfo(
 						"Renderer",
-						60,
+						Engine::getCfg()->get<int>("renderer.maxFps"),
 						std::shared_ptr<Event> (new Event("EVT_FRAME"))
 					)
 				  );
