@@ -39,6 +39,7 @@ isPaused(false) {
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("EVT_SAVE_WHOLE");
+	RegisterForEvent("EVT_SAVE_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
 
@@ -108,6 +109,9 @@ void Simulator::HandleEvent(Event& e)
 	else if (e.Is("EVT_SAVE_TERRAIN"))
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
+	}
+	else if (e.Is("EVT_SAVE_WHOLE_TEST")){
+		saveWhole(std::string("/tmp/maxfish/debug-save/"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE")){
 		if ( e.Data().type() != typeid(std::string))
@@ -431,20 +435,22 @@ void Simulator::saveWhole(const std::string &savePath){
 	if(!savePath.empty())
 		Engine::GetIO()->addPath(savePath); // add save path to IO stack
 
+	Engine::out(Engine::SPAM) << "Save to path: " << Engine::GetIO()->topPath() << std::endl;
+
 	// do some saving...
-	if(!Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true)){  // should we overwrite?
+	if(!Engine::GetIO()->saveObject( "Terrain", *Terra, true)){  // should we overwrite?
 
 		Event e("EVT_SAVE_BAD");
 		e.SetData( std::string("Error saving Terrain!") );
 		Module::Get()->QueueEvent(e, true);
 
-	}	else if(!Engine::GetResMgr()->saveAllObjects<Creature>(true)){
+	}	else if(!Engine::GetIO()->saveObjects<Creature>(Creatures.begin(), Creatures.end(), true)){
 
 		Event e("EVT_SAVE_BAD");
 		e.SetData( std::string("Error saving Creatures!") );
 		Module::Get()->QueueEvent(e, true);
 
-	} else if(!Engine::GetResMgr()->saveAllObjects<Species>(true)){ // should we overwrite?
+	} else if(!Engine::GetIO()->saveObjects<Species>(SpeciesList.begin(), SpeciesList.end(), true)){ // should we overwrite?
 
 		Event e("EVT_SAVE_BAD");
 		e.SetData( std::string("Error saving Species'!") );
@@ -474,18 +480,34 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	// do some loading...
 
-	//discardOldState() somehow...
-
-	//if(!Engine::GetResMgr()->load()){
+	//auto tmp = Engine::GetResMgr()->loadObject("Terrain");
+	//if(!tmp){
 	//	Event e("EVT_LOAD_BAD");
 	//	e.SetData(std::string("Error loading"));
 	//  Module::Get()->QueueEvent(e, true);
-	//} else {
-	//	Event e("EVT_LOAD_GOOD");
-	//	Module::Get()->QueueEvent(e, true);
+	//  return; // ???
+	//}
+	//if(!Engine::GetResMgr()->loadAllObjects<Species>()){
+	//	Event e("EVT_LOAD_BAD");
+	//	e.SetData(std::string("Error loading"));
+	//  Module::Get()->QueueEvent(e, true);
+	//	return;
+	//}
+	//if(!Engine::GetResMgr()->loadAllObjects<Creature>()){
+	//	Event e("EVT_LOAD_BAD");
+	//	e.SetData(std::string("Error loading"));
+	//  Module::Get()->QueueEvent(e, true);
+	//	return;
 	//}
 
+	//discardOldState() somehow... also tell ResMgr he can discard old stuff
+	//Terra = tmp;
+	//SpeciesList = Engine::GetResMgr()->getAll<Species>()
+	//CreatureList = Engine::GetResMgr()->getAll<Creature>()
+
 	// loading done...
+	//	Event e("EVT_LOAD_GOOD");
+	//	Module::Get()->QueueEvent(e, true);
 
 	if(!loadPath.empty())
 		Engine::GetIO()->popPath(); // pop save path from IO stack

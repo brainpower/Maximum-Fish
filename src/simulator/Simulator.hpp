@@ -11,6 +11,7 @@ class Creature;
 class GraphPlotter;
 
 #include <list>
+#include <random>
 
 #include <SFML/System/NonCopyable.hpp>
 
