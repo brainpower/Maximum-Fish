@@ -8,6 +8,7 @@
 
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/ImageSet.hpp"
+#include "sbe/Config.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -22,17 +23,26 @@ using boost::io::group;
 SimView::SimView()
 :
  Scrolling( false ),
- RenderGrid ( true ),
- TileSize( 128 ),
- TerrainSize( 32 ),
  Name("SimView")
 {
+
+	TileSize = 	Engine::getCfg()->get<int>("ui.simView.tileSize");
+	TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
+	RenderGrid = Engine::getCfg()->get<bool>("ui.simView.renderGrid");
+	CreatureSize = Engine::getCfg()->get<int>("ui.simView.creatureSize");
+	ZoomFactor = Engine::getCfg()->get<float>("ui.simView.zoomFactor");
+
+	ScrollFactor = Engine::getCfg()->get<float>("ui.simView.scrollFactor");
+	delta = Engine::getCfg()->get<float>("ui.simView.delta");
+	WheelZoomFactor = Engine::getCfg()->get<float>("ui.simView.wheelZoomFactor");
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
 	RegisterForEvent("WINDOW_RESIZE");
 
-	GridColor = sf::Color( 42, 42, 42 );
+	GridColor = sf::Color( Engine::getCfg()->get<int>("ui.simView.gridColor.r"),
+						Engine::getCfg()->get<int>("ui.simView.gridColor.g"),
+						Engine::getCfg()->get<int>("ui.simView.gridColor.b") );
 	SetupCamera();
 }
 
@@ -74,9 +84,6 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-	const float ScrollFactor = 1.0f;
-	int delta = 10;
-	const float WheelZoomFactor = .2f;
 
 	switch (e.type)
 	{
@@ -182,11 +189,17 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 void SimView::SetupCamera()
 {
-	Camera.setSize(800, 600);
-	Camera.setCenter(400,300);
+	Camera.setSize(Engine::getCfg()->get<int>("renderer.windowsize.x"),
+					Engine::getCfg()->get<int>("renderer.windowsize.y"));
 
-	TargetSize = sf::Vector2f(800,600);
-	TargetCenter = sf::Vector2f(400,300);
+	Camera.setCenter(Engine::getCfg()->get<int>("renderer.windowsize.x")/2,
+					Engine::getCfg()->get<int>("renderer.windowsize.y")/2);
+
+	TargetSize = sf::Vector2f(Engine::getCfg()->get<int>("renderer.windowsize.x"),
+							Engine::getCfg()->get<int>("renderer.windowsize.y"));
+
+	TargetCenter = sf::Vector2f(Engine::getCfg()->get<int>("renderer.windowsize.x")/2,
+								Engine::getCfg()->get<int>("renderer.windowsize.y")/2);
 
 
 	//Camera.move(0,500);
@@ -194,7 +207,6 @@ void SimView::SetupCamera()
 
 void SimView::UpdateCamera()
 {
-	const float ZoomFactor = 0.1f;
 	// minimum difference between Target and current position to be smoothed
 	const int minDiff = 2;
 	sf::Vector2f CurrentSize = Camera.getSize();
@@ -366,8 +378,6 @@ sf::FloatRect SimView::DetermineTilePos( std::shared_ptr<Tile>& t)
 sf::FloatRect SimView::DetermineCreaturePos( std::shared_ptr<Creature>& c)
 {
 	sf::FloatRect re;
-
-	const int CreatureSize = 16;
 
 	re.left 	= TileSize * c->getPosition().x - CreatureSize/2;
 	re.top 		= TileSize * c->getPosition().y - CreatureSize/2;

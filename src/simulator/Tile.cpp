@@ -3,9 +3,14 @@
 #include "Simulator.hpp"
 #include <memory>
 
+#include "sbe/Config.hpp"
+
 #include "Creature.hpp"
 
 const float Tile::d = 0.007;
+float Tile::maxsandheight = 0;
+float Tile::maxgrassheight = 0;
+float Tile::maxwalkableHumidity = 0;
 
 Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity )
  : Position(_Position),
@@ -28,7 +33,8 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 	float hum = getBaseHumidity();
 	float wReq = sp->getWaterRequirement();
 
-	if(hum > 0.95)
+	//if(hum > Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity"))
+	if(hum > Tile::maxwalkableHumidity)
 		return 0;
 
 	if(hum >= wReq)
@@ -55,8 +61,8 @@ int Tile::getTileSpriteIndex()
 	if(this->isWater()) return 0;
 
 	float maxElev = Simulator::GetTerrain()->getMaxElevation();
-	if(this->height < maxElev * .05) return 1;
-	if(this->height < maxElev * .9) return 2;
+	if(this->height < maxElev * Tile::maxsandheight) return 1;
+	if(this->height < maxElev * Tile::maxgrassheight) return 2;
 	return 3;
 }
 

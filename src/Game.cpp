@@ -27,7 +27,7 @@ void Game::DeInit()
 void Game::ModuleInit()
 {
 
-	Engine::out() << "[Game] Renderer..." << std::endl;
+	Engine::out(Engine::INFO) << "[Game] Renderer..." << std::endl;
 
 	RegisterModule( new Renderer(),
 					ModuleStartInfo(
@@ -37,7 +37,7 @@ void Game::ModuleInit()
 					)
 				  );
 
-	Engine::out() << "[Game] Logic..." << std::endl;
+	Engine::out(Engine::INFO) << "[Game] Logic..." << std::endl;
 	RegisterModule( new Logic(),
 					ModuleStartInfo(
 						"Logik",
@@ -46,5 +46,5 @@ void Game::ModuleInit()
 					)
 				  );
 
-	Engine::out() << "[Game] Initialisation done..." << std::endl;
+	Engine::out(Engine::INFO) << "[Game] Initialisation done..." << std::endl;
 }

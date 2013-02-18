@@ -63,11 +63,17 @@ class SimView : public EventUser
 		sf::Vector2f TargetSize;
 		sf::Vector2f TargetCenter;
 
+		int CreatureSize;
+		float ZoomFactor;
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;
 
 		bool Scrolling;
 		sf::Vector2i lastMousePos;
+
+		float ScrollFactor;
+		int delta;
+		float WheelZoomFactor;
 
 		bool RenderGrid;
 		sf::Color GridColor;

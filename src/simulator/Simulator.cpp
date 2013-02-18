@@ -5,6 +5,7 @@
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
 
+#include "sbe/Config.hpp"
 
 #include "Terrain.hpp"
 #include "Creature.hpp"
@@ -138,7 +139,7 @@ void Simulator::init()
 	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
-	NewSimulation();
+	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
 void Simulator::NewSimulation( int seed )
@@ -167,13 +168,13 @@ void Simulator::NewSimulation( int seed )
 	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
 	SpeciesList.push_back( S );
 
-	CreateSpeciesWithCreatures( Species::HERBA, 		10, 5000 );
-	CreateSpeciesWithCreatures( Species::HERBIVORE, 	10, 1000 );
-	CreateSpeciesWithCreatures( Species::CARNIVORE, 	10, 100 );
+	CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("sim.terragen.plantCount") );
+	CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.herbivoreCount") );
+	CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.carnivoreCount") );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
-	isPaused = true;
+	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
 	// count Creatures once
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
 		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
@@ -250,8 +251,8 @@ std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
 	std::shared_ptr<GraphPlotter> re( new GraphPlotter );
 
 	Graph g;
-	g.Size = Geom::Point( 512,512);
-	g.AxisSize = Geom::Point(5000, 5000);
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.Curves.push_back( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.Curves.push_back( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.Curves.push_back( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
@@ -324,7 +325,7 @@ void Simulator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 void Simulator::addRandomSpecies()
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(-20,40);
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
 	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
 
@@ -397,7 +398,7 @@ void Simulator::addCreature( const std::string& specName )
 std::string Simulator::addSpecies( Species::SPECIES_TYPE type )
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(-20,40);
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
 	std::string name;
 	switch (type)

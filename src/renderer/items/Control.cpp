@@ -1,8 +1,10 @@
 #include "Control.hpp"
 
+#include "sbe/Config.hpp"
+
 Control::Control( const Geom::Vec2 Size)
 // simulation starts paused, so start with one lock
- : simPauseLockLevel(1), Frames(20)
+ : simPauseLockLevel(1), Frames(0)
 {
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "TOGGLE_FULLSCREEN" );
@@ -13,7 +15,8 @@ Control::Control( const Geom::Vec2 Size)
     RegisterForEvent( "KEY_SIM_PAUSE" );
     RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
     RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
-    Frames = 20;
+
+    Frames = Engine::getCfg()->get<int>("ui.control.simFrameRate");
 
     CreateWindow(Size);
     Win->Show(true);
@@ -224,7 +227,7 @@ void Control::BtnFramesDownClick()
 
 void Control::BtnFramesUpClick()
 {
-    if ( Frames >= 500 ){return;}
+    if ( Frames >= Engine::getCfg()->get<int>("ui.control.simFrameLimit") ){return;}
     if ( Frames >= 150 ){Frames += 25;}
     else if ( Frames >= 50 ){Frames += 10;}
     else {Frames += 5;}

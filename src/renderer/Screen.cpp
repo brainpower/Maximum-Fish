@@ -9,6 +9,7 @@
 #include "sbe/event/SFMLEvent.hpp"
 
 #include "sbe/Module.hpp"
+#include "sbe/Config.hpp"
 
 #include "sbe/gfx/ImageSet.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
@@ -72,7 +73,9 @@ void Screen::Init()
 {
 	Engine::out(Engine::INFO) << "[Screen] Creating Window..." << std::endl;
 	// create the renderwindow
-	Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
+	Engine::GetApp().create( sf::VideoMode ( Engine::getCfg()->get<int>("renderer.windowsize.x"),
+											Engine::getCfg()->get<int>("renderer.windowsize.y") ),
+											"Maximum-Fish!" );
 
 	// must be created before using SFGUI
 	SFG.reset ( new sfg::SFGUI() );
@@ -99,17 +102,19 @@ void Screen::Init()
 	guiclock.reset( new sf::Clock() );
 
 
-	auto txts = Engine::GetIO()->loadPath<sf::Image>( "Creatures_serious.tga" );
-	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], "Creatures_serious.tga");
+	auto txts = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("renderer.creatureTexture") );
+	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], Engine::getCfg()->get<std::string>("renderer.creatureTexture") );
 
-	std::shared_ptr<ImageSet> I( new ImageSet( "Creatures", "Creatures_serious.tga", Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 16,16), Geom::Vec2( 3, 1 ), 0 ) );
-	Engine::GetResMgr()->add(I ,"Creatures");
+	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("renderer.creatureImageSet"), Engine::getCfg()->get<std::string>("renderer.creatureTexture"), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 16,16), Geom::Vec2( 3, 1 ), 0 ) );
+	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("renderer.creatureImageSet"));
 
-	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( "Tiles_serious.tga" );
-	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], "Tiles_serious.tga");
+	//Engine::GetIO()->saveObject<ImageSet>( );
 
-	std::shared_ptr<ImageSet> I2( new ImageSet( "Tiles", "Tiles_serious.tga", Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
-	Engine::GetResMgr()->add(I2 ,"Tiles");
+	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("renderer.terrainTexture" ));
+	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], Engine::getCfg()->get<std::string>("renderer.terrainTexture" ));
+
+	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("renderer.terrainImageSet" ), Engine::getCfg()->get<std::string>("renderer.terrainTexture" ), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
+	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("renderer.terrainImageSet" ));
 	//Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
 }
 
@@ -173,7 +178,9 @@ void Screen::HandleEvent(Event& e)
 		}
 		else
 		{
-			Engine::GetApp().create( sf::VideoMode ( 800, 600 ), "Maximum-Fish!" );
+			Engine::GetApp().create( sf::VideoMode ( Engine::getCfg()->get<int>("renderer.windowsize.x"),
+														Engine::getCfg()->get<int>("renderer.windowsize.y") ),
+														"Maximum-Fish!" );
 			Fullscreen = false;
 		}
 		Event e("WINDOW_RESIZE");
