@@ -38,7 +38,7 @@ SimView::SimView()
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
-	RegisterForEvent("UpdateTilemapTExture");
+	RegisterForEvent("UpdateTilemapTexture");
 	RegisterForEvent("WINDOW_RESIZE");
 
 	GridColor = sf::Color( Engine::getCfg()->get<int>("ui.simView.gridColor.r"),
@@ -283,7 +283,7 @@ void SimView::Render()
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
 	tilemapSprite.setTexture(tilemapTexture);
-	tilemapSprite.setTextureRect(sf::IntRect(0,0,128*32,128*32));
+	tilemapSprite.setTextureRect(sf::IntRect(32,32,128*32,128*32));
   	tilemapSprite.setOrigin(0,0);
 
 	Engine::GetApp().draw( tilemapSprite, tilemapState );

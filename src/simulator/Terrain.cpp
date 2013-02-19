@@ -169,7 +169,8 @@ void Terrain::CreateDebugTerrain()
 	{
 		for(int r = 0; r < 32; r++)
 		{
-			sf::Color tile(1,0,0,0);
+			Geom::Vec2f pos(c, r);
+			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);
 			tilemapImage.setPixel(c, r, tile);
 		}
 	}
