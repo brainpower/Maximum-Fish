@@ -274,7 +274,7 @@ void SimView::Render()
 
 
 	if (TileImgSet->getTexture())
-		//Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
+		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
 
 	if (RenderGrid)
 		Engine::GetApp().draw( Grid );
@@ -283,10 +283,10 @@ void SimView::Render()
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
 	tilemapSprite.setTexture(tilemapTexture);
-	tilemapSprite.setTextureRect(sf::IntRect(32,32,128*32,128*32));
+  	tilemapSprite.setTextureRect(sf::IntRect(0,0,128*32,128*32));
   	tilemapSprite.setOrigin(0,0);
 
-	Engine::GetApp().draw( tilemapSprite, tilemapState );
+	//Engine::GetApp().draw( tilemapSprite, tilemapState );
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 
