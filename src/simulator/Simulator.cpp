@@ -96,11 +96,13 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("PLOT_COUNTS"))
 	{
-		Event e("DISPLAY_GRAPH");
 		std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
-		e.SetData( p );
-		Module::Get()->QueueEvent(e, true);
-
+		if ( p->isValid() )
+		{
+			Event e("DISPLAY_GRAPH");
+			e.SetData( p );
+			Module::Get()->QueueEvent(e, true);
+		}
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -257,9 +259,9 @@ std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
 	Graph g;
 	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
 	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
-	g.Curves.push_back( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
-	g.Curves.push_back( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
-	g.Curves.push_back( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+	g.addCurve( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
+	g.addCurve( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
+	g.addCurve( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
 
 	re->setGraph( g );
 
