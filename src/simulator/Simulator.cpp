@@ -20,7 +20,7 @@
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
-isPaused(false) {
+isPaused(false), currentTick(0) {
 
 	Instance = this;
 
@@ -150,6 +150,8 @@ void Simulator::init()
 
 void Simulator::NewSimulation( int seed )
 {
+	currentTick = 0;
+
 	Engine::out(Engine::INFO) << "[Simulator] Seeding random engine" << std::endl;
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	gen.seed( seed );
@@ -221,6 +223,7 @@ void Simulator::tick()
 			}
 		}
 
+		currentTick++;
 		logTickStats();
 	}
 
@@ -231,6 +234,7 @@ void Simulator::tick()
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
+		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( currentTick ));
 
 		if ( !isPaused )
 		{

@@ -70,6 +70,7 @@ class Simulator : public EventUser, public sf::NonCopyable
 		void loadWhole(const std::string &loadPath);
 
 		int currentSeed;
+		int currentTick;
 		std::default_random_engine gen;
 		std::list<std::shared_ptr<Creature>> Creatures;
 		std::vector<std::shared_ptr<Species>> SpeciesList;
