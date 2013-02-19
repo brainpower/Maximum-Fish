@@ -68,6 +68,9 @@ class Terrain
 		std::shared_ptr<Tile> InvalidTile;
 		std::vector<std::shared_ptr<Tile>> Tiles;
 		//QuadTreeNode<Tile> CullTree;
+
+		sf::Image tilemapImage;
+		sf::Texture tilemapTexture;
 };
 
 #endif // TERRAIN_H

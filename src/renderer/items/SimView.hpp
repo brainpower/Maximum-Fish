@@ -85,6 +85,9 @@ class SimView : public EventUser
 		int TerrainSize;
 
 		const std::string Name;
+
+		sf::Texture tilemapTexture;
+		sf::Shader tilemapShader;
 };
 
 #endif // SIMVIEW_H

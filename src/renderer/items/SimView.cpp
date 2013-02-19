@@ -38,12 +38,15 @@ SimView::SimView()
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
+	RegisterForEvent("UpdateTilemapTExture");
 	RegisterForEvent("WINDOW_RESIZE");
 
 	GridColor = sf::Color( Engine::getCfg()->get<int>("ui.simView.gridColor.r"),
 						Engine::getCfg()->get<int>("ui.simView.gridColor.g"),
 						Engine::getCfg()->get<int>("ui.simView.gridColor.b") );
 	SetupCamera();
+
+	tilemapShader.loadFromFile("res/shader/tilemap.vert", "res/shader/tilemap.frag");
 }
 
 void SimView::HandleEvent(Event& e)
@@ -72,6 +75,19 @@ void SimView::HandleEvent(Event& e)
 			// cast into desired type
 			std::vector<std::shared_ptr<Tile>> r = boost::any_cast< std::vector<std::shared_ptr<Tile>> >(e.Data());
 			ReadTileRenderList( r );
+		}
+		else
+		{
+			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
+		}
+	} else if ( e.Is("UpdateTilemapTexture"))
+	{
+		// check event datatype
+		if (e.Data().type() == typeid( sf::Texture ))
+		{
+			// cast into desired type
+			sf::Texture r = boost::any_cast< sf::Texture >(e.Data());
+			tilemapTexture = r;
 		}
 		else
 		{

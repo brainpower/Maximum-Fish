@@ -164,5 +164,19 @@ void Terrain::CreateDebugTerrain()
 		}
 	}
 
+	tilemapImage.create(32,32);
+	for(int c = 0; c < 32; c++)
+	{
+		for(int r = 0; r < 32; r++)
+		{
+			sf::Color tile(1,0,0,0);
+			tilemapImage.setPixel(c, r, tile);
+		}
+	}
 
+	tilemapTexture.loadFromImage(tilemapImage);
+
+	Event e("UpdateTilemapTexture");
+	e.SetData( tilemapTexture );
+	Module::Get()->QueueEvent(e, true);
 }
