@@ -88,6 +88,11 @@ class SimView : public EventUser
 
 		sf::Texture tilemapTexture;
 		sf::Shader tilemapShader;
+		sf::Image tileGraphics;
+		sf::Texture tileGraphicsTexture;
+
+		sf::Sprite tilemapSprite;
+		sf::RenderStates tilemapState;
 };
 
 #endif // SIMVIEW_H

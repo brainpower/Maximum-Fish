@@ -46,7 +46,14 @@ SimView::SimView()
 						Engine::getCfg()->get<int>("ui.simView.gridColor.b") );
 	SetupCamera();
 
+	tileGraphics.loadFromFile("res/textures/Tiles_serious.tga");
+	tileGraphicsTexture.loadFromImage(tileGraphics);
+
 	tilemapShader.loadFromFile("res/shader/tilemap.vert", "res/shader/tilemap.frag");
+	tilemapShader.setParameter("tileGraphics", tileGraphicsTexture);
+	tilemapShader.setParameter("tilemap", tilemapTexture);
+
+	tilemapState = *( new sf::RenderStates(&tilemapShader) );
 }
 
 void SimView::HandleEvent(Event& e)
@@ -267,13 +274,19 @@ void SimView::Render()
 
 
 	if (TileImgSet->getTexture())
-		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
+		//Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
 
 	if (RenderGrid)
 		Engine::GetApp().draw( Grid );
 
 	if (CreatureImgSet->getTexture())
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
+
+	tilemapSprite.setTexture(tilemapTexture);
+	tilemapSprite.setTextureRect(sf::IntRect(0,0,128*32,128*32));
+  	tilemapSprite.setOrigin(0,0);
+
+	Engine::GetApp().draw( tilemapSprite, tilemapState );
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 
