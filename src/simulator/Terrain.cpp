@@ -164,5 +164,20 @@ void Terrain::CreateDebugTerrain()
 		}
 	}
 
+	tilemapImage.create(32,32);
+	for(int c = 0; c < 32; c++)
+	{
+		for(int r = 0; r < 32; r++)
+		{
+			Geom::Vec2f pos(c, r);
+			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);
+			tilemapImage.setPixel(c, r, tile);
+		}
+	}
 
+	tilemapTexture.loadFromImage(tilemapImage);
+
+	Event e("UpdateTilemapTexture");
+	e.SetData( tilemapTexture );
+	Module::Get()->QueueEvent(e, true);
 }

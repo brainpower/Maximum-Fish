@@ -20,7 +20,7 @@
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
-isPaused(false) {
+isPaused(false), currentTick(0) {
 
 	Instance = this;
 
@@ -113,7 +113,7 @@ void Simulator::HandleEvent(Event& e)
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
 	else if (e.Is("EVT_SAVE_WHOLE_TEST")){
-		saveWhole(std::string("/tmp/maxfish/debug-save/"));
+		saveWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE")){
 		if ( e.Data().type() != typeid(std::string))
@@ -150,6 +150,8 @@ void Simulator::init()
 
 void Simulator::NewSimulation( int seed )
 {
+	currentTick = 0;
+
 	Engine::out(Engine::INFO) << "[Simulator] Seeding random engine" << std::endl;
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	gen.seed( seed );
@@ -221,6 +223,7 @@ void Simulator::tick()
 			}
 		}
 
+		currentTick++;
 		logTickStats();
 	}
 
@@ -231,6 +234,7 @@ void Simulator::tick()
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
+		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( currentTick ));
 
 		if ( !isPaused )
 		{
@@ -434,8 +438,14 @@ void Simulator::saveWhole(const std::string &savePath){
 
 	isPaused = true; // pause sim while saving
 
-	if(!savePath.empty())
-		Engine::GetIO()->addPath(savePath); // add save path to IO stack
+	// add save path to IO stack
+	if(savePath.empty() || !Engine::GetIO()->addPath(savePath))
+	{
+		Event e("EVT_SAVE_BAD");
+		e.SetData( std::string("Save path invalid ( sim.debugsavepath in config )!") );
+		Module::Get()->QueueEvent(e, true);
+		return;
+	}
 
 	Engine::out(Engine::SPAM) << "Save to path: " << Engine::GetIO()->topPath() << std::endl;
 
