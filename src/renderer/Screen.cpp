@@ -16,7 +16,7 @@
 
 #include "renderer/items/Control.hpp"
 #include "renderer/items/InfoPanel.hpp"
-#include "renderer/items/Manipulator.hpp"
+//#include "renderer/items/Manipulator.hpp"
 #include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
@@ -86,7 +86,7 @@ void Screen::Init()
 
     Contr.reset   ( new Control() );
     IPan.reset    ( new InfoPanel() );
-    Man.reset     ( new Manipulator() );
+    //Man.reset     ( new Manipulator() );
 	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
 	MiMap.reset   ( new MiniMap() );

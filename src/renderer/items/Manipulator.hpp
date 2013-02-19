@@ -13,20 +13,20 @@ class Manipulator : public EventUser
 {
 	public:
 
-		Manipulator( const Geom::Point& RelativePosition = Geom::Point(280, 0), const Geom::Vec2 Size = Geom::Vec2(300, 600));
+		Manipulator();
 		virtual ~Manipulator() {};
 
-		virtual void HandleEvent( Event& e);
-        bool ThisNotInfoPanel;
+		virtual void HandleEvent( Event& e );
+		virtual sfg::Box::Ptr Get();
     private:
-		void SwitchToInfoPanel();
-        void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
-        void updatePosition();
+        bool ThisNotSelector;
+		void SwitchToSelector();
+        void CreateBox();
 		void SetInformation_1();
 		void SetInformation_2();
 		void ResetInformation();
+		sfg::Box::Ptr WholeBox;
 
-		sfg::Window::Ptr Win;
         sfg::Label::Ptr Information;
 };
 
