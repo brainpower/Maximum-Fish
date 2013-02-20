@@ -17,10 +17,19 @@ class MainMenu : public EventUser
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
         void BtnResumeClick();
+
+        void BtnSaveClick();
+        void BtnLoadClick();
+
         void BtnExitClick();
+        void BtnExitCancelClick();
+        void BtnExitConfirmClick();
+
 		void updatePosition();
 
 		sfg::Window::Ptr Win;
+		sfg::Button::Ptr BtnExit;
+		sfg::Box::Ptr ExitConfirmation;
 		unsigned int currentlabeltext;
 
 };
