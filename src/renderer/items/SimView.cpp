@@ -90,11 +90,12 @@ void SimView::HandleEvent(Event& e)
 	} else if ( e.Is("UpdateTilemapTexture"))
 	{
 		// check event datatype
-		if (e.Data().type() == typeid( sf::Texture ))
+		if (e.Data().type() == typeid( std::shared_ptr<sf::Image> ))
 		{
 			// cast into desired type
-			sf::Texture r = boost::any_cast< sf::Texture >(e.Data());
-			tilemapTexture = r;
+			std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
+			tilemapTexture.create( i->getSize().x, i->getSize().y );
+			tilemapTexture.loadFromImage( *i );
 		}
 		else
 		{
@@ -273,8 +274,8 @@ void SimView::Render()
 	Engine::GetApp().setView(Camera);
 
 
-	if (TileImgSet->getTexture())
-		Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
+	//if (TileImgSet->getTexture())
+	//	Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
 
 	if (RenderGrid)
 		Engine::GetApp().draw( Grid );
@@ -286,7 +287,7 @@ void SimView::Render()
   	tilemapSprite.setTextureRect(sf::IntRect(0,0,128*32,128*32));
   	tilemapSprite.setOrigin(0,0);
 
-	//Engine::GetApp().draw( tilemapSprite, tilemapState );
+	Engine::GetApp().draw( tilemapSprite, tilemapState );
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 

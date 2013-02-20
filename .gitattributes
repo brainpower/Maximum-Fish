@@ -1,0 +1,19 @@
+# Autodetect text files
+* text=auto
+
+# overriding patterns
+*.txt text
+*.cpp text
+*.hpp text
+*.ipp text
+*.c text
+*.h text
+*.frag text
+*.vert text
+*.info text
+
+# images etc
+*.jpg binary
+*.tga binary
+*.png binary
+*.xcf binary
