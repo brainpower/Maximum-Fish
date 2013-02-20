@@ -51,8 +51,19 @@ void Selector::CreateBox()
 
     //set Events
     CreatureFrame->GetSignal( sfg::Frame::OnRightClick ).Connect( &Selector::SwitchToCreatureManipulator, this );
+    CreatureFrame->GetSignal( sfg::Frame::OnMouseEnter ).Connect( &Selector::ExtendCreatureLabel, this );
+    CreatureFrame->GetSignal( sfg::Frame::OnMouseLeave ).Connect( &Selector::ReduceCreatureLabel, this );
+    CreatureFrame->GetSignal( sfg::Frame::OnRightClick ).Connect( &Selector::ReduceCreatureLabel, this );
+
     SpeciesFrame->GetSignal(  sfg::Frame::OnRightClick ).Connect( &Selector::SwitchToSpeciesManipulator, this );
+    SpeciesFrame->GetSignal(  sfg::Frame::OnMouseEnter ).Connect( &Selector::ExtendSpeciesLabel, this );
+    SpeciesFrame->GetSignal(  sfg::Frame::OnMouseLeave ).Connect( &Selector::ReduceSpeciesLabel, this );
+    SpeciesFrame->GetSignal(  sfg::Frame::OnRightClick ).Connect( &Selector::ReduceSpeciesLabel, this );
+
     TileFrame->GetSignal(     sfg::Frame::OnRightClick ).Connect( &Selector::SwitchToTileManipulator, this );
+    TileFrame->GetSignal(     sfg::Frame::OnMouseEnter ).Connect( &Selector::ExtendTileLabel, this );
+    TileFrame->GetSignal(     sfg::Frame::OnMouseLeave ).Connect( &Selector::ReduceTileLabel, this );
+    TileFrame->GetSignal(     sfg::Frame::OnRightClick ).Connect( &Selector::ReduceTileLabel, this );
 
 }
 
@@ -83,6 +94,54 @@ void Selector::SwitchToTileManipulator()
     }
 }
 
+void Selector::ExtendCreatureLabel()
+{
+    if ( !CreatureEmpty )
+    {
+        CreatureFrame->SetLabel( "Creature -> Right-Click to manipulate." );
+    }
+}
+
+void Selector::ReduceCreatureLabel()
+{
+    if ( !CreatureEmpty )
+    {
+        CreatureFrame->SetLabel( "Creature" );
+    }
+}
+
+void Selector::ExtendSpeciesLabel()
+{
+    if ( !SpeciesEmpty )
+    {
+        SpeciesFrame->SetLabel( "Species -> Right-Click to manipulate." );
+    }
+}
+
+void Selector::ReduceSpeciesLabel()
+{
+    if ( !SpeciesEmpty )
+    {
+        SpeciesFrame->SetLabel( "Species" );
+    }
+}
+
+void Selector::ExtendTileLabel()
+{
+    if ( !TileEmpty )
+    {
+        TileFrame->SetLabel( "Tile -> Right-Click to manipulate." );
+    }
+}
+
+void Selector::ReduceTileLabel()
+{
+    if ( !TileEmpty )
+    {
+        TileFrame->SetLabel( "Tile" );
+    }
+}
+
 void Selector::HandleEvent( Event& e )
 {
 	if ( e.Is( "TOGGLE_SELECT_MAN" ) )
@@ -91,7 +150,6 @@ void Selector::HandleEvent( Event& e )
     }
     else if ( e.Is( "CREATURE_CLICKED" ) )
     {
-        /*******/ Engine::out() << "[Selector]: ----EventCreatureclicked called." << std::endl;
         if ( e.Data().type() == typeid( std::shared_ptr<Creature> ) )
         {
             std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );

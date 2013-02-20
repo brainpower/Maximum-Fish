@@ -26,9 +26,19 @@ class Selector : public EventUser
 		void SwitchToManipulator();
         void CreateBox();
 		sfg::Box::Ptr WholeBox;
+
         void SwitchToCreatureManipulator();
+        void ExtendCreatureLabel();
+        void ReduceCreatureLabel();
+
         void SwitchToSpeciesManipulator();
+        void ExtendSpeciesLabel();
+        void ReduceSpeciesLabel();
+
         void SwitchToTileManipulator();
+        void ExtendTileLabel();
+        void ReduceTileLabel();
+
         bool CreatureEmpty;
         bool SpeciesEmpty;
         bool TileEmpty;
