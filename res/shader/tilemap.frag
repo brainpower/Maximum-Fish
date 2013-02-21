@@ -15,7 +15,7 @@ void main()
   	// division by the number of tiles in one row of the tileset
   	vec2 baseTilePos=0.25*floor(vec2(mod(index,4),index/4));
 
-  	// again the size of a tile
+  	// again the size of a tile  
   	vec2 internalPos=0.25*mod(gl_TexCoord[0].xy*32,1);
   	gl_FragColor=texture2D(tileGraphics,baseTilePos+internalPos);
 }
