@@ -186,10 +186,10 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 				RealPos = RealPos / (float)TileSize;
 
-				Event e("TERRAIN_CLICKED");
-				e.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
+				Event ev("TERRAIN_CLICKED");
+				ev.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
 
-				Module::Get()->QueueEvent( e, true);
+				Module::Get()->QueueEvent( ev, true);
 			}
 
 			break;
@@ -277,17 +277,25 @@ void SimView::Render()
 	//if (TileImgSet->getTexture())
 	//	Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
 
-	if (RenderGrid)
-		Engine::GetApp().draw( Grid );
+	tilemapSprite.setTexture(tilemapTexture);
+
+	// has to be the size of the terrain multiplied by the size of a tile
+	// may produce glitches in some circumstances one is if the Terrain is
+	// to small
+  	tilemapSprite.setTextureRect(sf::IntRect(0,0,256*32,256*32));
+
+  	// has to be the center of the terrain
+  	// if you want to draw it on center
+  	tilemapSprite.setScale(4.0f, 4.0f);
+  	tilemapSprite.setPosition(-512*28,-512*28);
+
+	Engine::GetApp().draw( tilemapSprite, tilemapState );
 
 	if (CreatureImgSet->getTexture())
 		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
 
-	tilemapSprite.setTexture(tilemapTexture);
-  	tilemapSprite.setTextureRect(sf::IntRect(0,0,128*32,128*32));
-  	tilemapSprite.setOrigin(0,0);
-
-	Engine::GetApp().draw( tilemapSprite, tilemapState );
+	if (RenderGrid)
+		Engine::GetApp().draw( Grid );
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 

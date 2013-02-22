@@ -29,14 +29,14 @@ Terrain::Terrain()
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (!validPos(pos) || index < 0 || index >= Tiles.size()) return InvalidTile;
+	if (!validPos(pos) || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (!validPos(pos) || index < 0 || index > Tiles.size()) return -1;
+	if (!validPos(pos) || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
 
@@ -123,9 +123,10 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
-
-	int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
-	Size = Geom::Vec2( tmp, tmp );
+	{
+		int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
+		Size = Geom::Vec2( tmp, tmp );
+	}
 	// maximum height to generate
 	float maxHeight = Engine::getCfg()->get<float>("sim.terragen.debug.maxheight");
 	//float minheight = 0;
@@ -166,14 +167,14 @@ void Terrain::CreateDebugTerrain()
 
 	tilemapImage.reset ( new sf::Image);
 
-	tilemapImage->create(32,32);
+	tilemapImage->create(256 ,256);
 	for(int c = 0; c < 32; c++)
 	{
 		for(int r = 0; r < 32; r++)
 		{
 			Geom::Vec2f pos(c, r);
 			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);
-			tilemapImage->setPixel(c, r, tile);
+			tilemapImage->setPixel(112+c, 112+r, tile);
 		}
 	}
 

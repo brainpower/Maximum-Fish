@@ -184,8 +184,8 @@ void Screen::HandleEvent(Event& e)
 														"Maximum-Fish!" );
 			Fullscreen = false;
 		}
-		Event e("WINDOW_RESIZE");
-		Module::Get()->QueueEvent(e, true);
+		Event ev("WINDOW_RESIZE");
+		Module::Get()->QueueEvent(ev, true);
 	}
 	else if (e.Is("SCREEN_ADD_WINDOW"))
 	{
@@ -221,9 +221,9 @@ void Screen::HandleEvent(Event& e)
 			sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
 			P->Add(I);
 
-			Event e( "SCREEN_ADD_WINDOW");
+			Event ev( "SCREEN_ADD_WINDOW");
 			e.SetData( P );
-			Module::Get()->QueueEvent(e);
+			Module::Get()->QueueEvent(ev);
 		}
 		else
 		{

@@ -20,7 +20,7 @@
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
-isPaused(false), currentTick(0) {
+currentTick(0), isPaused(false) {
 
 	Instance = this;
 
@@ -99,9 +99,9 @@ void Simulator::HandleEvent(Event& e)
 		std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
 		if ( p->isValid() )
 		{
-			Event e("DISPLAY_GRAPH");
+			Event ev("DISPLAY_GRAPH");
 			e.SetData( p );
-			Module::Get()->QueueEvent(e, true);
+			Module::Get()->QueueEvent(ev, true);
 		}
 	}
 	else if (e.Is("RESET_SIMULATION"))
@@ -294,9 +294,9 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	{
 		if ( Geom::distance(pos, C->getPosition()) < .1 )
 		{
-			Event e("CREATURE_CLICKED");
+			Event ev("CREATURE_CLICKED");
 			e.SetData( C );
-			Module::Get()->QueueEvent(e, true);
+			Module::Get()->QueueEvent(ev, true);
 
 			// only return 1 Creature
 			return;
