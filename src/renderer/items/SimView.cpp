@@ -282,12 +282,12 @@ void SimView::Render()
 	// has to be the size of the terrain multiplied by the size of a tile
 	// may produce glitches in some circumstances one is if the Terrain is
 	// to small
-  	tilemapSprite.setTextureRect(sf::IntRect(0,0,1024*32,1024*32));
+  	tilemapSprite.setTextureRect(sf::IntRect(0,0,256*32,256*32));
 
   	// has to be the center of the terrain
   	// if you want to draw it on center
   	tilemapSprite.setScale(4.0f, 4.0f);
-  	tilemapSprite.setPosition(-2048*31,-2048*31);
+  	tilemapSprite.setPosition(-512*28,-512*28);
 
 	Engine::GetApp().draw( tilemapSprite, tilemapState );
 
