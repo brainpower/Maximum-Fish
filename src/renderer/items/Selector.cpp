@@ -156,11 +156,27 @@ void Selector::HandleEvent( Event& e )
     }
     else if ( e.Is( "CREATURE_CLICKED" ) )
     {
-        if ( e.Data().type() == typeid( std::shared_ptr<Creature> ) )
+    	if ( e.Data().type() == typeid( std::shared_ptr<Creature> ) )
         {
-            std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
-            SetDetail( c );
-			SetDetail( c->getSpecies() );
+			std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
+
+			if ( c != nullptr )
+			{
+				SetDetail( c );
+				SetDetail( c->getSpecies() );
+            }
+            else
+            {
+            	CreatureFrame->RemoveAll();
+            	CurrentDetailsCreature.reset( new DetailsEmpty() );
+            	CreatureFrame->Add( CurrentDetailsCreature->GetLabel() );
+				CreatureEmpty = true;
+
+				SpeciesFrame->RemoveAll();
+				CurrentDetailsSpecies.reset( new DetailsEmpty() );
+				SpeciesFrame->Add( CurrentDetailsSpecies->GetLabel() );
+				SpeciesEmpty = true;
+            }
             Engine::out() << "[Selector]: DetailsCreature updated." << std::endl;
         }
     }
