@@ -277,24 +277,25 @@ void SimView::Render()
 	//if (TileImgSet->getTexture())
 	//	Engine::GetApp().draw( Tiles, TileImgSet->getTexture().get());
 
-	if (RenderGrid)
-		Engine::GetApp().draw( Grid );
-
-	if (CreatureImgSet->getTexture())
-		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
-
 	tilemapSprite.setTexture(tilemapTexture);
 
 	// has to be the size of the terrain multiplied by the size of a tile
 	// may produce glitches in some circumstances one is if the Terrain is
 	// to small
-  	tilemapSprite.setTextureRect(sf::IntRect(0,0,32*32,32*32));
+  	tilemapSprite.setTextureRect(sf::IntRect(0,0,1024*32,1024*32));
 
   	// has to be the center of the terrain
   	// if you want to draw it on center
-  	tilemapSprite.setOrigin(16*32,16*32);
+  	tilemapSprite.setScale(4.0f, 4.0f);
+  	tilemapSprite.setPosition(-2048*31,-2048*31);
 
 	Engine::GetApp().draw( tilemapSprite, tilemapState );
+
+	if (CreatureImgSet->getTexture())
+		Engine::GetApp().draw( Creatures , CreatureImgSet->getTexture().get());
+
+	if (RenderGrid)
+		Engine::GetApp().draw( Grid );
 
 	Engine::GetApp().setView( Engine::GetApp().getDefaultView());
 
