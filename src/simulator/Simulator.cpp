@@ -290,18 +290,20 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	e.SetData( T );
 	Module::Get()->QueueEvent(e, true);
 
+	Event ev("CREATURE_CLICKED");
+	ev.SetData( std::shared_ptr<Creature>() );
+
 	for ( std::shared_ptr<Creature>& C : T->getCreatures())
 	{
 		if ( Geom::distance(pos, C->getPosition()) < .1 )
 		{
-			Event ev("CREATURE_CLICKED");
-			e.SetData( C );
-			Module::Get()->QueueEvent(ev, true);
-
+			ev.SetData( C );
 			// only return 1 Creature
-			return;
+			break;
 		}
 	}
+
+	Module::Get()->QueueEvent(ev, true);
 
 }
 
