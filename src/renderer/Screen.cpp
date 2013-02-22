@@ -32,7 +32,8 @@ Screen* Screen::Instance = nullptr;
 
 
 Screen::Screen()
- : Fullscreen(false)
+ : Fullscreen(false),
+	ActiveWindows(0)
 {
 
 	Instance = this;
@@ -130,7 +131,7 @@ void Screen::Render()
 		// Try to consume the event, if that fails try to convert it
 		Desktop->HandleEvent( sfEvent );
 
-		SimulatorView->HandleSfmlEvent( sfEvent );
+		if ( ActiveWindows == 0 ) SimulatorView->HandleSfmlEvent( sfEvent );
 
 		// give it to the converter
 		EvtConv->HandleEvent( sfEvent );
@@ -154,6 +155,9 @@ void Screen::Render()
 	Engine::GetApp().display();
 
 }
+
+void Screen::OnWindowEntered() {  ActiveWindows++; Engine::out() << " ActiveWindows: " << ActiveWindows << std::endl; }
+void Screen::OnWindowLeft() { ActiveWindows--; Engine::out() << " ActiveWindows: " << ActiveWindows << std::endl; }
 
 void Screen::HandleEvent(Event& e)
 {
@@ -192,6 +196,9 @@ void Screen::HandleEvent(Event& e)
 		if (e.Data().type() == typeid( sfg::Window::Ptr ) )
 		{
 			sfg::Window::Ptr P = boost::any_cast<sfg::Window::Ptr>(e.Data());
+			P->GetSignal( sfg::Window::OnMouseEnter ).Connect( &Screen::OnWindowEntered, this );
+			P->GetSignal( sfg::Window::OnMouseLeave ).Connect( &Screen::OnWindowLeft, this );
+
 			Engine::out() << "[Screen] Adding Window " << P->GetTitle().toAnsiString() << std::endl;
 			Desktop->Add(P);
 		}

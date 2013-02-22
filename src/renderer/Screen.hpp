@@ -42,6 +42,13 @@ class Screen : public EventUser, public sf::NonCopyable
 	private:
 
 		bool Fullscreen;
+		/**
+		Counts the amount of windows which have received an OnMouseEnter but no OnMouseLeave yet.
+		If this is > 0 we prevent events being sent to the simview, as they should be handled in the sfg ui
+		*/
+		int ActiveWindows;
+		void OnWindowEntered();
+		void OnWindowLeft();
 
 		void Init();
 		std::shared_ptr<SFMLEventConverter> EvtConv;
