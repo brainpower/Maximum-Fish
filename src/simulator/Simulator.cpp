@@ -274,21 +274,29 @@ std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
 {
+
+
+
 	// Check if the Coordinates are valid
 	if (!(
 			(0 <= pos.x && pos.x < Terra->getSize().x + 1 )
 		 && (0 <= pos.y && pos.y < Terra->getSize().y +1 )
 		))
+	{
+		Event e("TILE_CLICKED");
+		e.SetData( std::shared_ptr<Tile>() );
+		Module::Get()->QueueEvent(e, true);
 		return;
+	}
 
 
 
 	std::shared_ptr<Tile>& T = Terra->getTile( pos );
 
-
 	Event e("TILE_CLICKED");
 	e.SetData( T );
 	Module::Get()->QueueEvent(e, true);
+
 
 	Event ev("CREATURE_CLICKED");
 	ev.SetData( std::shared_ptr<Creature>() );
