@@ -29,14 +29,14 @@ Terrain::Terrain()
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (!validPos(pos) || index < 0 || index >= Tiles.size()) return InvalidTile;
+	if (!validPos(pos) || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
 	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
-	if (!validPos(pos) || index < 0 || index > Tiles.size()) return -1;
+	if (!validPos(pos) || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
 
@@ -123,9 +123,10 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
-
-	int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
-	Size = Geom::Vec2( tmp, tmp );
+	{
+		int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
+		Size = Geom::Vec2( tmp, tmp );
+	}
 	// maximum height to generate
 	float maxHeight = Engine::getCfg()->get<float>("sim.terragen.debug.maxheight");
 	//float minheight = 0;

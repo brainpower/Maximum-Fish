@@ -186,10 +186,10 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 				RealPos = RealPos / (float)TileSize;
 
-				Event e("TERRAIN_CLICKED");
-				e.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
+				Event ev("TERRAIN_CLICKED");
+				ev.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
 
-				Module::Get()->QueueEvent( e, true);
+				Module::Get()->QueueEvent( ev, true);
 			}
 
 			break;
