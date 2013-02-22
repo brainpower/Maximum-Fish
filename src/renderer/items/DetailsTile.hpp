@@ -21,6 +21,10 @@ class DetailsTile : public Details
     private:
 
 		std::shared_ptr<Tile> currentTile;
+
+		sfg::Entry::Ptr HeightDiplay;
+		sfg::Entry::Ptr NutritionDiplay;
+		sfg::Entry::Ptr HumidityDiplay;
 };
 
 #endif // DETAILS_TILE_H
