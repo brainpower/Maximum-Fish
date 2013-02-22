@@ -160,22 +160,15 @@ void Selector::HandleEvent( Event& e )
         {
 			std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
 
-			if ( c != nullptr )
+			if ( c )
 			{
 				SetDetail( c );
 				SetDetail( c->getSpecies() );
             }
             else
             {
-            	CreatureFrame->RemoveAll();
-            	CurrentDetailsCreature.reset( new DetailsEmpty() );
-            	CreatureFrame->Add( CurrentDetailsCreature->GetLabel() );
-				CreatureEmpty = true;
-
-				SpeciesFrame->RemoveAll();
-				CurrentDetailsSpecies.reset( new DetailsEmpty() );
-				SpeciesFrame->Add( CurrentDetailsSpecies->GetLabel() );
-				SpeciesEmpty = true;
+				CreatureFrame->Show( false );
+				SpeciesFrame->Show( false );
             }
             Engine::out() << "[Selector]: DetailsCreature updated." << std::endl;
         }
@@ -185,8 +178,18 @@ void Selector::HandleEvent( Event& e )
         if ( e.Data().type() == typeid( std::shared_ptr<Tile> ) )
         {
             std::shared_ptr<Tile> t = boost::any_cast<std::shared_ptr<Tile>>( e.Data() );
-            SetDetail( t );
-            Engine::out() << "[Selector]: DetailsTile updated." << std::endl;
+
+            if ( t )
+            {
+				SetDetail( t );
+            }
+            else
+            {
+            	CreatureFrame->Show( false );
+            	SpeciesFrame->Show( false );
+            	TileFrame->Show( false );
+            }
+			Engine::out() << "[Selector]: DetailsTile updated." << std::endl;
         }
     }
 }
@@ -200,6 +203,7 @@ void Selector::SetDetail( const std::shared_ptr<Creature>& _creature )
         CurrentDetailsCreature.reset( new DetailsCreature( _creature ) );
         CreatureFrame->Add( CurrentDetailsCreature->GetLabel() );
         CreatureEmpty = false;
+        CreatureFrame->Show( true );
     }
     else
     {
@@ -217,6 +221,7 @@ void Selector::SetDetail( const std::shared_ptr<Species>& _species )
         CurrentDetailsSpecies.reset( new DetailsSpecies( _species ) );
         SpeciesFrame->Add( CurrentDetailsSpecies->GetLabel() );
         SpeciesEmpty = false;
+        SpeciesFrame->Show( true );
     }
     else
     {
@@ -234,6 +239,7 @@ void Selector::SetDetail( const std::shared_ptr<Tile>& _tile )
         CurrentDetailsTile.reset( new DetailsTile( _tile ) );
         TileFrame->Add( CurrentDetailsTile->GetLabel() );
         TileEmpty = false;
+        TileFrame->Show( true );
     }
     else
     {
