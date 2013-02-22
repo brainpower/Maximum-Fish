@@ -8,10 +8,15 @@ DetailsSpecies::DetailsSpecies(const std::shared_ptr<Species>& _species)
 {
     currentSpecies = _species;
 
+    //Label
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
+    //Box
+    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+
 	UpdateLabel();
+    UpdateBox();
 }
 
 void DetailsSpecies::UpdateLabel()
@@ -30,7 +35,20 @@ void DetailsSpecies::UpdateLabel()
 
 }
 
-sfg::Widget::Ptr DetailsSpecies::Get()
+void DetailsSpecies::UpdateBox()
+{
+
+	DetailsBox->RemoveAll();
+	///todo
+}
+
+sfg::Widget::Ptr DetailsSpecies::GetLabel()
 {
     return DetailsLabel;
+}
+
+sfg::Widget::Ptr DetailsSpecies::GetBox()
+{
+    UpdateBox();
+    return DetailsBox;
 }

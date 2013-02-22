@@ -1,5 +1,6 @@
 #include "Manipulator.hpp"
 #include "renderer/Screen.hpp"
+#include "DetailsEmpty.hpp"
 
 Manipulator::Manipulator()
 {
@@ -14,7 +15,7 @@ void Manipulator::CreateBox()
         //create wholebox
         WholeBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
 
-            //create InfoFrame
+       /*     //create InfoFrame
             sfg::Frame::Ptr infoFrame( sfg::Frame::Create( "Information" ) );
             infoFrame->SetRequisition( sf::Vector2f( 200, 200 ) );
             Information = sfg::Label::Create();
@@ -34,7 +35,9 @@ void Manipulator::CreateBox()
         WholeBox->Pack( infoFrame, false, true );
         WholeBox->Pack( m1, false, true );
         WholeBox->Pack( m2, false, true );
-
+*/
+        CurrentDetailsBox.reset( new DetailsEmpty() );
+        WholeBox->Pack( CurrentDetailsBox->GetBox() );
     //set events
     WholeBox->GetSignal( sfg::Box::OnRightClick ).Connect( &Manipulator::SwitchToSelector, this );
 
@@ -69,8 +72,16 @@ void Manipulator::HandleEvent( Event& e )
 
     if ( e.Is( "TOGGLE_SELECT_MAN" ) )
     {
-        ResetInformation();
+       /********/// ResetInformation();
         ThisNotSelector = !ThisNotSelector;
+
+            if ( e.Data().type() == typeid( std::shared_ptr<Details> ) )
+            {
+                CurrentDetailsBox = boost::any_cast<std::shared_ptr<Details>>( e.Data() );
+                WholeBox->RemoveAll();
+                WholeBox->Pack( CurrentDetailsBox->GetBox() );
+            }
+
     }
 }
 

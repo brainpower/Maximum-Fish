@@ -25,6 +25,8 @@ class Manipulator : public EventUser
 		void SetInformation_1();
 		void SetInformation_2();
 		void ResetInformation();
+
+        std::shared_ptr<Details> CurrentDetailsBox;
 		sfg::Box::Ptr WholeBox;
 
         sfg::Label::Ptr Information;

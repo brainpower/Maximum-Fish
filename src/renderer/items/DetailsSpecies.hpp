@@ -14,8 +14,10 @@ class DetailsSpecies : public Details
 		DetailsSpecies(const std::shared_ptr<Species>& _species);
 		virtual ~DetailsSpecies() {}
 
-        virtual sfg::Widget::Ptr Get();
+        virtual sfg::Widget::Ptr GetLabel();
+        virtual sfg::Widget::Ptr GetBox();
         virtual void UpdateLabel();
+        virtual void UpdateBox();
     private:
 
 		std::shared_ptr<Species> currentSpecies;

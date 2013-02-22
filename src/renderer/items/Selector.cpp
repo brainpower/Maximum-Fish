@@ -32,15 +32,15 @@ void Selector::CreateBox()
             //create details
             CreatureFrame = sfg::Frame::Create( "Creature" );
                 CurrentDetailsCreature.reset( new DetailsEmpty() );
-            CreatureFrame->Add( CurrentDetailsCreature->Get() );
+            CreatureFrame->Add( CurrentDetailsCreature->GetLabel() );
             //create details
             SpeciesFrame = sfg::Frame::Create( "Species" );
                 CurrentDetailsSpecies.reset( new DetailsEmpty() );
-            SpeciesFrame->Add( CurrentDetailsSpecies->Get() );
+            SpeciesFrame->Add( CurrentDetailsSpecies->GetLabel() );
             //create details
             TileFrame = sfg::Frame::Create( "Tile" );
                 CurrentDetailsTile.reset( new DetailsEmpty() );
-            TileFrame->Add( CurrentDetailsTile->Get() );
+            TileFrame->Add( CurrentDetailsTile->GetLabel() );
 
         //pack all into wholeselectionbox
         WholeBox->Pack( selectiontabs );
@@ -71,7 +71,9 @@ void Selector::SwitchToCreatureManipulator()
 {
     if ( !CreatureEmpty )
     {
-        Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN" ) );
+        Event e( "TOGGLE_SELECT_MAN" );
+        e.SetData( CurrentDetailsCreature );
+        Module::Get()->QueueEvent( e );
         Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
     }
 }
@@ -80,7 +82,9 @@ void Selector::SwitchToSpeciesManipulator()
 {
     if ( !SpeciesEmpty )
     {
-        Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN" ) );
+        Event e( "TOGGLE_SELECT_MAN" );
+        e.SetData( CurrentDetailsSpecies );
+        Module::Get()->QueueEvent( e );
         Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
     }
 }
@@ -89,7 +93,9 @@ void Selector::SwitchToTileManipulator()
 {
     if ( !TileEmpty )
     {
-        Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN" ) );
+        Event e( "TOGGLE_SELECT_MAN" );
+        e.SetData( CurrentDetailsTile );
+        Module::Get()->QueueEvent( e );
         Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
     }
 }
@@ -176,7 +182,7 @@ void Selector::SetDetail( const std::shared_ptr<Creature>& _creature )
     if ( _creature )
     {
         CurrentDetailsCreature.reset( new DetailsCreature( _creature ) );
-        CreatureFrame->Add( CurrentDetailsCreature->Get() );
+        CreatureFrame->Add( CurrentDetailsCreature->GetLabel() );
         CreatureEmpty = false;
     }
     else
@@ -193,7 +199,7 @@ void Selector::SetDetail( const std::shared_ptr<Species>& _species )
     if ( _species )
     {
         CurrentDetailsSpecies.reset( new DetailsSpecies( _species ) );
-        SpeciesFrame->Add( CurrentDetailsSpecies->Get() );
+        SpeciesFrame->Add( CurrentDetailsSpecies->GetLabel() );
         SpeciesEmpty = false;
     }
     else
@@ -210,7 +216,7 @@ void Selector::SetDetail( const std::shared_ptr<Tile>& _tile )
     if ( _tile )
     {
         CurrentDetailsTile.reset( new DetailsTile( _tile ) );
-        TileFrame->Add( CurrentDetailsTile->Get() );
+        TileFrame->Add( CurrentDetailsTile->GetLabel() );
         TileEmpty = false;
     }
     else

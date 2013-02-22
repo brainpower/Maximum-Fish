@@ -8,10 +8,15 @@ DetailsTile::DetailsTile(const std::shared_ptr<Tile>& _tile)
 {
     currentTile = _tile;
 
+    //Label
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
+    //Box
+    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+
     UpdateLabel();
+    UpdateBox();
 }
 
 void DetailsTile::UpdateLabel()
@@ -25,7 +30,21 @@ void DetailsTile::UpdateLabel()
     AddToLabel( DetailsLabel, "Temperature", str(format("%.2f") % currentTile->calcTemperature() ));
 }
 
-sfg::Widget::Ptr DetailsTile::Get()
+void DetailsTile::UpdateBox()
+{
+
+	DetailsBox->RemoveAll();
+	///todo
+
+}
+
+sfg::Widget::Ptr DetailsTile::GetLabel()
 {
     return DetailsLabel;
+}
+
+sfg::Widget::Ptr DetailsTile::GetBox()
+{
+    UpdateBox();
+    return DetailsBox;
 }

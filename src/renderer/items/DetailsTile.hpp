@@ -14,8 +14,10 @@ class DetailsTile : public Details
 
 		DetailsTile(const std::shared_ptr<Tile>& _tile);
 		virtual ~DetailsTile() {}
-        virtual sfg::Widget::Ptr Get();
+        virtual sfg::Widget::Ptr GetLabel();
+        virtual sfg::Widget::Ptr GetBox();
         virtual void UpdateLabel();
+        virtual void UpdateBox();
     private:
 
 		std::shared_ptr<Tile> currentTile;
