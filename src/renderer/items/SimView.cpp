@@ -53,7 +53,7 @@ SimView::SimView()
 	tilemapShader.setParameter("tileGraphics", tileGraphicsTexture);
 	tilemapShader.setParameter("tilemap", tilemapTexture);
 
-	tilemapState = *( new sf::RenderStates(&tilemapShader) );
+	tilemapState = sf::RenderStates(&tilemapShader);
 }
 
 void SimView::HandleEvent(Event& e)
