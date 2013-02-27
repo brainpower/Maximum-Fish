@@ -13,28 +13,16 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <boost/format.hpp>
-
 #include <cmath>
 
-using boost::format;
-using boost::io::group;
-
 SimView::SimView()
-:
- Scrolling( false ),
- Name("SimView")
+: Name("SimView")
 {
 
 	TileSize = 	Engine::getCfg()->get<int>("ui.simView.tileSize");
 	TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
 	RenderGrid = Engine::getCfg()->get<bool>("ui.simView.renderGrid");
 	CreatureSize = Engine::getCfg()->get<int>("ui.simView.creatureSize");
-	ZoomFactor = Engine::getCfg()->get<float>("ui.simView.zoomFactor");
-
-	ScrollFactor = Engine::getCfg()->get<float>("ui.simView.scrollFactor");
-	delta = Engine::getCfg()->get<float>("ui.simView.delta");
-	WheelZoomFactor = Engine::getCfg()->get<float>("ui.simView.wheelZoomFactor");
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
@@ -44,7 +32,7 @@ SimView::SimView()
 	GridColor = sf::Color( Engine::getCfg()->get<int>("ui.simView.gridColor.r"),
 						Engine::getCfg()->get<int>("ui.simView.gridColor.g"),
 						Engine::getCfg()->get<int>("ui.simView.gridColor.b") );
-	SetupCamera();
+	Cam.Setup();
 
 	tileGraphics.loadFromFile("res/textures/Tiles_serious.tga");
 	tileGraphicsTexture.loadFromImage(tileGraphics);
@@ -102,87 +90,23 @@ void SimView::HandleEvent(Event& e)
 			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
 		}
 	} else if(e.Is("WINDOW_RESIZE")){
-		TargetSize = sf::Vector2f( Engine::GetApp().getSize().x, Engine::GetApp().getSize().y);
+		Cam.setTargetSize(sf::Vector2f( Engine::GetApp().getSize().x, Engine::GetApp().getSize().y));
 	}
 }
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
+	Cam.HandleEvent( e );
 
 	switch (e.type)
 	{
-		case sf::Event::KeyPressed:
-
-
-
-			if (e.key.shift) delta *= 10;
-
-			switch (e.key.code)
-			{
-				case sf::Keyboard::Key::Up:
-					TargetCenter.y += -delta;
-					break;
-
-				case sf::Keyboard::Key::Down:
-					TargetCenter.y += delta;
-					break;
-
-				case sf::Keyboard::Key::Left:
-					TargetCenter.x += -delta;
-					break;
-
-				case sf::Keyboard::Key::Right:
-					TargetCenter.x += delta;
-					break;
-
-				case sf::Keyboard::Key::PageUp:
-					TargetSize *= 1.1f;
-					break;
-
-				case sf::Keyboard::Key::PageDown:
-					TargetSize *= 0.9f;
-					break;
-
-				default:
-					break;
-			}
-			break;
-
-		case sf::Event::MouseWheelMoved:
-
-
-			for (int i = 0; i < std::abs(e.mouseWheel.delta); ++i)
-			{
-				TargetSize *= (e.mouseWheel.delta < 0) ? 1 + WheelZoomFactor : 1 - WheelZoomFactor;
-			}
-			break;
-
-		case sf::Event::MouseMoved:
-		{
-			sf::Vector2i mouseMove(e.mouseMove.x, e.mouseMove.y);
-
-			sf::Vector2f glLastMousePos = Engine::GetApp().mapPixelToCoords( lastMousePos, Camera);
-			sf::Vector2f glMouseMove = Engine::GetApp().mapPixelToCoords( mouseMove, Camera);
-
-			if (Scrolling)
-			{
-				TargetCenter += (glLastMousePos - glMouseMove )*ScrollFactor;
-			}
-
-			lastMousePos.x = e.mouseMove.x;
-			lastMousePos.y = e.mouseMove.y;
-			}
-			break;
-
 		case sf::Event::MouseButtonPressed:
-			if (e.mouseButton.button == sf::Mouse::Middle) Scrolling = true;
-
 			if (e.mouseButton.button == sf::Mouse::Left)
 			{
 				// Translate the click position to Terrain Coordinates (float)
 				sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
 
-				sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Camera);
+				sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Cam.getView());
 
 				RealPos = RealPos / (float)TileSize;
 
@@ -191,76 +115,10 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 				Module::Get()->QueueEvent( ev, true);
 			}
-
 			break;
-
-		case sf::Event::MouseButtonReleased:
-			if (e.mouseButton.button == sf::Mouse::Middle) Scrolling = false;
-			break;
-
-		case sf::Event::Resized:
-
-			//Camera.setSize(e.size.width, e.size.height);
-			break;
-
 		default:
-
 			break;
 	}
-
-
-}
-
-void SimView::SetupCamera()
-{
-	Camera.setSize(Engine::getCfg()->get<int>("renderer.windowsize.x"),
-					Engine::getCfg()->get<int>("renderer.windowsize.y"));
-
-	Camera.setCenter(Engine::getCfg()->get<int>("renderer.windowsize.x")/2,
-					Engine::getCfg()->get<int>("renderer.windowsize.y")/2);
-
-	TargetSize = sf::Vector2f(Engine::getCfg()->get<int>("renderer.windowsize.x"),
-							Engine::getCfg()->get<int>("renderer.windowsize.y"));
-
-	TargetCenter = sf::Vector2f(Engine::getCfg()->get<int>("renderer.windowsize.x")/2,
-								Engine::getCfg()->get<int>("renderer.windowsize.y")/2);
-
-
-	//Camera.move(0,500);
-}
-
-void SimView::UpdateCamera()
-{
-	// minimum difference between Target and current position to be smoothed
-	const int minDiff = 2;
-	sf::Vector2f CurrentSize = Camera.getSize();
-	sf::Vector2f CurrentCenter = Camera.getCenter();
-
-	sf::Vector2f Target;
-
-	if ( TargetSize != CurrentSize )
-	{
-		//Engine::out() << "Size: " << CurrentSize.x << "/" << CurrentSize.y << std::endl;
-		//Engine::out() << "Target: " << TargetSize.x << "/" << TargetSize.y << std::endl;
-
-		Target.x = CurrentSize.x + (TargetSize.x - CurrentSize.x)*ZoomFactor;
-		Target.y = CurrentSize.y + (TargetSize.y - CurrentSize.y)*ZoomFactor;
-		if ( std::abs(CurrentSize.x - TargetSize.x) < minDiff ) Target.x = TargetSize.x;
-		if ( std::abs(CurrentSize.y - TargetSize.y) < minDiff ) Target.y = TargetSize.y;
-
-		Camera.setSize( Target );
-	}
-
-	if ( TargetCenter != CurrentCenter )
-	{
-		Target.x = CurrentCenter.x + (TargetCenter.x - CurrentCenter.x)*ZoomFactor;
-		Target.y = CurrentCenter.y + (TargetCenter.y - CurrentCenter.y)*ZoomFactor;
-		if ( std::abs(CurrentCenter.x - TargetCenter.x) < minDiff ) Target.x = TargetCenter.x;
-		if ( std::abs(CurrentCenter.y - TargetCenter.y) < minDiff ) Target.y = TargetCenter.y;
-
-		Camera.setCenter( Target );
-	}
-
 }
 
 void SimView::Render()
@@ -269,9 +127,9 @@ void SimView::Render()
 	std::shared_ptr<ImageSet> CreatureImgSet = Engine::GetResMgr()->get<ImageSet>("Creatures");
 
 
-	UpdateCamera();
+	Cam.Update();
 
-	Engine::GetApp().setView(Camera);
+	Engine::GetApp().setView(Cam.getView());
 
 
 	//if (TileImgSet->getTexture())
@@ -304,8 +162,7 @@ void SimView::Render()
 
 void SimView::PostDebugInfo()
 {
-	Module::Get()->DebugString("View Size",  str(format("%.0f x %.0f") % TargetSize.x % TargetSize.y));
-	Module::Get()->DebugString("View Pos", str(format("%.0f x %.0f") % TargetCenter.x % TargetCenter.y));
+	Cam.showDebugInfo();
 }
 
 void SimView::ReadTileRenderList(TileRenderList& r)

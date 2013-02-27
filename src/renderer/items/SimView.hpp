@@ -8,6 +8,8 @@
 #include "sbe/event/EventUser.hpp"
 #include "sbe/util/QuadTree.hpp"
 
+#include "sbe/gfx/Camera.hpp"
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -37,7 +39,7 @@ class SimView : public EventUser
 
 		void CullRenderList();
 
-		void setCameraViewport ( const sf::FloatRect& FR) { Camera.setViewport( FR ); }
+		void setCameraViewport ( const sf::FloatRect& FR) { Cam.setViewport( FR ); }
 
 		void Render();
 	private:
@@ -57,23 +59,11 @@ class SimView : public EventUser
 		sf::FloatRect DetermineTilePos ( std::shared_ptr<Tile>& t);
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
 
-		void SetupCamera();
-		void UpdateCamera();
-		sf::View Camera;
-		sf::Vector2f TargetSize;
-		sf::Vector2f TargetCenter;
+		Camera Cam;
 
 		int CreatureSize;
-		float ZoomFactor;
 		sf::VertexArray Creatures;
 		sf::VertexArray Tiles;
-
-		bool Scrolling;
-		sf::Vector2i lastMousePos;
-
-		float ScrollFactor;
-		int delta;
-		float WheelZoomFactor;
 
 		bool RenderGrid;
 		sf::Color GridColor;
