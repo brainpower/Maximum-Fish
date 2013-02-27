@@ -54,20 +54,6 @@ Screen::Screen()
 	int i = EvtConv->LoadKeyBindingsFromConfig();
 	Engine::out(Engine::INFO) << "[Screen] Loaded " << i << " key bindings." << std::endl;
 
-
-	/*EvtConv->AddKeyConversion( sf::Keyboard::Key::F3 ,     "KEY_SHOW_CONSOLE" );
-
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F2 ,     "EVT_SAVE_TERRAIN", true );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F6 ,     "EVT_SAVE_WHOLE_TEST", true );
-
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F8 ,     "PLOT_COUNTS", true );
-
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::Escape , "KEY_SHOW_MAINMENU" );
-	//EvtConv->AddKeyConversion( sf::Keyboard::Key::M ,      "KEY_SHOW_MINIMAP" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::P ,      "KEY_SIM_PAUSE" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::C ,      "KEY_SHOW_INFOPANEL" );
-	EvtConv->AddKeyConversion( sf::Keyboard::Key::F11 ,    "TOGGLE_FULLSCREEN" );*/
-
 	EvtConv->AddEventConversion( sf::Event::Closed ,       "EVT_QUIT", true );
 	EvtConv->AddEventConversion( sf::Event::Resized ,      "WINDOW_RESIZE" );
 
