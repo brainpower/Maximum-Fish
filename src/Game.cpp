@@ -35,7 +35,7 @@ void Game::ModuleInit()
 	RegisterModule( new MRenderer(),
 					ModuleStartInfo(
 						"MRenderer",
-						Engine::getCfg()->get<int>("renderer.maxFps"),
+						Engine::getCfg()->get<int>("system.renderer.maxFps"),
 						std::shared_ptr<Event> (new Event("EVT_FRAME"))
 					)
 				  );

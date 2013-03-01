@@ -11,19 +11,19 @@
 SimActors::SimActors(Renderer& R)
  : Picasso( R)
 {
-	TileSize = 	Engine::getCfg()->get<int>("ui.simView.tileSize");
-	TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
-	CreatureSize = Engine::getCfg()->get<int>("ui.simView.creatureSize");
-	RenderGrid = Engine::getCfg()->get<bool>("ui.simView.renderGrid");
-	useShaderTileMap = Engine::getCfg()->get<bool>("ui.simView.useShaderTileMap");
+	TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
+	TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
+	CreatureSize = Engine::getCfg()->get<int>("system.ui.simView.creatureSize");
+	RenderGrid = Engine::getCfg()->get<bool>("system.ui.simView.renderGrid");
+	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
 	RegisterForEvent("UpdateTilemapTexture");
 
-	GridColor = sf::Color( Engine::getCfg()->get<int>("ui.simView.gridColor.r"),
-						Engine::getCfg()->get<int>("ui.simView.gridColor.g"),
-						Engine::getCfg()->get<int>("ui.simView.gridColor.b") );
+	GridColor = sf::Color( Engine::getCfg()->get<int>("system.ui.simView.gridColor.r"),
+						Engine::getCfg()->get<int>("system.ui.simView.gridColor.g"),
+						Engine::getCfg()->get<int>("system.ui.simView.gridColor.b") );
 
 }
 
