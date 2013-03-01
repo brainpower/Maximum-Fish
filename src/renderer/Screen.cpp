@@ -66,8 +66,8 @@ void Screen::Init()
 {
 	Engine::out(Engine::INFO) << "[Screen] Creating Window..." << std::endl;
 	// create the renderwindow
-	Engine::GetApp().create( sf::VideoMode ( Engine::getCfg()->get<int>("renderer.windowsize.x"),
-											Engine::getCfg()->get<int>("renderer.windowsize.y") ),
+	Engine::GetApp().create( sf::VideoMode ( Engine::getCfg()->get<int>("system.renderer.windowsize.x"),
+											Engine::getCfg()->get<int>("system.renderer.windowsize.y") ),
 											"Maximum-Fish!" );
 
 	// must be created before using SFGUI
@@ -159,8 +159,8 @@ void Screen::HandleEvent(Event& e)
 		}
 		else
 		{
-			Engine::GetApp().create( sf::VideoMode ( Engine::getCfg()->get<int>("renderer.windowsize.x"),
-														Engine::getCfg()->get<int>("renderer.windowsize.y") ),
+			Engine::GetApp().create( sf::VideoMode ( Engine::getCfg()->get<int>("system.renderer.windowsize.x"),
+														Engine::getCfg()->get<int>("system.renderer.windowsize.y") ),
 														"Maximum-Fish!" );
 			Fullscreen = false;
 		}

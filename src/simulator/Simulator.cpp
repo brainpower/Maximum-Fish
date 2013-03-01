@@ -113,7 +113,7 @@ void Simulator::HandleEvent(Event& e)
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
 	else if (e.Is("EVT_SAVE_WHOLE_TEST")){
-		saveWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
+		saveWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE")){
 		if ( e.Data().type() != typeid(std::string))
@@ -145,7 +145,7 @@ void Simulator::init()
 	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
-	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
+	NewSimulation(Engine::getCfg()->get<int>("system.sim.defaultSeed"));
 }
 
 void Simulator::NewSimulation( int seed )
@@ -176,13 +176,13 @@ void Simulator::NewSimulation( int seed )
 	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
 	SpeciesList.push_back( S );
 
-	CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("sim.terragen.plantCount") );
-	CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.herbivoreCount") );
-	CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.carnivoreCount") );
+	CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("system.sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.plantCount") );
+	CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.herbivoreCount") );
+	CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.carnivoreCount") );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
-	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
+	isPaused = Engine::getCfg()->get<bool>("system.sim.pauseOnStart");
 	// count Creatures once
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
 		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
@@ -261,8 +261,8 @@ std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
 	std::shared_ptr<GraphPlotter> re( new GraphPlotter );
 
 	Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
-	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("system.sim.countplot.size.x"),Engine::getCfg()->get<int>("system.sim.countplot.size.y"));
+	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("system.sim.countplot.axissize.x"), Engine::getCfg()->get<int>("system.sim.countplot.axissize.y"));
 	g.addCurve( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
@@ -345,7 +345,7 @@ void Simulator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 void Simulator::addRandomSpecies()
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
 
 	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
 
@@ -418,7 +418,7 @@ void Simulator::addCreature( const std::string& specName )
 std::string Simulator::addSpecies( Species::SPECIES_TYPE type )
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
 
 	std::string name;
 	switch (type)

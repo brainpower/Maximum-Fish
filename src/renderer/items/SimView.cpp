@@ -38,7 +38,7 @@ void SimView::HandleEvent(Event& e)
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
-	static const int TileSize = Engine::getCfg()->get<int>("ui.simView.tileSize");
+	static const int TileSize = Engine::getCfg()->get<int>("system.ui.simView.tileSize");
 	Cam->HandleEvent( e );
 
 	switch (e.type)
@@ -66,8 +66,8 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 bool SimView::LoadResources()
 {
-	auto txts = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("renderer.creatureTexture") );
-	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], Engine::getCfg()->get<std::string>("renderer.creatureTexture") );
+	auto txts = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("system.renderer.creatureTexture") );
+	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], Engine::getCfg()->get<std::string>("system.renderer.creatureTexture") );
 	else
 	{
 		Engine::out(Engine::ERROR) << "[SimView] Error loading Textures" << std::endl;
@@ -75,13 +75,13 @@ bool SimView::LoadResources()
 	}
 
 
-	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("renderer.creatureImageSet"), Engine::getCfg()->get<std::string>("renderer.creatureTexture"), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 16,16), Geom::Vec2( 3, 1 ), 0 ) );
-	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("renderer.creatureImageSet"));
+	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"), Engine::getCfg()->get<std::string>("system.renderer.creatureTexture"), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 16,16), Geom::Vec2( 3, 1 ), 0 ) );
+	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"));
 	I->updateTexture();
 	//Engine::GetIO()->saveObject<ImageSet>( );
 
-	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("renderer.terrainTexture" ));
-	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], Engine::getCfg()->get<std::string>("renderer.terrainTexture" ));
+	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
+	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
 	else
 	{
 		Engine::out(Engine::ERROR) << "[SimView] Error loading Textures" << std::endl;
@@ -90,13 +90,13 @@ bool SimView::LoadResources()
 
 
 
-	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("renderer.terrainImageSet" ), Engine::getCfg()->get<std::string>("renderer.terrainTexture" ), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
-	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("renderer.terrainImageSet" ));
+	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ), Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
+	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ));
 	I2->updateTexture();
 
 	Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
 
-	if ( Engine::getCfg()->get<bool>("ui.simView.useShaderTileMap") )
+	if ( Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap") )
 	{
 		std::shared_ptr<sf::Shader> tilemapShader( new sf::Shader );
 		tilemapShader->loadFromFile("res/shader/tilemap.vert", "res/shader/tilemap.frag");

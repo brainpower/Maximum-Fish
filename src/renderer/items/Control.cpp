@@ -16,7 +16,7 @@ Control::Control( const Geom::Vec2 Size)
     RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
     RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
 
-    Frames = Engine::getCfg()->get<int>("ui.control.simFrameRate");
+    Frames = Engine::getCfg()->get<int>("system.ui.control.simFrameRate");
 
     CreateWindow(Size);
     Win->Show(true);
@@ -227,7 +227,7 @@ void Control::BtnFramesDownClick()
 
 void Control::BtnFramesUpClick()
 {
-    if ( Frames >= Engine::getCfg()->get<int>("ui.control.simFrameLimit") ){return;}
+    if ( Frames >= Engine::getCfg()->get<int>("system.ui.control.simFrameLimit") ){return;}
     if ( Frames >= 150 ){Frames += 25;}
     else if ( Frames >= 50 ){Frames += 10;}
     else {Frames += 5;}
