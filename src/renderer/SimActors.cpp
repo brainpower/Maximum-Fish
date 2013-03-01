@@ -164,8 +164,8 @@ void SimActors::CreateTerrainShaderMap()
 	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 	sf::Sprite& sprite = (dynamic_pointer_cast<SpriteActor>(TileActor))->sprite;
 
-	sprite.setTexture( *(TileImgSet->getTexture()) );
-	TileImgSet->getTexture()->setRepeated(true);
+	sprite.setTexture( tilemapTexture );
+
 	// has to be the size of the terrain multiplied by the size of a tile
 	// may produce glitches in some circumstances one is if the Terrain is
 	// to small

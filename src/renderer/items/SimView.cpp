@@ -104,7 +104,6 @@ bool SimView::LoadResources()
 
 		Engine::GetResMgr()->add( tilemapShader, "tilemapShader" );
 		Picasso.getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
-		Picasso.getLayer( L_TERRAIN )->States.texture = &(*(I2->getTexture()));
 	}
 
 	return true;
