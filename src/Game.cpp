@@ -1,6 +1,6 @@
 #include "Game.hpp"
 
-#include "modules/Renderer.hpp"
+#include "modules/MRenderer.hpp"
 #include "modules/Logic.hpp"
 
 #include "sbe/Config.hpp"
@@ -30,11 +30,11 @@ void Game::DeInit()
 void Game::ModuleInit()
 {
 
-	Engine::out(Engine::INFO) << "[Game] Renderer..." << std::endl;
+	Engine::out(Engine::INFO) << "[Game] MRenderer..." << std::endl;
 
-	RegisterModule( new Renderer(),
+	RegisterModule( new MRenderer(),
 					ModuleStartInfo(
-						"Renderer",
+						"MRenderer",
 						Engine::getCfg()->get<int>("renderer.maxFps"),
 						std::shared_ptr<Event> (new Event("EVT_FRAME"))
 					)

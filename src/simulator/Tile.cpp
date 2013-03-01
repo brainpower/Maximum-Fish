@@ -58,11 +58,11 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 
 int Tile::getTileSpriteIndex()
 {
-	if(this->isWater()) return 0;
+	if(isWater()) return 0;
 
 	float maxElev = Simulator::GetTerrain()->getMaxElevation();
-	if(this->height < maxElev * Tile::maxsandheight) return 1;
-	if(this->height < maxElev * Tile::maxgrassheight) return 2;
+	if(height < maxElev * Tile::maxsandheight) return 1;
+	if(height < maxElev * Tile::maxgrassheight) return 2;
 	return 3;
 }
 
@@ -70,6 +70,8 @@ void Tile::addCreature ( const std::shared_ptr<Creature>& p )
 {
 	Creatures.push_back(p);
 }
+
+
 
 void Tile::removeCreature( const std::shared_ptr<Creature>& p)
 {

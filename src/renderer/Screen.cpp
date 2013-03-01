@@ -94,21 +94,6 @@ void Screen::Init()
 
 	guiclock.reset( new sf::Clock() );
 
-
-	auto txts = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("renderer.creatureTexture") );
-	if (txts.size() == 1) Engine::GetResMgr()->add(txts[0], Engine::getCfg()->get<std::string>("renderer.creatureTexture") );
-
-	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("renderer.creatureImageSet"), Engine::getCfg()->get<std::string>("renderer.creatureTexture"), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 16,16), Geom::Vec2( 3, 1 ), 0 ) );
-	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("renderer.creatureImageSet"));
-
-	//Engine::GetIO()->saveObject<ImageSet>( );
-
-	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("renderer.terrainTexture" ));
-	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], Engine::getCfg()->get<std::string>("renderer.terrainTexture" ));
-
-	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("renderer.terrainImageSet" ), Engine::getCfg()->get<std::string>("renderer.terrainTexture" ), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
-	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("renderer.terrainImageSet" ));
-	//Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
 }
 
 

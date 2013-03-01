@@ -1,5 +1,5 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef Frontend_H
+#define Frontend_H
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -8,11 +8,11 @@
 
 class Screen;
 
-class Renderer : public Module
+class MRenderer : public Module
 {
 	public:
-		Renderer();
-		virtual ~Renderer();
+		MRenderer();
+		virtual ~MRenderer();
 
 
 	private:
@@ -23,5 +23,5 @@ class Renderer : public Module
 
 };
 
-#endif // Renderer_H
+#endif // Frontend_H
 

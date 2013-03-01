@@ -1,0 +1,54 @@
+ImageSet
+{
+    Name Creatures
+    ImageName Creatures_serious.tga
+    StartPos
+    {
+        x 0
+        y 0
+    }
+    DestPos
+    {
+        x 0
+        y 0
+    }
+    FrameSize
+    {
+        x 16
+        y 16
+    }
+    FrameCount
+    {
+        x 3
+        y 1
+    }
+    FramesPerSecond 0
+    NumFrames 3
+}
+ImageSet
+{
+    Name Tiles
+    ImageName Tiles_serious.tga
+    StartPos
+    {
+        x 0
+        y 0
+    }
+    DestPos
+    {
+        x 0
+        y 0
+    }
+    FrameSize
+    {
+        x 32
+        y 32
+    }
+    FrameCount
+    {
+        x 4
+        y 1
+    }
+    FramesPerSecond 0
+    NumFrames 4
+}
