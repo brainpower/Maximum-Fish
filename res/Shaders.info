@@ -1,0 +1,6 @@
+Shader
+{
+	name "tilemap"
+	vert "shader/tilemap.vert"
+	frag "shader/tilemap.frag"
+}
