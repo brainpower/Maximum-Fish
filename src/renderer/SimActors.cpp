@@ -68,6 +68,7 @@ void SimActors::HandleEvent(Event& e)
 			std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
 			tilemapTexture.create( i->getSize().x, i->getSize().y );
 			tilemapTexture.loadFromImage( *i );
+			CreateTerrainShaderMap();
 		}
 		else
 		{
@@ -112,13 +113,11 @@ void SimActors::ReadTileRenderList(TileRenderList& r)
 {
 	TerrainSize = std::sqrt( r.size() );
 
-	if ( useShaderTileMap )
-		CreateTerrainShaderMap();
-	else
+	if ( !useShaderTileMap )
+	{
 		CreateTerrainVertexArray( r );
-
-	Engine::out() << "[SimActors] Recreated tiles vertexarray!" << std::endl;
-
+		Engine::out() << "[SimActors] Recreated tiles vertexarray!" << std::endl;
+	}
 	// and create the corresponding grid
 	CreateGrid();
 }
@@ -155,26 +154,29 @@ void SimActors::CreateTerrainShaderMap()
 		newActor = true;
 	}
 
+	TerrainSize = tilemapTexture.getSize().x;
+
 	std::shared_ptr<sf::Shader> tilemapShader = Engine::GetResMgr()->get<sf::Shader>( "tilemapShader" );
 
 	tilemapShader->setParameter("tilemap", tilemapTexture);
-	Picasso.getLayer( L_TERRAIN )->States = sf::RenderStates( &(*tilemapShader) );
+	Picasso.getLayer( L_TERRAIN )->States.shader = &(*tilemapShader);
 
 	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 	sf::Sprite& sprite = (dynamic_pointer_cast<SpriteActor>(TileActor))->sprite;
 
 	sprite.setTexture( *(TileImgSet->getTexture()) );
+	TileImgSet->getTexture()->setRepeated(true);
 	// has to be the size of the terrain multiplied by the size of a tile
 	// may produce glitches in some circumstances one is if the Terrain is
 	// to small
-  	sprite.setTextureRect(sf::IntRect(0,0,256*32,256*32));
-  	// has to be the center of the terrain
-  	// if you want to draw it on center
-  	sprite.setScale(4.0f, 4.0f);
-  	sprite.setPosition(-512*28,-512*28);
+  	sprite.setTextureRect(sf::IntRect(0,0,TileSize*TerrainSize,TileSize*TerrainSize));
+  	sprite.setScale(1.0f, 1.0f);
+  	sprite.setPosition(0,0);
 
 	if ( newActor )
 		Picasso.addActor ( TileActor, L_TERRAIN );
+
+	Engine::out(Engine::INFO) << "[SimView] Updated Tilemap Shader!" << std::endl;
 }
 
 
