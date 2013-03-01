@@ -1,6 +1,6 @@
 #include "MRenderer.hpp"
 
-#include "Renderer/Screen.hpp"
+#include "renderer/Screen.hpp"
 
 MRenderer::MRenderer()
 {
@@ -22,4 +22,3 @@ void MRenderer::DeInit()
 	Engine::GetApp().close();
 	Scr.reset();
 }
-
