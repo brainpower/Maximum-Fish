@@ -27,7 +27,8 @@ void main()
 	// our texcoords have a range from 0..32 so our tiles with 128 px would end at 4, compensate
 	vec2 Coords = gl_TexCoord[0].xy / TileRenderFactor;
 	// clamp to only get the values of the current tile and divide by 4 ( 4 imgs on the atlas ) to get valid texcoords for the atlas
-  	vec2 internalPos = mod( Coords, 1.0) / 4;
+  	vec2 internalPos = mod( Coords, 1.0);
+	internalPos.x /= 4;
 	
 	gl_FragColor = texture2D( tileGraphics, baseTilePos+internalPos );
 }
