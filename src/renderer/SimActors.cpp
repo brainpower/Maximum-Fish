@@ -5,17 +5,24 @@
 #include "sbe/Config.hpp"
 #include "sbe/ResourceManager.hpp"
 
+#include "sbe/gfx/GraphPlotter.hpp"
+#include "sbe/gfx/Screen.hpp"
+
 #include "simulator/Creature.hpp"
 #include "simulator/Tile.hpp"
 
-SimActors::SimActors(Renderer& R)
- : Picasso( R)
+#include <SFGUI/Window.hpp>
+#include <SFGUI/Image.hpp>
+
+SimActors::SimActors()
 {
 	TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
 	TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
 	CreatureSize = Engine::getCfg()->get<int>("system.ui.simView.creatureSize");
 	RenderGrid = Engine::getCfg()->get<bool>("system.ui.simView.renderGrid");
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
+
+	RegisterForEvent( "DISPLAY_GRAPH" );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
@@ -27,58 +34,77 @@ SimActors::SimActors(Renderer& R)
 
 }
 
+SimActors::~SimActors()
+{
+}
 
 void SimActors::HandleEvent(Event& e)
 {
 	if(e.Is("UpdateCreatureRenderList"))
-	{		// check event datatype
-
+	{
 		if (e.Data().type() == typeid( std::list<std::shared_ptr<Creature>> ))
 		{
-			// cast into desired type
 			std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
 			//std::list<std::shared_ptr<Creature>> CullRenderList( r );
 			ReadCreatureRenderList( r );
-		}
-		else
-		{
+		} else {
 			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateCreatureRenderList!" << std::endl;
 		}
-		//Engine::out() << "[SimView] Creatures NOT updated" << std::endl;
 	}
 	else if ( e.Is("UpdateTileRenderList"))
 	{
-		// check event datatype
 		if (e.Data().type() == typeid( std::vector<std::shared_ptr<Tile>> ))
 		{
-			// cast into desired type
 			std::vector<std::shared_ptr<Tile>> r = boost::any_cast< std::vector<std::shared_ptr<Tile>> >(e.Data());
 			ReadTileRenderList( r );
-		}
-		else
-		{
+		} else {
 			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
 		}
 	} else if ( e.Is("UpdateTilemapTexture"))
 	{
-		// check event datatype
 		if (e.Data().type() == typeid( std::shared_ptr<sf::Image> ))
 		{
-			// cast into desired type
 			std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
 			tilemapTexture.create( i->getSize().x, i->getSize().y );
 			tilemapTexture.loadFromImage( *i );
 			CreateTerrainShaderMap();
-		}
-		else
-		{
+		} else {
 			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
+		}
+	} else if (e.Is("DISPLAY_GRAPH"))
+	{
+		if (e.Data().type() == typeid( std::shared_ptr<GraphPlotter> ) )
+		{
+			std::shared_ptr<GraphPlotter> p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
+			PlotGraph( p );
+		} else {
+			Engine::out(Engine::ERROR) << "[SimActors::PlotGraph] DISPLAY_GRAPH Event with wrong parameters" << std::endl;
 		}
 	}
 }
 
 
+void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
+{
+	if (!G) {
+		Engine::out() << "[SimActors::PlotGraph] INVALID POINTER!" << std::endl;
+		return;
+	}
 
+	sf::RenderTexture tex;
+	tex.create(G->getGraph().Size.x, G->getGraph().Size.y);
+	G->updateVertexArrays();
+	G->draw( tex );
+	tex.display();
+
+	sfg::Window::Ptr P = sfg::Window::Create();
+	sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
+	P->Add(I);
+
+	Event ev( "SCREEN_ADD_WINDOW");
+	ev.SetData( P );
+	Module::Get()->QueueEvent(ev);
+}
 
 void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 {
@@ -103,8 +129,8 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	if ( newActor )
 	{
 
-		Picasso.getLayer( L_CREATURES )->States.texture = &(*(Engine::GetResMgr()->get<ImageSet>("Creatures")->getTexture()));
-		Picasso.addActor ( CreaturesActor, L_CREATURES );
+		Screen::get()->getRenderer()->getLayer( L_CREATURES )->States.texture = &(*(Engine::GetResMgr()->get<ImageSet>("Creatures")->getTexture()));
+		Screen::get()->getRenderer()->addActor ( CreaturesActor, L_CREATURES );
 	}
 
 }
@@ -142,7 +168,7 @@ void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
 
 	if ( newActor )
-		Picasso.addActor ( TileActor, L_TERRAIN );
+		Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
 }
 
 void SimActors::CreateTerrainShaderMap()
@@ -159,7 +185,7 @@ void SimActors::CreateTerrainShaderMap()
 	std::shared_ptr<sf::Shader> tilemapShader = Engine::GetResMgr()->get<sf::Shader>( "tilemapShader" );
 
 	tilemapShader->setParameter("tilemap", tilemapTexture);
-	Picasso.getLayer( L_TERRAIN )->States.shader = &(*tilemapShader);
+	Screen::get()->getRenderer()->getLayer( L_TERRAIN )->States.shader = &(*tilemapShader);
 
 	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 	sf::Sprite& sprite = (dynamic_pointer_cast<SpriteActor>(TileActor))->sprite;
@@ -174,7 +200,7 @@ void SimActors::CreateTerrainShaderMap()
   	sprite.setPosition(0,0);
 
 	if ( newActor )
-		Picasso.addActor ( TileActor, L_TERRAIN );
+		Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
 
 	Engine::out(Engine::INFO) << "[SimView] Updated Tilemap Shader!" << std::endl;
 }
@@ -218,7 +244,7 @@ void SimActors::CreateGrid()
 	}
 
 	if ( newActor )
-		Picasso.addActor ( GridActor, L_OVERLAY );
+		Screen::get()->getRenderer()->addActor ( GridActor, L_OVERLAY );
 }
 
 

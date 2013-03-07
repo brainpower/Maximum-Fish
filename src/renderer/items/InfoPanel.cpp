@@ -1,5 +1,5 @@
 #include "InfoPanel.hpp"
-#include "renderer/Screen.hpp"
+#include "sbe/gfx/Screen.hpp"
 
 InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
@@ -59,7 +59,7 @@ void InfoPanel::HandleEvent( Event& e )
         if ( Win->IsGloballyVisible() )
 		{
 			Win->Show( false );
-            //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
+            //Screen::get()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
 		}
         else
 		{
@@ -92,10 +92,10 @@ void InfoPanel::updatePosition()
     //set new ViewPort
     if ( Win->IsGloballyVisible() )
     {
-        //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,(1-widgetAllocation.width/appSize.x),1 ) );
+        //Screen::get()->setCameraViewPort( sf::FloatRect( 0,0,(1-widgetAllocation.width/appSize.x),1 ) );
     }
     else
     {
-        //Screen::GetScreenObj()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
+        //Screen::get()->setCameraViewPort( sf::FloatRect( 0,0,1,1 ) );
     }
 }

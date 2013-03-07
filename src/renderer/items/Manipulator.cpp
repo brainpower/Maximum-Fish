@@ -1,5 +1,5 @@
 #include "Manipulator.hpp"
-#include "renderer/Screen.hpp"
+#include "sbe/gfx/Screen.hpp"
 #include "DetailsEmpty.hpp"
 
 Manipulator::Manipulator()

@@ -1,66 +1,89 @@
 #include "SimView.hpp"
 
-
-
+#include "sbe/event/SFMLEventUser.hpp"
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/ImageSet.hpp"
 #include "sbe/Config.hpp"
 
-#include <SFML/Window/Keyboard.hpp>
+#include "sbe/gfx/Camera.hpp"
+#include "sbe/gfx/Renderer.hpp"
+#include "sbe/gfx/GraphPlotter.hpp"
+#include "sbe/gfx/Screen.hpp"
+
+#include "renderer/items/Control.hpp"
+#include "renderer/items/InfoPanel.hpp"
+//#include "renderer/items/Manipulator.hpp"
+#include "renderer/items/DebugWindow.hpp"
+#include "renderer/items/MainMenu.hpp"
+#include "renderer/items/MiniMap.hpp"
+
+#include "renderer/SimActors.hpp"
+
+#include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <cmath>
+#include <SFGUI/Widget.hpp>
 
 SimView::SimView()
-: Name("SimView")
 {
-	RegisterForEvent( "WINDOW_RESIZE" );
+	InitRenderer();
+	// has to be after InitRenderer
+	LoadResources();
+	InitDesktop();
+	ISim.reset ( new SimActors );
 
-	Cam.reset ( new Camera );
-	Cam->Setup();
+}
+
+SimView::~SimView()
+{
+	ISim.reset();
+	Contr.reset();
+    IPan.reset();
+	//Man;
+	DbgWin.reset();
+	MnMnWin.reset();
+	MiMap.reset();
+}
+
+void SimView::InitRenderer()
+{
 
 	// add our RenderLayers with our default Cam
 	for (int i = L_BACK; i < L_END; ++i)
-		Picasso.addLayer( RenderLayer( Cam ) );
-
-
-	LoadResources();
-
-	ISim.reset ( new SimActors( Picasso ) );
+		Screen::sRndr()->addLayer( RenderLayer( Screen::sCam() ) );
 }
 
-void SimView::HandleEvent(Event& e)
+void SimView::InitDesktop()
 {
-	if(e.Is("WINDOW_RESIZE")){
-		Cam->setTargetSize(sf::Vector2f( Engine::GetApp().getSize().x, Engine::GetApp().getSize().y));
-	}
+	Engine::out(Engine::INFO) << "[SimView] Creating Desktop Windows..." << std::endl;
+
+    Contr.reset   ( new Control() );
+    IPan.reset    ( new InfoPanel() );
+    //Man.reset     ( new Manipulator() );
+	DbgWin.reset  ( new DebugWindow() );
+	MnMnWin.reset ( new MainMenu() );
+	MiMap.reset   ( new MiniMap() );
+
+	Screen::get()->addSFMLEventHandler( this );
 }
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
 {
 	static const int TileSize = Engine::getCfg()->get<int>("system.ui.simView.tileSize");
-	Cam->HandleEvent( e );
 
-	switch (e.type)
+	if (e.type == sf::Event::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Left)
 	{
-		case sf::Event::MouseButtonPressed:
-			if (e.mouseButton.button == sf::Mouse::Left)
-			{
-				// Translate the click position to Terrain Coordinates (float)
-				sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
+		// Translate the click position to Terrain Coordinates (float)
+		sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
 
-				sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Cam->getView());
+		sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Screen::sCam()->getView());
 
-				RealPos /= (float)TileSize;
+		RealPos /= (float)TileSize;
 
-				Event ev("TERRAIN_CLICKED");
-				ev.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
+		Event ev("TERRAIN_CLICKED");
+		ev.SetData( Geom::Pointf( RealPos.x, RealPos.y ) );
 
-				Module::Get()->QueueEvent( ev, true);
-			}
-			break;
-		default:
-			break;
+		Module::Get()->QueueEvent( ev, true);
 	}
 }
 
@@ -103,20 +126,12 @@ bool SimView::LoadResources()
 		tilemapShader->setParameter("tileGraphics", *(I2->getTexture()));
 
 		Engine::GetResMgr()->add( tilemapShader, "tilemapShader" );
-		Picasso.getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
+
+		if ( !tilemapShader ) std::cout << "Error shader" << std::endl;
+		if ( !Screen::sRndr() ) std::cout << "Error render" << std::endl;
+
+		Screen::sRndr()->getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
 	}
 
 	return true;
-}
-
-void SimView::Render()
-{
-	Cam->Update();
-	Picasso.render( Engine::GetApp() );
-	PostDebugInfo();
-}
-
-void SimView::PostDebugInfo()
-{
-	Cam->showDebugInfo();
 }

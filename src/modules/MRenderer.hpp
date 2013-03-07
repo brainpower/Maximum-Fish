@@ -1,12 +1,12 @@
 #ifndef Frontend_H
 #define Frontend_H
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-
 #include "sbe/Module.hpp"
 
+#include <memory>
+
 class Screen;
+class SimView;
 
 class MRenderer : public Module
 {
@@ -20,6 +20,7 @@ class MRenderer : public Module
 		virtual void DeInit();
 
 		std::shared_ptr<Screen> Scr;
+		std::shared_ptr<SimView> Sim;
 
 };
 

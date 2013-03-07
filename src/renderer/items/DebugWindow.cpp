@@ -1,6 +1,6 @@
 #include "DebugWindow.hpp"
 
-
+#include "sbe/gfx/Screen.hpp"
 
 DebugWindow::DebugWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size)
 {
@@ -29,8 +29,7 @@ void DebugWindow::CreateWindow( const Geom::Point& RelativePosition, const Geom:
     // create Inputbox for console commands.
     sfg::Entry::Ptr consoleInput = sfg::Entry::Create();
 
-                                                // maybe change methode onconsoleinputactivation to boolchange directly in screen
-    consoleInput->GetSignal( sfg::Entry::OnTextChanged ).Connect( &DebugWindow::OnConsoleInputActivation , this );
+    consoleInput->GetSignal( sfg::Entry::OnTextChanged ).Connect( &Screen::OnHandledEvent , Screen::get() );
 
     //consoleInput->AppendText( "Not yet implemented." );
     consoleInput->SetState( sfg::Widget::State::INSENSITIVE );
@@ -191,12 +190,4 @@ void DebugWindow::AddLogText( std::string& newtext, int labelTextLimit )
 
 	scrolledwindow->GetVerticalAdjustment()->SetValue( scrolledwindow->GetVerticalAdjustment()->GetUpper() );
 
-}
-
-
-void DebugWindow::OnConsoleInputActivation()
-{
-    Screen::GetScreenObj()->KeyEventCatcher = true;
-
-	//Engine::out() << "[DebugWindow] KeyEventCatcher" << std::endl;
 }

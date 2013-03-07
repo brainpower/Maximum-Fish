@@ -3,6 +3,7 @@
 
 #include "sbe/event/EventUser.hpp"
 
+
 #include <list>
 #include <vector>
 #include <memory>
@@ -19,26 +20,46 @@ class Tile;
 class Creature;
 class Actor;
 class Renderer;
+class GraphPlotter;
 
+
+/**
+	Interface between Simulator and Renderer/UI.
+	Converts most Events sent from the Simulator into actors or windows.
+
+	Config values used:
+		Size of each Tile (e.g. 32):			system.ui.simView.tileSize
+		Terrain Tiles# ( e.g. 32x32):			system.sim.terragen.debug.size
+		Size of the creatures:					system.ui.simView.creatureSize
+		Render the grid: 						system.ui.simView.renderGrid
+		Use shader to render the tilemap:		system.ui.simView.useShaderTileMap
+		Color of the Grid (rgb):				system.ui.simView.gridColor.r
+												 system.ui.simView.gridColor.g
+												 system.ui.simView.gridColor.b
+
+*/
 class SimActors : public EventUser
 {
 	public:
-		SimActors(Renderer& R);
+		SimActors();
+		~SimActors();
 
-		/**		Event 					-- 		Data
+		/**
+			Events Handled:
+				Event 					| 		Data
 			----------------------------------------------
-			UpdateCreatureRenderList -> CreatureRenderList
-			UpdateTileRenderList		 -> TileRenderlist
+			UpdateCreatureRenderList	| CreatureRenderList
+			UpdateTileRenderList		| TileRenderlist
+			DISPLAY_GRAPH				| std::shared_ptr<GraphPlotter>
 		*/
 		void HandleEvent(Event& e);
 
 	private:
 
-		Renderer& Picasso;
-
 		typedef std::list<std::shared_ptr<Creature>> CreatureRenderList;
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;
 
+		void PlotGraph ( std::shared_ptr<GraphPlotter>& G );
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
 

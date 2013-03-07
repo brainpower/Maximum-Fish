@@ -2,7 +2,6 @@
 #define DGB_WINDOW_H
 
 #include "sbe/event/EventUser.hpp"
-#include "../Screen.hpp"
 #include <memory>
 #include <SFGUI/SFGUI.hpp>
 
