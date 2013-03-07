@@ -13,11 +13,12 @@
 #include "renderer/items/Control.hpp"
 #include "renderer/items/InfoPanel.hpp"
 //#include "renderer/items/Manipulator.hpp"
-#include "renderer/items/DebugWindow.hpp"
 #include "renderer/items/MainMenu.hpp"
 #include "renderer/items/MiniMap.hpp"
 
 #include "renderer/SimActors.hpp"
+
+#include "sbe/sfg/DebugWindow.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Vector2.hpp>
