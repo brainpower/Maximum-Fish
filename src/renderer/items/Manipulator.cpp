@@ -75,13 +75,12 @@ void Manipulator::HandleEvent( Event& e )
        /********/// ResetInformation();
         ThisNotSelector = !ThisNotSelector;
 
-            if ( e.Data().type() == typeid( std::shared_ptr<Details> ) )
-            {
-                CurrentDetailsBox = boost::any_cast<std::shared_ptr<Details>>( e.Data() );
-                WholeBox->RemoveAll();
-                WholeBox->Pack( CurrentDetailsBox->GetBox() );
-            }
-
+		if ( e.Data().type() == typeid( std::shared_ptr<Details> ) )
+		{
+			CurrentDetailsBox = boost::any_cast<std::shared_ptr<Details>>( e.Data() );
+			WholeBox->RemoveAll();
+			WholeBox->Pack( CurrentDetailsBox->GetBox() );
+		}
     }
 }
 

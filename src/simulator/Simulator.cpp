@@ -78,20 +78,13 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = !isPaused;
 	}
-	else if(e.Is("TERRAIN_CLICKED"))
+	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
 	{
-		// check event datatype
-		if (e.Data().type() != typeid( Geom::Pointf )) return;
 		// cast into desired type
 		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
 	}
-	else if (e.Is("SET_SIM_TPS"))
+	else if (e.Is("SET_SIM_TPS", typeid(unsigned int)))
 	{
-		if ( e.Data().type() != typeid(unsigned int))
-		{
-			Engine::out(Engine::ERROR) << "[Simulator] got invalid eventdata for SET_SIM_TPS!" << std::endl;
-			return;
-		}
 		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
 	}
 	else if (e.Is("PLOT_COUNTS"))
@@ -112,25 +105,13 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
-	else if (e.Is("EVT_SAVE_WHOLE_TEST")){
+	else if (e.Is("EVT_SAVE_WHOLE_TEST")) {
 		saveWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
 	}
-	else if (e.Is("EVT_SAVE_WHOLE")){
-		if ( e.Data().type() != typeid(std::string))
-		{
-			Engine::out(Engine::ERROR) << "[Simulator] got invalid eventdata for EVT_SAVE_WHOLE!" << std::endl;
-			return;
-		}
-
+	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string))) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
 	}
-	else if (e.Is("EVT_LOAD_WHOLE")){
-		if ( e.Data().type() != typeid(std::string))
-		{
-			Engine::out(Engine::ERROR) << "[Simulator] got invalid eventdata for EVT_LOAD_WHOLE!" << std::endl;
-			return;
-		}
-
+	else if (e.Is("EVT_LOAD_WHOLE", typeid(std::string))) {
 		loadWhole(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_QUIT"))

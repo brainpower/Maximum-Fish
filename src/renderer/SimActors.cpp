@@ -40,46 +40,26 @@ SimActors::~SimActors()
 
 void SimActors::HandleEvent(Event& e)
 {
-	if(e.Is("UpdateCreatureRenderList"))
+	if(e.Is("UpdateCreatureRenderList", typeid( std::list<std::shared_ptr<Creature>> )))
 	{
-		if (e.Data().type() == typeid( std::list<std::shared_ptr<Creature>> ))
-		{
-			std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
-			//std::list<std::shared_ptr<Creature>> CullRenderList( r );
-			ReadCreatureRenderList( r );
-		} else {
-			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateCreatureRenderList!" << std::endl;
-		}
+		std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
+		//std::list<std::shared_ptr<Creature>> CullRenderList( r );
+		ReadCreatureRenderList( r );
 	}
-	else if ( e.Is("UpdateTileRenderList"))
+	else if ( e.Is("UpdateTileRenderList", typeid( std::vector<std::shared_ptr<Tile>> )))
 	{
-		if (e.Data().type() == typeid( std::vector<std::shared_ptr<Tile>> ))
-		{
-			std::vector<std::shared_ptr<Tile>> r = boost::any_cast< std::vector<std::shared_ptr<Tile>> >(e.Data());
-			ReadTileRenderList( r );
-		} else {
-			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
-		}
-	} else if ( e.Is("UpdateTilemapTexture"))
+		std::vector<std::shared_ptr<Tile>> r = boost::any_cast< std::vector<std::shared_ptr<Tile>> >(e.Data());
+		ReadTileRenderList( r );
+	} else if ( e.Is("UpdateTilemapTexture", typeid( std::shared_ptr<sf::Image> )))
 	{
-		if (e.Data().type() == typeid( std::shared_ptr<sf::Image> ))
-		{
-			std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
-			tilemapTexture.create( i->getSize().x, i->getSize().y );
-			tilemapTexture.loadFromImage( *i );
-			CreateTerrainShaderMap();
-		} else {
-			Engine::out(Engine::ERROR) << "[SimView] Wrong eventdata at UpdateTileRenderList!" << std::endl;
-		}
-	} else if (e.Is("DISPLAY_GRAPH"))
+		std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
+		tilemapTexture.create( i->getSize().x, i->getSize().y );
+		tilemapTexture.loadFromImage( *i );
+		CreateTerrainShaderMap();
+	} else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
 	{
-		if (e.Data().type() == typeid( std::shared_ptr<GraphPlotter> ) )
-		{
-			std::shared_ptr<GraphPlotter> p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
-			PlotGraph( p );
-		} else {
-			Engine::out(Engine::ERROR) << "[SimActors::PlotGraph] DISPLAY_GRAPH Event with wrong parameters" << std::endl;
-		}
+		std::shared_ptr<GraphPlotter> p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
+		PlotGraph( p );
 	}
 }
 
