@@ -96,6 +96,8 @@ void Simulator::HandleEvent(Event& e)
 			e.SetData( p );
 			Module::Get()->QueueEvent(ev, true);
 		}
+
+		Terra->CreateMapPlotters();
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{

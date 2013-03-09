@@ -6,6 +6,8 @@
 #include "sbe/ResourceManager.hpp"
 
 #include "sbe/gfx/GraphPlotter.hpp"
+#include "sbe/gfx/MapPlotter.hpp"
+#include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
 #include "simulator/Creature.hpp"
@@ -23,6 +25,7 @@ SimActors::SimActors()
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
 
 	RegisterForEvent( "DISPLAY_GRAPH" );
+	RegisterForEvent( "DISPLAY_MAP" );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
@@ -58,8 +61,12 @@ void SimActors::HandleEvent(Event& e)
 		CreateTerrainShaderMap();
 	} else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
 	{
-		std::shared_ptr<GraphPlotter> p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
+		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
 		PlotGraph( p );
+	} else if (e.Is("DISPLAY_MAP", typeid( std::shared_ptr<MapPlotter> )))
+	{
+		auto p =  boost::any_cast<std::shared_ptr<MapPlotter>>(e.Data());
+		ShowMap( p );
 	}
 }
 
@@ -79,6 +86,22 @@ void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 
 	sfg::Window::Ptr P = sfg::Window::Create();
 	sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
+	P->Add(I);
+
+	Event ev( "SCREEN_ADD_WINDOW");
+	ev.SetData( P );
+	Module::Get()->QueueEvent(ev);
+}
+
+void SimActors::ShowMap( std::shared_ptr<MapPlotter>& M )
+{
+	if (!M) {
+		Engine::out() << "[SimActors::PlotGraph] INVALID POINTER!" << std::endl;
+		return;
+	}
+
+	sfg::Window::Ptr P = sfg::Window::Create();
+	sfg::Image::Ptr I = sfg::Image::Create( gfx::ScaleImage( M->getImage(), Geom::Vec2(256,256)) );
 	P->Add(I);
 
 	Event ev( "SCREEN_ADD_WINDOW");

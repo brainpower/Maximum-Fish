@@ -21,6 +21,7 @@ class Creature;
 class Actor;
 class Renderer;
 class GraphPlotter;
+class MapPlotter;
 
 
 /**
@@ -51,6 +52,7 @@ class SimActors : public EventUser
 			UpdateCreatureRenderList	| CreatureRenderList
 			UpdateTileRenderList		| TileRenderlist
 			DISPLAY_GRAPH				| std::shared_ptr<GraphPlotter>
+			DISPLAY_MAP					| std::shared_ptr<MapPlotter>
 		*/
 		void HandleEvent(Event& e);
 
@@ -60,6 +62,7 @@ class SimActors : public EventUser
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;
 
 		void PlotGraph ( std::shared_ptr<GraphPlotter>& G );
+		void ShowMap( std::shared_ptr<MapPlotter>& M );
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
 

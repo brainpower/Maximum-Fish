@@ -44,7 +44,7 @@ class Terrain
 		std::shared_ptr<Tile>& getTile( Geom::Vec2f pos );
 
 		void CreateDebugTerrain();
-
+		void CreateMapPlotters();
 	private:
 
 		friend class TerrainIOPlugin;

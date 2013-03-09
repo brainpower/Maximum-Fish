@@ -5,6 +5,8 @@
 #include "sbe/geom/Helpers.hpp"
 #include "sbe/Config.hpp"
 
+#include "sbe/gfx/MapPlotter.hpp"
+
 #include "simulator/Creature.hpp"
 
 
@@ -118,6 +120,43 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	}	}	}	}
 
 	return nearest;
+}
+
+void Terrain::CreateMapPlotters()
+{
+
+	std::vector<float> population;
+	std::vector<float> height;
+	std::vector<float> humidity;
+
+
+	for ( std::shared_ptr<Tile>& T : Tiles )
+	{
+		humidity.push_back(T->getHumidity() );
+		population.push_back(T->getCreatures().size());
+		height.push_back( T->getHeight() );
+	}
+
+	Event e("DISPLAY_MAP");
+
+	std::shared_ptr<MapPlotter> p( new MapPlotter("Population density", MapPlotter::PLOT_HEATMAP ));
+	p->setData( population, Size, true );
+	p->plot();
+	e.SetData( p );
+	Module::Get()->QueueEvent( e, true );
+
+	p.reset( new MapPlotter( "Humidity", MapPlotter::PLOT_HEATMAP) );
+	p->setData( humidity, Size, true );
+	p->plot();
+	e.SetData( p );
+	Module::Get()->QueueEvent( e, true );
+
+	p.reset( new MapPlotter("Heightmap") );
+	p->setData( height, Size, true );
+	p->plot();
+	e.SetData( p );
+	Module::Get()->QueueEvent( e, true );
+
 }
 
 void Terrain::CreateDebugTerrain()
