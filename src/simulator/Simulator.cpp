@@ -93,7 +93,7 @@ void Simulator::HandleEvent(Event& e)
 		if ( p->isValid() )
 		{
 			Event ev("DISPLAY_GRAPH");
-			e.SetData( p );
+			ev.SetData( p );
 			Module::Get()->QueueEvent(ev, true);
 		}
 
