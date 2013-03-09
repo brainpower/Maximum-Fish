@@ -9,6 +9,7 @@
 
 #include <SFGUI/SFGUI.hpp>
 
+/// Base class for manipulators for simulation entities
 class Manipulator : public EventUser
 {
 	public:

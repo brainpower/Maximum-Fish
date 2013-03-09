@@ -12,6 +12,7 @@ class MiniMap;
 class SimActors;
 //class Manipulator;
 
+/// Handles initialisation and configuration of the renderer/desktop etc
 class SimView : public SFMLEventUser
 {
 	public:
@@ -28,7 +29,6 @@ class SimView : public SFMLEventUser
 		/// loads all Textures, Shaders etc required for rendering
 		bool LoadResources();
 
-		void Render();
 	private:
 
 		/// our mediator between Sim and Renderer, creates and updates various Actors from the simevents

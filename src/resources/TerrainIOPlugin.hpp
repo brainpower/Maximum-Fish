@@ -6,6 +6,7 @@
 #include "sbe/io/IOPlugin.hpp"
 #include "../simulator/Terrain.hpp"
 
+/// iTreeIOPlugin for Terrain
 class TerrainIOPlugin : public iTreeIOPlugin<Terrain> {
 
 public:

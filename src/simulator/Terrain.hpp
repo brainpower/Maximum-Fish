@@ -2,7 +2,7 @@
 #define TERRAIN_H
 
 #include "sbe/util/QuadTree.hpp"
-#include "sbe/Geom.hpp"
+#include "sbe/geom/Point.hpp"
 #include "Tile.hpp"
 
 #include <list>
@@ -11,6 +11,7 @@
 
 class Creature;
 
+/// Holds or Generates a Terrain
 class Terrain
 {
 	public:

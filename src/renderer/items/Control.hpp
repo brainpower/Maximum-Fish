@@ -3,8 +3,11 @@
 
 #include "sbe/event/EventUser.hpp"
 
+#include "sbe/geom/Point.hpp"
+
 #include <SFGUI/SFGUI.hpp>
 
+/// Controls for the simulator ( play,pause,reset, settps etc )
 class Control : public EventUser
 {
 	public:

@@ -2,9 +2,11 @@
 #define MINIMAP_H
 
 #include "sbe/event/EventUser.hpp"
+#include "sbe/geom/Point.hpp"
 
 #include <SFGUI/SFGUI.hpp>
 
+/// a minimap
 class MiniMap : public EventUser
 {
 	public:

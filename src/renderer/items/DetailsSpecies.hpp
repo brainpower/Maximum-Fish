@@ -7,6 +7,7 @@
 
 #include <SFGUI/SFGUI.hpp>
 
+/// Shows Details about a Species
 class DetailsSpecies : public Details
 {
 	public:

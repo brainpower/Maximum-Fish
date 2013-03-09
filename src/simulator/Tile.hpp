@@ -1,11 +1,12 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include "sbe/Geom.hpp"
+#include "sbe/geom/Point.hpp"
 #include "Species.hpp"
 
 class Creature;
 
+/// A single Tile on the Terrain
 class Tile
 {
 	public:

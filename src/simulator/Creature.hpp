@@ -3,14 +3,14 @@
 
 #include <memory>
 
-#include "sbe/event/EventUser.hpp"
+#include "sbe/geom/Point.hpp"
 
 class Species;
 class Tile;
 
 /**
-The Creature class is the main scaff for simulation, this is where als the basic stuff is initialized.
-Also basic calculation are happening here.
+	The Creature class is the main scaff for simulation, this is where also the basic stuff is initialized.
+	Also basic AI calculations are happening here.
 */
 class Creature : public std::enable_shared_from_this<Creature>
 {

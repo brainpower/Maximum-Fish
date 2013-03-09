@@ -8,6 +8,7 @@
 
 class Simulator;
 
+/// Logic Module for the simulator
 class Logic : public Module
 {
 	public:

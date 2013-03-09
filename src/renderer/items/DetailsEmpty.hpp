@@ -5,6 +5,7 @@
 
 #include <SFGUI/SFGUI.hpp>
 
+/// Empty Details window
 class DetailsEmpty : public Details
 {
 	public:

@@ -5,6 +5,7 @@
 
 #include <SFGUI/SFGUI.hpp>
 
+/// Base class shows specific Detail for one Simulation element
 class Details : public EventUser
 {
 	public:

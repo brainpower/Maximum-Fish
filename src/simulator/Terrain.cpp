@@ -2,7 +2,7 @@
 
 #include "sbe/event/Event.hpp"
 #include "sbe/Module.hpp"
-#include "sbe/Geom.hpp"
+#include "sbe/geom/Helpers.hpp"
 #include "sbe/Config.hpp"
 
 #include "simulator/Creature.hpp"

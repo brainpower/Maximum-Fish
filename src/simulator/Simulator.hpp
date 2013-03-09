@@ -4,6 +4,8 @@
 #include "sbe/event/EventUser.hpp"
 #include "Species.hpp"
 
+#include "sbe/geom/Point.hpp"
+
 class Tile;
 class Terrain;
 class Creature;
@@ -15,11 +17,43 @@ class GraphPlotter;
 
 #include <SFML/System/NonCopyable.hpp>
 
-class Simulator : public EventUser, public sf::NonCopyable
+/**
+	Management class for a simulation, responsible for initalising and running the Simulation.
+
+	Sends the following events:
+	Event						|		Data
+	----------------------------|-----------------------------
+	DISPLAY_GRAPH				| shared_ptr<GraphPlotter>
+	UpdateCreatureRenderList	| list<shared_ptr<Creature>>
+	TILE_CLICKED				| shared_ptr<Tile>
+	CREATURE_CLICKED			| shared_ptr<Creature>
+	EVT_SAVE_BAD				| -
+	EVT_SAVE_GOOD				| -
+*/
+class Simulator : public EventUser, sf::NonCopyable
 {
 	public:
 		Simulator();
 		virtual ~Simulator() {};
+
+		/**
+			Handles the following events:
+			Event				| Action
+			--------------------|------------------
+			EVT_TICK			| Frame Event, simulate a new tick if active
+			EVT_QUIT			| End the simulation and quit
+			TOGGLE_SIM_PAUSE	| Toggle pause
+			SIM_PAUSE			| pause
+			SIM_UNPAUSE			| unpause
+			RESET_SIMULATION	| start a new simulation in paused mode ( default seed )
+			EVT_SAVE_TERRAIN	| save the terrain
+			EVT_SAVE_WHOLE		| save the complete simulation
+			EVT_SAVE_WHOLE_TEST | ???
+			EVT_LOAD_WHOLE		| load a simulation
+			TERRAIN_CLICKED		| handle a click on the terrain
+			SET_SIM_TPS			| set the simulation speed
+			PLOT_COUNTS			| create a graphplotter with the population development; sent back with a DISPLAY_GRAPH event
+		*/
 		virtual void HandleEvent( Event& e);
 
 		void init();

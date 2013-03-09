@@ -6,7 +6,7 @@
 #include "sbe/io/IOPlugin.hpp"
 #include "../simulator/Species.hpp"
 
-
+/// iTreeIOPlugin for Species
 class SpeciesIOPlugin : public iTreeIOPlugin<Species> {
 public:
 	SpeciesIOPlugin()

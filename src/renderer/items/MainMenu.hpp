@@ -3,8 +3,11 @@
 
 #include "sbe/event/EventUser.hpp"
 
+#include "sbe/geom/Point.hpp"
+
 #include <SFGUI/SFGUI.hpp>
 
+/// MainMenu
 class MainMenu : public EventUser
 {
 	public:

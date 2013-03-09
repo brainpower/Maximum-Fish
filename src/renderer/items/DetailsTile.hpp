@@ -8,6 +8,7 @@
 #include <SFGUI/SFGUI.hpp>
 #include <boost/lexical_cast.hpp>
 
+/// Shows details about a Tile
 class DetailsTile : public Details
 {
 	public:

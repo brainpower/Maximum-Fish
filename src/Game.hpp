@@ -4,7 +4,7 @@
 #include "sbe/GameBase.hpp"
 #include <memory>
 
-
+/// Main class
 class Game : public GameBase
 {
 	public:

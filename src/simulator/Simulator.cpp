@@ -4,6 +4,7 @@
 
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
+#include "sbe/geom/Helpers.hpp"
 
 #include "sbe/Config.hpp"
 
@@ -34,7 +35,6 @@ currentTick(0), isPaused(false) {
 	RegisterForEvent("TOGGLE_SIM_PAUSE");
 	RegisterForEvent("SIM_PAUSE");
 	RegisterForEvent("SIM_UNPAUSE");
-	RegisterForEvent("LOCK_SIM_ON_PAUSE");
 	RegisterForEvent("RESET_SIMULATION");
 
 	RegisterForEvent("EVT_SAVE_TERRAIN");

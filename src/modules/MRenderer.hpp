@@ -8,6 +8,7 @@
 class Screen;
 class SimView;
 
+/// Renderer module for the Frontend
 class MRenderer : public Module
 {
 	public:

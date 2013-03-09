@@ -9,6 +9,7 @@
 
 #include <SFGUI/SFGUI.hpp>
 
+/// i have no idea
 class Selector : public EventUser
 {
 	public:

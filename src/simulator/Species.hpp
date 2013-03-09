@@ -4,7 +4,7 @@
 #include "sbe/event/Event.hpp"
 #include "sbe/event/EventUser.hpp"
 
-
+/// Superclass for all Creatures, defines some modifiers applying to the whole species
 class Species : public EventUser
 {
 	public:
