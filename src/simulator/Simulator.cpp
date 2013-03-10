@@ -40,6 +40,7 @@ currentTick(0), isPaused(false) {
 	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("EVT_SAVE_WHOLE");
 	RegisterForEvent("EVT_SAVE_WHOLE_TEST");
+	RegisterForEvent("EVT_LOAD_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
 
@@ -109,6 +110,9 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("EVT_SAVE_WHOLE_TEST")) {
 		saveWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
+	}
+	else if (e.Is("EVT_LOAD_WHOLE_TEST")) {
+		loadWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string))) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
@@ -331,6 +335,7 @@ void Simulator::addRandomSpecies()
 	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
 
 	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
+		numGenerated++; // one more random number generated, don't like counting it this way
 
 	std::string name;
 	switch (t)
@@ -350,6 +355,8 @@ void Simulator::addRandomSpecies()
 
 	S->setType( t );
 	S->setOptimalTemperature( temp_rnd( gen ) );
+		numGenerated++; // one more random number generated, don't like counting it this way
+
 	SpeciesList.push_back( S );
 }
 
@@ -359,7 +366,9 @@ void Simulator::addRandomCreature()
 	std::uniform_int_distribution<int> species_rnd(0,SpeciesList.size()-1);
 
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( SpeciesList[species_rnd(gen)] ));
+		numGenerated++; // one more random number generated, don't like counting it this way
 	Geom::Pointf Position (rnd(gen),rnd(gen));
+		numGenerated+=2; // two more random number generated, don't like counting it this way
 
 	float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
 
@@ -387,6 +396,7 @@ void Simulator::addCreature( const std::string& specName )
 	for (int tries = 0; tries < 100; ++tries)
 	{
 		Geom::Pointf Position (rnd(gen),rnd(gen));
+			numGenerated+=2; // two more random number generated, don't like counting it this way
 
 		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )
@@ -421,6 +431,7 @@ std::string Simulator::addSpecies( Species::SPECIES_TYPE type )
 
 	S->setType( type );
 	S->setOptimalTemperature( temp_rnd( gen ) );
+		numGenerated++; // one more random number generated, don't like counting it this way
 	SpeciesList.push_back( S );
 
 	return S->getName();
@@ -462,6 +473,13 @@ void Simulator::saveWhole(const std::string &savePath){
 		Module::Get()->QueueEvent(e, true);
 
 	} else {
+		auto simCfg = shared_ptr<Config>(new Config("simState.info", "sim"));
+		simCfg->set("sim.currentTick", currentTick);
+		// save state of random engine
+		simCfg->set("sim.random.seed", currentSeed);
+		simCfg->set("sim.random.numGenerated", numGenerated);
+
+		simCfg->save();
 
 		Event e("EVT_SAVE_GOOD");
 		Module::Get()->QueueEvent(e, true);
@@ -480,42 +498,87 @@ void Simulator::loadWhole(const std::string &loadPath){
 	bool wasPaused = isPaused;
 	isPaused = true; // pause sim while saving
 
-	if(!loadPath.empty())
-		Engine::GetIO()->addPath(loadPath); // add load path to IO stack
+	if(loadPath.empty() || !Engine::GetIO()->addPath(loadPath))
+	{
+		Event e("EVT_LOAD_BAD");
+		e.SetData( std::string("Load path invalid ( sim.debugsavepath in config )!") );
+		Module::Get()->QueueEvent(e, true);
+		return;
+	}
 
 	// do some loading...
 
-	//auto tmp = Engine::GetResMgr()->loadObject("Terrain");
-	//if(!tmp){
-	//	Event e("EVT_LOAD_BAD");
-	//	e.SetData(std::string("Error loading"));
-	//  Module::Get()->QueueEvent(e, true);
-	//  return; // ???
-	//}
-	//if(!Engine::GetResMgr()->loadAllObjects<Species>()){
-	//	Event e("EVT_LOAD_BAD");
-	//	e.SetData(std::string("Error loading"));
-	//  Module::Get()->QueueEvent(e, true);
-	//	return;
-	//}
-	//if(!Engine::GetResMgr()->loadAllObjects<Creature>()){
-	//	Event e("EVT_LOAD_BAD");
-	//	e.SetData(std::string("Error loading"));
-	//  Module::Get()->QueueEvent(e, true);
-	//	return;
-	//}
+	auto tmp  = Engine::GetIO()->loadObjects<Terrain>();
+	auto tmp2 = Engine::GetIO()->loadObjects<Species>();
+	auto tmp3 = Engine::GetIO()->loadObjects<Creature>();
+	auto simCfg = shared_ptr<Config>(new Config("simState.info", "sim"));
 
-	//discardOldState() somehow... also tell ResMgr he can discard old stuff
-	//Terra = tmp;
-	//SpeciesList = Engine::GetResMgr()->getAll<Species>()
-	//CreatureList = Engine::GetResMgr()->getAll<Creature>()
+	if(tmp.empty() || tmp2.empty() || tmp3.empty() || !simCfg){
+		Event e("EVT_LOAD_BAD");
+		e.SetData(std::string("Error loading"));
+	  Module::Get()->QueueEvent(e, true);
 
-	// loading done...
-	//	Event e("EVT_LOAD_GOOD");
-	//	Module::Get()->QueueEvent(e, true);
+	  Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
+		return;
+	}
 
 	if(!loadPath.empty())
-		Engine::GetIO()->popPath(); // pop save path from IO stack
+		Engine::GetIO()->popPath(); // pop load path from IO stack
+
+	// clean up, necessary?
+	Terra.reset();
+	SpeciesList.clear();
+	Creatures.clear();
+
+	Terra       = tmp[0]; // resets Terra, there should be only one
+	SpeciesList = tmp2; // resets specieslist
+	Creatures   = a2list<shared_ptr<Creature>>(tmp3.cbegin(),tmp3.cend()); // resets creaturelist
+
+	currentTick  = simCfg->get<int>("sim.currentTick");// get ticks
+	currentSeed  = simCfg->get<int>("sim.random.seed");// get seed
+	numGenerated = simCfg->get<unsigned int>("sim.random.numGenerated");
+
+	// reset random engine
+	gen.seed( currentSeed );
+	gen.discard(numGenerated);// load random engine state
+
+	// reset statistics
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+	// count Creatures once, or save it too?
+	// also, while we're at it, update Tile <-> Creature references
+	for(auto it = Creatures.begin(); it != Creatures.end(); ++it){
+		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+
+		(*it)->updateTileFromPos();
+	}
+
+	// send terrain to renderer
+	Terra->UpdateTerrain();
+	// send creatures to renderer
+	Event e("UpdateCreatureRenderList");
+	e.SetData ( Creatures );
+	Module::Get()->QueueEvent(e, true);
+
+	RendererUpdate.restart();
+
+	// loading done...
+	Event e2("EVT_LOAD_GOOD");
+	Module::Get()->QueueEvent(e2, true);
 
 	isPaused = wasPaused;
+
+	Engine::out(Engine::SPAM) << Creatures.front()->getSpeciesString() << std::endl;
+	Engine::out(Engine::SPAM) << GetSpecies(Creatures.front()->getSpeciesString())->getName() << std::endl;
+}
+
+template<class T, class FwdIterator>
+std::list<T> Simulator::a2list(FwdIterator begin, FwdIterator end){
+	std::list<T> lst;
+	for( auto it = begin; it != end; ++it){
+		lst.push_back(*it);
+	}
+	return lst;
 }
