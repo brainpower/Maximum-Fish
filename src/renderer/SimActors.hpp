@@ -28,15 +28,14 @@ class MapPlotter;
 	Interface between Simulator and Renderer/UI.
 	Converts most Events sent from the Simulator into actors or windows.
 
-	Config values used:
-		Size of each Tile (e.g. 32):			system.ui.simView.tileSize
-		Terrain Tiles# ( e.g. 32x32):			system.sim.terragen.debug.size
-		Size of the creatures:					system.ui.simView.creatureSize
-		Render the grid: 						system.ui.simView.renderGrid
-		Use shader to render the tilemap:		system.ui.simView.useShaderTileMap
-		Color of the Grid (rgb):				system.ui.simView.gridColor.r
-												 system.ui.simView.gridColor.g
-												 system.ui.simView.gridColor.b
+	Config values used:            | .
+	-------------------------------|--------------------
+	Size of each Tile (e.g. 32): | system.ui.simView.tileSize
+	Terrain Tiles# ( e.g. 32x32):| system.sim.terragen.debug.size
+	Size of the creatures:       | system.ui.simView.creatureSize
+	Render the grid:             | system.ui.simView.renderGrid
+	Use shader to render the tilemap: | system.ui.simView.useShaderTileMap
+	Color of the Grid (rgb):     | system.ui.simView.gridColor.r\n system.ui.simView.gridColor.g\n system.ui.simView.gridColor.b
 
 */
 class SimActors : public EventUser
@@ -48,7 +47,7 @@ class SimActors : public EventUser
 		/**
 			Events Handled:
 				Event 					| 		Data
-			----------------------------------------------
+			------------------|---------------------------
 			UpdateCreatureRenderList	| CreatureRenderList
 			UpdateTileRenderList		| TileRenderlist
 			DISPLAY_GRAPH				| std::shared_ptr<GraphPlotter>

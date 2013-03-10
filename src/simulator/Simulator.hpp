@@ -27,7 +27,7 @@ class GraphPlotter;
 	UpdateCreatureRenderList	| list<shared_ptr<Creature>>
 	TILE_CLICKED				| shared_ptr<Tile>
 	CREATURE_CLICKED			| shared_ptr<Creature>
-	EVT_SAVE_BAD				| -
+	EVT_SAVE_BAD				| std::string
 	EVT_SAVE_GOOD				| -
 */
 class Simulator : public EventUser, sf::NonCopyable
@@ -48,7 +48,8 @@ class Simulator : public EventUser, sf::NonCopyable
 			RESET_SIMULATION	| start a new simulation in paused mode ( default seed )
 			EVT_SAVE_TERRAIN	| save the terrain
 			EVT_SAVE_WHOLE		| save the complete simulation
-			EVT_SAVE_WHOLE_TEST | ???
+			EVT_SAVE_WHOLE_TEST | do a saveWhole() to `sim.debugsavepath`
+			EVT_LOAD_WHOLE_TEST | do a loadWhole() from `sim.debugsavepath`
 			EVT_LOAD_WHOLE		| load a simulation
 			TERRAIN_CLICKED		| handle a click on the terrain
 			SET_SIM_TPS			| set the simulation speed
