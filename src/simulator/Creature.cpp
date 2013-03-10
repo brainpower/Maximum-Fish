@@ -33,9 +33,12 @@ const std::string& Creature::getSpeciesString() const
 
 void Creature::setPosition( const Geom::Pointf& pos)
 {
-	auto& newTile = Simulator::GetTerrain()->getTile(pos);
-
 	Position = pos;
+	updateTileFromPos();
+}
+
+void Creature::updateTileFromPos(){
+	auto& newTile = Simulator::GetTerrain()->getTile(Position);
 
 	if ( currentTile != newTile)
 	{

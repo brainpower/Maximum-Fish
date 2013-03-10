@@ -35,6 +35,9 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		bool validPos( Geom::Pointf NewPosition );
 
+		// neccessary to update currentTile after loading from "savegame"
+		void updateTileFromPos();
+
 	private:
 
 		friend class CreatureIOPlugin;
