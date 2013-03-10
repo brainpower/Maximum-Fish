@@ -34,7 +34,7 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 	}
 	catch ( boost::property_tree::ptree_error )
 	{
-		Engine::out() << "[SpeciesIOPlugin] Error loading Species from ptree!";
+		Engine::out() << "[SpeciesIOPlugin] Error loading Species from ptree!" << std::endl;
 		re.reset();
 		return re;
 	}
@@ -47,7 +47,7 @@ bool SpeciesIOPlugin::saveObject( const std::string& name, const Species &s, boo
 	{
 		ptree pt;
 
-		pt.put<std::string>("Name",       name);
+		pt.put<std::string>("name",       s.name);
 		pt.put<int>("maxAge",             s.maxAge);
 		pt.put<int>("maxHealth",          s.maxHealth );
 		pt.put<float>("maxSpeed",           s.maxSpeed );
@@ -67,7 +67,7 @@ bool SpeciesIOPlugin::saveObject( const std::string& name, const Species &s, boo
 	}
 	catch ( boost::property_tree::ptree_error )
 	{
-		Engine::out() << "[SpeciesIOPlugin] Error saving Species to ptree!";
+		Engine::out() << "[SpeciesIOPlugin] Error saving Species to ptree!" << std::endl;
 		return false;
 	}
 }
