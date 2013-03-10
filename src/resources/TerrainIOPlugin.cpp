@@ -43,7 +43,7 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
     }
     catch ( boost::property_tree::ptree_error )
     {
-        Engine::out() << "[TerrainIOPlugin] Error loading Terrain from ptree!";
+        Engine::out() << "[TerrainIOPlugin] Error loading Terrain from ptree!" << std::endl;
         re.reset();
         return re;
     }
@@ -85,7 +85,7 @@ bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boos
     }
     catch ( boost::property_tree::ptree_error )
     {
-        Engine::out() << "[SpeciesIOPlugin] Error saving Terrain to ptree!";
+        Engine::out() << "[SpeciesIOPlugin] Error saving Terrain to ptree!" << std::endl;
         return false;
     }
 }
