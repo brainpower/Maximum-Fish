@@ -30,7 +30,7 @@ CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree
 	}
 	catch ( boost::property_tree::ptree_error )
 	{
-		Engine::out() << "[CreatureIOPlugin] Error loading Creature from ptree!";
+		Engine::out() << "[CreatureIOPlugin] Error loading Creature from ptree!" << std::endl;
 		re.reset();
 		return re;
 	}
@@ -57,7 +57,7 @@ bool CreatureIOPlugin::saveObject( const std::string& name, const Creature &c, b
 	}
 	catch ( boost::property_tree::ptree_error )
 	{
-		Engine::out() << "[CreatureIOPlugin] Error saving Creature to ptree!";
+		Engine::out() << "[CreatureIOPlugin] Error saving Creature to ptree!" << std::endl;
 		return false;
 	}
 }
