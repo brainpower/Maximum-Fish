@@ -99,10 +99,19 @@ bool SimView::LoadResources()
 	}
 
 
-	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"), Engine::getCfg()->get<std::string>("system.renderer.creatureTexture"), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 16,16), Geom::Vec2( 3, 1 ), 0 ) );
+	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"),
+											Engine::getCfg()->get<std::string>("system.renderer.creatureTexture"),
+											Geom::Point( 0, 0 ),
+											Geom::Point(0,0),
+											Geom::Vec2( 16,16),
+											Geom::Vec2( 3, 1 ),
+											0 ) );
+
 	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"));
 	I->updateTexture();
 	//Engine::GetIO()->saveObject<ImageSet>( );
+	Screen::sRndr()->getLayer( L_CREATURES )->States.texture = &(*(I->getTexture()));
+
 
 	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
 	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
@@ -114,7 +123,14 @@ bool SimView::LoadResources()
 
 
 
-	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ), Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ), Geom::Point( 0, 0 ), Geom::Point(0,0), Geom::Vec2( 32,32), Geom::Vec2( 4, 1 ), 0 ) );
+	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ),
+												Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ),
+												Geom::Point( 0, 0 ),
+												Geom::Point(0,0),
+												Geom::Vec2( 32,32),
+												Geom::Vec2( 4, 1 ),
+												0 ) );
+
 	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ));
 	I2->updateTexture();
 
@@ -132,6 +148,10 @@ bool SimView::LoadResources()
 		if ( !Screen::sRndr() ) std::cout << "Error render" << std::endl;
 
 		Screen::sRndr()->getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
+	}
+	else
+	{
+		Screen::sRndr()->getLayer( L_TERRAIN )->States.texture = &(*(I2->getTexture()));
 	}
 
 	return true;

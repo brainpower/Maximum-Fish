@@ -136,8 +136,6 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 
 	if ( newActor )
 	{
-
-		Screen::get()->getRenderer()->getLayer( L_CREATURES )->States.texture = &(*(Engine::GetResMgr()->get<ImageSet>("Creatures")->getTexture()));
 		Screen::get()->getRenderer()->addActor ( CreaturesActor, L_CREATURES );
 	}
 
@@ -171,9 +169,13 @@ void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 	Tiles.resize( 4 * r.size() );
 	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
 
+
+
 	int i = 0;
 	for ( std::shared_ptr<Tile> T : r)
-		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
+		Engine::GetResMgr()->get<ImageSet>("Tiles")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
+
+
 
 	if ( newActor )
 		Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
