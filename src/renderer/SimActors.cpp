@@ -25,7 +25,6 @@ SimActors::SimActors()
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
 
 	RegisterForEvent( "DISPLAY_GRAPH" );
-	RegisterForEvent( "DISPLAY_MAP" );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
@@ -55,18 +54,17 @@ void SimActors::HandleEvent(Event& e)
 		ReadTileRenderList( r );
 	} else if ( e.Is("UpdateTilemapTexture", typeid( std::shared_ptr<sf::Image> )))
 	{
-		std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
-		tilemapTexture.create( i->getSize().x, i->getSize().y );
-		tilemapTexture.loadFromImage( *i );
-		CreateTerrainShaderMap();
+		if ( useShaderTileMap )
+		{
+			std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
+			tilemapTexture.create( i->getSize().x, i->getSize().y );
+			tilemapTexture.loadFromImage( *i );
+			CreateTerrainShaderMap();
+		}
 	} else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
 	{
 		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
 		PlotGraph( p );
-	} else if (e.Is("DISPLAY_MAP", typeid( std::shared_ptr<MapPlotter> )))
-	{
-		auto p =  boost::any_cast<std::shared_ptr<MapPlotter>>(e.Data());
-		ShowMap( p );
 	}
 }
 
@@ -93,21 +91,7 @@ void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 	Module::Get()->QueueEvent(ev);
 }
 
-void SimActors::ShowMap( std::shared_ptr<MapPlotter>& M )
-{
-	if (!M) {
-		Engine::out() << "[SimActors::PlotGraph] INVALID POINTER!" << std::endl;
-		return;
-	}
 
-	sfg::Window::Ptr P = sfg::Window::Create();
-	sfg::Image::Ptr I = sfg::Image::Create( gfx::ScaleImage( M->getImage(), Geom::Vec2(256,256)) );
-	P->Add(I);
-
-	Event ev( "SCREEN_ADD_WINDOW");
-	ev.SetData( P );
-	Module::Get()->QueueEvent(ev);
-}
 
 void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 {
@@ -125,14 +109,14 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 
 	int i = 0;
 	for ( std::shared_ptr<Creature> C : r)
+	{
 		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, DetermineCreaturePos( C ) , (i++ * 4));
+	}
 
-	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << std::endl;
+	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
 
 	if ( newActor )
 	{
-
-		Screen::get()->getRenderer()->getLayer( L_CREATURES )->States.texture = &(*(Engine::GetResMgr()->get<ImageSet>("Creatures")->getTexture()));
 		Screen::get()->getRenderer()->addActor ( CreaturesActor, L_CREATURES );
 	}
 
@@ -166,9 +150,13 @@ void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 	Tiles.resize( 4 * r.size() );
 	Tiles.setPrimitiveType( sf::PrimitiveType::Quads );
 
+
+
 	int i = 0;
 	for ( std::shared_ptr<Tile> T : r)
-		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
+		Engine::GetResMgr()->get<ImageSet>("Tiles")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
+
+
 
 	if ( newActor )
 		Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );

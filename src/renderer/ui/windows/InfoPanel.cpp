@@ -24,7 +24,7 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
 
         //create toplevel notebook
         Topleveltabs = sfg::Notebook::Create();
-        Topleveltabs->SetState( sfg::Widget::State::INSENSITIVE );
+        //Topleveltabs->SetState( sfg::Widget::State::INSENSITIVE );
 
             //create wholeseletionBox
             MySelector.reset( new Selector );
@@ -34,9 +34,12 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
             MyManipulator.reset( new Manipulator );
             ManipulationBox = MyManipulator->Get();
 
+			MyOverlay.reset ( new Overlays );
+
         //pack all into toplevelnotebook
         Topleveltabs->AppendPage( SelectionBox, sfg::Label::Create( "Selection" ) );
         Topleveltabs->AppendPage( ManipulationBox, sfg::Label::Create( "Manipulation" ) );
+        Topleveltabs->AppendPage( MyOverlay->Get(), sfg::Label::Create( "Overlays" ) );
 
     //add wholeselectionbox to window
     Win->Add( Topleveltabs );
