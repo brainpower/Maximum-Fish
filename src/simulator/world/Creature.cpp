@@ -140,8 +140,8 @@ bool Creature::moveYourAss()
 
 	Geom::Pointf NewPosition = Position;
 
-	NewPosition.x += rnd(Simulator::GetEngine());
-	NewPosition.y += rnd(Simulator::GetEngine());
+	NewPosition.x += rnd(Simulator::GetRnd());
+	NewPosition.y += rnd(Simulator::GetRnd());
 
 	float hab = 0;
 	std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
@@ -184,19 +184,9 @@ void Creature::move(int found)
 	else
 	{
 	//maybe GTFO
-	if(rnd(Simulator::GetEngine()) < migProb)
+	if(rnd(Simulator::GetRnd()) < migProb)
 		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
 	}
-
-
-	/*std::uniform_real_distribution<float> rnd(-2, 2);
-
-	float x = Position.x + rnd(Simulator::GetEngine());
-	float y = Position.y + rnd(Simulator::GetEngine());
-
-	if ( x > 32 || x < 0 ) x = 16;
-	if ( y > 32 || y < 0 ) y = 16;*/
-
 }
 
 bool Creature::validPos( Geom::Pointf NewPosition )

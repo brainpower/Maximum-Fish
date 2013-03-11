@@ -12,6 +12,8 @@
 #include "world/Creature.hpp"
 #include "world/Tile.hpp"
 
+#include "Generator.hpp"
+
 #include "resources/CreatureIOPlugin.hpp"
 #include "resources/SpeciesIOPlugin.hpp"
 #include "resources/TerrainIOPlugin.hpp"
@@ -21,7 +23,7 @@
 Simulator* Simulator::Instance = nullptr;
 
 Simulator::Simulator():
-currentTick(0), isPaused(false) {
+currentTick(0), numGenerated(0), isPaused(false) {
 
 	Instance = this;
 
@@ -143,6 +145,7 @@ void Simulator::NewSimulation( int seed )
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	gen.seed( seed );
 	currentSeed = seed;
+	numGenerated = 0;
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 	Terra.reset ( new Terrain() );
@@ -159,18 +162,21 @@ void Simulator::NewSimulation( int seed )
 	CreatureCounts[2] = 0;
 
 
-	// add default speciees
+	// add default species
 	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
 	SpeciesList.push_back( S );
+	Generator G (*this);
 
-	CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("system.sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.plantCount") );
-	CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.herbivoreCount") );
-	CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.carnivoreCount") );
+
+	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("system.sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.plantCount") );
+	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.herbivoreCount") );
+	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.carnivoreCount") );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
 	isPaused = Engine::getCfg()->get<bool>("system.sim.pauseOnStart");
 	// count Creatures once
+
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
 		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
 
@@ -222,7 +228,7 @@ void Simulator::tick()
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
 		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( currentTick ));
-
+		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( numGenerated ));
 		if ( !isPaused )
 		{
 			Event e("UpdateCreatureRenderList");
@@ -317,124 +323,6 @@ void Simulator::registerIOPlugins()
 	Engine::GetResMgr()->registerResource<Terrain>( iResource::createResInfo("Terrain", true, false), TerrainIOP);
 
 	Engine::out(Engine::INFO) << "[Simulator] IO Plugins loaded." << std::endl;
-}
-
-void Simulator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int SpeciesCount, int CreatureCount )
-{
-	for ( int i = 0; i < SpeciesCount; ++i)
-	{
-		std::string name = addSpecies( type );
-		for ( int j = 0; j < (CreatureCount/SpeciesCount); ++j)
-			addCreature( name );
-	}
-}
-
-void Simulator::addRandomSpecies()
-{
-	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
-
-	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(gen);
-		numGenerated++; // one more random number generated, don't like counting it this way
-
-	std::string name;
-	switch (t)
-	{
-	case Species::SPECIES_TYPE::HERBA:
-		name = "plant";
-		break;
-	case Species::SPECIES_TYPE::HERBIVORE:
-		name = "herbivore";
-		break;
-	case Species::SPECIES_TYPE::CARNIVORE:
-		name = "carnivore";
-		break;
-	}
-
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(SpeciesList.size())) );
-
-	S->setType( t );
-	S->setOptimalTemperature( temp_rnd( gen ) );
-		numGenerated++; // one more random number generated, don't like counting it this way
-
-	SpeciesList.push_back( S );
-}
-
-void Simulator::addRandomCreature()
-{
-	std::uniform_real_distribution<float> rnd(0,32);
-	std::uniform_int_distribution<int> species_rnd(0,SpeciesList.size()-1);
-
-	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( SpeciesList[species_rnd(gen)] ));
-		numGenerated++; // one more random number generated, don't like counting it this way
-	Geom::Pointf Position (rnd(gen),rnd(gen));
-		numGenerated+=2; // two more random number generated, don't like counting it this way
-
-	float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
-
-	if( hab > 0.0f && ptr_creature->validPos( Position ) )
-	{
-		ptr_creature->setPosition( Position );
-		Creatures.push_back(ptr_creature);
-	}
-}
-
-void Simulator::addCreature( const std::string& specName )
-{
-	std::uniform_real_distribution<float> rnd(0,32);
-
-	auto it = std::find_if(SpeciesList.begin(), SpeciesList.end(), [&specName](const std::shared_ptr<Species>& s){ return s->getName() == specName; } );
-	if ( it == SpeciesList.end() )
-	{
-		Engine::out(Engine::ERROR) << "[Simulator::addCreature] Species " << specName << " not found!" << std::endl;
-		return;
-	}
-
-	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( *it ));
-
-	// try a few times, but make sure we're not stuck in a lop
-	for (int tries = 0; tries < 100; ++tries)
-	{
-		Geom::Pointf Position (rnd(gen),rnd(gen));
-			numGenerated+=2; // two more random number generated, don't like counting it this way
-
-		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
-		if( hab > 0.0f && ptr_creature->validPos( Position ) )
-		{
-			ptr_creature->setPosition( Position );
-			Creatures.push_back(ptr_creature);
-			return;
-		}
-	}
-}
-
-std::string Simulator::addSpecies( Species::SPECIES_TYPE type )
-{
-	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
-
-	std::string name;
-	switch (type)
-	{
-		case Species::SPECIES_TYPE::HERBA:
-			name = "plant";
-		break;
-		case Species::SPECIES_TYPE::HERBIVORE:
-			name = "herbivore";
-		break;
-		case Species::SPECIES_TYPE::CARNIVORE:
-			name = "carnivore";
-		break;
-	}
-
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(SpeciesList.size())) );
-
-	S->setType( type );
-	S->setOptimalTemperature( temp_rnd( gen ) );
-		numGenerated++; // one more random number generated, don't like counting it this way
-	SpeciesList.push_back( S );
-
-	return S->getName();
 }
 
 void Simulator::saveWhole(const std::string &savePath){

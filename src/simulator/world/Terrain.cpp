@@ -205,7 +205,6 @@ void Terrain::CreateDebugTerrain()
 	}
 
 	tilemapImage.reset ( new sf::Image);
-
 	tilemapImage->create(Size.x ,Size.y);
 	for(int c = 0; c < 32; c++)
 	{
