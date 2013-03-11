@@ -2,7 +2,7 @@
 #define SIMULATOR_H
 
 #include "sbe/event/EventUser.hpp"
-#include "Species.hpp"
+#include "world/Species.hpp"
 
 #include "sbe/geom/Point.hpp"
 

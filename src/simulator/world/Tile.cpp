@@ -1,11 +1,13 @@
 #include "Tile.hpp"
 #include "Terrain.hpp"
-#include "Simulator.hpp"
+#include "simulator/Simulator.hpp"
+#include "Creature.hpp"
+
 #include <memory>
 
 #include "sbe/Config.hpp"
 
-#include "Creature.hpp"
+
 
 const float Tile::d = 0.007;
 float Tile::maxsandheight = 0;

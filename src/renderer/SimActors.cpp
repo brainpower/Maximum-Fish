@@ -10,8 +10,8 @@
 #include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
-#include "simulator/Creature.hpp"
-#include "simulator/Tile.hpp"
+#include "simulator/world/Creature.hpp"
+#include "simulator/world/Tile.hpp"
 
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Image.hpp>

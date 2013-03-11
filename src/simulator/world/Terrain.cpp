@@ -7,7 +7,7 @@
 
 #include "sbe/gfx/MapPlotter.hpp"
 
-#include "simulator/Creature.hpp"
+#include "Creature.hpp"
 
 
 #include <random>
@@ -139,7 +139,7 @@ void Terrain::CreateMapPlotters()
 
 	Event e("DISPLAY_MAP");
 
-	std::shared_ptr<MapPlotter> p( new MapPlotter("Population density", MapPlotter::PLOT_HEATMAP ));
+	std::shared_ptr<MapPlotter> p( new MapPlotter("Population density" ));
 	p->setData( population, Size, true );
 	p->plot();
 	e.SetData( p );

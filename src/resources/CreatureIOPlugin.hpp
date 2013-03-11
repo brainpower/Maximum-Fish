@@ -7,7 +7,7 @@
 #include <string>
 
 #include "sbe/io/IOPlugin.hpp"
-#include "../simulator/Creature.hpp"
+#include "../simulator/world/Creature.hpp"
 
 /// iTreeIOPlugin for Creature
 class CreatureIOPlugin : public iTreeIOPlugin<Creature>

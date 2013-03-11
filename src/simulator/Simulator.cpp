@@ -8,9 +8,9 @@
 
 #include "sbe/Config.hpp"
 
-#include "Terrain.hpp"
-#include "Creature.hpp"
-#include "Tile.hpp"
+#include "world/Terrain.hpp"
+#include "world/Creature.hpp"
+#include "world/Tile.hpp"
 
 #include "resources/CreatureIOPlugin.hpp"
 #include "resources/SpeciesIOPlugin.hpp"

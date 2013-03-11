@@ -4,7 +4,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "sbe/io/IOPlugin.hpp"
-#include "../simulator/Terrain.hpp"
+#include "simulator/world/Terrain.hpp"
 
 /// iTreeIOPlugin for Terrain
 class TerrainIOPlugin : public iTreeIOPlugin<Terrain> {

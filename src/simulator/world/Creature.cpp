@@ -5,9 +5,10 @@
 #include "sbe/event/EventUser.hpp"
 #include "sbe/event/Event.hpp"
 
+#include "simulator/Simulator.hpp"
+
 #include "Species.hpp"
 #include "Terrain.hpp"
-#include "Simulator.hpp"
 #include "Tile.hpp"
 
 Creature::Creature( const std::shared_ptr<Species>& Species)

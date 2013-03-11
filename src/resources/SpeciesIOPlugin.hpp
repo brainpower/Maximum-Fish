@@ -4,7 +4,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "sbe/io/IOPlugin.hpp"
-#include "../simulator/Species.hpp"
+#include "simulator/world/Species.hpp"
 
 /// iTreeIOPlugin for Species
 class SpeciesIOPlugin : public iTreeIOPlugin<Species> {
