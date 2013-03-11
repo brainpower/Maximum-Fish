@@ -2,8 +2,8 @@
 #define DETAILS_SPECIES_H
 
 #include "sbe/event/EventUser.hpp"
-#include "renderer/items/Details.hpp"
-#include "simulator/Species.hpp"
+#include "renderer/ui/items/Details.hpp"
+#include "simulator/world/Species.hpp"
 
 #include <SFGUI/SFGUI.hpp>
 

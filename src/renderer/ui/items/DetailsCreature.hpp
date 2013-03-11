@@ -2,8 +2,8 @@
 #define DETAILS_CREATURE_H
 
 #include "sbe/event/EventUser.hpp"
-#include "renderer/items/Details.hpp"
-#include "simulator/Creature.hpp"
+#include "renderer/ui/items/Details.hpp"
+#include "simulator/world/Creature.hpp"
 
 #include <SFGUI/SFGUI.hpp>
 

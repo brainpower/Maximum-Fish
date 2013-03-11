@@ -10,11 +10,11 @@
 #include "sbe/gfx/GraphPlotter.hpp"
 #include "sbe/gfx/Screen.hpp"
 
-#include "renderer/items/Control.hpp"
-#include "renderer/items/InfoPanel.hpp"
+#include "renderer/ui/windows/Control.hpp"
+#include "renderer/ui/windows/InfoPanel.hpp"
 //#include "renderer/items/Manipulator.hpp"
-#include "renderer/items/MainMenu.hpp"
-#include "renderer/items/MiniMap.hpp"
+#include "renderer/ui/windows/MainMenu.hpp"
+#include "renderer/ui/windows/MiniMap.hpp"
 
 #include "renderer/SimActors.hpp"
 

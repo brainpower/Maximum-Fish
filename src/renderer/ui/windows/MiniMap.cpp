@@ -1,6 +1,4 @@
-
 #include "MiniMap.hpp"
-
 
 MiniMap::MiniMap( const Geom::Vec2 Size)
 

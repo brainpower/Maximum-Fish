@@ -1,5 +1,5 @@
 #include "DetailsCreature.hpp"
-#include "simulator/Species.hpp"
+#include "simulator/world/Species.hpp"
 
 #include <boost/format.hpp>
 using boost::format;

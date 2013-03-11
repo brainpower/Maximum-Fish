@@ -2,12 +2,12 @@
 #define INFOPANEL_H
 
 #include "sbe/event/EventUser.hpp"
-#include "renderer/items/DetailsEmpty.hpp"
-#include "renderer/items/DetailsCreature.hpp"
-#include "renderer/items/DetailsSpecies.hpp"
-#include "renderer/items/DetailsTile.hpp"
-#include "renderer/items/Selector.hpp"
-#include "renderer/items/Manipulator.hpp"
+#include "renderer/ui/items/DetailsEmpty.hpp"
+#include "renderer/ui/items/DetailsCreature.hpp"
+#include "renderer/ui/items/DetailsSpecies.hpp"
+#include "renderer/ui/items/DetailsTile.hpp"
+#include "renderer/ui/items/Selector.hpp"
+#include "renderer/ui/items/Manipulator.hpp"
 
 #include <SFGUI/SFGUI.hpp>
 

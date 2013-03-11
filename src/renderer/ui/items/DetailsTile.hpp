@@ -2,8 +2,8 @@
 #define DETAILS_TILE_H
 
 #include "sbe/event/EventUser.hpp"
-#include "renderer/items/Details.hpp"
-#include "simulator/Tile.hpp"
+#include "renderer/ui/items/Details.hpp"
+#include "simulator/world/Tile.hpp"
 
 #include <SFGUI/SFGUI.hpp>
 #include <boost/lexical_cast.hpp>

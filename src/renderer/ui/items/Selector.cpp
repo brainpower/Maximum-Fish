@@ -168,7 +168,7 @@ void Selector::HandleEvent( Event& e )
 			CreatureFrame->Show( false );
 			SpeciesFrame->Show( false );
 		}
-		Engine::out() << "[Selector]: DetailsCreature updated." << std::endl;
+		//Engine::out() << "[Selector]: DetailsCreature updated." << std::endl;
     }
     else if ( e.Is( "TILE_CLICKED", typeid( std::shared_ptr<Tile> ) ) )
     {
@@ -184,7 +184,7 @@ void Selector::HandleEvent( Event& e )
 			SpeciesFrame->Show( false );
 			TileFrame->Show( false );
 		}
-		Engine::out() << "[Selector]: DetailsTile updated." << std::endl;
+		//Engine::out() << "[Selector]: DetailsTile updated." << std::endl;
     }
 }
 
