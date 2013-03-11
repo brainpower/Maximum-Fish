@@ -55,10 +55,13 @@ void SimActors::HandleEvent(Event& e)
 		ReadTileRenderList( r );
 	} else if ( e.Is("UpdateTilemapTexture", typeid( std::shared_ptr<sf::Image> )))
 	{
-		std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
-		tilemapTexture.create( i->getSize().x, i->getSize().y );
-		tilemapTexture.loadFromImage( *i );
-		CreateTerrainShaderMap();
+		if ( useShaderTileMap )
+		{
+			std::shared_ptr<sf::Image> i = boost::any_cast< std::shared_ptr<sf::Image> >(e.Data());
+			tilemapTexture.create( i->getSize().x, i->getSize().y );
+			tilemapTexture.loadFromImage( *i );
+			CreateTerrainShaderMap();
+		}
 	} else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
 	{
 		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
@@ -125,9 +128,11 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 
 	int i = 0;
 	for ( std::shared_ptr<Creature> C : r)
+	{
 		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, DetermineCreaturePos( C ) , (i++ * 4));
+	}
 
-	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << std::endl;
+	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
 
 	if ( newActor )
 	{
