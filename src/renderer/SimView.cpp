@@ -14,7 +14,7 @@
 #include "renderer/ui/windows/InfoPanel.hpp"
 //#include "renderer/items/Manipulator.hpp"
 #include "renderer/ui/windows/MainMenu.hpp"
-#include "renderer/ui/windows/MiniMap.hpp"
+#include "renderer/ui/windows/GraphBook.hpp"
 
 #include "renderer/SimActors.hpp"
 
@@ -43,7 +43,7 @@ SimView::~SimView()
 	//Man;
 	DbgWin.reset();
 	MnMnWin.reset();
-	MiMap.reset();
+	GraBo.reset();
 }
 
 void SimView::InitRenderer()
@@ -63,7 +63,7 @@ void SimView::InitDesktop()
     //Man.reset     ( new Manipulator() );
 	DbgWin.reset  ( new DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
-	MiMap.reset   ( new MiniMap() );
+	GraBo.reset   ( new GraphBook() );
 
 	Screen::get()->addSFMLEventHandler( this );
 }

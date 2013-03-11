@@ -8,7 +8,7 @@ class Control;
 class InfoPanel;
 class DebugWindow;
 class MainMenu;
-class MiniMap;
+class GraphBook;
 class SimActors;
 //class Manipulator;
 
@@ -40,7 +40,7 @@ class SimView : public SFMLEventUser
         //std::unique_ptr<Manipulator> Man;
 		std::unique_ptr<DebugWindow> DbgWin;
 		std::unique_ptr<MainMenu> MnMnWin;
-		std::unique_ptr<MiniMap> MiMap;
+		std::unique_ptr<GraphBook> GraBo;
 
 };
 
