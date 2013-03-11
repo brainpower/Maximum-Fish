@@ -10,11 +10,11 @@ void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 {
 	for ( int i = 0; i < SpeciesCount; ++i)
 	{
-		auto S = createSpecies( type );
+		std::shared_ptr<Species> S = createSpecies( type );
 		Sim.SpeciesList.push_back( S );
 		for ( int j = 0; j < (CreatureCount/SpeciesCount); ++j)
 		{
-			auto C = createCreature( S );
+			std::shared_ptr<Creature> C = createCreature( S );
 			if (!C) continue;
 			C->updateTileFromPos();
 			Sim.Creatures.push_back(C);
@@ -63,7 +63,7 @@ std::shared_ptr<Creature> Generator::createRandomCreature()
 
 	if( hab > 0.0f && ptr_creature->validPos( Position ) )
 	{
-		ptr_creature->setPosition( Position );
+		ptr_creature->setPositionUnsafe( Position );
 		return ptr_creature;
 	}
 
@@ -84,17 +84,18 @@ std::shared_ptr<Creature> Generator::createCreature( const std::string& specName
 
 std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Species>& spec )
 {
-	std::uniform_real_distribution<float> rnd(0,32);
+	std::uniform_real_distribution<float> dist(0,32);
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( spec ));
 
 	// try a few times, but make sure we're not stuck in a loop
 	for (int tries = 0; tries < 1000; ++tries)
 	{
-		Geom::Pointf Position (rnd(Sim.rnd()),rnd(Sim.rnd()));
+		Geom::Pointf Position (dist(Sim.rnd()),dist(Sim.rnd()));
 
 		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )
 		{
+			ptr_creature->setPositionUnsafe( Position );
 			return ptr_creature;
 		}
 	}

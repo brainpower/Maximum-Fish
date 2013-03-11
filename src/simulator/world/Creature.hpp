@@ -23,7 +23,11 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void setCurrentHealth(const float ch){ currentHealth = ch;}
 		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
+		/// set a new position and update the list of creatures in the affected Tiles
 		void setPosition(const Geom::Pointf& pos);
+		/// set a new position without updating the list of creatures in the affected Tiles
+		/// used if you just want to create a creature without affecting the simulator state ( yet )
+		void setPositionUnsafe(const Geom::Pointf& pos);
 		void movePosition(const Geom::Pointf& pos);
 
 		float getCurrentHealth() const { return currentHealth; }

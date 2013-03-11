@@ -32,10 +32,15 @@ const std::string& Creature::getSpeciesString() const
 	return mySpecies->getName();
 }
 
-void Creature::setPosition( const Geom::Pointf& pos)
+void Creature::setPositionUnsafe( const Geom::Pointf& pos)
 {
 	Position = pos;
+}
+
+void Creature::setPosition( const Geom::Pointf& pos)
+{
 	updateTileFromPos();
+	Position = pos;
 }
 
 void Creature::updateTileFromPos(){
