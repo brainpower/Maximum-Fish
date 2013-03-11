@@ -14,6 +14,7 @@ class GraphPlotter;
 
 #include <list>
 #include <random>
+#include <memory>
 
 #include <SFML/System/NonCopyable.hpp>
 

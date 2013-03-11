@@ -99,8 +99,6 @@ void Simulator::HandleEvent(Event& e)
 			ev.SetData( p );
 			Module::Get()->QueueEvent(ev, true);
 		}
-
-		Terra->CreateMapPlotters();
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -186,6 +184,8 @@ void Simulator::NewSimulation( int seed )
 	Event e("UpdateCreatureRenderList");
 	e.SetData ( Creatures );
 	Module::Get()->QueueEvent(e, true);
+
+	Terra->CreateMapPlotters();
 
 	RendererUpdate.restart();
 }
@@ -361,7 +361,7 @@ void Simulator::saveWhole(const std::string &savePath){
 		Module::Get()->QueueEvent(e, true);
 
 	} else {
-		auto simCfg = shared_ptr<Config>(new Config("simState.info", "sim"));
+		auto simCfg = shared_ptr<Config>( new Config("simState.info", "sim") );
 		simCfg->set("sim.currentTick", currentTick);
 		// save state of random engine
 		simCfg->set("sim.random.seed", currentSeed);
@@ -399,7 +399,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 	auto tmp  = Engine::GetIO()->loadObjects<Terrain>();
 	auto tmp2 = Engine::GetIO()->loadObjects<Species>();
 	auto tmp3 = Engine::GetIO()->loadObjects<Creature>();
-	auto simCfg = shared_ptr<Config>(new Config("simState.info", "sim"));
+	auto simCfg = shared_ptr<Config>( new Config("simState.info", "sim") );
 
 	if(tmp.empty() || tmp2.empty() || tmp3.empty() || !simCfg){
 		Event e("EVT_LOAD_BAD");
