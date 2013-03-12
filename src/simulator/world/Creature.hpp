@@ -48,6 +48,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void huntFood();
 		/// handles eating the nearest possible prey defined by the filter lambda
 		void huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
+		void mateNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
 		void mate();
 		void move(int found);
 		bool moveYourAss();

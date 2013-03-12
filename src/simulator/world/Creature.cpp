@@ -65,21 +65,20 @@ void Creature::live()
 	calcEnv();
 	// feed
 	int found = 0;
+	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
 	if(currentHealth/mySpecies->getMaxHealth() < 0.75)
 	{
 		huntFood();
 	}
-	//else if(Artgenossen in der Naehe)
-	//{
-	//	mate();
-	//}
+	else if((currentHealth/mySpecies->getMaxHealth() > 0.9) && (age > (mySpecies->getMaxAge()/6)))
+	{
+		mate();
+	}
 	else
 	{
 		move(found);
 	}
-	// move ( or not )
-	// and try to reproduce
-	//
+	age++;
 }
 
 void Creature::huntFood()
@@ -137,6 +136,33 @@ void Creature::huntNearest( std::function< bool( std::shared_ptr<Creature> ) > f
 
 void Creature::mate()
 {
+	mateNearest( [&]( const std::shared_ptr<Creature>& C ) { return ((C->getSpecies() == this->getSpecies()) && (C.get() != this) && (C->getCurrentHealth() > 0.9)  && (C->getAge() > (C->getSpecies()->getMaxAge()/6))); });
+}
+
+void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > filter)
+{
+	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), filter);
+	if ( !nearest ) {
+		move(0);
+		return;
+	}
+	
+	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
+	{
+		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
+		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		target += Position;
+		if (validPos( target ) )
+			setPosition( target );
+	} else {
+		std::shared_ptr<Creature> newborn = std::shared_ptr<Creature>(new Creature(this->getSpecies()));
+		newborn->setPosition(this->getPosition());
+		Simulator::GetCreatures().push_back(newborn);
+		//newborn->updateTileFromPos();
+		this->setCurrentHealth(this->getCurrentHealth() - 0.15);
+		nearest->setCurrentHealth(nearest->getCurrentHealth() - 0.15);
+		std::cout << "New creature created" << std::endl;
+	}
 }
 
 bool Creature::moveYourAss()
