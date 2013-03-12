@@ -18,13 +18,13 @@ Terrain::Terrain()
  globalTemp(20),*/
  maxElevation(0)
 {
-	humidityFactor = Engine::getCfg()->get<float>("system.sim.terrain.humidityFactor");
-	globalTemp = Engine::getCfg()->get<float>("system.sim.terrain.globalTemp");
+	humidityFactor = Engine::getCfg()->get<float>("sim.terrain.humidityFactor");
+	globalTemp = Engine::getCfg()->get<float>("sim.terrain.globalTemp");
 
 	// set some const values
-	Tile::maxsandheight = Engine::getCfg()->get<float>("system.sim.terrain.maxsandheight");
-	Tile::maxgrassheight = Engine::getCfg()->get<float>("system.sim.terrain.maxgrassheight");
-	Tile::maxwalkableHumidity = Engine::getCfg()->get<float>("system.sim.terrain.maxwalkablehumidity");
+	Tile::maxsandheight = Engine::getCfg()->get<float>("sim.terrain.maxsandheight");
+	Tile::maxgrassheight = Engine::getCfg()->get<float>("sim.terrain.maxgrassheight");
+	Tile::maxwalkableHumidity = Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity");
 
 }
 
@@ -163,16 +163,16 @@ void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
 	{
-		int tmp = Engine::getCfg()->get<float>("system.sim.terragen.debug.size");
+		int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
 		Size = Geom::Vec2( tmp, tmp );
 	}
 	// maximum height to generate
-	float maxHeight = Engine::getCfg()->get<float>("system.sim.terragen.debug.maxheight");
+	float maxHeight = Engine::getCfg()->get<float>("sim.terragen.debug.maxheight");
 	//float minheight = 0;
 
 	float maxFallofDist = Size.x/2;
 
-	float waterlimit = Engine::getCfg()->get<float>("system.sim.terragen.debug.waterlimit");
+	float waterlimit = Engine::getCfg()->get<float>("sim.terragen.debug.waterlimit");
 
 	Geom::Pointf Mid = Geom::Pointf( Size.x/2, Size.y/2 );
 

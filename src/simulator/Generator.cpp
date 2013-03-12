@@ -30,7 +30,7 @@ void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 std::shared_ptr<Species> Generator::createRandomSpecies()
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
 	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(Sim.rnd());
 
@@ -113,7 +113,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 std::shared_ptr<Species> Generator::createSpecies( Species::SPECIES_TYPE type )
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
 	std::string name;
 	switch (type)

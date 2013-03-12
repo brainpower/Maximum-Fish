@@ -20,10 +20,11 @@
 SimActors::SimActors()
 {
 	TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
-	TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
+	TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
 	CreatureSize = Engine::getCfg()->get<int>("system.ui.simView.creatureSize");
 	RenderGrid = Engine::getCfg()->get<bool>("system.ui.simView.renderGrid");
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
+	cullThreshold = Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
 
 	RegisterForEvent( "DISPLAY_GRAPH" );
 
@@ -108,10 +109,11 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
 
 	int i = 0;
+	bool cull = r.size() > cullThreshold;
 	for ( std::shared_ptr<Creature> C : r)
 	{
 		auto Pos = DetermineCreaturePos( C );
-		if ( Screen::sCam()->getDrawnArea().intersects(Pos) ) Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
+		if ( !cull || Screen::sCam()->getDrawnArea().intersects(Pos) ) Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;

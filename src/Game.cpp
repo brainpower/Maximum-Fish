@@ -20,6 +20,10 @@ Game::~Game()
 
 void Game::GameInit()
 {
+	// Load config files
+	Engine::getCfg()->loadInto("keys", "keys.conf");
+	Engine::getCfg()->loadInto("sim", "sim.conf");
+
 
 }
 

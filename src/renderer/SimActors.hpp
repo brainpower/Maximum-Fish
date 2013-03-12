@@ -82,6 +82,8 @@ class SimActors : public EventUser
 		sf::Texture tilemapTexture;
 
 		int CreatureSize;
+		/// at which amount of creatures should we cull the renderlist
+		int cullThreshold;
 		std::shared_ptr<Actor> TileActor;
 		std::shared_ptr<Actor> CreaturesActor;
 
