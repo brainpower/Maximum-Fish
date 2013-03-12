@@ -54,7 +54,8 @@ class Simulator : public EventUser, sf::NonCopyable
 			EVT_LOAD_WHOLE		| load a simulation
 			TERRAIN_CLICKED		| handle a click on the terrain
 			SET_SIM_TPS			| set the simulation speed
-			PLOT_COUNTS			| create a graphplotter with the population development and mapplotters for heightmap, humiditymap and populationmap; sent back with a DISPLAY_GRAPH event
+			PLOT_COUNTS			| create a graphplotter with the population development; sent back with a DISPLAY_GRAPH event
+			UPDATE_OVERLAYS		| create mapplotters for heightmap, humiditymap and populationmap; sent back with a DISPLAY_MAP event
 		*/
 		virtual void HandleEvent( Event& e);
 

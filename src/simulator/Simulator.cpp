@@ -49,6 +49,7 @@ currentTick(0), numGenerated(0), isPaused(false) {
 	RegisterForEvent("SET_SIM_TPS");
 
 	RegisterForEvent("PLOT_COUNTS");
+	RegisterForEvent("UPDATE_OVERLAYS");
 
 	init();
 }
@@ -72,14 +73,17 @@ void Simulator::HandleEvent(Event& e)
 	else if(e.Is("SIM_PAUSE"))
 	{
 		isPaused = true;
+		Engine::getCfg()->set("system.sim.paused", isPaused);
 	}
 	else if(e.Is("SIM_UNPAUSE"))
 	{
 		isPaused = false;
+		Engine::getCfg()->set("system.sim.paused", isPaused);
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
 		isPaused = !isPaused;
+		Engine::getCfg()->set("system.sim.paused", isPaused);
 	}
 	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
 	{
@@ -99,6 +103,10 @@ void Simulator::HandleEvent(Event& e)
 			ev.SetData( p );
 			Module::Get()->QueueEvent(ev, true);
 		}
+	}
+	else if (e.Is("UPDATE_OVERLAYS"))
+	{
+		Terra->CreateMapPlotters();
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -173,6 +181,7 @@ void Simulator::NewSimulation( int seed )
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
 	isPaused = Engine::getCfg()->get<bool>("system.sim.pauseOnStart");
+	Engine::getCfg()->set("system.sim.paused", isPaused);
 	// count Creatures once
 
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
@@ -234,6 +243,8 @@ void Simulator::tick()
 			Event e("UpdateCreatureRenderList");
 			e.SetData ( Creatures );
 			Module::Get()->QueueEvent(e, true);
+
+			if (Engine::getCfg()->get<bool>("system.ui.Overlays.live")) Terra->CreateMapPlotters();
 		}
 
 		RendererUpdate.restart();
@@ -329,6 +340,7 @@ void Simulator::saveWhole(const std::string &savePath){
 	bool wasPaused = isPaused;
 
 	isPaused = true; // pause sim while saving
+	Engine::getCfg()->set("system.sim.paused", isPaused);
 
 	// add save path to IO stack
 	if(savePath.empty() || !Engine::GetIO()->addPath(savePath))
@@ -379,12 +391,13 @@ void Simulator::saveWhole(const std::string &savePath){
 		Engine::GetIO()->popPath(); // pop save path from IO stack
 
 	isPaused = wasPaused; // continue, if not wasPaused
-
+	Engine::getCfg()->set("system.sim.paused", isPaused);
 }
 
 void Simulator::loadWhole(const std::string &loadPath){
 	bool wasPaused = isPaused;
 	isPaused = true; // pause sim while saving
+	Engine::getCfg()->set("system.sim.paused", isPaused);
 
 	if(loadPath.empty() || !Engine::GetIO()->addPath(loadPath))
 	{
@@ -457,6 +470,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 	Module::Get()->QueueEvent(e2, true);
 
 	isPaused = wasPaused;
+	Engine::getCfg()->set("system.sim.paused", isPaused);
 
 	Engine::out(Engine::SPAM) << Creatures.front()->getSpeciesString() << std::endl;
 	Engine::out(Engine::SPAM) << GetSpecies(Creatures.front()->getSpeciesString())->getName() << std::endl;
