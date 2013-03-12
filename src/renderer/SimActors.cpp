@@ -88,9 +88,7 @@ void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 	sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
 	P->Add(I);
 
-	Event ev( "SCREEN_ADD_WINDOW");
-	ev.SetData( P );
-	Module::Get()->QueueEvent(ev);
+	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", P ));
 }
 
 

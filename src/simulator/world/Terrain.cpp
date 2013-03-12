@@ -54,9 +54,7 @@ float Terrain::getGlobalTemp()
 
 void Terrain::UpdateTerrain()
 {
-	Event e("UpdateTileRenderList");
-	e.SetData( Tiles );
-	Module::Get()->QueueEvent(e, true);
+	Module::Get()->QueueEvent(Event("UpdateTileRenderList", Tiles), true);
 }
 
 std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T)
@@ -216,7 +214,5 @@ void Terrain::CreateDebugTerrain()
 		}
 	}
 
-	Event e("UpdateTilemapTexture");
-	e.SetData( tilemapImage );
-	Module::Get()->QueueEvent(e, true);
+	Module::Get()->QueueEvent(Event("UpdateTilemapTexture", tilemapImage), true);
 }

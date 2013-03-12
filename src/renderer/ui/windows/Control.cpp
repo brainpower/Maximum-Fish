@@ -83,9 +83,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
     Win->Add( box );
     updatePosition();
 
-    Event e("SCREEN_ADD_WINDOW");
-    e.SetData( Win );
-    Module::Get()->QueueEvent( e );
+    Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
 }
 
 void Control::HandleEvent( Event& e)
@@ -220,9 +218,8 @@ void Control::BtnFramesDownClick()
     else if ( Frames <= 150 ) {Frames -= 10;}
     else {Frames -= 25;}
     Framesdisplay->SetText(boost::lexical_cast<std::string>(Frames));
-    Event e = Event("SET_SIM_TPS");
-    e.SetData(Frames);
-    Module::Get()->QueueEvent( e, true );
+
+    Module::Get()->QueueEvent( Event("SET_SIM_TPS", Frames), true );
 }
 
 void Control::BtnFramesUpClick()
@@ -232,7 +229,6 @@ void Control::BtnFramesUpClick()
     else if ( Frames >= 50 ){Frames += 10;}
     else {Frames += 5;}
     Framesdisplay->SetText( boost::lexical_cast<std::string>(Frames) );
-    Event e = Event("SET_SIM_TPS");
-    e.SetData(Frames);
-    Module::Get()->QueueEvent( e, true );
+
+    Module::Get()->QueueEvent( Event("SET_SIM_TPS", Frames), true );
 }

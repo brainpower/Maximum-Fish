@@ -71,10 +71,8 @@ void Selector::SwitchToCreatureManipulator()
 {
     if ( !CreatureEmpty )
     {
-        Event e( "TOGGLE_SELECT_MAN" );
-        e.SetData( CurrentDetailsCreature );
-        Module::Get()->QueueEvent( e );
-        Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+        Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN", CurrentDetailsCreature ) );
+        Module::Get()->QueueEvent( "SIM_ON_PAUSE_LOCK" );
     }
 }
 
@@ -82,10 +80,8 @@ void Selector::SwitchToSpeciesManipulator()
 {
     if ( !SpeciesEmpty )
     {
-        Event e( "TOGGLE_SELECT_MAN" );
-        e.SetData( CurrentDetailsSpecies );
-        Module::Get()->QueueEvent( e );
-        Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+        Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN", CurrentDetailsSpecies ) );
+        Module::Get()->QueueEvent( "SIM_ON_PAUSE_LOCK" );
     }
 }
 
@@ -93,10 +89,8 @@ void Selector::SwitchToTileManipulator()
 {
     if ( !TileEmpty )
     {
-        Event e( "TOGGLE_SELECT_MAN" );
-        e.SetData( CurrentDetailsTile );
-        Module::Get()->QueueEvent( e );
-        Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ) );
+        Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN", CurrentDetailsTile ) );
+        Module::Get()->QueueEvent( "SIM_ON_PAUSE_LOCK" );
     }
 }
 

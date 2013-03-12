@@ -33,9 +33,7 @@ void MiniMap::CreateWindow( const Geom::Vec2 Size )
     Win->SetTitle( "Mini Map [M]" );
     Win->Add( box );
 
-    Event e("SCREEN_ADD_WINDOW");
-    e.SetData( Win );
-    Module::Get()->QueueEvent( e );
+    Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
 }
 
 void MiniMap::HandleEvent( Event& e)
