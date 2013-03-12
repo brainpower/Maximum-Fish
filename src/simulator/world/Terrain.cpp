@@ -18,13 +18,13 @@ Terrain::Terrain()
  globalTemp(20),*/
  maxElevation(0)
 {
-	humidityFactor = Engine::getCfg()->get<float>("system.sim.terrain.humidityFactor");
-	globalTemp = Engine::getCfg()->get<float>("system.sim.terrain.globalTemp");
+	humidityFactor = Engine::getCfg()->get<float>("sim.terrain.humidityFactor");
+	globalTemp = Engine::getCfg()->get<float>("sim.terrain.globalTemp");
 
 	// set some const values
-	Tile::maxsandheight = Engine::getCfg()->get<float>("system.sim.terrain.maxsandheight");
-	Tile::maxgrassheight = Engine::getCfg()->get<float>("system.sim.terrain.maxgrassheight");
-	Tile::maxwalkableHumidity = Engine::getCfg()->get<float>("system.sim.terrain.maxwalkablehumidity");
+	Tile::maxsandheight = Engine::getCfg()->get<float>("sim.terrain.maxsandheight");
+	Tile::maxgrassheight = Engine::getCfg()->get<float>("sim.terrain.maxgrassheight");
+	Tile::maxwalkableHumidity = Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity");
 
 }
 
@@ -163,16 +163,16 @@ void Terrain::CreateDebugTerrain()
 {
 	Tiles.clear();
 	{
-		int tmp = Engine::getCfg()->get<float>("system.sim.terragen.debug.size");
+		int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
 		Size = Geom::Vec2( tmp, tmp );
 	}
 	// maximum height to generate
-	float maxHeight = Engine::getCfg()->get<float>("system.sim.terragen.debug.maxheight");
+	float maxHeight = Engine::getCfg()->get<float>("sim.terragen.debug.maxheight");
 	//float minheight = 0;
 
 	float maxFallofDist = Size.x/2;
 
-	float waterlimit = Engine::getCfg()->get<float>("system.sim.terragen.debug.waterlimit");
+	float waterlimit = Engine::getCfg()->get<float>("sim.terragen.debug.waterlimit");
 
 	Geom::Pointf Mid = Geom::Pointf( Size.x/2, Size.y/2 );
 
@@ -206,9 +206,9 @@ void Terrain::CreateDebugTerrain()
 
 	tilemapImage.reset ( new sf::Image);
 	tilemapImage->create(Size.x ,Size.y);
-	for(int c = 0; c < 32; c++)
+	for(int c = 0; c < Size.x; c++)
 	{
-		for(int r = 0; r < 32; r++)
+		for(int r = 0; r < Size.y; r++)
 		{
 			Geom::Vec2f pos(c, r);
 			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);

@@ -73,17 +73,17 @@ void Simulator::HandleEvent(Event& e)
 	else if(e.Is("SIM_PAUSE"))
 	{
 		isPaused = true;
-		Engine::getCfg()->set("system.sim.paused", isPaused);
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if(e.Is("SIM_UNPAUSE"))
 	{
 		isPaused = false;
-		Engine::getCfg()->set("system.sim.paused", isPaused);
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
 		isPaused = !isPaused;
-		Engine::getCfg()->set("system.sim.paused", isPaused);
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
 	{
@@ -117,10 +117,10 @@ void Simulator::HandleEvent(Event& e)
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
 	else if (e.Is("EVT_SAVE_WHOLE_TEST")) {
-		saveWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
+		saveWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_LOAD_WHOLE_TEST")) {
-		loadWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
+		loadWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string))) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
@@ -140,7 +140,7 @@ void Simulator::init()
 	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
-	NewSimulation(Engine::getCfg()->get<int>("system.sim.defaultSeed"));
+	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
 void Simulator::NewSimulation( int seed )
@@ -174,14 +174,14 @@ void Simulator::NewSimulation( int seed )
 	Generator G (*this);
 
 
-	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("system.sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.plantCount") );
-	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.herbivoreCount") );
-	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.carnivoreCount") );
+	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("sim.terragen.plantCount") );
+	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.herbivoreCount") );
+	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.carnivoreCount") );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
-	isPaused = Engine::getCfg()->get<bool>("system.sim.pauseOnStart");
-	Engine::getCfg()->set("system.sim.paused", isPaused);
+	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
+	Engine::getCfg()->set("sim.paused", isPaused);
 	// count Creatures once
 
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
@@ -265,8 +265,8 @@ std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
 	std::shared_ptr<GraphPlotter> re( new GraphPlotter );
 
 	Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("system.sim.countplot.size.x"),Engine::getCfg()->get<int>("system.sim.countplot.size.y"));
-	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("system.sim.countplot.axissize.x"), Engine::getCfg()->get<int>("system.sim.countplot.axissize.y"));
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
@@ -340,7 +340,7 @@ void Simulator::saveWhole(const std::string &savePath){
 	bool wasPaused = isPaused;
 
 	isPaused = true; // pause sim while saving
-	Engine::getCfg()->set("system.sim.paused", isPaused);
+	Engine::getCfg()->set("sim.paused", isPaused);
 
 	// add save path to IO stack
 	if(savePath.empty() || !Engine::GetIO()->addPath(savePath))
@@ -391,13 +391,13 @@ void Simulator::saveWhole(const std::string &savePath){
 		Engine::GetIO()->popPath(); // pop save path from IO stack
 
 	isPaused = wasPaused; // continue, if not wasPaused
-	Engine::getCfg()->set("system.sim.paused", isPaused);
+	Engine::getCfg()->set("sim.paused", isPaused);
 }
 
 void Simulator::loadWhole(const std::string &loadPath){
 	bool wasPaused = isPaused;
 	isPaused = true; // pause sim while saving
-	Engine::getCfg()->set("system.sim.paused", isPaused);
+	Engine::getCfg()->set("sim.paused", isPaused);
 
 	if(loadPath.empty() || !Engine::GetIO()->addPath(loadPath))
 	{
@@ -470,7 +470,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 	Module::Get()->QueueEvent(e2, true);
 
 	isPaused = wasPaused;
-	Engine::getCfg()->set("system.sim.paused", isPaused);
+	Engine::getCfg()->set("sim.paused", isPaused);
 
 	Engine::out(Engine::SPAM) << Creatures.front()->getSpeciesString() << std::endl;
 	Engine::out(Engine::SPAM) << GetSpecies(Creatures.front()->getSpeciesString())->getName() << std::endl;

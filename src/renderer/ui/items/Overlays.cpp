@@ -103,7 +103,7 @@ void Overlays::AddMap( std::shared_ptr<MapPlotter>& M )
 	if (!update)
 		myOverlays.addItem( M->getName() );
 	// update current view if we are not live updating ( 3x per second is to much for sfgui) or if the sim is paused ( = this is no live update)
-	else if ( (Engine::getCfg()->get<bool>("system.sim.paused") || !(Engine::getCfg()->get<bool>("system.ui.Overlays.live")) )
+	else if ( (Engine::getCfg()->get<bool>("sim.paused") || !(Engine::getCfg()->get<bool>("system.ui.Overlays.live")) )
 			  && myOverlays.getSelectedItem() == M->getName() )
 		ShowMap( M->getName() );
 
@@ -175,7 +175,7 @@ void Overlays::CreateActor( const std::string& name )
 	sprite.setTexture( *tex );
 
 	int TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
-	int TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
+	int TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
 
 	// the size of the terrain multiplied by the size of a tile
 	sprite.setTextureRect(sf::IntRect(0,0, temp.getSize().x ,  temp.getSize().y));
