@@ -6,6 +6,11 @@
 
 #include "sbe/Config.hpp"
 
+Generator::Generator( Simulator& S ) : Sim(S)
+{
+
+}
+
 void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int SpeciesCount, int CreatureCount )
 {
 	for ( int i = 0; i < SpeciesCount; ++i)
@@ -53,7 +58,7 @@ std::shared_ptr<Species> Generator::createRandomSpecies()
 
 std::shared_ptr<Creature> Generator::createRandomCreature()
 {
-	std::uniform_real_distribution<float> rnd(0,32);
+	std::uniform_real_distribution<float> rnd(0,Sim.Terra->getSize().x);
 	std::uniform_int_distribution<int> species_rnd(0,Sim.SpeciesList.size()-1);
 
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( Sim.SpeciesList[species_rnd(Sim.rnd())] ));
@@ -84,7 +89,8 @@ std::shared_ptr<Creature> Generator::createCreature( const std::string& specName
 
 std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Species>& spec )
 {
-	std::uniform_real_distribution<float> dist(0,32);
+
+	std::uniform_real_distribution<float> dist(0, Sim.Terra->getSize().x );
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( spec ));
 
 	// try a few times, but make sure we're not stuck in a loop

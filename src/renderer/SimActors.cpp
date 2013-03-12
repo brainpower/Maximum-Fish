@@ -2,6 +2,7 @@
 
 #include "sbe/gfx/Actor.hpp"
 #include "sbe/gfx/Renderer.hpp"
+#include "sbe/gfx/Camera.hpp"
 #include "sbe/Config.hpp"
 #include "sbe/ResourceManager.hpp"
 
@@ -104,13 +105,13 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 
 	sf::VertexArray& Creatures = (std::dynamic_pointer_cast<VertexActor>(CreaturesActor))->arr;
 	Creatures.clear();
-	Creatures.resize( 4 * r.size() );
 	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
 
 	int i = 0;
 	for ( std::shared_ptr<Creature> C : r)
 	{
-		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, DetermineCreaturePos( C ) , (i++ * 4));
+		auto Pos = DetermineCreaturePos( C );
+		if ( Screen::sCam()->getDrawnArea().intersects(Pos) ) Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
