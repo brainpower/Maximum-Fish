@@ -150,6 +150,8 @@ void Simulator::NewSimulation( int seed )
 	currentSeed = seed;
 	numGenerated = 0;
 
+	Creature::loadConfigValues();
+
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 	Terra.reset ( new Terrain() );
 
