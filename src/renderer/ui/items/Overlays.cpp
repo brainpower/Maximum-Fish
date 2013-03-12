@@ -78,8 +78,8 @@ void Overlays::ShowMap( std::string& name )
 		sfg::Image::Ptr I = sfg::Image::Create( gfx::ScaleImage( Maps[name].first->getImage(), Geom::Vec2(128,128)) );
 		//sfg::Image::Ptr I = sfg::Image::Create( Maps[name].first->getImage() );
 		sfg::CheckButton::Ptr CB = sfg::CheckButton::Create( "Active" );
-		CB->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Overlays::ToggleRendering, this );
 		if (Maps[name].second) CB->SetActive ( true );
+		CB->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Overlays::ToggleRendering, this );
 		sfg::Box::Ptr B = sfg::Box::Create(sfg::Box::VERTICAL);
 		B->Pack(CB, false, false);
 		B->Pack(I), true, true;
