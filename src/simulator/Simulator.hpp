@@ -84,6 +84,8 @@ class Simulator : public EventUser, sf::NonCopyable
 		{
 			return Instance->rnd();
 		}
+		
+		static std::list<std::shared_ptr<Creature>>& GetCreatures() { return Instance->Creatures; }
 
 	private:
 
