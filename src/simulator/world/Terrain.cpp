@@ -206,9 +206,9 @@ void Terrain::CreateDebugTerrain()
 
 	tilemapImage.reset ( new sf::Image);
 	tilemapImage->create(Size.x ,Size.y);
-	for(int c = 0; c < 32; c++)
+	for(int c = 0; c < Size.x; c++)
 	{
-		for(int r = 0; r < 32; r++)
+		for(int r = 0; r < Size.y; r++)
 		{
 			Geom::Vec2f pos(c, r);
 			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);
