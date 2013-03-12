@@ -42,7 +42,23 @@ class Creature : public std::enable_shared_from_this<Creature>
 		// neccessary to update currentTile after loading from "savegame"
 		void updateTileFromPos();
 
+		static void loadConfigValues();
+
 	private:
+
+		// static settings loaded from the config
+		static float pNutritionDiv;
+		static float huntingThreshold;
+		static float matingThreshold;
+		static float matingAge;
+		static float matingHealthCost;
+		static float migProb;
+		static float altModifier1;
+		static float altModifier2;
+		static float envMult;
+		// -- END STATIC SETTINGS --
+
+
 
 		friend class CreatureIOPlugin;
 		void huntFood();
