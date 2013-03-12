@@ -106,12 +106,13 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	Creatures.clear();
 	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
 
-	int i = 0;
 	bool cull = r.size() > cullThreshold;
+	auto imgs = Engine::GetResMgr()->get<ImageSet>("Creatures");
+
 	for ( std::shared_ptr<Creature> C : r)
 	{
 		auto Pos = DetermineCreaturePos( C );
-		if ( !cull || Screen::sCam()->getDrawnArea().intersects(Pos) ) Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
+		if ( !cull || Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
