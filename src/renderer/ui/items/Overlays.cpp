@@ -9,6 +9,7 @@
 #include "sbe/gfx/Screen.hpp"
 
 #include "sbe/Config.hpp"
+#include "sbe/Engine.hpp"
 #include "sbe/ResourceManager.hpp"
 
 /// TODO: move into a header, dont copy!
@@ -78,10 +79,10 @@ void Overlays::ShowMap( std::string& name )
 		//sfg::Image::Ptr I = sfg::Image::Create( Maps[name].first->getImage() );
 		sfg::CheckButton::Ptr CB = sfg::CheckButton::Create( "Active" );
 		CB->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Overlays::ToggleRendering, this );
-
+		if (Maps[name].second) CB->SetActive ( true );
 		sfg::Box::Ptr B = sfg::Box::Create(sfg::Box::VERTICAL);
-		B->Pack(CB);
-		B->Pack(I);
+		B->Pack(CB, false, false);
+		B->Pack(I), true, true;
 		CurrentFrame->Add(B);
 
 	}
@@ -90,15 +91,6 @@ void Overlays::ShowMap( std::string& name )
 void Overlays::ClearOverlays()
 {
 	std::string name = CurrentFrame->GetLabel();
-	if ( name != "None" )
-	{
-		std::shared_ptr<SpriteActor> A = std::dynamic_pointer_cast<SpriteActor>(Maps[name].second);
-		if ( A )
-		{
-			Screen::sRndr()->removeActor( A->getID() );
-			A.reset();
-		}
-	}
 
 	CurrentFrame->RemoveAll();
 	CurrentFrame->SetLabel( "None" );
@@ -107,40 +99,46 @@ void Overlays::ClearOverlays()
 void Overlays::ToggleRendering()
 {
 	std::string name = CurrentFrame->GetLabel();
-	std::shared_ptr<Actor> A = Maps[name].second;
 
-	if ( !A )
+	if ( Maps.count(name) == 1)
 	{
-		A.reset( new SpriteActor() );
 
-		sf::Image temp = Maps[name].first->getImage();
-		gfx::SetImageAlpha( temp, 128 );
+		std::shared_ptr<Actor>& A(Maps[name].second);
 
-		std::shared_ptr<sf::Texture> tex ( new sf::Texture() );
-		tex->loadFromImage( temp );
+		if ( !A )
+		{
+			Engine::out() << "Adding overlay" << std::endl;
+			A.reset( new SpriteActor() );
 
-		sf::Sprite& sprite = std::dynamic_pointer_cast<SpriteActor>(A)->sprite;
+			sf::Image temp = Maps[name].first->getImage();
+			gfx::SetImageAlpha( temp, 128 );
 
+			std::shared_ptr<sf::Texture> tex ( new sf::Texture() );
+			tex->loadFromImage( temp );
 
-		Engine::GetResMgr()->add( tex,"overlay_"+name );
-		sprite.setTexture( *tex );
+			sf::Sprite& sprite = std::dynamic_pointer_cast<SpriteActor>(A)->sprite;
 
-		int TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
-		int TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
+			Engine::GetResMgr()->add( tex, "overlay_"+name );
+			sprite.setTexture( *tex );
 
-		// the size of the terrain multiplied by the size of a tile
-		sprite.setTextureRect(sf::IntRect(0,0, temp.getSize().x ,  temp.getSize().y));
-		sprite.setScale(TerrainSize*TileSize/temp.getSize().x,
-						TerrainSize*TileSize/temp.getSize().y);
-		sprite.setPosition(0,0);
+			int TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
+			int TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
 
-		Screen::sRndr()->addActor ( A, L_OVERLAY );
-	}
-	else
-	{
-		std::string tmp = "overlay_"+name;
-		Engine::GetResMgr()->remove<sf::Texture>( tmp );
-		Screen::sRndr()->removeActor( A->getID() );
-		A.reset();
+			// the size of the terrain multiplied by the size of a tile
+			sprite.setTextureRect(sf::IntRect(0,0, temp.getSize().x ,  temp.getSize().y));
+			sprite.setScale(TerrainSize*TileSize/temp.getSize().x,
+							TerrainSize*TileSize/temp.getSize().y);
+			sprite.setPosition(0,0);
+
+			Screen::sRndr()->addActor ( A, L_OVERLAY );
+		}
+		else
+		{
+			Engine::out() << "removing overlay" << std::endl;
+			std::string tmp = "overlay_"+name;
+			Engine::GetResMgr()->remove<sf::Texture>( tmp );
+			Screen::sRndr()->removeActor( A->getID() );
+			A.reset();
+		}
 	}
 }
