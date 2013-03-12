@@ -19,7 +19,7 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 		re.reset( new Species( pt.get<std::string>("name") ));
 
 		re->maxAge             = pt.get<int>("maxAge");
-		re->maxHealth          = pt.get<int>("maxHealth");
+		re->maxHealth          = pt.get<float>("maxHealth");
 		re->maxSpeed           = pt.get<float>("maxSpeed");
 		re->Reach              = pt.get<float>("reach");
 		re->resistance         = pt.get<float>("resistance");
@@ -49,7 +49,7 @@ bool SpeciesIOPlugin::saveObject( const std::string& name, const Species &s, boo
 
 		pt.put<std::string>("name",       s.name);
 		pt.put<int>("maxAge",             s.maxAge);
-		pt.put<int>("maxHealth",          s.maxHealth );
+		pt.put<float>("maxHealth",          s.maxHealth );
 		pt.put<float>("maxSpeed",           s.maxSpeed );
 		pt.put<float>("reach",              s.Reach );
 		pt.put<float>("resistance",         s.resistance );
