@@ -155,14 +155,30 @@ void Creature::huntNearest( std::function< bool( std::shared_ptr<Creature> ) > f
 
 void Creature::mate()
 {
-	mateNearest( [&]( const std::shared_ptr<Creature>& C )
+	switch (mySpecies->getType())
+	{
+		case Species::HERBA:
+			reproduce();
+			break;
+
+		// fall through
+		case Species::CARNIVORE:
+		case Species::HERBIVORE:
+
+		mateNearest( [&]( const std::shared_ptr<Creature>& C )
 		{
 			 return ( C->getSpecies() == mySpecies
 					&& C.get() != this
 					&& C->getCurrentHealth() > matingThreshold
 					&& C->getAge() > (C->getSpecies()->getMaxAge()*matingAge));
 		});
+
+		break;
+	}
+
 }
+
+
 
 void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > filter)
 {
@@ -172,6 +188,7 @@ void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > fi
 		return;
 	}
 
+	// move to mating partner
 	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
 	{
 		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
@@ -179,23 +196,43 @@ void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > fi
 		target += Position;
 		if ( validPos( target ) )
 			setPosition( target );
-
+	// mate
 	} else {
+		reproduce( nearest );
+	}
+}
 
+void Creature::reproduce( std::shared_ptr<Creature> otherparent)
+{
 		lastmating = age;
 
 		float healthCost = mySpecies->getMaxHealth() * matingHealthCost;
 		auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));
 
-		newborn->setPosition(Position);
-		newborn->setCurrentHealth( healthCost*2 );
+		Geom::Pointf newPosition = Position;
+
+		// for plants
+		if ( ! otherparent )
+		{
+			std::uniform_real_distribution<float> rnd(-(mySpecies->getReach()), mySpecies->getReach());
+			for (int i = 0; i < 10; ++i)
+			{
+				newPosition.x += rnd(Simulator::GetRnd());
+				newPosition.y += rnd(Simulator::GetRnd());
+				if ( validPos(newPosition)) break;
+			}
+		}
+
+		if ( !validPos(newPosition) ) newPosition = Position;
+
+		newborn->setPosition(newPosition);
+		// health from two parents for animals, from one for plants
+		newborn->setCurrentHealth( otherparent?healthCost*2:healthCost );
 		Simulator::GetCreatures().push_back(newborn);
 
 		currentHealth -= healthCost;
-		nearest->setCurrentHealth(nearest->getCurrentHealth() - healthCost);
-
-		//std::cout << "New creature created" << std::endl;
-	}
+		// plants dont need another parent
+		if ( otherparent ) otherparent->setCurrentHealth(otherparent->getCurrentHealth() - healthCost);
 }
 
 bool Creature::moveYourAss()

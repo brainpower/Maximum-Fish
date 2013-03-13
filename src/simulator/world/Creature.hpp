@@ -64,8 +64,11 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void huntFood();
 		/// handles eating the nearest possible prey defined by the filter lambda
 		void huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
+		/// find the nearest mating partner ( for animals )
 		void mateNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
 		void mate();
+		/// spawn a child
+		void reproduce( std::shared_ptr<Creature> otherparent = std::shared_ptr<Creature>());
 		void move(int found);
 		bool moveYourAss();
 		/**
