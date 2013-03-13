@@ -30,14 +30,14 @@ Terrain::Terrain()
 
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
 {
-	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
+	unsigned int index = Geom::linear(pos, Size.x);
 	if (!validPos(pos) || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
 float Terrain::getTileElevation(Geom::Vec2f pos)
 {
-	unsigned int index = (int)(pos.x) * Size.x + (int)(pos.y);
+	unsigned int index = Geom::linear(pos, Size.x);
 	if (!validPos(pos) || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
@@ -79,6 +79,9 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
+	// we're using squared distances
+	float r2 = radius*radius;
+
 	for (int x = Position.x-radius; x < Position.x+radius; ++x)
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
@@ -88,7 +91,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 
 			for (std::shared_ptr<Creature>& C : T->getCreatures())
 			{
-				if ( Geom::distance( C->getPosition(), Position ) < radius && filter ( C ) ) ret.push_back(C);
+				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
 			}
 		}
 	}
@@ -99,23 +102,28 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter )
 {
 	std::shared_ptr<Creature> nearest;
-	float mindist = radius;
+
+	// squared distance, avoid squrt in further comparisions
+	float mindist2 = radius*radius;
 
 	for (int x = Position.x-radius; x < Position.x+radius; ++x)
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
 			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
-			if (!T) break;
+			if (!T || (x==Position.y && y == Position.y)) continue;
 
 			for (std::shared_ptr<Creature>& C : T->getCreatures())
 			{
-				float curdist = Geom::distance( C->getPosition(), Position );
-				if ( curdist < mindist && filter ( C ) )
+				float curdist = Geom::squaredist( C->getPosition(), Position );
+				if ( curdist < mindist2 && filter ( C ) )
 				{
 					nearest = C;
-					mindist = curdist;
-	}	}	}	}
+					mindist2 = curdist;
+				}
+			}
+		}
+	}
 
 	return nearest;
 }
@@ -178,10 +186,9 @@ void Terrain::CreateDebugTerrain()
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> rnd;
 
-
-	for ( int x = 0; x < Size.x; ++x)
+	for ( int y = 0; y < Size.y; ++y)
 	{
-		for ( int y = 0; y < Size.y; ++y)
+		for ( int x = 0; x < Size.x; ++x)
 		{
 			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
 			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
@@ -204,13 +211,13 @@ void Terrain::CreateDebugTerrain()
 
 	tilemapImage.reset ( new sf::Image);
 	tilemapImage->create(Size.x ,Size.y);
-	for(int c = 0; c < Size.x; c++)
+	for(int x = 0; x < Size.x; x++)
 	{
-		for(int r = 0; r < Size.y; r++)
+		for(int y = 0; y < Size.y; y++)
 		{
-			Geom::Vec2f pos(c, r);
+			Geom::Vec2f pos(x, y);
 			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);
-			tilemapImage->setPixel(c, r, tile);
+			tilemapImage->setPixel(x, y, tile);
 		}
 	}
 
