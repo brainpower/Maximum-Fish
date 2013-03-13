@@ -90,6 +90,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::string& specName
 std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Species>& spec )
 {
 
+	std::uniform_int_distribution<int> agedist(0, spec->getMaxAge() );
 	std::uniform_real_distribution<float> dist(0, Sim.Terra->getSize().x );
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( spec ));
 
@@ -101,6 +102,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )
 		{
+			ptr_creature->setAge( agedist( Sim.rnd() ) );
 			ptr_creature->setPositionUnsafe( Position );
 			return ptr_creature;
 		}
