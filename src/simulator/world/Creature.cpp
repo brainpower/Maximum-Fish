@@ -28,6 +28,7 @@ float Creature::envMult = 0.0001;
 Creature::Creature( const std::shared_ptr<Species>& Species)
  : 	currentHealth(100),
 	age(0),
+	lastmating(0),
 	Position( 0, 0 ),
 	mySpecies (Species)
 {
@@ -80,11 +81,15 @@ void Creature::live()
 	// feed
 	int found = 0;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
-	if(currentHealth/mySpecies->getMaxHealth() < huntingThreshold )
+	float healthPercentage = currentHealth/mySpecies->getMaxHealth();
+
+	if ( healthPercentage < huntingThreshold )
 	{
 		huntFood();
 	}
-	else if((currentHealth/mySpecies->getMaxHealth() > matingThreshold) && (age > (mySpecies->getMaxAge()*matingAge )))
+	else if ( age - lastmating > mySpecies->getBreedingSpeed()
+				&& healthPercentage > matingThreshold
+				&& age > mySpecies->getMaxAge()*matingAge )
 	{
 		mate();
 	}
@@ -92,6 +97,7 @@ void Creature::live()
 	{
 		move(found);
 	}
+
 	age++;
 }
 
@@ -151,10 +157,10 @@ void Creature::mate()
 {
 	mateNearest( [&]( const std::shared_ptr<Creature>& C )
 		{
-			 return ( (C->getSpecies() == mySpecies)
-					&& (C.get() != this)
-					&& (C->getCurrentHealth() > matingThreshold)
-					&& (C->getAge() > (C->getSpecies()->getMaxAge()*matingAge)));
+			 return ( C->getSpecies() == mySpecies
+					&& C.get() != this
+					&& C->getCurrentHealth() > matingThreshold
+					&& C->getAge() > (C->getSpecies()->getMaxAge()*matingAge));
 		});
 }
 
@@ -171,9 +177,12 @@ void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > fi
 		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
 		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
 		target += Position;
-		if (validPos( target ) )
+		if ( validPos( target ) )
 			setPosition( target );
+
 	} else {
+
+		lastmating = age;
 
 		float healthCost = mySpecies->getMaxHealth() * matingHealthCost;
 		auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));

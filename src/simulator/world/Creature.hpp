@@ -77,6 +77,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
 		float currentHealth;
 		int age;
+		int lastmating;
 		Geom::Vec2f Position;
 
 		//References
