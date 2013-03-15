@@ -49,7 +49,7 @@ void GraphBook::CreateWindow( const Geom::Vec2 Size )
 
 void GraphBook::HandleEvent( Event& e )
 {
-    if ( UpdateTimer.getElapsedTime() > sf::seconds( 2.0 ) )
+    if ( UpdateTimer.getElapsedTime() > sf::seconds( 2.0 ) && Win->IsGloballyVisible() )
 	{
 		UpdateGraph();
 		UpdateTimer.restart();
