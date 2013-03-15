@@ -2,6 +2,7 @@
 
 #include "sbe/gfx/Actor.hpp"
 #include "sbe/gfx/Renderer.hpp"
+#include "sbe/gfx/Camera.hpp"
 #include "sbe/Config.hpp"
 #include "sbe/ResourceManager.hpp"
 
@@ -19,10 +20,11 @@
 SimActors::SimActors()
 {
 	TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
-	TerrainSize = 	Engine::getCfg()->get<int>("system.sim.terragen.debug.size");
+	TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
 	CreatureSize = Engine::getCfg()->get<int>("system.ui.simView.creatureSize");
 	RenderGrid = Engine::getCfg()->get<bool>("system.ui.simView.renderGrid");
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
+	cullThreshold = Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
 
 	RegisterForEvent( "DISPLAY_GRAPH" );
 
@@ -86,9 +88,7 @@ void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 	sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
 	P->Add(I);
 
-	Event ev( "SCREEN_ADD_WINDOW");
-	ev.SetData( P );
-	Module::Get()->QueueEvent(ev);
+	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", P ));
 }
 */
 
@@ -104,13 +104,15 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 
 	sf::VertexArray& Creatures = (std::dynamic_pointer_cast<VertexActor>(CreaturesActor))->arr;
 	Creatures.clear();
-	Creatures.resize( 4 * r.size() );
 	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
 
-	int i = 0;
+	bool cull = r.size() > cullThreshold;
+	auto imgs = Engine::GetResMgr()->get<ImageSet>("Creatures");
+
 	for ( std::shared_ptr<Creature> C : r)
 	{
-		Engine::GetResMgr()->get<ImageSet>("Creatures")->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, DetermineCreaturePos( C ) , (i++ * 4));
+		auto Pos = DetermineCreaturePos( C );
+		if ( !cull || Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
@@ -174,11 +176,22 @@ void SimActors::CreateTerrainShaderMap()
 	TerrainSize = tilemapTexture.getSize().x;
 
 	std::shared_ptr<sf::Shader> tilemapShader = Engine::GetResMgr()->get<sf::Shader>( "tilemapShader" );
+	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
 
 	tilemapShader->setParameter("tilemap", tilemapTexture);
+	// amount of tiles
+	tilemapShader->setParameter("TerrainSize", TerrainSize);
+	Engine::out() << "Shaderparam TerrainSize " << TerrainSize << std::endl;
+	// amount of sprites in the imageset
+	tilemapShader->setParameter("AtlasSize", sf::Vector2f(TileImgSet->FrameCount.x, TileImgSet->FrameCount.y) );
+	Engine::out() << "Shaderparam AtlasSize " << TileImgSet->FrameCount << std::endl;
+	// how big should each tile be rendered
+	tilemapShader->setParameter("TileRenderSize", TileSize);
+	Engine::out() << "Shaderparam TileRenderSize " << TileSize << std::endl;
+
 	Screen::get()->getRenderer()->getLayer( L_TERRAIN )->States.shader = &(*tilemapShader);
 
-	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+
 	sf::Sprite& sprite = (dynamic_pointer_cast<SpriteActor>(TileActor))->sprite;
 
 	sprite.setTexture( tilemapTexture );

@@ -62,9 +62,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
     Win->SetTitle( "Main Menu [ESC]" );
     Win->Add( box );
 
-    Event e( "SCREEN_ADD_WINDOW" );
-    e.SetData( Win );
-    Module::Get()->QueueEvent( e );
+    Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
 }
 
 void MainMenu::HandleEvent( Event& e)

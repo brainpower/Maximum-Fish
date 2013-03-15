@@ -45,10 +45,7 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
     Win->Add( Topleveltabs );
     updatePosition();
 
-
-	Event e( "SCREEN_ADD_WINDOW" );
-	e.SetData( Win );
-	Module::Get()->QueueEvent( e );
+	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
 }
 
 void InfoPanel::HandleEvent( Event& e )

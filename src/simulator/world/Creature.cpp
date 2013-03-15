@@ -4,6 +4,7 @@
 
 #include "sbe/event/EventUser.hpp"
 #include "sbe/event/Event.hpp"
+#include "sbe/Config.hpp"
 
 #include "simulator/Simulator.hpp"
 
@@ -11,9 +12,23 @@
 #include "Terrain.hpp"
 #include "Tile.hpp"
 
+// static variables
+float Creature::pNutritionDiv = 4;
+float Creature::huntingThreshold = 0.75;
+float Creature::matingThreshold = 0.9;
+float Creature::matingAge = 0.2;
+float Creature::matingHealthCost = 0.25;
+float Creature::migProb = 0.01;
+float Creature::altModifier1 = 16;
+float Creature::altModifier2 = 2;
+float Creature::envMult = 0.0001;
+
+
+
 Creature::Creature( const std::shared_ptr<Species>& Species)
  : 	currentHealth(100),
 	age(0),
+	lastmating(0),
 	Position( 0, 0 ),
 	mySpecies (Species)
 {
@@ -23,7 +38,7 @@ Creature::Creature( const std::shared_ptr<Species>& Species)
 	}
 	else
 	{
-		this->setCurrentHealth(Species->getMaxHealth());
+		currentHealth = Species->getMaxHealth();
 	}
 }
 
@@ -65,26 +80,29 @@ void Creature::live()
 	calcEnv();
 	// feed
 	int found = 0;
-	if(currentHealth/mySpecies->getMaxHealth() < 0.75)
+	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
+	float healthPercentage = currentHealth/mySpecies->getMaxHealth();
+
+	if ( healthPercentage < huntingThreshold )
 	{
 		huntFood();
 	}
-	//else if(Artgenossen in der Naehe)
-	//{
-	//	mate();
-	//}
+	else if ( age - lastmating > mySpecies->getBreedingSpeed()
+				&& healthPercentage > matingThreshold
+				&& age > mySpecies->getMaxAge()*matingAge )
+	{
+		mate();
+	}
 	else
 	{
 		move(found);
 	}
-	// move ( or not )
-	// and try to reproduce
-	//
+
+	age++;
 }
 
 void Creature::huntFood()
 {
-	const float pNutritionDiv = 4;	//reduces importance of nutrition to plants
 	int foodFound = 0;
 	int damage = 0;
 
@@ -137,6 +155,84 @@ void Creature::huntNearest( std::function< bool( std::shared_ptr<Creature> ) > f
 
 void Creature::mate()
 {
+	switch (mySpecies->getType())
+	{
+		case Species::HERBA:
+			reproduce();
+			break;
+
+		// fall through
+		case Species::CARNIVORE:
+		case Species::HERBIVORE:
+
+		mateNearest( [&]( const std::shared_ptr<Creature>& C )
+		{
+			 return ( C->getSpecies() == mySpecies
+					&& C.get() != this
+					&& C->getCurrentHealth() > matingThreshold
+					&& C->getAge() > (C->getSpecies()->getMaxAge()*matingAge));
+		});
+
+		break;
+	}
+
+}
+
+
+
+void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > filter)
+{
+	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), filter);
+	if ( !nearest ) {
+		move(0);
+		return;
+	}
+
+	// move to mating partner
+	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
+	{
+		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
+		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		target += Position;
+		if ( validPos( target ) )
+			setPosition( target );
+	// mate
+	} else {
+		reproduce( nearest );
+	}
+}
+
+void Creature::reproduce( std::shared_ptr<Creature> otherparent)
+{
+		lastmating = age;
+
+		float healthCost = mySpecies->getMaxHealth() * matingHealthCost;
+		auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));
+
+		Geom::Pointf newPosition = Position;
+
+		// for plants
+		if ( ! otherparent )
+		{
+			std::uniform_real_distribution<float> rnd(-(mySpecies->getReach()), mySpecies->getReach());
+			for (int i = 0; i < 10; ++i)
+			{
+				newPosition.x += rnd(Simulator::GetRnd());
+				newPosition.y += rnd(Simulator::GetRnd());
+				if ( validPos(newPosition)) break;
+			}
+		}
+
+		if ( !validPos(newPosition) ) newPosition = Position;
+
+		newborn->setPosition(newPosition);
+		// health from two parents for animals, from one for plants
+		newborn->setCurrentHealth( otherparent?healthCost*2:healthCost );
+		Simulator::GetCreatures().push_back(newborn);
+
+		currentHealth -= healthCost;
+		// plants dont need another parent
+		if ( otherparent ) otherparent->setCurrentHealth(otherparent->getCurrentHealth() - healthCost);
 }
 
 bool Creature::moveYourAss()
@@ -176,20 +272,18 @@ void Creature::move(int found)
 {
 	if ( mySpecies->getMaxSpeed() == 0 ) return;
 
-	float migProb = 1;
-
 	float hab = currentTile->getHabitability(found, mySpecies);
 
-	std::uniform_real_distribution<float> rnd(0, 99);
+	std::uniform_real_distribution<float> rnd(0, 1);
 
 
-	if(hab < 10) {
+	if( hab < 10 ) {
 		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
 	}
 	else
 	{
 	//maybe GTFO
-	if(rnd(Simulator::GetRnd()) < migProb)
+	if( rnd(Simulator::GetRnd()) < migProb )
 		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
 	}
 }
@@ -206,19 +300,26 @@ bool Creature::validPos( Geom::Pointf NewPosition )
 void Creature::calcEnv()
 {
 	//####### calculate external effects on creature ########
-	float mult = 0.0001;
-
-	//modifiers
-	const float altModifier1 = 16;	//stretches out the range where creatures don't take much damage from wrong elevation \__/ -> \____/
-	const float altModifier2 = 2;	//higher values here mean steeper rise in damage from moving further away from optimal elevation; only use even numbers! \__/ -> |__|
-
 
 	//--damage from wrong elevation/temperature
 	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
 
 	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
 
-	float fdmg = (float)(damage)*mult;
+	float fdmg = (float)(damage)*envMult;
 
 	currentHealth -= fdmg;
+}
+
+void Creature::loadConfigValues()
+{
+	pNutritionDiv = 	Engine::getCfg()->get<float>("sim.creature.pNutritionDiv");
+	huntingThreshold = 	Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
+	matingThreshold = 	Engine::getCfg()->get<float>("sim.creature.matingThreshold");
+	matingAge = 		Engine::getCfg()->get<float>("sim.creature.matingAge");
+	matingHealthCost = 	Engine::getCfg()->get<float>("sim.creature.matingHealthCost");
+	migProb = 			Engine::getCfg()->get<float>("sim.creature.migProb");
+	altModifier1 = 		Engine::getCfg()->get<float>("sim.creature.altModifier1");
+	altModifier2 = 		Engine::getCfg()->get<float>("sim.creature.altModifier2");
+	envMult = 			Engine::getCfg()->get<float>("sim.creature.envMult");
 }

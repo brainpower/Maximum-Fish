@@ -19,16 +19,16 @@ Species::Species(const std::string& _name)
  Frame( type )
 {
 	//Engine::out() << "species!" << std::endl;
-	maxAge = Engine::getCfg()->get<int>("system.sim.species.defaults.maxAge");
-	maxHealth = Engine::getCfg()->get<int>("system.sim.species.defaults.maxHealth");
-	maxSpeed = Engine::getCfg()->get<float>("system.sim.species.defaults.maxSpeed");
-	Reach = Engine::getCfg()->get<float>("system.sim.species.defaults.reach");
-	resistance = Engine::getCfg()->get<float>("system.sim.species.defaults.resistance");
-	breedingSpeed = Engine::getCfg()->get<int>("system.sim.species.defaults.breedingSpeed");
-	foodRequirement = Engine::getCfg()->get<int>("system.sim.species.defaults.foodRequirement");
-	waterRequirement = Engine::getCfg()->get<int>("system.sim.species.defaults.waterRequirement");
-	optimalTemperature = Engine::getCfg()->get<int>("system.sim.species.defaults.optimalTemperature");
-	ImageSetName = Engine::getCfg()->get<std::string>("system.sim.species.defaults.imageSetName");
+	maxAge = Engine::getCfg()->get<int>("sim.species.defaults.maxAge");
+	maxHealth = Engine::getCfg()->get<int>("sim.species.defaults.maxHealth");
+	maxSpeed = Engine::getCfg()->get<float>("sim.species.defaults.maxSpeed");
+	Reach = Engine::getCfg()->get<float>("sim.species.defaults.reach");
+	resistance = Engine::getCfg()->get<float>("sim.species.defaults.resistance");
+	breedingSpeed = Engine::getCfg()->get<int>("sim.species.defaults.breedingSpeed");
+	foodRequirement = Engine::getCfg()->get<int>("sim.species.defaults.foodRequirement");
+	waterRequirement = Engine::getCfg()->get<int>("sim.species.defaults.waterRequirement");
+	optimalTemperature = Engine::getCfg()->get<int>("sim.species.defaults.optimalTemperature");
+	ImageSetName = Engine::getCfg()->get<std::string>("sim.species.defaults.imageSetName");
 
 	if (type == HERBA) maxSpeed = 0;
 }

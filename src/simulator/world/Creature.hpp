@@ -42,13 +42,33 @@ class Creature : public std::enable_shared_from_this<Creature>
 		// neccessary to update currentTile after loading from "savegame"
 		void updateTileFromPos();
 
+		static void loadConfigValues();
+
 	private:
+
+		// static settings loaded from the config
+		static float pNutritionDiv;
+		static float huntingThreshold;
+		static float matingThreshold;
+		static float matingAge;
+		static float matingHealthCost;
+		static float migProb;
+		static float altModifier1;
+		static float altModifier2;
+		static float envMult;
+		// -- END STATIC SETTINGS --
+
+
 
 		friend class CreatureIOPlugin;
 		void huntFood();
 		/// handles eating the nearest possible prey defined by the filter lambda
 		void huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
+		/// find the nearest mating partner ( for animals )
+		void mateNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
 		void mate();
+		/// spawn a child
+		void reproduce( std::shared_ptr<Creature> otherparent = std::shared_ptr<Creature>());
 		void move(int found);
 		bool moveYourAss();
 		/**
@@ -60,6 +80,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
 		float currentHealth;
 		int age;
+		int lastmating;
 		Geom::Vec2f Position;
 
 		//References

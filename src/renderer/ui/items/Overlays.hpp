@@ -33,11 +33,18 @@ class Overlays : EventUser
 		void ClearOverlays();
 		/// Toggle rendering of current overlay
 		void ToggleRendering();
+		/// toggle live updating of overlays
+		void ToggleLive();
+		/// update overlays right now
+		void ForceUpdate();
 
 	private:
 
 		void ShowMap( std::string& name );
 		void AddMap( std::shared_ptr<MapPlotter>& M );
+
+		void CreateActor( const std::string& name );
+		void RemoveActor( const std::string& name );
 
 		sfg::Frame::Ptr CurrentFrame;
 		sfg::Box::Ptr myBox;

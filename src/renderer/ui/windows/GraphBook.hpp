@@ -12,18 +12,20 @@ class GraphBook : public EventUser
 {
 	public:
 
-		GraphBook( const Geom::Vec2 Size = Geom::Vec2(400, 400));
+		GraphBook( const Geom::Vec2 Size = Geom::Vec2(400, 400) );
 		virtual ~GraphBook() {};
 
 		virtual void HandleEvent( Event& e);
 
 	private:
-		void CreateWindow(const Geom::Vec2 Size);
-		void TabsChangeClick ();
+		void CreateWindow( const Geom::Vec2 Size );
+		void UpdateGraph();
 		void PlotGraph( std::shared_ptr<GraphPlotter>& G );
 		void updatePosition();
 
 		sfg::Window::Ptr Win;
+
+		sf::Clock UpdateTimer;
 };
 
 #endif // GRAPHBOOK_H

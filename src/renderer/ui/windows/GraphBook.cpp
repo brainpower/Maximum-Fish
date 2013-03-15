@@ -27,42 +27,46 @@ void GraphBook::CreateWindow( const Geom::Vec2 Size )
     {
 		sfg::Box::Ptr box( sfg::Box::Create() );
 		sfg::Label::Ptr label( sfg::Label::Create( "Population" ) );
-		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::TabsChangeClick, this );
+		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
 	tabs->AppendPage( box, label );
     }{
 		sfg::Box::Ptr box( sfg::Box::Create() );
 		sfg::Label::Ptr label( sfg::Label::Create( "Births" ) );
-		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::TabsChangeClick, this );
+		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
 	tabs->AppendPage( box, label );
     }{
 		sfg::Box::Ptr box( sfg::Box::Create() );
 		sfg::Label::Ptr label( sfg::Label::Create( "Deaths" ) );
-		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::TabsChangeClick, this );
+		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
 	tabs->AppendPage( box, label );
     }
-	//Don't forget to connect the function TabsChangeClick with every label.
+	//Don't forget to connect the function UpdateGraph with every label.
 
     Win->Add( tabs );
 
-    Event e("SCREEN_ADD_WINDOW");
-    e.SetData( Win );
-    Module::Get()->QueueEvent( e );
+    Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
 }
 
-void GraphBook::HandleEvent( Event& e)
+void GraphBook::HandleEvent( Event& e )
 {
-    if (e.Is("KEY_SHOW_GRAPHBOOK"))
+    if ( UpdateTimer.getElapsedTime() > sf::seconds( 2.0 ) )
+	{
+		UpdateGraph();
+		UpdateTimer.restart();
+	}
+	else if ( e.Is( "KEY_SHOW_GRAPHBOOK" ) )
     {
-        if (Win->IsGloballyVisible())
+        if ( Win->IsGloballyVisible() )
 		{
-			Win->Show(false);
+			Win->Show( false );
 		}
         else
 		{
 			updatePosition();
-			TabsChangeClick();//not realy clicked, but for updating the current tab
+			UpdateGraph();//not realy clicked, but for updating the current tab
 			Win->Show( true );
 			Win->GrabFocus();
+			UpdateTimer.restart();
 		}
     }
     else if ( e.Is( "DISPLAY_COUNT_GRAPH" ) )
@@ -73,7 +77,7 @@ void GraphBook::HandleEvent( Event& e)
     }
 }
 
-void GraphBook::TabsChangeClick ()
+void GraphBook::UpdateGraph ()
 {
 	//request update for current tab
 

@@ -24,6 +24,7 @@ void DetailsTile::UpdateLabel()
 
     DetailsLabel->SetText("");
     AddToLabel( DetailsLabel, "Type/SpriteIndex", str(format("%d") % currentTile->getTileSpriteIndex() ));
+    AddToLabel( DetailsLabel, "Creatures", str(format("%d") % currentTile->getCreatures().size() ));
     AddToLabel( DetailsLabel, "Position", str(format("%.2f,%.2f") % currentTile->getPosition().x % currentTile->getPosition().y ));
     AddToLabel( DetailsLabel, "Height", str(format("%.2f") % currentTile->getHeight()));
     AddToLabel( DetailsLabel, "Nutrition", str(format("%.2f") % currentTile->getNutrition()));

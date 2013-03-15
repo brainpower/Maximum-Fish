@@ -9,7 +9,7 @@ class Creature;
 class Generator
 {
 	public:
-		Generator( Simulator& S ) : Sim(S) {}
+		Generator( Simulator& S );
 
 		/// create a number of species with several creatures for each species
 		void CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int SpeciesCount, int CreatureCount );

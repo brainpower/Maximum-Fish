@@ -6,6 +6,11 @@
 
 #include "sbe/Config.hpp"
 
+Generator::Generator( Simulator& S ) : Sim(S)
+{
+
+}
+
 void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int SpeciesCount, int CreatureCount )
 {
 	for ( int i = 0; i < SpeciesCount; ++i)
@@ -25,7 +30,7 @@ void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 std::shared_ptr<Species> Generator::createRandomSpecies()
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
 	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd(Sim.rnd());
 
@@ -53,7 +58,7 @@ std::shared_ptr<Species> Generator::createRandomSpecies()
 
 std::shared_ptr<Creature> Generator::createRandomCreature()
 {
-	std::uniform_real_distribution<float> rnd(0,32);
+	std::uniform_real_distribution<float> rnd(0,Sim.Terra->getSize().x);
 	std::uniform_int_distribution<int> species_rnd(0,Sim.SpeciesList.size()-1);
 
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( Sim.SpeciesList[species_rnd(Sim.rnd())] ));
@@ -84,7 +89,10 @@ std::shared_ptr<Creature> Generator::createCreature( const std::string& specName
 
 std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Species>& spec )
 {
-	std::uniform_real_distribution<float> dist(0,32);
+
+	std::uniform_int_distribution<int> agedist(0, spec->getMaxAge() );
+	std::uniform_int_distribution<int> healthdist(0, spec->getMaxHealth() );
+	std::uniform_real_distribution<float> dist(0, Sim.Terra->getSize().x );
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( spec ));
 
 	// try a few times, but make sure we're not stuck in a loop
@@ -95,6 +103,8 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )
 		{
+			ptr_creature->setCurrentHealth( healthdist( Sim.rnd() ) );
+			ptr_creature->setAge( agedist( Sim.rnd() ) );
 			ptr_creature->setPositionUnsafe( Position );
 			return ptr_creature;
 		}
@@ -107,7 +117,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 std::shared_ptr<Species> Generator::createSpecies( Species::SPECIES_TYPE type )
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("system.sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("system.sim.species.rnd.temp.max"));
+	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
 	std::string name;
 	switch (type)

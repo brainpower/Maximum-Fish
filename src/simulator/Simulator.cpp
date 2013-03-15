@@ -49,6 +49,7 @@ currentTick(0), numGenerated(0), isPaused(false) {
 	RegisterForEvent("SET_SIM_TPS");
 
 	RegisterForEvent("PLOT_COUNTS");
+	RegisterForEvent("UPDATE_OVERLAYS");
 
 	init();
 }
@@ -72,14 +73,17 @@ void Simulator::HandleEvent(Event& e)
 	else if(e.Is("SIM_PAUSE"))
 	{
 		isPaused = true;
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if(e.Is("SIM_UNPAUSE"))
 	{
 		isPaused = false;
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
 		isPaused = !isPaused;
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
 	{
@@ -94,11 +98,8 @@ void Simulator::HandleEvent(Event& e)
 	{
 		std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
 		if ( p->isValid() )
-		{
-			Event ev( "DISPLAY_COUNT_GRAPH" );
-			ev.SetData( p );
-			Module::Get()->QueueEvent( ev, true );
-		}
+		Module::Get()->QueueEvent(Event("DISPLAY_COUNT_GRAPH", p), true);
+
 	}
 	else if ( e.Is( "PLOT_BIRTHS" ) )
 	{
@@ -107,6 +108,10 @@ void Simulator::HandleEvent(Event& e)
 	else if ( e.Is( "PLOT_DEATHS" ) )
 	{
 		///TODO============================================================================================================================
+	}
+	else if ( e.Is( "UPDATE_OVERLAYS" ) )
+	{
+		Terra->CreateMapPlotters();
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -117,10 +122,10 @@ void Simulator::HandleEvent(Event& e)
 		Engine::GetResMgr()->saveObject( "DebugTerrain", Terra, true);
 	}
 	else if (e.Is("EVT_SAVE_WHOLE_TEST")) {
-		saveWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
+		saveWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_LOAD_WHOLE_TEST")) {
-		loadWhole( Engine::getCfg()->get<std::string>("system.sim.debugsavepath"));
+		loadWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
 	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string))) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
@@ -140,7 +145,7 @@ void Simulator::init()
 	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
-	NewSimulation(Engine::getCfg()->get<int>("system.sim.defaultSeed"));
+	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
 void Simulator::NewSimulation( int seed )
@@ -152,6 +157,8 @@ void Simulator::NewSimulation( int seed )
 	gen.seed( seed );
 	currentSeed = seed;
 	numGenerated = 0;
+
+	Creature::loadConfigValues();
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 	Terra.reset ( new Terrain() );
@@ -174,13 +181,14 @@ void Simulator::NewSimulation( int seed )
 	Generator G (*this);
 
 
-	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("system.sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.plantCount") );
-	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.herbivoreCount") );
-	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("system.sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("system.sim.terragen.carnivoreCount") );
+	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("sim.terragen.plantCount") );
+	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.herbivoreCount") );
+	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.carnivoreCount") );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
-	isPaused = Engine::getCfg()->get<bool>("system.sim.pauseOnStart");
+	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
+	Engine::getCfg()->set("sim.paused", isPaused);
 	// count Creatures once
 
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
@@ -189,9 +197,7 @@ void Simulator::NewSimulation( int seed )
 	// send terrain to renderer
 	Terra->UpdateTerrain();
 	// send creatures to renderer
-	Event e("UpdateCreatureRenderList");
-	e.SetData ( Creatures );
-	Module::Get()->QueueEvent(e, true);
+	Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 
 	Terra->CreateMapPlotters();
 
@@ -239,9 +245,9 @@ void Simulator::tick()
 		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( numGenerated ));
 		if ( !isPaused )
 		{
-			Event e("UpdateCreatureRenderList");
-			e.SetData ( Creatures );
-			Module::Get()->QueueEvent(e, true);
+			Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
+
+			if (Engine::getCfg()->get<bool>("system.ui.Overlays.live")) Terra->CreateMapPlotters();
 		}
 
 		RendererUpdate.restart();
@@ -262,8 +268,8 @@ std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
 	std::shared_ptr<GraphPlotter> re( new GraphPlotter );
 
 	Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("system.sim.countplot.size.x"),Engine::getCfg()->get<int>("system.sim.countplot.size.y"));
-	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("system.sim.countplot.axissize.x"), Engine::getCfg()->get<int>("system.sim.countplot.axissize.y"));
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
@@ -284,9 +290,7 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 		 && (0 <= pos.y && pos.y < Terra->getSize().y +1 )
 		))
 	{
-		Event e("TILE_CLICKED");
-		e.SetData( std::shared_ptr<Tile>() );
-		Module::Get()->QueueEvent(e, true);
+		Module::Get()->QueueEvent(Event("TILE_CLICKED", std::shared_ptr<Tile>()), true);
 		return;
 	}
 
@@ -294,13 +298,9 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 
 	std::shared_ptr<Tile>& T = Terra->getTile( pos );
 
-	Event e("TILE_CLICKED");
-	e.SetData( T );
-	Module::Get()->QueueEvent(e, true);
+	Module::Get()->QueueEvent(Event("TILE_CLICKED", T), true);
 
-
-	Event ev("CREATURE_CLICKED");
-	ev.SetData( std::shared_ptr<Creature>() );
+	Event ev("CREATURE_CLICKED", std::shared_ptr<Creature>());
 
 	for ( std::shared_ptr<Creature>& C : T->getCreatures())
 	{
@@ -337,12 +337,12 @@ void Simulator::saveWhole(const std::string &savePath){
 	bool wasPaused = isPaused;
 
 	isPaused = true; // pause sim while saving
+	Engine::getCfg()->set("sim.paused", isPaused);
 
 	// add save path to IO stack
 	if(savePath.empty() || !Engine::GetIO()->addPath(savePath))
 	{
-		Event e("EVT_SAVE_BAD");
-		e.SetData( std::string("Save path invalid ( sim.debugsavepath in config )!") );
+		Event e("EVT_SAVE_BAD", std::string("Save path invalid ( sim.debugsavepath in config )!"));
 		Module::Get()->QueueEvent(e, true);
 		return;
 	}
@@ -352,20 +352,17 @@ void Simulator::saveWhole(const std::string &savePath){
 	// do some saving...
 	if(!Engine::GetIO()->saveObject( "Terrain", *Terra, true)){  // should we overwrite?
 
-		Event e("EVT_SAVE_BAD");
-		e.SetData( std::string("Error saving Terrain!") );
+		Event e("EVT_SAVE_BAD", std::string("Error saving Terrain!"));
 		Module::Get()->QueueEvent(e, true);
 
 	}	else if(!Engine::GetIO()->saveObjects<Creature>(Creatures.begin(), Creatures.end(), true)){
 
-		Event e("EVT_SAVE_BAD");
-		e.SetData( std::string("Error saving Creatures!") );
+		Event e("EVT_SAVE_BAD", std::string("Error saving Creatures!"));
 		Module::Get()->QueueEvent(e, true);
 
 	} else if(!Engine::GetIO()->saveObjects<Species>(SpeciesList.begin(), SpeciesList.end(), true)){ // should we overwrite?
 
-		Event e("EVT_SAVE_BAD");
-		e.SetData( std::string("Error saving Species'!") );
+		Event e("EVT_SAVE_BAD", std::string("Error saving Species'!"));
 		Module::Get()->QueueEvent(e, true);
 
 	} else {
@@ -377,8 +374,7 @@ void Simulator::saveWhole(const std::string &savePath){
 
 		simCfg->save();
 
-		Event e("EVT_SAVE_GOOD");
-		Module::Get()->QueueEvent(e, true);
+		Module::Get()->QueueEvent("EVT_SAVE_GOOD", true);
 
 	}
 
@@ -387,17 +383,17 @@ void Simulator::saveWhole(const std::string &savePath){
 		Engine::GetIO()->popPath(); // pop save path from IO stack
 
 	isPaused = wasPaused; // continue, if not wasPaused
-
+	Engine::getCfg()->set("sim.paused", isPaused);
 }
 
 void Simulator::loadWhole(const std::string &loadPath){
 	bool wasPaused = isPaused;
 	isPaused = true; // pause sim while saving
+	Engine::getCfg()->set("sim.paused", isPaused);
 
 	if(loadPath.empty() || !Engine::GetIO()->addPath(loadPath))
 	{
-		Event e("EVT_LOAD_BAD");
-		e.SetData( std::string("Load path invalid ( sim.debugsavepath in config )!") );
+		Event e("EVT_LOAD_BAD", std::string("Load path invalid ( sim.debugsavepath in config )!"));
 		Module::Get()->QueueEvent(e, true);
 		return;
 	}
@@ -409,12 +405,12 @@ void Simulator::loadWhole(const std::string &loadPath){
 	auto tmp3 = Engine::GetIO()->loadObjects<Creature>();
 	auto simCfg = shared_ptr<Config>( new Config("simState.info", "sim") );
 
-	if(tmp.empty() || tmp2.empty() || tmp3.empty() || !simCfg){
-		Event e("EVT_LOAD_BAD");
-		e.SetData(std::string("Error loading"));
-	  Module::Get()->QueueEvent(e, true);
+	if(tmp.empty() || tmp2.empty() || tmp3.empty() || !simCfg)
+	{
+		Event e("EVT_LOAD_BAD", std::string("Error loading"));
+		Module::Get()->QueueEvent(e, true);
 
-	  Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
 		return;
 	}
 
@@ -454,17 +450,15 @@ void Simulator::loadWhole(const std::string &loadPath){
 	// send terrain to renderer
 	Terra->UpdateTerrain();
 	// send creatures to renderer
-	Event e("UpdateCreatureRenderList");
-	e.SetData ( Creatures );
-	Module::Get()->QueueEvent(e, true);
+	Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 
 	RendererUpdate.restart();
 
 	// loading done...
-	Event e2("EVT_LOAD_GOOD");
-	Module::Get()->QueueEvent(e2, true);
+	Module::Get()->QueueEvent("EVT_LOAD_GOOD", true);
 
 	isPaused = wasPaused;
+	Engine::getCfg()->set("sim.paused", isPaused);
 
 	Engine::out(Engine::SPAM) << Creatures.front()->getSpeciesString() << std::endl;
 	Engine::out(Engine::SPAM) << GetSpecies(Creatures.front()->getSpeciesString())->getName() << std::endl;

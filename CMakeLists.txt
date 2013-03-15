@@ -2,7 +2,7 @@ project(Maximum-Fish)
 
 cmake_minimum_required(VERSION 2.8)
 
-
+set(CMAKE_CXX_FLAGS "-isystem$(BOOST)")
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Modules" ${CMAKE_MODULE_PATH})
 
 #######################################################
