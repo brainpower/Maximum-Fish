@@ -11,7 +11,7 @@ Control::Control( const Geom::Vec2 Size)
     RegisterForEvent( "KEY_SHOW_CONSOLE" );
     RegisterForEvent( "KEY_SHOW_INFOPANEL" );
     RegisterForEvent( "KEY_SHOW_MAINMENU" );
-    RegisterForEvent( "KEY_SHOW_MINIMAP" );
+    RegisterForEvent( "KEY_SHOW_GRAPHBOOK" );
     RegisterForEvent( "KEY_SIM_PAUSE" );
     RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
     RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
@@ -37,7 +37,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
         BtnDbgWin =   sfg::ToggleButton::Create( "Console" );
         BtnIPanWin =  sfg::ToggleButton::Create( "InfoPanel" );
         BtnMnMnWin =  sfg::ToggleButton::Create( "MainMenu" );
-        BtnMiMapWin = sfg::ToggleButton::Create( "MiniMap" );
+        BtnGraBoWin = sfg::ToggleButton::Create( "GraphBook" );
         BtnSimPause = sfg::ToggleButton::Create( "Pause ||" );
         BtnSimReset =       sfg::Button::Create( "Reset" );
 
@@ -63,7 +63,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
         BtnDbgWin->GetSignal(   sfg::ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
         BtnIPanWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
         BtnMnMnWin->GetSignal(  sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
-        BtnMiMapWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnMiMapWinClick, this );
+        BtnGraBoWin->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnGraBoWinClick, this );
             simPauseConnectionSerial =
         BtnSimPause->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
         BtnSimReset->GetSignal( sfg::Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
@@ -71,7 +71,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
         box->Pack( BtnDbgWin,   false, false);
         box->Pack( BtnIPanWin,  false, false);
         box->Pack( BtnMnMnWin,  false, false);
-        //box->Pack( BtnMiMapWin, false, false);
+        box->Pack( BtnGraBoWin, false, false);
         box->Pack( BtnSimPause, false, false);
         box->Pack( BtnSimReset, false, false);
         box->Pack( framesframe );
@@ -112,11 +112,11 @@ void Control::HandleEvent( Event& e)
         // in the Mainmenu.)
         BtnMnMnWin->SetActive(!BtnMnMnWin->IsActive());
     }
-    else if (e.Is("KEY_SHOW_MINIMAP") && !simPauseLock)
-    {   // KEY_SHOW_MINIMAP is sent whenever an action toggles the
-        // visibility of the MiniMap other than the ControlButton.
+    else if (e.Is("KEY_SHOW_GRAPHBOOK") && !simPauseLock)
+    {   // KEY_SHOW_GRAPHBOOK is sent whenever an action toggles the
+        // visibility of the GraphBook other than the ControlButton.
         // (Most likely this is the assigned keyboardkey.)
-        BtnMiMapWin->SetActive(!BtnMiMapWin->IsActive());
+        BtnGraBoWin->SetActive(!BtnGraBoWin->IsActive());
     }
     else if (e.Is("KEY_SIM_PAUSE"))
     {   // KEY_SIM_PAUSE is sent whenever an action toggles the Simulation
@@ -173,9 +173,9 @@ void Control::BtnMnMnWinClick()
     Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MAINMENU") );
 }
 
-void Control::BtnMiMapWinClick()
+void Control::BtnGraBoWinClick()
 {
-    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_MINIMAP") );
+    Module::Get()->QueueEvent( Event("TOGGLE_SHOW_GRAPHBOOK") );
 }
 
 void Control::BtnSimPauseClick()

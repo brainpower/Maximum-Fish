@@ -5,7 +5,7 @@ GraphBook::GraphBook( const Geom::Vec2 Size)
 
 {
     RegisterForEvent( "EVT_FRAME" );
-	RegisterForEvent( "KEY_SHOW_GRAPHBOOK" );
+	RegisterForEvent( "TOGGLE_SHOW_GRAPHBOOK" );
 	RegisterForEvent( "DISPLAY_COUNT_GRAPH" );
 
     CreateWindow(Size);
@@ -54,7 +54,7 @@ void GraphBook::HandleEvent( Event& e )
 		UpdateGraph();
 		UpdateTimer.restart();
 	}
-	else if ( e.Is( "KEY_SHOW_GRAPHBOOK" ) )
+	else if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
     {
         if ( Win->IsGloballyVisible() )
 		{

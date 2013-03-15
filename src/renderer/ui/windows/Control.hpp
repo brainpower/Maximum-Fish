@@ -22,7 +22,7 @@ class Control : public EventUser
 		sfg::ToggleButton::Ptr BtnDbgWin;
         sfg::ToggleButton::Ptr BtnIPanWin;
         sfg::ToggleButton::Ptr BtnMnMnWin;
-        sfg::ToggleButton::Ptr BtnMiMapWin;
+        sfg::ToggleButton::Ptr BtnGraBoWin;
         sfg::ToggleButton::Ptr BtnSimPause;
         sfg::Button::Ptr BtnSimReset;
         sfg::Entry::Ptr Framesdisplay;
@@ -33,7 +33,7 @@ class Control : public EventUser
         void BtnDbgWinClick();
         void BtnIPanWinClick();
         void BtnMnMnWinClick();
-        void BtnMiMapWinClick();
+        void BtnGraBoWinClick();
         void BtnSimPauseClick();
         void BtnSimResetClick();
 
