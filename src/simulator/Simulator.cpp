@@ -90,15 +90,23 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
 	}
-	else if (e.Is("PLOT_COUNTS"))
+	else if ( e.Is( "PLOT_COUNTS" ) )
 	{
 		std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
 		if ( p->isValid() )
 		{
-			Event ev("DISPLAY_GRAPH");
+			Event ev( "DISPLAY_COUNT_GRAPH" );
 			ev.SetData( p );
-			Module::Get()->QueueEvent(ev, true);
+			Module::Get()->QueueEvent( ev, true );
 		}
+	}
+	else if ( e.Is( "PLOT_BIRTHS" ) )
+	{
+		///TODO============================================================================================================================
+	}
+	else if ( e.Is( "PLOT_DEATHS" ) )
+	{
+		///TODO============================================================================================================================
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{

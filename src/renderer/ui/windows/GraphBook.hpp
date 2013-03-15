@@ -3,6 +3,7 @@
 
 #include "sbe/event/EventUser.hpp"
 #include "sbe/geom/Point.hpp"
+#include "sbe/gfx/GraphPlotter.hpp"
 
 #include <SFGUI/SFGUI.hpp>
 
@@ -18,6 +19,8 @@ class GraphBook : public EventUser
 
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
+		void TabsChangeClick ();
+		void PlotGraph( std::shared_ptr<GraphPlotter>& G );
 		void updatePosition();
 
 		sfg::Window::Ptr Win;

@@ -61,14 +61,14 @@ void SimActors::HandleEvent(Event& e)
 			tilemapTexture.loadFromImage( *i );
 			CreateTerrainShaderMap();
 		}
-	} else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
+	}/* else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
 	{
 		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
 		PlotGraph( p );
-	}
+	}*/
 }
 
-
+/*
 void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 {
 	if (!G) {
@@ -90,7 +90,7 @@ void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 	ev.SetData( P );
 	Module::Get()->QueueEvent(ev);
 }
-
+*/
 
 
 void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
