@@ -2,7 +2,6 @@ project(Maximum-Fish)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_CXX_FLAGS "-isystem$(BOOST)")
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Modules" ${CMAKE_MODULE_PATH})
 
 #######################################################
@@ -14,12 +13,59 @@ option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
 set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
+option(SUPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
 
 set( SFGUI_BUILD_EXAMPLES false CACHE BOOL "Do or dont build examples)")
 set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
 set( SFML_STATIC_LIBRARIES true CACHE BOOL "Was SFML built as a static library?" )
 
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+#set(VERSION_CHECK_DONE OFF)
+
+
+#######################################################
+# compiler version detection                          #
+#######################################################
+
+if (CMAKE_COMPILER_IS_GNUCXX AND NOT VERSION_CHECK_DONE)
+	# get gcc compiler version
+	# if newer cmake, CMAKE_CXX_COMPILER_VERSION is set, so use it...
+	# if not, call 'c++ -dumpversion' and get it from there
+	if(CMAKE_CXX_COMPILER_VERSION)
+		set(GCC_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
+	else()
+		execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+	endif()
+
+	# supress boost header warnings by telling gcc they're system headers
+	if(SUPRESS_BOOST_HEADER_WARNINGS)
+		set(CMAKE_CXX_FLAGS "-isystem$(BOOST)")
+	endif()
+endif()
+
+if(NOT VERSION_CHECK_DONE)
+	# set some definitions depending on gcc version
+	if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
+	   add_definitions ( -std=c++11 )
+
+		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
+			add_definitions ( -D__GCC_4_8__ )
+			if(CMAKE_BUILD_TYPE MATCHES Debug)
+				add_definitions( -Og )
+			endif()
+		endif()
+	else()
+		if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
+	    add_definitions ( -std=c++0x -D__GCC_4_6__ )
+		else()
+			message("-- Unsupported compiler detected. Build might fail!")
+			# changing this to -std=c++0x if you've got an old compiler, might work
+			add_definitions( -std=c++11 )
+		endif()
+
+	endif()
+	set(VERSION_CHECK_DONE ON)
+endif()
 
 #######################################################
 ################## External Libraries #################
@@ -99,37 +145,6 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
 else()
 	add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
-endif()
-
-# get gcc compiler version
-if (CMAKE_COMPILER_IS_GNUCXX)
-	# if newer cmake, CMAKE_CXX_COMPILER_VERSION is set, so use it...
-	# if not, call 'c++ -dumpversion' and get it from there
-	if(CMAKE_CXX_COMPILER_VERSION)
-		set(GCC_VERSION "${CMAKE_CXX_COMPILER_VERSION}")
-	else()
-		execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-	endif()
-endif()
-
-# set some definitions depending on gcc version
-if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
-    add_definitions ( -std=c++11 )
-
-		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
-			add_definitions ( -D__GCC_4_8__ )
-			if(CMAKE_BUILD_TYPE MATCHES Debug)
-				add_definitions( -Og )
-			endif()
-		endif()
-else()
-	if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
-    add_definitions ( -std=c++0x -D__GCC_4_6__ )
-	else()
-		message("-- Unsupported compiler detected. Build might fail!")
-		# changing this to -std=c++0x if you've got an old compiler, might work
-		add_definitions( -std=c++11 )
-	endif()
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
