@@ -19,12 +19,13 @@ class GraphBook : public EventUser
 
 	private:
 		void CreateWindow( const Geom::Vec2 Size );
+		void AddNewGraph( std::string displayName );
 		void UpdateGraph();
 		void PlotGraph( std::shared_ptr<GraphPlotter>& G );
 		void updatePosition();
 
 		sfg::Window::Ptr Win;
-
+		sfg::Notebook::Ptr Tabs;
 		sf::Clock UpdateTimer;
 };
 

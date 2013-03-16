@@ -6,7 +6,8 @@ GraphBook::GraphBook( const Geom::Vec2 Size)
 {
     RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "TOGGLE_SHOW_GRAPHBOOK" );
-	RegisterForEvent( "DISPLAY_COUNT_GRAPH" );
+	RegisterForEvent( "DISPLAY_GRAPH" );
+	RegisterForEvent( "ADD_GRAPH_TO_BOOK" );
 
     CreateWindow(Size);
     Win->Show(false);
@@ -16,33 +17,12 @@ void GraphBook::CreateWindow( const Geom::Vec2 Size )
 {
     Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::RESIZE | sfg::Window::Style::SHADOW );
 
-    //@TODO: create graphs
-
     Win->SetRequisition( sf::Vector2f(Size.x, Size.y ) );
     updatePosition();
 
-
-    sfg::Notebook::Ptr tabs( sfg::Notebook::Create() );
-    tabs->SetTabPosition( sfg::Notebook::TabPosition::LEFT );
-    {
-		sfg::Box::Ptr box( sfg::Box::Create() );
-		sfg::Label::Ptr label( sfg::Label::Create( "Population" ) );
-		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
-	tabs->AppendPage( box, label );
-    }{
-		sfg::Box::Ptr box( sfg::Box::Create() );
-		sfg::Label::Ptr label( sfg::Label::Create( "Births" ) );
-		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
-	tabs->AppendPage( box, label );
-    }{
-		sfg::Box::Ptr box( sfg::Box::Create() );
-		sfg::Label::Ptr label( sfg::Label::Create( "Deaths" ) );
-		label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
-	tabs->AppendPage( box, label );
-    }
-	//Don't forget to connect the function UpdateGraph with every label.
-
-    Win->Add( tabs );
+    Tabs = sfg::Notebook::Create();
+    Tabs->SetTabPosition( sfg::Notebook::TabPosition::LEFT );
+    Win->Add( Tabs );
 
     Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
 }
@@ -69,33 +49,34 @@ void GraphBook::HandleEvent( Event& e )
 			UpdateTimer.restart();
 		}
     }
-    else if ( e.Is( "DISPLAY_COUNT_GRAPH" ) )
+    else if ( e.Is( "DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> ) ) )
     {
 		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>( e.Data() );
 		PlotGraph( p );
 		updatePosition();
     }
+    else if ( e.Is( "ADD_GRAPH_TO_BOOK", typeid( std::string ) ) )
+	{
+		AddNewGraph( boost::any_cast<std::string>( e.Data() ) );
+	}
 }
 
-void GraphBook::UpdateGraph ()
+void GraphBook::AddNewGraph( std::string displayName )
+{
+	sfg::Box::Ptr box( sfg::Box::Create() );
+	sfg::Label::Ptr label( sfg::Label::Create( displayName ) );
+	label->GetSignal(   sfg::Label::OnLeftClick ).Connect( &GraphBook::UpdateGraph, this );
+	Tabs->AppendPage( box, label );
+}
+
+void GraphBook::UpdateGraph()
 {
 	//request update for current tab
 
 	//get current tab-label-string
-	sf::String currentTab = sfg::DynamicPointerCast<sfg::Label>( sfg::DynamicPointerCast<sfg::Notebook>( Win->GetChild() )->GetNthTabLabel( sfg::DynamicPointerCast<sfg::Notebook>( Win->GetChild() )->GetCurrentPage() ) )->GetText();
+	std::string currentTabName = sfg::DynamicPointerCast<sfg::Label>( Tabs->GetNthTabLabel( Tabs->GetCurrentPage() ) )->GetText();
    	//make update
-   	if ( currentTab == "Population" )
-	{
-		Module::Get()->QueueEvent( "PLOT_COUNTS" , true );
-	}
-	else if ( currentTab == "Births" )
-	{
-		Module::Get()->QueueEvent( "PLOT_BIRTHS", true );
-	}
-	else if ( currentTab == "Deaths" )
-	{
-		Module::Get()->QueueEvent( "PLOT_DEATHS", true );
-	}
+	Module::Get()->QueueEvent( Event( "PLOT_GRAPH", currentTabName ) , true );
 }
 
 void GraphBook::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
@@ -111,7 +92,7 @@ void GraphBook::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
 		G->draw( tex );
 		tex.display();
 	sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
-	sfg::Box::Ptr box = sfg::DynamicPointerCast<sfg::Box>( sfg::DynamicPointerCast<sfg::Notebook>( Win->GetChild() )->GetNthPage( sfg::DynamicPointerCast<sfg::Notebook>( Win->GetChild() )->GetCurrentPage() ) );
+	sfg::Box::Ptr box = sfg::DynamicPointerCast<sfg::Box>( Tabs->GetNthPage( Tabs->GetCurrentPage() ) );
 	box->RemoveAll();
 	box->Pack(I);
 }

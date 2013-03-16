@@ -48,7 +48,7 @@ currentTick(0), numGenerated(0), isPaused(false) {
 
 	RegisterForEvent("SET_SIM_TPS");
 
-	RegisterForEvent("PLOT_COUNTS");
+	RegisterForEvent("PLOT_GRAPH");
 	RegisterForEvent("UPDATE_OVERLAYS");
 
 	init();
@@ -94,20 +94,16 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
 	}
-	else if ( e.Is( "PLOT_COUNTS" ) )
+	else if ( e.Is( "PLOT_GRAPH", typeid( std::string ) ) )
 	{
-		std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
-		if ( p->isValid() )
-		Module::Get()->QueueEvent(Event("DISPLAY_COUNT_GRAPH", p), true);
-
-	}
-	else if ( e.Is( "PLOT_BIRTHS" ) )
-	{
-		///TODO============================================================================================================================
-	}
-	else if ( e.Is( "PLOT_DEATHS" ) )
-	{
-		///TODO============================================================================================================================
+		std::string graphName = boost::any_cast<std::string>( e.Data() );
+		///TODO: Choose the right Graph to plot
+		if ( graphName == "Population" )
+		{
+			std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
+			if ( p->isValid() )
+			Module::Get()->QueueEvent(Event("DISPLAY_GRAPH", p), true);
+		}
 	}
 	else if ( e.Is( "UPDATE_OVERLAYS" ) )
 	{
@@ -202,6 +198,10 @@ void Simulator::NewSimulation( int seed )
 	Terra->CreateMapPlotters();
 
 	RendererUpdate.restart();
+
+	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
+	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Any other graph") ), true );//@TODO
+	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Population") ), true );
 }
 
 void Simulator::tick()
