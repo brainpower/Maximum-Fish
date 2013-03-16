@@ -24,8 +24,11 @@ class InfoPanel : public EventUser
 		void HandleEvent( Event& e);
 	private:
 		void CreateWindow(const Geom::Point& RelativePosition, const Geom::Vec2 Size);
+		void CheckTabSwitchPermission();
 		void updatePosition();
 
+		int CurrentActivePage;
+		int SelectorManipulator;
 		sfg::Window::Ptr Win;
         sfg::Notebook::Ptr Topleveltabs;
         std::unique_ptr<Selector> MySelector;

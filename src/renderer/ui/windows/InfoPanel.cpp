@@ -7,7 +7,8 @@ InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size
     RegisterForEvent( "TOGGLE_SELECT_MAN" );
     RegisterForEvent( "WINDOW_RESIZE" );
     RegisterForEvent( "TOGGLE_FULLSCREEN" );
-
+	CurrentActivePage = 0;
+	SelectorManipulator = 0;
 	CreateWindow( RelativePosition, Size );
 }
 
@@ -22,30 +23,55 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
     Win->SetAllocation( sf::FloatRect( ( appSize.x - 300 ), 0, 300, appSize.y ) );
 
 
-        //create toplevel notebook
-        Topleveltabs = sfg::Notebook::Create();
-        //Topleveltabs->SetState( sfg::Widget::State::INSENSITIVE );
+		//create toplevel notebook
+		Topleveltabs = sfg::Notebook::Create();
+		//Topleveltabs->SetState( sfg::Widget::State::INSENSITIVE );
 
-            //create wholeseletionBox
-            MySelector.reset( new Selector );
-            SelectionBox = MySelector->Get();
+			//create selectorBox
+			MySelector.reset( new Selector );
+			SelectionBox = MySelector->Get();
+			sfg::Label::Ptr selectorlabel = sfg::Label::Create( "Selection" );
+			///selectorlabel->GetSignal( sfg::Label::OnMouseLeave ).Connect( &InfoPanel::EnableTab, this );
 
-            //create wholemanipulationBox
-            MyManipulator.reset( new Manipulator );
-            ManipulationBox = MyManipulator->Get();
+			//create manipulatorBox
+			MyManipulator.reset( new Manipulator );
+			ManipulationBox = MyManipulator->Get();
+			sfg::Label::Ptr manipulatorlabel = sfg::Label::Create( "Manipulation" );
+			///manipulatorlabel->GetSignal( sfg::Label::OnLeftClick ).Connect( &InfoPanel::ReswichToSelector, this );
+			///manipulatorlabel->GetSignal( sfg::Label::OnMouseLeave ).Connect( &InfoPanel::EnableTab, this );
+
 
 			MyOverlay.reset ( new Overlays );
 
-        //pack all into toplevelnotebook
-        Topleveltabs->AppendPage( SelectionBox, sfg::Label::Create( "Selection" ) );
-        Topleveltabs->AppendPage( ManipulationBox, sfg::Label::Create( "Manipulation" ) );
-        Topleveltabs->AppendPage( MyOverlay->Get(), sfg::Label::Create( "Overlays" ) );
+		//pack all into toplevelnotebook
+		Topleveltabs->AppendPage( SelectionBox, selectorlabel );
+		Topleveltabs->AppendPage( ManipulationBox, manipulatorlabel );
+		Topleveltabs->AppendPage( MyOverlay->Get(), sfg::Label::Create( "Overlays" ) );
+		Topleveltabs->GetSignal( sfg::Label::OnMouseLeftPress ).Connect( &InfoPanel::CheckTabSwitchPermission, this );
 
     //add wholeselectionbox to window
     Win->Add( Topleveltabs );
     updatePosition();
 
 	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
+}
+
+void InfoPanel::CheckTabSwitchPermission()
+{
+	if ( Topleveltabs->GetPrelightTab() == -1 ) {return;} //check wether a TabSwitch is called or normal click;
+
+	if ( Topleveltabs->GetPrelightTab() == CurrentActivePage || Topleveltabs->GetPrelightTab() == 2 )
+	{
+		CurrentActivePage = Topleveltabs->GetCurrentPage();
+	}
+	else if ( CurrentActivePage == 2 )
+	{
+		Topleveltabs->SetCurrentPage(SelectorManipulator);
+	}
+	else // 0->1, 1->0
+	{
+		Topleveltabs->SetCurrentPage(CurrentActivePage);
+	}
 }
 
 void InfoPanel::HandleEvent( Event& e )
@@ -73,10 +99,14 @@ void InfoPanel::HandleEvent( Event& e )
        if ( Topleveltabs->GetCurrentPage() == 1 )
        {
            Topleveltabs->SetCurrentPage( 0 );
+           CurrentActivePage = 0;
+           SelectorManipulator = 0;
        }
        else if ( Topleveltabs->GetCurrentPage() == 0 )
        {
            Topleveltabs->SetCurrentPage( 1 );
+           CurrentActivePage = 1;
+           SelectorManipulator = 1;
        }
     }
 }
