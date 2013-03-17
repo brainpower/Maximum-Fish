@@ -9,7 +9,7 @@
 class Simulator;
 
 /// Logic Module for the simulator
-class Logic : public Module
+class Logic : public sbe::Module
 {
 	public:
 		Logic();

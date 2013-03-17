@@ -9,6 +9,7 @@
 
 #include "Creature.hpp"
 
+#include <SFML/Graphics/Image.hpp>
 
 #include <random>
 
@@ -145,19 +146,19 @@ void Terrain::CreateMapPlotters()
 
 	Event e("DISPLAY_MAP");
 
-	std::shared_ptr<MapPlotter> p( new MapPlotter("Population density" ));
+	std::shared_ptr<sbe::MapPlotter> p( new sbe::MapPlotter("Population density" ));
 	p->setData( population, Size, true );
 	p->plot();
 	e.SetData( p );
 	Module::Get()->QueueEvent( e, true );
 
-	p.reset( new MapPlotter( "Humidity", MapPlotter::PLOT_HEATMAP) );
+	p.reset( new sbe::MapPlotter( "Humidity", sbe::MapPlotter::PLOT_HEATMAP) );
 	p->setData( humidity, Size, true );
 	p->plot();
 	e.SetData( p );
 	Module::Get()->QueueEvent( e, true );
 
-	p.reset( new MapPlotter("Heightmap") );
+	p.reset( new sbe::MapPlotter("Heightmap") );
 	p->setData( height, Size, true );
 	p->plot();
 	e.SetData( p );

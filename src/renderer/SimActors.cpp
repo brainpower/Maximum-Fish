@@ -98,28 +98,28 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	bool newActor = false;
 	if ( !CreaturesActor )
 	{
-		CreaturesActor.reset( new VertexActor() );
+		CreaturesActor.reset( new sbe::VertexActor() );
 		newActor = true;
 	}
 
-	sf::VertexArray& Creatures = (std::dynamic_pointer_cast<VertexActor>(CreaturesActor))->arr;
+	sf::VertexArray& Creatures = (std::dynamic_pointer_cast<sbe::VertexActor>(CreaturesActor))->arr;
 	Creatures.clear();
 	Creatures.setPrimitiveType( sf::PrimitiveType::Quads );
 
 	bool cull = r.size() > cullThreshold;
-	auto imgs = Engine::GetResMgr()->get<ImageSet>("Creatures");
+	auto imgs = Engine::GetResMgr()->get<sbe::ImageSet>("Creatures");
 
 	for ( std::shared_ptr<Creature> C : r)
 	{
 		auto Pos = DetermineCreaturePos( C );
-		if ( !cull || Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
+		if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
 
 	if ( newActor )
 	{
-		Screen::get()->getRenderer()->addActor ( CreaturesActor, L_CREATURES );
+		sbe::Screen::get()->getRenderer()->addActor ( CreaturesActor, L_CREATURES );
 	}
 
 }
@@ -142,11 +142,11 @@ void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 	bool newActor = false;
 	if ( !TileActor )
 	{
-		TileActor.reset( new VertexActor() );
+		TileActor.reset( new sbe::VertexActor() );
 		newActor = true;
 	}
 
-	sf::VertexArray& Tiles = (dynamic_pointer_cast<VertexActor>(TileActor))->arr;
+	sf::VertexArray& Tiles = (std::dynamic_pointer_cast<sbe::VertexActor>(TileActor))->arr;
 
 	Tiles.clear();
 	Tiles.resize( 4 * r.size() );
@@ -156,12 +156,12 @@ void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 
 	int i = 0;
 	for ( std::shared_ptr<Tile> T : r)
-		Engine::GetResMgr()->get<ImageSet>("Tiles")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
+		Engine::GetResMgr()->get<sbe::ImageSet>("Tiles")->CreateQuad( T->getTileSpriteIndex(), Tiles, DetermineTilePos(T), (i++ * 4) );
 
 
 
 	if ( newActor )
-		Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
+		sbe::Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
 }
 
 void SimActors::CreateTerrainShaderMap()
@@ -169,14 +169,14 @@ void SimActors::CreateTerrainShaderMap()
 	bool newActor = false;
 	if ( !TileActor )
 	{
-		TileActor.reset( new SpriteActor() );
+		TileActor.reset( new sbe::SpriteActor() );
 		newActor = true;
 	}
 
 	TerrainSize = tilemapTexture.getSize().x;
 
 	std::shared_ptr<sf::Shader> tilemapShader = Engine::GetResMgr()->get<sf::Shader>( "tilemapShader" );
-	std::shared_ptr<ImageSet> TileImgSet = Engine::GetResMgr()->get<ImageSet>("Tiles");
+	std::shared_ptr<sbe::ImageSet> TileImgSet = Engine::GetResMgr()->get<sbe::ImageSet>("Tiles");
 
 	tilemapShader->setParameter("tilemap", tilemapTexture);
 	// amount of tiles
@@ -189,10 +189,10 @@ void SimActors::CreateTerrainShaderMap()
 	tilemapShader->setParameter("TileRenderSize", TileSize);
 	Engine::out() << "Shaderparam TileRenderSize " << TileSize << std::endl;
 
-	Screen::get()->getRenderer()->getLayer( L_TERRAIN )->States.shader = &(*tilemapShader);
+	sbe::Screen::get()->getRenderer()->getLayer( L_TERRAIN )->States.shader = &(*tilemapShader);
 
 
-	sf::Sprite& sprite = (dynamic_pointer_cast<SpriteActor>(TileActor))->sprite;
+	sf::Sprite& sprite = (std::dynamic_pointer_cast<sbe::SpriteActor>(TileActor))->sprite;
 
 	sprite.setTexture( tilemapTexture );
 
@@ -204,7 +204,7 @@ void SimActors::CreateTerrainShaderMap()
   	sprite.setPosition(0,0);
 
 	if ( newActor )
-		Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
+		sbe::Screen::get()->getRenderer()->addActor ( TileActor, L_TERRAIN );
 
 	Engine::out(Engine::INFO) << "[SimView] Updated Tilemap Shader!" << std::endl;
 }
@@ -215,13 +215,13 @@ void SimActors::CreateGrid()
 	bool newActor = false;
 	if ( !GridActor )
 	{
-		GridActor.reset( new VertexActor() );
+		GridActor.reset( new sbe::VertexActor() );
 		newActor = true;
 	}
 
 	Engine::out() << "[SimActors] Updated Grid" << std::endl;
 
-	sf::VertexArray& Grid = (dynamic_pointer_cast<VertexActor>(GridActor))->arr;
+	sf::VertexArray& Grid = (std::dynamic_pointer_cast<sbe::VertexActor>(GridActor))->arr;
 
 	Grid.setPrimitiveType ( sf::PrimitiveType::Lines );
 	Grid.clear();
@@ -248,7 +248,7 @@ void SimActors::CreateGrid()
 	}
 
 	if ( newActor )
-		Screen::get()->getRenderer()->addActor ( GridActor, L_OVERLAY );
+		sbe::Screen::get()->getRenderer()->addActor ( GridActor, L_OVERLAY );
 }
 
 

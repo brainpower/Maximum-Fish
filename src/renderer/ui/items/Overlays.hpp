@@ -15,7 +15,7 @@
 #include <string>
 
 /// shows a list of overlays and provides options ans preview
-class Overlays : EventUser
+class Overlays : sbe::EventUser
 {
 	public:
 		Overlays();
@@ -41,7 +41,7 @@ class Overlays : EventUser
 	private:
 
 		void ShowMap( std::string& name );
-		void AddMap( std::shared_ptr<MapPlotter>& M );
+		void AddMap( std::shared_ptr<sbe::MapPlotter>& M );
 
 		void CreateActor( const std::string& name );
 		void RemoveActor( const std::string& name );
@@ -49,8 +49,8 @@ class Overlays : EventUser
 		sfg::Frame::Ptr CurrentFrame;
 		sfg::Box::Ptr myBox;
 
-		std::map<std::string, std::pair<std::shared_ptr<MapPlotter>, std::shared_ptr<Actor>>> Maps;
-		sfgList myOverlays;
+		std::map<std::string, std::pair<std::shared_ptr<sbe::MapPlotter>, std::shared_ptr<sbe::Actor>>> Maps;
+		sbe::sfgList myOverlays;
 
 };
 

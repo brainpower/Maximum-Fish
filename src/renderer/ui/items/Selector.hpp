@@ -7,10 +7,12 @@
 #include "renderer/ui/items/DetailsSpecies.hpp"
 #include "renderer/ui/items/DetailsTile.hpp"
 
-#include <SFGUI/SFGUI.hpp>
+#include <SFGUI/Box.hpp>
+#include <SFGUI/Frame.hpp>
+#include <SFGUI/Label.hpp>
 
 /// i have no idea
-class Selector : public EventUser
+class Selector : public sbe::EventUser
 {
 	public:
 

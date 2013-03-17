@@ -7,7 +7,7 @@
 #include "simulator/world/Terrain.hpp"
 
 /// iTreeIOPlugin for Terrain
-class TerrainIOPlugin : public iTreeIOPlugin<Terrain> {
+class TerrainIOPlugin : public sbe::iTreeIOPlugin<Terrain> {
 
 public:
 	TerrainIOPlugin()

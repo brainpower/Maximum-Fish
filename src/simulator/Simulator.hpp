@@ -10,7 +10,9 @@ class Tile;
 class Terrain;
 class Creature;
 
-class GraphPlotter;
+namespace sbe {
+	class GraphPlotter;
+}
 
 #include <list>
 #include <random>
@@ -31,7 +33,7 @@ class GraphPlotter;
 	EVT_SAVE_BAD				| std::string
 	EVT_SAVE_GOOD				| -
 */
-class Simulator : public EventUser, sf::NonCopyable
+class Simulator : public sbe::EventUser, sf::NonCopyable
 {
 	public:
 		Simulator();
@@ -84,7 +86,7 @@ class Simulator : public EventUser, sf::NonCopyable
 		{
 			return Instance->rnd();
 		}
-		
+
 		static std::list<std::shared_ptr<Creature>>& GetCreatures() { return Instance->Creatures; }
 
 	private:
@@ -99,7 +101,7 @@ class Simulator : public EventUser, sf::NonCopyable
 		void HandleClick( const Geom::Pointf& pos );
 
 		void logTickStats();
-		std::shared_ptr<GraphPlotter> CreateCountPlotter();
+		std::shared_ptr<sbe::GraphPlotter> CreateCountPlotter();
 
 		void registerIOPlugins();
 		void saveWhole(const std::string &savePath);

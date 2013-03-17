@@ -37,7 +37,3 @@ Species::~Species()
 {
 
 }
-
-void Species::HandleEvent(Event &e){
-
-}

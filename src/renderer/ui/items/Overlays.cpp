@@ -3,6 +3,7 @@
 
 #include <SFGUI/CheckButton.hpp>
 #include <SFGUI/Button.hpp>
+#include <SFGUI/Label.hpp>
 #include <SFGUI/Separator.hpp>
 
 #include "sbe/gfx/Actor.hpp"
@@ -71,9 +72,9 @@ sfg::Widget::Ptr Overlays::Get()
 
 void Overlays::HandleEvent(Event& e)
 {
-	if (e.Is("DISPLAY_MAP", typeid( std::shared_ptr<MapPlotter> )))
+	if (e.Is("DISPLAY_MAP", typeid( std::shared_ptr<sbe::MapPlotter> )))
 	{
-		auto p =  boost::any_cast<std::shared_ptr<MapPlotter>>(e.Data());
+		auto p =  boost::any_cast<std::shared_ptr<sbe::MapPlotter>>(e.Data());
 		AddMap( p );
 	} else if (e.Is("OVERLAY_CLICK", typeid( std::string )))
 	{
@@ -82,7 +83,7 @@ void Overlays::HandleEvent(Event& e)
 	}
 }
 
-void Overlays::AddMap( std::shared_ptr<MapPlotter>& M )
+void Overlays::AddMap( std::shared_ptr<sbe::MapPlotter>& M )
 {
 	if (!M) {
 		Engine::out() << "[Overlays::AddMap] INVALID POINTER!" << std::endl;
@@ -96,7 +97,7 @@ void Overlays::AddMap( std::shared_ptr<MapPlotter>& M )
 
 	if ( actor ) RemoveActor( M->getName() );
 
-	Maps[M->getName()] = std::make_pair(M, std::shared_ptr<Actor>());
+	Maps[M->getName()] = std::make_pair(M, std::shared_ptr<sbe::Actor>());
 
 	if (actor) CreateActor( M->getName() );
 
@@ -116,7 +117,7 @@ void Overlays::ShowMap( std::string& name )
 		CurrentFrame->RemoveAll();
 		CurrentFrame->SetLabel( name );
 
-		sfg::Image::Ptr I = sfg::Image::Create( gfx::ScaleImage( Maps[name].first->getImage(), Geom::Vec2(128,128)) );
+		sfg::Image::Ptr I = sfg::Image::Create( sbe::gfx::ScaleImage( Maps[name].first->getImage(), Geom::Vec2(128,128)) );
 		//sfg::Image::Ptr I = sfg::Image::Create( Maps[name].first->getImage() );
 		sfg::CheckButton::Ptr CB = sfg::CheckButton::Create( "Active" );
 		if (Maps[name].second) CB->SetActive ( true );
@@ -160,16 +161,16 @@ void Overlays::ToggleRendering()
 
 void Overlays::CreateActor( const std::string& name )
 {
-	std::shared_ptr<Actor>& A(Maps[name].second);
-	A.reset( new SpriteActor() );
+	std::shared_ptr<sbe::Actor>& A(Maps[name].second);
+	A.reset( new sbe::SpriteActor() );
 
 	sf::Image temp = Maps[name].first->getImage();
-	gfx::SetImageAlpha( temp, 128 );
+	sbe::gfx::SetImageAlpha( temp, 128 );
 
 	std::shared_ptr<sf::Texture> tex ( new sf::Texture() );
 	tex->loadFromImage( temp );
 
-	sf::Sprite& sprite = std::dynamic_pointer_cast<SpriteActor>(A)->sprite;
+	sf::Sprite& sprite = std::dynamic_pointer_cast<sbe::SpriteActor>(A)->sprite;
 
 	Engine::GetResMgr()->add( tex, "overlay_"+name );
 	sprite.setTexture( *tex );
@@ -183,14 +184,14 @@ void Overlays::CreateActor( const std::string& name )
 					TerrainSize*TileSize/temp.getSize().y);
 	sprite.setPosition(0,0);
 
-	Screen::sRndr()->addActor ( A, L_OVERLAY );
+	sbe::Screen::sRndr()->addActor ( A, L_OVERLAY );
 }
 
 void Overlays::RemoveActor( const std::string& name )
 {
 	std::string tmp = "overlay_"+name;
 	Engine::GetResMgr()->remove<sf::Texture>( tmp );
-	std::shared_ptr<Actor>& A(Maps[name].second);
-	Screen::sRndr()->removeActor( A->getID() );
+	std::shared_ptr<sbe::Actor>& A(Maps[name].second);
+	sbe::Screen::sRndr()->removeActor( A->getID() );
 	A.reset();
 }

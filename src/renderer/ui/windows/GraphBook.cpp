@@ -1,8 +1,10 @@
 #include "GraphBook.hpp"
 
+#include <SFGUI/Box.hpp>
+#include <SFGUI/Image.hpp>
+#include <SFGUI/Label.hpp>
 
 GraphBook::GraphBook( const Geom::Vec2 Size)
-
 {
     RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "TOGGLE_SHOW_GRAPHBOOK" );
@@ -49,9 +51,9 @@ void GraphBook::HandleEvent( Event& e )
 			UpdateTimer.restart();
 		}
     }
-    else if ( e.Is( "DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> ) ) )
+    else if ( e.Is( "DISPLAY_GRAPH", typeid( std::shared_ptr<sbe::GraphPlotter> ) ) )
     {
-		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>( e.Data() );
+		auto p = boost::any_cast<std::shared_ptr<sbe::GraphPlotter>>( e.Data() );
 		PlotGraph( p );
 		updatePosition();
     }
@@ -79,7 +81,7 @@ void GraphBook::UpdateGraph()
 	Module::Get()->QueueEvent( Event( "PLOT_GRAPH", currentTabName ) , true );
 }
 
-void GraphBook::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
+void GraphBook::PlotGraph ( std::shared_ptr<sbe::GraphPlotter>& G )
 {
 	if (!G) {
 		Engine::out() << "[GraphBook::PlotGraph] INVALID POINTER!" << std::endl;

@@ -10,7 +10,7 @@
 #include "../simulator/world/Creature.hpp"
 
 /// iTreeIOPlugin for Creature
-class CreatureIOPlugin : public iTreeIOPlugin<Creature>
+class CreatureIOPlugin : public sbe::iTreeIOPlugin<Creature>
 {
 
 public:

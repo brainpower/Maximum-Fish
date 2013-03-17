@@ -5,11 +5,14 @@
 
 #include <memory>
 
-class Screen;
+namespace sbe {
+	class Screen;
+}
+
 class SimView;
 
 /// Renderer module for the Frontend
-class MRenderer : public Module
+class MRenderer : public sbe::Module
 {
 	public:
 		MRenderer();
@@ -20,7 +23,7 @@ class MRenderer : public Module
 		virtual void Init();
 		virtual void DeInit();
 
-		std::shared_ptr<Screen> Scr;
+		std::shared_ptr<sbe::Screen> Scr;
 		std::shared_ptr<SimView> Sim;
 
 };

@@ -3,6 +3,9 @@
 
 #include "sbe/event/EventUser.hpp"
 
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 #include <list>
 #include <vector>
@@ -16,12 +19,16 @@ enum RenderLayers {
 	L_END
 };
 
+namespace sbe
+{
+	class Actor;
+	class Renderer;
+	class GraphPlotter;
+	class MapPlotter;
+}
 class Tile;
 class Creature;
-class Actor;
-class Renderer;
-class GraphPlotter;
-class MapPlotter;
+
 
 
 /**
@@ -38,7 +45,7 @@ class MapPlotter;
 	Color of the Grid (rgb):     | system.ui.simView.gridColor.r\n system.ui.simView.gridColor.g\n system.ui.simView.gridColor.b
 
 */
-class SimActors : public EventUser
+class SimActors : public sbe::EventUser
 {
 	public:
 		SimActors();
@@ -59,7 +66,7 @@ class SimActors : public EventUser
 		typedef std::list<std::shared_ptr<Creature>> CreatureRenderList;
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;
 
-		void PlotGraph ( std::shared_ptr<GraphPlotter>& G );
+		void PlotGraph ( std::shared_ptr<sbe::GraphPlotter>& G );
 		void ReadTileRenderList( TileRenderList& r );
 		void ReadCreatureRenderList( CreatureRenderList& r );
 
@@ -84,12 +91,12 @@ class SimActors : public EventUser
 		int CreatureSize;
 		/// at which amount of creatures should we cull the renderlist
 		int cullThreshold;
-		std::shared_ptr<Actor> TileActor;
-		std::shared_ptr<Actor> CreaturesActor;
+		std::shared_ptr<sbe::Actor> TileActor;
+		std::shared_ptr<sbe::Actor> CreaturesActor;
 
 		bool RenderGrid;
 		sf::Color GridColor;
-		std::shared_ptr<Actor> GridActor;
+		std::shared_ptr<sbe::Actor> GridActor;
 
 		/// how big should each tile be rendered edge length ( sprites are 32x32 )
 		int TileSize;

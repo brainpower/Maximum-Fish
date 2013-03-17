@@ -51,7 +51,7 @@ void SimView::InitRenderer()
 
 	// add our RenderLayers with our default Cam
 	for (int i = L_BACK; i < L_END; ++i)
-		Screen::sRndr()->addLayer( RenderLayer( Screen::sCam() ) );
+		sbe::Screen::sRndr()->addLayer( sbe::RenderLayer( sbe::Screen::sCam() ) );
 }
 
 void SimView::InitDesktop()
@@ -61,11 +61,11 @@ void SimView::InitDesktop()
     Contr.reset   ( new Control() );
     IPan.reset    ( new InfoPanel() );
     //Man.reset     ( new Manipulator() );
-	DbgWin.reset  ( new DebugWindow() );
+	DbgWin.reset  ( new sbe::DebugWindow() );
 	MnMnWin.reset ( new MainMenu() );
 	GraBo.reset   ( new GraphBook() );
 
-	Screen::get()->addSFMLEventHandler( this );
+	sbe::Screen::get()->addSFMLEventHandler( this );
 }
 
 void SimView::HandleSfmlEvent ( const sf::Event& e)
@@ -77,7 +77,7 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 		// Translate the click position to Terrain Coordinates (float)
 		sf::Vector2i ClickPos( e.mouseButton.x, e.mouseButton.y );
 
-		sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, Screen::sCam()->getView());
+		sf::Vector2f RealPos = Engine::GetApp().mapPixelToCoords( ClickPos, sbe::Screen::sCam()->getView());
 
 		RealPos /= (float)TileSize;
 
@@ -96,7 +96,7 @@ bool SimView::LoadResources()
 	}
 
 
-	std::shared_ptr<ImageSet> I( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"),
+	std::shared_ptr<sbe::ImageSet> I( new sbe::ImageSet( Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"),
 											Engine::getCfg()->get<std::string>("system.renderer.creatureTexture"),
 											Geom::Point( 0, 0 ),
 											Geom::Point(0,0),
@@ -107,7 +107,7 @@ bool SimView::LoadResources()
 	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"));
 	I->updateTexture();
 	//Engine::GetIO()->saveObject<ImageSet>( );
-	Screen::sRndr()->getLayer( L_CREATURES )->States.texture = &(*(I->getTexture()));
+	sbe::Screen::sRndr()->getLayer( L_CREATURES )->States.texture = &(*(I->getTexture()));
 
 
 	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
@@ -120,7 +120,7 @@ bool SimView::LoadResources()
 
 
 
-	std::shared_ptr<ImageSet> I2( new ImageSet( Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ),
+	std::shared_ptr<sbe::ImageSet> I2( new sbe::ImageSet( Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ),
 												Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ),
 												Geom::Point( 0, 0 ),
 												Geom::Point(0,0),
@@ -131,7 +131,7 @@ bool SimView::LoadResources()
 	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ));
 	I2->updateTexture();
 
-	Engine::GetResMgr()->saveAllObjects<ImageSet>( true );
+	Engine::GetResMgr()->saveAllObjects<sbe::ImageSet>( true );
 
 	if ( Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap") )
 	{
@@ -142,13 +142,13 @@ bool SimView::LoadResources()
 		Engine::GetResMgr()->add( tilemapShader, "tilemapShader" );
 
 		if ( !tilemapShader ) std::cout << "Error shader" << std::endl;
-		if ( !Screen::sRndr() ) std::cout << "Error render" << std::endl;
+		if ( !sbe::Screen::sRndr() ) std::cout << "Error render" << std::endl;
 
-		Screen::sRndr()->getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
+		sbe::Screen::sRndr()->getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
 	}
 	else
 	{
-		Screen::sRndr()->getLayer( L_TERRAIN )->States.texture = &(*(I2->getTexture()));
+		sbe::Screen::sRndr()->getLayer( L_TERRAIN )->States.texture = &(*(I2->getTexture()));
 	}
 
 	return true;

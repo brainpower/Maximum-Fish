@@ -1,5 +1,4 @@
 #include "Selector.hpp"
-#include "sbe/gfx/Screen.hpp"
 
 Selector::Selector()
 {

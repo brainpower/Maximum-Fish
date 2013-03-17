@@ -5,10 +5,12 @@
 #include "sbe/geom/Point.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
 
-#include <SFGUI/SFGUI.hpp>
+#include <SFGUI/Window.hpp>
+#include <SFGUI/Notebook.hpp>
+#include <SFML/System/Clock.hpp>
 
 /// an overview of different graphs
-class GraphBook : public EventUser
+class GraphBook : public sbe::EventUser
 {
 	public:
 
@@ -21,7 +23,7 @@ class GraphBook : public EventUser
 		void CreateWindow( const Geom::Vec2 Size );
 		void AddNewGraph( std::string displayName );
 		void UpdateGraph();
-		void PlotGraph( std::shared_ptr<GraphPlotter>& G );
+		void PlotGraph( std::shared_ptr<sbe::GraphPlotter>& G );
 		void updatePosition();
 
 		sfg::Window::Ptr Win;

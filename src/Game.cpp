@@ -37,7 +37,7 @@ void Game::ModuleInit()
 	Engine::out(Engine::INFO) << "[Game] MRenderer..." << std::endl;
 
 	RegisterModule( new MRenderer(),
-					ModuleStartInfo(
+					sbe::ModuleStartInfo(
 						"MRenderer",
 						Engine::getCfg()->get<int>("system.renderer.maxFps"),
 						std::shared_ptr<Event> (new Event("EVT_FRAME"))
@@ -46,7 +46,7 @@ void Game::ModuleInit()
 
 	Engine::out(Engine::INFO) << "[Game] Logic..." << std::endl;
 	RegisterModule( new Logic(),
-					ModuleStartInfo(
+					sbe::ModuleStartInfo(
 						"Logik",
 						20,
 						std::shared_ptr<Event> (new Event( "EVT_TICK" ))

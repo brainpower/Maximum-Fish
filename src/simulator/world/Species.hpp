@@ -1,11 +1,11 @@
 #ifndef SPECIES_H
 #define SPECIES_H
 
-#include "sbe/event/Event.hpp"
-#include "sbe/event/EventUser.hpp"
+#include <string>
+#include <memory>
 
 /// Superclass for all Creatures, defines some modifiers applying to the whole species
-class Species : public EventUser
+class Species
 {
 	public:
 
@@ -58,7 +58,6 @@ class Species : public EventUser
 		void setWaterRequirement(int wr){     waterRequirement = wr;}
 		void setOptimalTemperature(int oh) {optimalTemperature = oh;}
 
-		void HandleEvent( Event& e );
 	private:
 
 		friend class SpeciesIOPlugin;

@@ -14,7 +14,7 @@
 #include <SFGUI/SFGUI.hpp>
 
 /// Info panel on the righthand side of the screen showing details and lists
-class InfoPanel : public EventUser
+class InfoPanel : public sbe::EventUser
 {
 	public:
 

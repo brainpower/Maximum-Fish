@@ -1,12 +1,10 @@
 #ifndef DETAILS_TILE_H
 #define DETAILS_TILE_H
 
-#include "sbe/event/EventUser.hpp"
 #include "renderer/ui/items/Details.hpp"
 #include "simulator/world/Tile.hpp"
 
-#include <SFGUI/SFGUI.hpp>
-#include <boost/lexical_cast.hpp>
+#include <SFGUI/Entry.hpp>
 
 /// Shows details about a Tile
 class DetailsTile : public Details

@@ -100,7 +100,7 @@ void Simulator::HandleEvent(Event& e)
 		///TODO: Choose the right Graph to plot
 		if ( graphName == "Population" )
 		{
-			std::shared_ptr<GraphPlotter> p = CreateCountPlotter();
+			std::shared_ptr<sbe::GraphPlotter> p = CreateCountPlotter();
 			if ( p->isValid() )
 			Module::Get()->QueueEvent(Event("DISPLAY_GRAPH", p), true);
 		}
@@ -263,16 +263,16 @@ void Simulator::logTickStats()
 	//ProcessingTimes.push_back(  )
 }
 
-std::shared_ptr<GraphPlotter> Simulator::CreateCountPlotter()
+std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 {
-	std::shared_ptr<GraphPlotter> re( new GraphPlotter );
+	std::shared_ptr<sbe::GraphPlotter> re( new sbe::GraphPlotter );
 
-	Graph g;
+	sbe::Graph g;
 	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
 	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
-	g.addCurve( Curve("Herbs", HerbaeCounts, sf::Color::Green) );
-	g.addCurve( Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
-	g.addCurve( Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
+	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
+	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
 
 	re->setGraph( g );
 
@@ -321,14 +321,14 @@ void Simulator::registerIOPlugins()
 {
 	Engine::out(Engine::INFO) << "[Simulator] Loading IO plugins:" << std::endl;
 
-	std::shared_ptr<IOPlugin> CreatureIOP ( new CreatureIOPlugin() );
-	Engine::GetResMgr()->registerResource<Creature>( iResource::createResInfo("Creature", true, false), CreatureIOP);
+	std::shared_ptr<sbe::IOPlugin> CreatureIOP ( new CreatureIOPlugin() );
+	Engine::GetResMgr()->registerResource<Creature>( sbe::iResource::createResInfo("Creature", true, false), CreatureIOP);
 
-	std::shared_ptr<IOPlugin> SpeciesIOP ( new SpeciesIOPlugin() );
-	Engine::GetResMgr()->registerResource<Species>( iResource::createResInfo("Species", true, false), SpeciesIOP);
+	std::shared_ptr<sbe::IOPlugin> SpeciesIOP ( new SpeciesIOPlugin() );
+	Engine::GetResMgr()->registerResource<Species>( sbe::iResource::createResInfo("Species", true, false), SpeciesIOP);
 
-	std::shared_ptr<IOPlugin> TerrainIOP ( new TerrainIOPlugin() );
-	Engine::GetResMgr()->registerResource<Terrain>( iResource::createResInfo("Terrain", true, false), TerrainIOP);
+	std::shared_ptr<sbe::IOPlugin> TerrainIOP ( new TerrainIOPlugin() );
+	Engine::GetResMgr()->registerResource<Terrain>( sbe::iResource::createResInfo("Terrain", true, false), TerrainIOP);
 
 	Engine::out(Engine::INFO) << "[Simulator] IO Plugins loaded." << std::endl;
 }
@@ -366,7 +366,7 @@ void Simulator::saveWhole(const std::string &savePath){
 		Module::Get()->QueueEvent(e, true);
 
 	} else {
-		auto simCfg = shared_ptr<Config>( new Config("simState.info", "sim") );
+		auto simCfg = std::shared_ptr<sbe::Config>( new sbe::Config("simState.info", "sim") );
 		simCfg->set("sim.currentTick", currentTick);
 		// save state of random engine
 		simCfg->set("sim.random.seed", currentSeed);
@@ -403,7 +403,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 	auto tmp  = Engine::GetIO()->loadObjects<Terrain>();
 	auto tmp2 = Engine::GetIO()->loadObjects<Species>();
 	auto tmp3 = Engine::GetIO()->loadObjects<Creature>();
-	auto simCfg = shared_ptr<Config>( new Config("simState.info", "sim") );
+	auto simCfg = std::shared_ptr<sbe::Config>( new sbe::Config("simState.info", "sim") );
 
 	if(tmp.empty() || tmp2.empty() || tmp3.empty() || !simCfg)
 	{
@@ -424,7 +424,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	Terra       = tmp[0]; // resets Terra, there should be only one
 	SpeciesList = tmp2; // resets specieslist
-	Creatures   = a2list<shared_ptr<Creature>>(tmp3.cbegin(),tmp3.cend()); // resets creaturelist
+	Creatures   = a2list<std::shared_ptr<Creature>>(tmp3.cbegin(),tmp3.cend()); // resets creaturelist
 
 	currentTick  = simCfg->get<int>("sim.currentTick");// get ticks
 	currentSeed  = simCfg->get<int>("sim.random.seed");// get seed

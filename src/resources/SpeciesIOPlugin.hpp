@@ -7,7 +7,7 @@
 #include "simulator/world/Species.hpp"
 
 /// iTreeIOPlugin for Species
-class SpeciesIOPlugin : public iTreeIOPlugin<Species> {
+class SpeciesIOPlugin : public sbe::iTreeIOPlugin<Species> {
 public:
 	SpeciesIOPlugin()
 	 : iTreeIOPlugin( "Species.info" )

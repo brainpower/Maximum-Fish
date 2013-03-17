@@ -4,6 +4,8 @@
 #include "sbe/geom/Point.hpp"
 #include "Species.hpp"
 
+#include <list>
+
 class Creature;
 
 /// A single Tile on the Terrain

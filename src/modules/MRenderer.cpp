@@ -17,7 +17,7 @@ MRenderer::~MRenderer()
 void MRenderer::Init()
 {
 	Engine::out(Engine::INFO) << "[MRenderer] Screen..." << std::endl;
-	Scr.reset( new Screen );
+	Scr.reset( new sbe::Screen );
 	Sim.reset ( new SimView );
 }
 

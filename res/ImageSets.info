@@ -1,7 +1,7 @@
 ImageSet
 {
     Name Creatures
-    ImageName Creatures_serious_2.tga
+    ImageName Creatures_serious.tga
     StartPos
     {
         x 0

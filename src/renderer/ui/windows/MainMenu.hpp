@@ -8,7 +8,7 @@
 #include <SFGUI/SFGUI.hpp>
 
 /// MainMenu
-class MainMenu : public EventUser
+class MainMenu : public sbe::EventUser
 {
 	public:
 

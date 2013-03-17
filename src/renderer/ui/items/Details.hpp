@@ -6,7 +6,7 @@
 #include <SFGUI/SFGUI.hpp>
 
 /// Base class shows specific Detail for one Simulation element
-class Details : public EventUser
+class Details : public sbe::EventUser
 {
 	public:
 		Details();

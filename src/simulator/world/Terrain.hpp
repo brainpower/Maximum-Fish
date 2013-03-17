@@ -1,9 +1,10 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include "sbe/util/QuadTree.hpp"
 #include "sbe/geom/Point.hpp"
 #include "Tile.hpp"
+
+namespace sf { class Image; }
 
 #include <list>
 #include <memory>

@@ -8,7 +8,7 @@
 #include <SFGUI/SFGUI.hpp>
 
 /// Controls for the simulator ( play,pause,reset, settps etc )
-class Control : public EventUser
+class Control : public sbe::EventUser
 {
 	public:
 

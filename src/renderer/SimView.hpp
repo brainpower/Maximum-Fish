@@ -6,14 +6,18 @@
 
 class Control;
 class InfoPanel;
-class DebugWindow;
 class MainMenu;
 class GraphBook;
 class SimActors;
+
+namespace sbe {
+	class DebugWindow;
+}
+
 //class Manipulator;
 
 /// Handles initialisation and configuration of the renderer/desktop etc
-class SimView : public SFMLEventUser
+class SimView : public sbe::SFMLEventUser
 {
 	public:
 
@@ -38,7 +42,7 @@ class SimView : public SFMLEventUser
         std::unique_ptr<Control> Contr;
         std::unique_ptr<InfoPanel> IPan;
         //std::unique_ptr<Manipulator> Man;
-		std::unique_ptr<DebugWindow> DbgWin;
+		std::unique_ptr<sbe::DebugWindow> DbgWin;
 		std::unique_ptr<MainMenu> MnMnWin;
 		std::unique_ptr<GraphBook> GraBo;
 

@@ -5,7 +5,7 @@
 #include <memory>
 
 /// Main class
-class Game : public GameBase
+class Game : public sbe::GameBase
 {
 	public:
 		Game();

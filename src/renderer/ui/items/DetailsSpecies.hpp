@@ -1,7 +1,6 @@
 #ifndef DETAILS_SPECIES_H
 #define DETAILS_SPECIES_H
 
-#include "sbe/event/EventUser.hpp"
 #include "renderer/ui/items/Details.hpp"
 #include "simulator/world/Species.hpp"
 
