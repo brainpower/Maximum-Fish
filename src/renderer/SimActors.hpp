@@ -2,7 +2,6 @@
 #define SimActors_HPP
 
 #include "sbe/event/EventUser.hpp"
-#include "sbe/sfg/MessageHandler.hpp"
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -26,6 +25,7 @@ namespace sbe
 	class Renderer;
 	class GraphPlotter;
 	class MapPlotter;
+	class MessageHandler;
 }
 class Tile;
 class Creature;
@@ -104,7 +104,7 @@ class SimActors : public sbe::EventUser
 		/// how big is the terrain ( it's assumed to be square right now )
 		int TerrainSize;
 
-		std::unique_ptr<MessageHandler> MessageHandler_;
+		std::unique_ptr<sbe::MessageHandler> MessageHandler_;
 };
 
 #endif // SimActors_HPP

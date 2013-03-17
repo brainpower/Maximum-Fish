@@ -11,6 +11,8 @@
 #include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
+#include "sbe/sfg/MessageHandler.hpp"
+
 #include "simulator/world/Creature.hpp"
 #include "simulator/world/Tile.hpp"
 
@@ -26,7 +28,7 @@ SimActors::SimActors()
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
 	cullThreshold =    Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
 
-	MessageHandler_.reset( new MessageHandler() );
+	MessageHandler_.reset( new sbe::MessageHandler() );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
