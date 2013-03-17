@@ -2,6 +2,7 @@
 #define SimActors_HPP
 
 #include "sbe/event/EventUser.hpp"
+#include "sbe/sfg/MessageHandler.hpp"
 
 
 #include <list>
@@ -95,6 +96,8 @@ class SimActors : public EventUser
 		int TileSize;
 		/// how big is the terrain ( it's assumed to be square right now )
 		int TerrainSize;
+
+		std::unique_ptr<MessageHandler> MessageHandler_;
 };
 
 #endif // SimActors_HPP

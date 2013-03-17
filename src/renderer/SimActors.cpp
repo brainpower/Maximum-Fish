@@ -19,14 +19,14 @@
 
 SimActors::SimActors()
 {
-	TileSize = 	Engine::getCfg()->get<int>("system.ui.simView.tileSize");
-	TerrainSize = 	Engine::getCfg()->get<int>("sim.terragen.debug.size");
-	CreatureSize = Engine::getCfg()->get<int>("system.ui.simView.creatureSize");
-	RenderGrid = Engine::getCfg()->get<bool>("system.ui.simView.renderGrid");
+	TileSize =         Engine::getCfg()->get<int>("system.ui.simView.tileSize");
+	TerrainSize =      Engine::getCfg()->get<int>("sim.terragen.debug.size");
+	CreatureSize =     Engine::getCfg()->get<int>("system.ui.simView.creatureSize");
+	RenderGrid =       Engine::getCfg()->get<bool>("system.ui.simView.renderGrid");
 	useShaderTileMap = Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap");
-	cullThreshold = Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
+	cullThreshold =    Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
 
-	RegisterForEvent( "DISPLAY_GRAPH" );
+	MessageHandler_.reset( new MessageHandler() );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
@@ -63,35 +63,8 @@ void SimActors::HandleEvent(Event& e)
 			tilemapTexture.loadFromImage( *i );
 			CreateTerrainShaderMap();
 		}
-	}/* else if (e.Is("DISPLAY_GRAPH", typeid( std::shared_ptr<GraphPlotter> )))
-	{
-		auto p = boost::any_cast<std::shared_ptr<GraphPlotter>>(e.Data());
-		PlotGraph( p );
-	}*/
-}
-
-/*
-void SimActors::PlotGraph ( std::shared_ptr<GraphPlotter>& G )
-{
-	if (!G) {
-		Engine::out() << "[SimActors::PlotGraph] INVALID POINTER!" << std::endl;
-		return;
 	}
-
-	sf::RenderTexture tex;
-	tex.create(G->getGraph().Size.x, G->getGraph().Size.y);
-	G->updateVertexArrays();
-	G->draw( tex );
-	tex.display();
-
-	sfg::Window::Ptr P = sfg::Window::Create();
-	sfg::Image::Ptr I = sfg::Image::Create( tex.getTexture().copyToImage() );
-	P->Add(I);
-
-	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", P ));
 }
-*/
-
 
 void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 {
