@@ -172,7 +172,7 @@ void Simulator::NewSimulation( int seed )
 
 
 	// add default species
-	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
+	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
 	SpeciesList.push_back( S );
 	Generator G (*this);
 

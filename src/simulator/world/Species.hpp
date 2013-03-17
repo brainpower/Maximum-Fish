@@ -16,19 +16,7 @@ class Species
 			CARNIVORE
 		};
 
-		Species(const std::string &_name);
-
-		Species(const std::string& _name,
-				bool _isCarnivore,
-				int _maxAge,
-				int _maxHealth,
-				float _maxSpeed,
-				float _Reach,
-				float _resistance,
-				int _breedingSpeed,
-				int _foodRequirement,
-				int waterRequirement,
-				int optimalTemperature );
+		Species(const std::string &_name, SPECIES_TYPE t);
 
 		virtual ~Species();
 

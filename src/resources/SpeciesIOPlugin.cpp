@@ -16,7 +16,7 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 	{
 		const ptree& pt = node.second;
 
-		re.reset( new Species( pt.get<std::string>("name") ));
+		re.reset( new Species( pt.get<std::string>("name"), (Species::SPECIES_TYPE)pt.get<int>("type") ));
 
 		re->maxAge             = pt.get<int>("maxAge");
 		re->maxHealth          = pt.get<float>("maxHealth");
@@ -24,7 +24,6 @@ SpeciesIOPlugin::ObjPtr SpeciesIOPlugin::loadObject(const boost::property_tree::
 		re->Reach              = pt.get<float>("reach");
 		re->resistance         = pt.get<float>("resistance");
 		re->breedingSpeed      = pt.get<int>("breedingSpead");
-		re->type        = (Species::SPECIES_TYPE)pt.get<int>("type");
 		re->foodRequirement    = pt.get<int>("foodRequirement");
 		re->waterRequirement   = pt.get<int>("waterRequirement");
 		re->optimalTemperature = pt.get<int>("optimalTemperature");

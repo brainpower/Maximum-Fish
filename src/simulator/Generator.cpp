@@ -48,7 +48,7 @@ std::shared_ptr<Species> Generator::createRandomSpecies()
 		break;
 	}
 
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(Sim.SpeciesList.size())) );
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(Sim.SpeciesList.size()), t) );
 
 	S->setType( t );
 	S->setOptimalTemperature( temp_rnd( Sim.rnd() ) );
@@ -133,7 +133,7 @@ std::shared_ptr<Species> Generator::createSpecies( Species::SPECIES_TYPE type )
 		break;
 	}
 
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(Sim.SpeciesList.size())) );
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(Sim.SpeciesList.size()), type) );
 
 	S->setType( type );
 	S->setOptimalTemperature( temp_rnd( Sim.rnd() ) );

@@ -131,8 +131,6 @@ bool SimView::LoadResources()
 	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ));
 	I2->updateTexture();
 
-	Engine::GetResMgr()->saveAllObjects<sbe::ImageSet>( true );
-
 	if ( Engine::getCfg()->get<bool>("system.ui.simView.useShaderTileMap") )
 	{
 		std::shared_ptr<sf::Shader> tilemapShader( new sf::Shader );
