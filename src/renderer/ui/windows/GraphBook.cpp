@@ -34,7 +34,7 @@ void GraphBook::HandleEvent( Event& e )
 		UpdateGraph();
 		UpdateTimer.restart();
 	}
-	else if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
+	if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
     {
         if ( Win->IsGloballyVisible() )
 		{
