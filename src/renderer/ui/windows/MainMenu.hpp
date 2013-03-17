@@ -5,7 +5,13 @@
 
 #include "sbe/geom/Point.hpp"
 
-#include <SFGUI/SFGUI.hpp>
+#include <SFGUI/SharedPtr.hpp>
+namespace sfg
+{
+	class Window;
+	class Button;
+	class Box;
+}
 
 /// MainMenu
 class MainMenu : public sbe::EventUser
@@ -30,9 +36,9 @@ class MainMenu : public sbe::EventUser
 
 		void updatePosition();
 
-		sfg::Window::Ptr Win;
-		sfg::Button::Ptr BtnExit;
-		sfg::Box::Ptr ExitConfirmation;
+		sfg::SharedPtr<sfg::Window> Win;
+		sfg::SharedPtr<sfg::Button> BtnExit;
+		sfg::SharedPtr<sfg::Box> ExitConfirmation;
 		unsigned int currentlabeltext;
 
 };

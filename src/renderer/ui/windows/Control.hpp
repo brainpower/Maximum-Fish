@@ -5,10 +5,14 @@
 
 #include "sbe/geom/Point.hpp"
 
-#include <SFGUI/ToggleButton.hpp>
-#include <SFGUI/Button.hpp>
-#include <SFGUI/Entry.hpp>
-#include <SFGUI/Window.hpp>
+#include <SFGUI/SharedPtr.hpp>
+namespace sfg
+{
+	class ToggleButton;
+	class Button;
+	class Entry;
+	class Window;
+}
 
 /// Controls for the simulator ( play,pause,reset, settps etc )
 class Control : public sbe::EventUser
@@ -22,13 +26,13 @@ class Control : public sbe::EventUser
 
 	private:
 		void CreateWindow( const Geom::Vec2 Size );
-		sfg::ToggleButton::Ptr BtnDbgWin;
-        sfg::ToggleButton::Ptr BtnIPanWin;
-        sfg::ToggleButton::Ptr BtnMnMnWin;
-        sfg::ToggleButton::Ptr BtnGraBoWin;
-        sfg::ToggleButton::Ptr BtnSimPause;
-        sfg::Button::Ptr BtnSimReset;
-        sfg::Entry::Ptr Framesdisplay;
+		sfg::SharedPtr<sfg::ToggleButton> BtnDbgWin;
+        sfg::SharedPtr<sfg::ToggleButton> BtnIPanWin;
+        sfg::SharedPtr<sfg::ToggleButton> BtnMnMnWin;
+        sfg::SharedPtr<sfg::ToggleButton> BtnGraBoWin;
+        sfg::SharedPtr<sfg::ToggleButton> BtnSimPause;
+        sfg::SharedPtr<sfg::Button> BtnSimReset;
+        sfg::SharedPtr<sfg::Entry> Framesdisplay;
         unsigned int Frames;
         void BtnFramesUpClick();
         void BtnFramesDownClick();
@@ -50,7 +54,7 @@ class Control : public sbe::EventUser
 		bool simPauseLock;
 		int simPauseLockLevel;
 
-		sfg::Window::Ptr Win;
+		sfg::SharedPtr<sfg::Window> Win;
 
 };
 

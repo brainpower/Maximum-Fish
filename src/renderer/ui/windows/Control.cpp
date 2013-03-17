@@ -2,6 +2,11 @@
 
 #include "sbe/Config.hpp"
 #include "sbe/sfg/Message.hpp"
+
+#include <SFGUI/ToggleButton.hpp>
+#include <SFGUI/Button.hpp>
+#include <SFGUI/Entry.hpp>
+#include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
 
 using namespace sfg;

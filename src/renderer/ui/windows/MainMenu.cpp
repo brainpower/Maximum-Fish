@@ -1,6 +1,10 @@
-
 #include "MainMenu.hpp"
 
+#include <SFGUI/Window.hpp>
+#include <SFGUI/Box.hpp>
+#include <SFGUI/Button.hpp>
+
+//using namespace sfg is not possible because Engine is ambiguous
 
 MainMenu::MainMenu( const Geom::Vec2 Size)
 
@@ -23,16 +27,16 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 
     // create buttons and link them to methods
     sfg::Button::Ptr btnResume( sfg::Button::Create( "Resume" ) );
-    btnResume->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnResumeClick, this );
+    btnResume->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnResumeClick, this );
 
     // exit button and confirmation
     BtnExit = sfg::Button::Create( "Exit Program" );
-    BtnExit->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnExitClick, this );
+    BtnExit->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnExitClick, this );
     ExitConfirmation = sfg::Box::Create( sfg::Box::HORIZONTAL, 3.0f );
         sfg::Button::Ptr btnExitCancel( sfg::Button::Create( "Abort" ) );
-        btnExitCancel->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnExitCancelClick, this );
+        btnExitCancel->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnExitCancelClick, this );
         sfg::Button::Ptr btnExitConfirm( sfg::Button::Create( "Confirm" ) );
-        btnExitConfirm->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnExitConfirmClick, this );
+        btnExitConfirm->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnExitConfirmClick, this );
         ExitConfirmation->Pack( btnExitCancel, true, true );
         ExitConfirmation->Pack( btnExitConfirm, true, true );
         ExitConfirmation->Show( false );
@@ -40,9 +44,9 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 
     // save and load
     sfg::Button::Ptr btnSave( sfg::Button::Create( "Save Simulation" ) );
-    btnSave->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnSaveClick, this );
+    btnSave->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnSaveClick, this );
     sfg::Button::Ptr btnLoad( sfg::Button::Create( "Load Simulation" ) );
-    btnLoad->GetSignal( sfg::Widget::OnLeftClick ).Connect( &MainMenu::BtnLoadClick, this );
+    btnLoad->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnLoadClick, this );
 
     // options
     sfg::Button::Ptr btnOptions( sfg::Button::Create( "Options" ) );
