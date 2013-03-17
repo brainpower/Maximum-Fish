@@ -309,7 +309,6 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 		float dist = Geom::distance(pos, C->getPosition());
 		if ( dist < curdist )
 		{
-			Engine::out(Engine::INFO) << "[Simulator] clickdist:" << pos << " to " << C->getPosition() << " = " << dist << std::endl;
 			ev.SetData( C );
 			curdist = dist;
 		}
