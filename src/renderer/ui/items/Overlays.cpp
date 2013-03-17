@@ -4,6 +4,7 @@
 #include <SFGUI/CheckButton.hpp>
 #include <SFGUI/Button.hpp>
 #include <SFGUI/Separator.hpp>
+#include <SFGUI/Label.hpp>
 
 #include "sbe/gfx/Actor.hpp"
 #include "sbe/gfx/Renderer.hpp"
