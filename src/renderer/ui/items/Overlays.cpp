@@ -37,11 +37,21 @@ Overlays::Overlays()
 	sfg::Box::Ptr Spacer = sfg::Box::Create( sfg::Box::VERTICAL );
 	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
 
+
 	sfg::Button::Ptr ClearButton = sfg::Button::Create("Clear");
 	ClearButton->GetSignal( sfg::Button::OnLeftClick ).Connect( &Overlays::ClearOverlays, this );
+	sfg::Box::Ptr cbuttonbox = sfg::Box::Create( sfg::Box::HORIZONTAL, 0 );
+	cbuttonbox->Pack ( Spacer, true, true );
+	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
+	cbuttonbox->Pack ( ClearButton, false, false);
+
 
 	sfg::Button::Ptr UpdateButton = sfg::Button::Create("Update Overlays now");
 	UpdateButton->GetSignal( sfg::Button::OnLeftClick ).Connect( &Overlays::ForceUpdate, this );
+	sfg::Box::Ptr ubuttonbox = sfg::Box::Create( sfg::Box::HORIZONTAL, 0 );
+	ubuttonbox->Pack ( Spacer, true, true );
+	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
+	ubuttonbox->Pack ( UpdateButton, false, false);
 
 	sfg::Separator::Ptr sep =  sfg::Separator::Create();
 	sep->SetRequisition( sf::Vector2f( 10, 30 ) );
@@ -59,8 +69,8 @@ Overlays::Overlays()
 
 	myBox->Pack( myOverlays.getList(), false, true );
 	myBox->Pack( Spacer, true, true );
-	myBox->Pack( ClearButton, false, false );
-	myBox->Pack( UpdateButton, false, false );
+	myBox->Pack( cbuttonbox, false, false );
+	myBox->Pack( ubuttonbox, false, false );
 	myBox->Pack( sep, false, true );
 	myBox->Pack( ChkButton, false, false );
 	myBox->Pack( CurrentFrame, false, false );
