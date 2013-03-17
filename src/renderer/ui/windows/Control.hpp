@@ -5,20 +5,23 @@
 
 #include "sbe/geom/Point.hpp"
 
-#include <SFGUI/SFGUI.hpp>
+#include <SFGUI/ToggleButton.hpp>
+#include <SFGUI/Button.hpp>
+#include <SFGUI/Entry.hpp>
+#include <SFGUI/Window.hpp>
 
 /// Controls for the simulator ( play,pause,reset, settps etc )
 class Control : public EventUser
 {
 	public:
 
-		Control( const Geom::Vec2 Size = Geom::Vec2(250, 30));
-		virtual ~Control() {};
+		Control( const Geom::Vec2 Size = Geom::Vec2( 250, 30 ) );
+		virtual ~Control() {}
 
-		virtual void HandleEvent( Event& e);
+		virtual void HandleEvent( Event& e );
 
 	private:
-		void CreateWindow(const Geom::Vec2 Size);
+		void CreateWindow( const Geom::Vec2 Size );
 		sfg::ToggleButton::Ptr BtnDbgWin;
         sfg::ToggleButton::Ptr BtnIPanWin;
         sfg::ToggleButton::Ptr BtnMnMnWin;
@@ -41,7 +44,7 @@ class Control : public EventUser
         /// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
-        void SimPause(bool _p);
+        void SimPause( bool _p );
 
 		unsigned int simPauseConnectionSerial;
 		bool simPauseLock;
