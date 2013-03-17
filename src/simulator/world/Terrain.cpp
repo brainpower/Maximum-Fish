@@ -90,7 +90,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
 			if (!T) break;
 
-			for (std::shared_ptr<Creature>& C : T->getCreatures())
+			for (std::shared_ptr<Creature>& C : T->Creatures)
 			{
 				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
 			}
@@ -99,6 +99,55 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 
 	return ret;
 }
+
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+{
+	std::list<std::shared_ptr<Creature>> ret;
+
+	// we're using squared distances
+	float r2 = radius*radius;
+
+	for (int x = Position.x-radius; x < Position.x+radius; ++x)
+	{
+		for (int y = Position.y-radius; y < Position.y+radius; ++y)
+		{
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			if (!T) break;
+
+			for (std::shared_ptr<Creature>& C : T->Types[type])
+			{
+				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
+			}
+		}
+	}
+
+	return ret;
+}
+
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter )
+{
+	std::list<std::shared_ptr<Creature>> ret;
+
+	// we're using squared distances
+	float r2 = radius*radius;
+
+	for (int x = Position.x-radius; x < Position.x+radius; ++x)
+	{
+		for (int y = Position.y-radius; y < Position.y+radius; ++y)
+		{
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			if (!T) break;
+
+			for (std::shared_ptr<Creature>& C : T->SpeciesList[species])
+			{
+				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
+			}
+		}
+	}
+
+	return ret;
+}
+
 
 std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter )
 {
@@ -114,7 +163,7 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
 			if (!T || (x==Position.y && y == Position.y)) continue;
 
-			for (std::shared_ptr<Creature>& C : T->getCreatures())
+			for (std::shared_ptr<Creature>& C : T->Creatures)
 			{
 				float curdist = Geom::squaredist( C->getPosition(), Position );
 				if ( curdist < mindist2 && filter ( C ) )
@@ -129,6 +178,65 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	return nearest;
 }
 
+std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+{
+	std::shared_ptr<Creature> nearest;
+
+	// squared distance, avoid squrt in further comparisions
+	float mindist2 = radius*radius;
+
+	for (int x = Position.x-radius; x < Position.x+radius; ++x)
+	{
+		for (int y = Position.y-radius; y < Position.y+radius; ++y)
+		{
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			if (!T || (x==Position.y && y == Position.y)) continue;
+
+			for (std::shared_ptr<Creature>& C : T->Types[type])
+			{
+				float curdist = Geom::squaredist( C->getPosition(), Position );
+				if ( curdist < mindist2 && filter ( C ) )
+				{
+					nearest = C;
+					mindist2 = curdist;
+				}
+			}
+		}
+	}
+
+	return nearest;
+}
+
+std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter )
+{
+	std::shared_ptr<Creature> nearest;
+
+	// squared distance, avoid squrt in further comparisions
+	float mindist2 = radius*radius;
+
+	for (int x = Position.x-radius; x < Position.x+radius; ++x)
+	{
+		for (int y = Position.y-radius; y < Position.y+radius; ++y)
+		{
+			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			if (!T || (x==Position.y && y == Position.y)) continue;
+
+			for (std::shared_ptr<Creature>& C : T->SpeciesList[species])
+			{
+				float curdist = Geom::squaredist( C->getPosition(), Position );
+				if ( curdist < mindist2 && filter ( C ) )
+				{
+					nearest = C;
+					mindist2 = curdist;
+				}
+			}
+		}
+	}
+
+	return nearest;
+}
+
+
 void Terrain::CreateMapPlotters()
 {
 
@@ -140,7 +248,7 @@ void Terrain::CreateMapPlotters()
 	for ( std::shared_ptr<Tile>& T : Tiles )
 	{
 		humidity.push_back(T->getHumidity() );
-		population.push_back(T->getCreatures().size());
+		population.push_back(T->Creatures.size());
 		height.push_back( T->getHeight() );
 	}
 

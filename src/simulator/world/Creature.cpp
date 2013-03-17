@@ -114,22 +114,22 @@ void Creature::huntFood()
 			break;
 
 		case Species::CARNIVORE:
-			huntNearest( [&]( const std::shared_ptr<Creature>& C ) { return (C->getSpecies()->getType() == Species::HERBIVORE); });
+			huntNearest( Species::HERBIVORE );
 			damage += mySpecies->getFoodRequirement() - foodFound;
 			break;
 
 		case Species::HERBIVORE:
-			huntNearest( [&]( const std::shared_ptr<Creature>& C ) { return (C->getSpecies()->getType() == Species::HERBA); });
+			huntNearest( Species::HERBA );
 			damage += mySpecies->getFoodRequirement() - foodFound;
 			break;
 	}
 
 }
 
-void Creature::huntNearest( std::function< bool( std::shared_ptr<Creature> ) > filter )
+void Creature::huntNearest( int type )
 {
 	// get nearest creature
-	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), filter);
+	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), type);
 	// nothing found? move randomly
 	if ( !nearest ) {
 		move(0);
@@ -167,8 +167,7 @@ void Creature::mate()
 
 		mateNearest( [&]( const std::shared_ptr<Creature>& C )
 		{
-			 return ( C->getSpecies() == mySpecies
-					&& C.get() != this
+			 return ( C.get() != this
 					&& C->getCurrentHealth() > matingThreshold
 					&& C->getAge() > (C->getSpecies()->getMaxAge()*matingAge));
 		});
@@ -182,7 +181,7 @@ void Creature::mate()
 
 void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > filter)
 {
-	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), filter);
+	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), mySpecies, filter);
 	if ( !nearest ) {
 		move(0);
 		return;

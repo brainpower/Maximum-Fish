@@ -5,6 +5,7 @@
 #include "Species.hpp"
 
 #include <list>
+#include <unordered_map>
 
 class Creature;
 
@@ -38,6 +39,7 @@ class Tile
 
 	private:
 
+		friend class Terrain;
 		friend class TerrainIOPlugin;
 
 		Geom::Point Position;
@@ -55,6 +57,8 @@ class Tile
 
 		/// a list of all Creatures on that Tile
 		std::list<std::shared_ptr<Creature>> Creatures;
+		std::list<std::shared_ptr<Creature>> Types[3];
+		std::unordered_map<std::shared_ptr<Species>, std::list<std::shared_ptr<Creature>>> SpeciesList;
 
 		///temperature decreases by approximately 0.007°C per meter
 		static const float d;

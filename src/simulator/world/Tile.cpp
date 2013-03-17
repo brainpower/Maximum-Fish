@@ -71,11 +71,15 @@ int Tile::getTileSpriteIndex()
 void Tile::addCreature ( const std::shared_ptr<Creature>& p )
 {
 	Creatures.push_back(p);
+	Types[p->getSpecies()->getType()].push_back(p);
+	SpeciesList[p->getSpecies()].push_back(p);
 }
 
 
 
 void Tile::removeCreature( const std::shared_ptr<Creature>& p)
 {
-	Creatures.remove( p );
+	Creatures.remove(p);
+	Types[p->getSpecies()->getType()].remove(p);
+	SpeciesList[p->getSpecies()].remove(p);
 }
