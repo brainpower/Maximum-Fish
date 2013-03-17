@@ -54,8 +54,8 @@ void Creature::setPositionUnsafe( const Geom::Pointf& pos)
 
 void Creature::setPosition( const Geom::Pointf& pos)
 {
-	updateTileFromPos();
 	Position = pos;
+	updateTileFromPos();
 }
 
 void Creature::updateTileFromPos(){

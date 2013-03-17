@@ -11,6 +11,7 @@
 #include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
+#include "sbe/sfg/Message.hpp"
 #include "sbe/sfg/MessageHandler.hpp"
 
 #include "simulator/world/Creature.hpp"
@@ -33,6 +34,11 @@ SimActors::SimActors()
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
 	RegisterForEvent("UpdateTilemapTexture");
+
+	RegisterForEvent("EVT_SAVE_GOOD");
+	RegisterForEvent("EVT_SAVE_BAD");
+	RegisterForEvent("EVT_LOAD_BAD");
+	RegisterForEvent("EVT_LOAD_GOOD");
 
 	GridColor = sf::Color( Engine::getCfg()->get<int>("system.ui.simView.gridColor.r"),
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.g"),
@@ -65,6 +71,14 @@ void SimActors::HandleEvent(Event& e)
 			tilemapTexture.loadFromImage( *i );
 			CreateTerrainShaderMap();
 		}
+	} else if ( (e.Is("EVT_SAVE_BAD", typeid(std::string)) || e.Is("EVT_LOAD_BAD", typeid(std::string))) )
+	{
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+	} else if ( (e.Is("EVT_SAVE_GOOD") || e.Is("EVT_LOAD_GOOD")) )
+	{
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD OK!", "Saving / Loading successfull!") );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
 	}
 }
 

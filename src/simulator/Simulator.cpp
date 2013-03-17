@@ -172,7 +172,7 @@ void Simulator::NewSimulation( int seed )
 
 
 	// add default species
-	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES" ));
+	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
 	SpeciesList.push_back( S );
 	Generator G (*this);
 
@@ -309,7 +309,6 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 		float dist = Geom::distance(pos, C->getPosition());
 		if ( dist < curdist )
 		{
-			Engine::out(Engine::INFO) << "[Simulator] clickdist:" << pos << " to " << C->getPosition() << " = " << dist << std::endl;
 			ev.SetData( C );
 			curdist = dist;
 		}
