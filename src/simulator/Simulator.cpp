@@ -302,13 +302,16 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 
 	Event ev("CREATURE_CLICKED", std::shared_ptr<Creature>());
 
+	// minimum distance to recognise a click
+	float curdist = .2;
 	for ( std::shared_ptr<Creature>& C : T->getCreatures())
 	{
-		if ( Geom::distance(pos, C->getPosition()) < .1 )
+		float dist = Geom::distance(pos, C->getPosition());
+		if ( dist < curdist )
 		{
+			Engine::out(Engine::INFO) << "[Simulator] clickdist:" << pos << " to " << C->getPosition() << " = " << dist << std::endl;
 			ev.SetData( C );
-			// only return 1 Creature
-			break;
+			curdist = dist;
 		}
 	}
 
