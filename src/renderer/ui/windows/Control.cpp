@@ -146,7 +146,7 @@ void Control::updatePosition()
 
 void Control::BtnDbgWinClick()
 {
-	Module::Get()->QueueEvent( Event( "TOGGLE_SHOW_CONSOLE" ) );
+	Module::Get()->QueueEvent( Event( "TOGGLE_SHOW_DBGWIN" ) );
 }
 
 void Control::BtnIPanWinClick()
