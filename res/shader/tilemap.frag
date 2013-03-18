@@ -11,7 +11,7 @@ precision highp float;
 
 void main()
 {
-  	const float TileRenderFactor = TileRenderSize / TerrainSize;
+  	float TileRenderFactor = TileRenderSize / TerrainSize;
 	
 	vec2 tilePos = gl_TexCoord[0].xy / (TileRenderFactor*TerrainSize);
 	
