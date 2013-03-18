@@ -5,7 +5,11 @@
 
 #include "sbe/geom/Point.hpp"
 
-#include <SFGUI/SFGUI.hpp>
+#include <SFGUI/SharedPtr.hpp>
+namespace sfg
+{
+	class Window;
+}
 
 /// MainMenu
 class MainMenu : public sbe::EventUser
@@ -19,20 +23,13 @@ class MainMenu : public sbe::EventUser
 
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
-        void BtnResumeClick();
-
-        void BtnSaveClick();
-        void BtnLoadClick();
-
-        void BtnExitClick();
-        void BtnExitCancelClick();
-        void BtnExitConfirmClick();
-
+		void BtnResumeClick();
+		void BtnSaveClick();
+		void BtnLoadClick();
+		void BtnExitClick();
 		void updatePosition();
 
-		sfg::Window::Ptr Win;
-		sfg::Button::Ptr BtnExit;
-		sfg::Box::Ptr ExitConfirmation;
+		sfg::SharedPtr<sfg::Window> Win;
 		unsigned int currentlabeltext;
 
 };
