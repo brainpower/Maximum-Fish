@@ -243,10 +243,12 @@ void Terrain::CreateMapPlotters()
 	std::vector<float> population;
 	std::vector<float> height;
 	std::vector<float> humidity;
+	std::vector<float> nutrition;
 
 
 	for ( std::shared_ptr<Tile>& T : Tiles )
 	{
+		nutrition.push_back(T->getNutrition() );
 		humidity.push_back(T->getHumidity() );
 		population.push_back(T->Creatures.size());
 		height.push_back( T->getHeight() );
@@ -262,6 +264,12 @@ void Terrain::CreateMapPlotters()
 
 	p.reset( new sbe::MapPlotter( "Humidity", sbe::MapPlotter::PLOT_HEATMAP) );
 	p->setData( humidity, Size, true );
+	p->plot();
+	e.SetData( p );
+	Module::Get()->QueueEvent( e, true );
+
+	p.reset( new sbe::MapPlotter( "Nutrition", sbe::MapPlotter::PLOT_HEATMAP) );
+	p->setData( nutrition, Size, true );
 	p->plot();
 	e.SetData( p );
 	Module::Get()->QueueEvent( e, true );
@@ -294,7 +302,7 @@ void Terrain::CreateDebugTerrain()
 
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> rnd;
-	std::uniform_real_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.min"),Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max"));
+	std::normal_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max")/2);
 
 	float minHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.min");
 	float maxHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.max");
