@@ -9,15 +9,12 @@
 namespace sfg
 {
 	class Window;
-	class Button;
-	class Box;
 }
 
 /// MainMenu
 class MainMenu : public sbe::EventUser
 {
 	public:
-
 		MainMenu( const Geom::Vec2 Size = Geom::Vec2(200, 300));
 		virtual ~MainMenu() {};
 
@@ -25,20 +22,14 @@ class MainMenu : public sbe::EventUser
 
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
-        void BtnResumeClick();
-
-        void BtnSaveClick();
-        void BtnLoadClick();
-
-        void BtnExitClick();
-        void BtnExitCancelClick();
-        void BtnExitConfirmClick();
-
+		void BtnResumeClick();
+		void BtnSaveClick();
+		void BtnLoadClick();
+		void BtnExitClick();
 		void updatePosition();
 
 		sfg::SharedPtr<sfg::Window> Win;
-		sfg::SharedPtr<sfg::Button> BtnExit;
-		sfg::SharedPtr<sfg::Box> ExitConfirmation;
+
 		unsigned int currentlabeltext;
 
 };
