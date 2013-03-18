@@ -13,7 +13,7 @@
 #include "Tile.hpp"
 
 // static variables
-float Creature::pNutritionDiv = 4;
+float Creature::NutritionFactor = 1;
 float Creature::huntingThreshold = 0.75;
 float Creature::matingThreshold = 0.9;
 float Creature::matingAge = 0.2;
@@ -103,24 +103,20 @@ void Creature::live()
 
 void Creature::huntFood()
 {
-	int foodFound = 0;
-	int damage = 0;
+	currentHealth-= mySpecies->getFoodRequirement();
 
 	switch (mySpecies->getType())
 	{
 		case Species::HERBA:
-			// TODO: calculate damage from insufficient water or nutrition in our tile
-			damage += pNutritionDiv*(mySpecies->getFoodRequirement() - foodFound);
+			currentHealth += currentTile->getNutrition()*NutritionFactor;
 			break;
 
 		case Species::CARNIVORE:
 			huntNearest( Species::HERBIVORE );
-			damage += mySpecies->getFoodRequirement() - foodFound;
 			break;
 
 		case Species::HERBIVORE:
 			huntNearest( Species::HERBA );
-			damage += mySpecies->getFoodRequirement() - foodFound;
 			break;
 	}
 
@@ -312,7 +308,7 @@ void Creature::calcEnv()
 
 void Creature::loadConfigValues()
 {
-	pNutritionDiv = 	Engine::getCfg()->get<float>("sim.creature.pNutritionDiv");
+	NutritionFactor = 	Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
 	huntingThreshold = 	Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
 	matingThreshold = 	Engine::getCfg()->get<float>("sim.creature.matingThreshold");
 	matingAge = 		Engine::getCfg()->get<float>("sim.creature.matingAge");

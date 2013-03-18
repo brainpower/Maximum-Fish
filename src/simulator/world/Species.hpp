@@ -29,7 +29,7 @@ class Species
 		int getBreedingSpeed() const {return breedingSpeed;}
 		SPECIES_TYPE getType() const {return type;}
 		int getFoodRequirement() const {return foodRequirement;}
-		int getWaterRequirement() const {return waterRequirement;}
+		float getWaterRequirement() const {return waterRequirement;}
 		int getOptimalTemperature() const {return optimalTemperature;}
 
 		const std::string& getName() { return name; }
@@ -43,7 +43,7 @@ class Species
 		void setBreedingSpeed(int bs) {          breedingSpeed = bs;}
 		void setType(SPECIES_TYPE t) {                 type = t; if (type == HERBA) maxSpeed = 0; }
 		void setFoodRequirement(int fr) {      foodRequirement = fr;}
-		void setWaterRequirement(int wr){     waterRequirement = wr;}
+		void setWaterRequirement(float wr){     waterRequirement = wr;}
 		void setOptimalTemperature(int oh) {optimalTemperature = oh;}
 
 	private:
@@ -68,7 +68,7 @@ class Species
 		/// how much food is required to keep the current health level
 		int foodRequirement;
 		/// how much water is required to keep the current health level
-		int waterRequirement;
+		float waterRequirement;
 
 		/**
 			Determines the optimal Temperature for the species to live in °C

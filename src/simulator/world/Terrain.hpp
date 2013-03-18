@@ -7,6 +7,7 @@
 namespace sf { class Image; }
 
 #include <list>
+#include <vector>
 #include <memory>
 #include <functional>
 

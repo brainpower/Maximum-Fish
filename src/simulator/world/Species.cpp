@@ -13,7 +13,7 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
  breedingSpeed( 200 ), ///
  type( t ),
  foodRequirement( 10 ), /// a creature with 100hp lasts for 10 days?
- waterRequirement( 10 ), /// just
+ waterRequirement( 0.5 ), /// just
  optimalTemperature( 20 ), /// 20°C
  ImageSetName("Creatures_serious"),
  Frame( t )
@@ -43,7 +43,7 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
 
 	resistance = Engine::getCfg()->get<float>("sim.species.defaults.resistance");
 	foodRequirement = Engine::getCfg()->get<int>("sim.species.defaults.foodRequirement");
-	waterRequirement = Engine::getCfg()->get<int>("sim.species.defaults.waterRequirement");
+	waterRequirement = Engine::getCfg()->get<float>("sim.species.defaults.waterRequirement");
 	optimalTemperature = Engine::getCfg()->get<int>("sim.species.defaults.optimalTemperature");
 	ImageSetName = Engine::getCfg()->get<std::string>("sim.species.defaults.imageSetName");
 

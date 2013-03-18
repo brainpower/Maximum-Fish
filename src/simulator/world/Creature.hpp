@@ -47,7 +47,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 	private:
 
 		// static settings loaded from the config
-		static float pNutritionDiv;
+		static float NutritionFactor;
 		static float huntingThreshold;
 		static float matingThreshold;
 		static float matingAge;
