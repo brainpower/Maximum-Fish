@@ -294,6 +294,11 @@ void Terrain::CreateDebugTerrain()
 
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> rnd;
+	std::uniform_real_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.min"),Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max"));
+
+	float minHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.min");
+	float maxHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.max");
+
 
 	for ( int y = 0; y < Size.y; ++y)
 	{
@@ -303,7 +308,7 @@ void Terrain::CreateDebugTerrain()
 			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
 			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float TileHeight = maxHeight*HeightFactor;
-			float Humidity = 0;
+			float Humidity = minHumidity + (maxHumidity-minHumidity)*(1-HeightFactor);
 
 
 			if (TileHeight > maxElevation) maxElevation = TileHeight;
@@ -312,7 +317,7 @@ void Terrain::CreateDebugTerrain()
 			{
 				Humidity = 1;
 			}
-			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, rnd(gen), Humidity );
+			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, nutritionrnd(gen), Humidity );
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
 		}

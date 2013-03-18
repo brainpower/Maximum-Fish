@@ -20,7 +20,7 @@ Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseH
   nutrition( _nutrition ),
   baseHumidity( _baseHumidity ),
   biomass(0),
-  humidity(0)
+  humidity( _baseHumidity )
 {
 
 }
