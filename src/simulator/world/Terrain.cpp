@@ -302,7 +302,7 @@ void Terrain::CreateDebugTerrain()
 
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> rnd;
-	std::uniform_real_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.min"),Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max"));
+	std::normal_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max")/2);
 
 	float minHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.min");
 	float maxHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.max");
