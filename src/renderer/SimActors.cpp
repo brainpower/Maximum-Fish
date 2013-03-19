@@ -35,6 +35,7 @@ SimActors::SimActors()
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
 	RegisterForEvent("UpdateTilemapTexture");
+	RegisterForEvent("CREATURE_CLICKED");
 
 	RegisterForEvent("EVT_SAVE_GOOD");
 	RegisterForEvent("EVT_SAVE_BAD");
@@ -106,7 +107,7 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	for ( std::shared_ptr<Creature> C : r)
 	{
 		auto Pos = DetermineCreaturePos( C );
-		if(m_highlight != NULL && C->getSpecies().get() == m_highlight)
+		if(C->getSpecies().get() == m_highlight)
 		{
 			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos, -1, sf::Color::Red );
 		}

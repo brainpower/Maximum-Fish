@@ -107,8 +107,14 @@ bool SimView::LoadResources()
 	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"));
 	I->updateTexture();
 	//Engine::GetIO()->saveObject<ImageSet>( );
-	sbe::Screen::sRndr()->getLayer( L_CREATURES )->States.texture = &(*(I->getTexture()));
 
+	/// Creature Shaders
+	std::shared_ptr<sf::Shader> highlightShader( new sf::Shader );
+	highlightShader->loadFromFile("res/shader/highlight.vert", "res/shader/highlight.frag");
+	Engine::GetResMgr()->add( highlightShader, "highlightShader" );
+	sbe::Screen::sRndr()->getLayer( L_CREATURES )->States.shader  = &(*highlightShader);
+
+	sbe::Screen::sRndr()->getLayer( L_CREATURES )->States.texture = &(*(I->getTexture()));
 
 	auto txt2 = Engine::GetIO()->loadPath<sf::Image>( Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
 	if (txt2.size() == 1) Engine::GetResMgr()->add(txt2[0], Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ));
@@ -144,6 +150,7 @@ bool SimView::LoadResources()
 
 		sbe::Screen::sRndr()->getLayer( L_TERRAIN )->States.shader  = &(*tilemapShader);
 	}
+
 	else
 	{
 		sbe::Screen::sRndr()->getLayer( L_TERRAIN )->States.texture = &(*(I2->getTexture()));
