@@ -32,10 +32,8 @@ class Tile
 		void removeCreature( const std::shared_ptr<Creature>& p);
 		std::list<std::shared_ptr<Creature>>& getCreatures() { return Creatures; }
 
-		/// those are set by the terrain on construction
-		static float maxsandheight;
-		static float maxgrassheight;
-		static float maxwalkableHumidity;
+		/// called by the terrain on construction
+		static void loadConfigValues();
 
 	private:
 
@@ -60,8 +58,12 @@ class Tile
 		std::list<std::shared_ptr<Creature>> Types[3];
 		std::unordered_map<std::shared_ptr<Species>, std::list<std::shared_ptr<Creature>>> SpeciesList;
 
+
+		static float maxsandheight;
+		static float maxgrassheight;
+		static float maxwalkableHumidity;
 		///temperature decreases by approximately 0.007°C per meter
-		static const float d;
+		static float tempdiffpermeter;
 
 };
 

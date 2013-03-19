@@ -22,11 +22,7 @@ Terrain::Terrain()
 	humidityFactor = Engine::getCfg()->get<float>("sim.terrain.humidityFactor");
 	globalTemp = Engine::getCfg()->get<float>("sim.terrain.globalTemp");
 
-	// set some const values
-	Tile::maxsandheight = Engine::getCfg()->get<float>("sim.terrain.maxsandheight");
-	Tile::maxgrassheight = Engine::getCfg()->get<float>("sim.terrain.maxgrassheight");
-	Tile::maxwalkableHumidity = Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity");
-
+	Tile::loadConfigValues();
 }
 
 std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )

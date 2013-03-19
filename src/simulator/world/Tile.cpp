@@ -9,10 +9,19 @@
 
 
 
-const float Tile::d = 0.007;
+float Tile::tempdiffpermeter = 0;
 float Tile::maxsandheight = 0;
 float Tile::maxgrassheight = 0;
 float Tile::maxwalkableHumidity = 0;
+
+void Tile::loadConfigValues()
+{
+	// set some const values
+	tempdiffpermeter = Engine::getCfg()->get<float>("sim.terrain.tempdiffpermeter");
+	maxsandheight = Engine::getCfg()->get<float>("sim.terrain.maxsandheight");
+	maxgrassheight = Engine::getCfg()->get<float>("sim.terrain.maxgrassheight");
+	maxwalkableHumidity = Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity");
+}
 
 Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity )
  : Position(_Position),
@@ -27,7 +36,7 @@ Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseH
 
 float Tile::calcTemperature()
 {
-	return Simulator::GetTerrain()->getGlobalTemp() - d*height;
+	return Simulator::GetTerrain()->getGlobalTemp() - tempdiffpermeter*height;
 }
 
 float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
@@ -54,6 +63,8 @@ float Tile::getHabitability(int food, std::shared_ptr<Species> sp)
 	//std::cout << "r1: " << r1 << " r2: " << r2 << " hum: " << hum << std::endl;
 
 	float ret = /* (1-(1/(1+Artgenossen))) * */ r1 * r2 * 1/*hum*/;
+
+	Engine::out() << "hab: " << ret << std::endl;
 
 	return ret;
 }
