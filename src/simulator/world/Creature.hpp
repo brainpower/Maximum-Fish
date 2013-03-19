@@ -44,6 +44,9 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		static void loadConfigValues();
 
+		/// true if this Creature already had its turn this tick
+		bool done;
+
 	private:
 
 		// static settings loaded from the config

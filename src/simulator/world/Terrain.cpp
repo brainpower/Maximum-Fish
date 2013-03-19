@@ -250,8 +250,6 @@ void Terrain::CreateParallelisationGraph()
 		currentID++;
 		Colors.emplace_back();
 
-		if ( currentID == Engine::getCfg()->get<int>("sim.maxIDs")+1 ) break;
-
 		for ( auto Tile = Tiles.begin(); Tile != Tiles.end(); ++Tile )
 		{
 			// already set in another color?
@@ -284,9 +282,9 @@ void Terrain::CreateParallelisationGraph()
 				for ( int i = 0; i < 4; ++i)
 					for ( int j = 0; j < 4; ++j )
 						//if ( std::abs( points1[i].x - points2[j].x) < maxreach || std::abs( points1[i].y - points2[j].y) < maxreach )
-						if ( distance( points1[i], points2[j]) < maxreach )
+						if ( distance( points1[i], points2[j]) < maxreach || (std::abs( points1[i].x - points2[j].x) < maxreach && std::abs( points1[i].y - points2[j].y) < maxreach) )
 						{
-							Engine::out() << "ID: " << currentID << "/" << (*Tile2)->getParallelId() << " Tile: " << (*Tile)->getPosition() << " check: " << (*Tile2)->getPosition() << " failed! " << points1[i] << " -> " << points2[j] << " = " << distance( points1[i], points2[j]) << std::endl;
+							//Engine::out() << "ID: " << currentID << "/" << (*Tile2)->getParallelId() << " Tile: " << (*Tile)->getPosition() << " check: " << (*Tile2)->getPosition() << " failed! " << points1[i] << " -> " << points2[j] << " = " << distance( points1[i], points2[j]) << " dx: " << std::abs( points1[i].x - points2[j].x) << " dy: " << std::abs( points1[i].y - points2[j].y) << std::endl;
 							goto nexttile;
 						}
 
