@@ -107,9 +107,6 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void saveWhole(const std::string &savePath);
 		void loadWhole(const std::string &loadPath);
 
-		template<class T, class FwdIterator>
-		std::list<T> a2list(FwdIterator begin, FwdIterator end);
-
 		int currentSeed;
 		int currentTick;
 		unsigned int numGenerated; // number of generated random numbers

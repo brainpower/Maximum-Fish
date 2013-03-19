@@ -40,12 +40,12 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 	// main box, vertical
 	Box::Ptr box( Box::Create( Box::HORIZONTAL, 5.0f ) );
 
-		BtnDbgWin =   ToggleButton::Create( "Console" );
-		BtnIPanWin =  ToggleButton::Create( "InfoPanel" );
-		BtnMnMnWin =  ToggleButton::Create( "MainMenu" );
-		BtnGraBoWin = ToggleButton::Create( "GraphBook" );
-		BtnSimPause = ToggleButton::Create( "Pause ||" );
-		BtnSimReset =       Button::Create( "Reset" );
+		BtnMnMnWin =  ToggleButton::Create(  "MainMenu [Esc]" );
+		BtnIPanWin =  ToggleButton::Create( "InfoPanel [F1]" );
+		BtnSimPause = ToggleButton::Create(     "Pause [F2]" );
+		BtnDbgWin =   ToggleButton::Create(   "Console [F3]" );
+		BtnGraBoWin = ToggleButton::Create( "GraphBook [F4]" );
+		BtnSimReset =       Button::Create(     "Reset [F5]" );
 
 		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
@@ -74,11 +74,11 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
 		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
 
-		box->Pack( BtnDbgWin,   false, false );
-		box->Pack( BtnIPanWin,  false, false );
 		box->Pack( BtnMnMnWin,  false, false );
-		box->Pack( BtnGraBoWin, false, false );
+		box->Pack( BtnIPanWin,  false, false );
 		box->Pack( BtnSimPause, false, false );
+		box->Pack( BtnDbgWin,   false, false );
+		box->Pack( BtnGraBoWin, false, false );
 		box->Pack( BtnSimReset, false, false );
 		box->Pack( framesframe );
 
@@ -167,7 +167,7 @@ void Control::BtnGraBoWinClick()
 void Control::BtnSimPauseClick()
 {
 	SimPause( BtnSimPause->IsActive() );
-	BtnSimPause->SetLabel( BtnSimPause->IsActive() ? "Play >" : "Pause ||" );
+	BtnSimPause->SetLabel( BtnSimPause->IsActive() ? "Play > [F2]" : "Pause || [F2]" );
 }
 
 void Control::SimPause( bool _p )
