@@ -61,20 +61,19 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 
 		friend class CreatureIOPlugin;
-		void huntFood();
+		bool huntFood();
 		/// handles eating the nearest possible prey defined by the filter lambda
-		void huntNearest( int type  );
-		/// find the nearest mating partner ( for animals )
-		void mateNearest( std::function< bool( std::shared_ptr<Creature> ) > filter );
-		void mate();
+		bool huntNearest( int type  );
+		bool mate();
+		bool moveTo();
 		/// spawn a child
 		void reproduce( std::shared_ptr<Creature> otherparent = std::shared_ptr<Creature>());
 		void move(int found);
 		bool moveYourAss();
 		/**
-			Calculates environmental effects (damage from temperature etc)
+			Calculates environmental effects (damage from temperature, water/food requirement)
 		*/
-		void calcEnv();
+		void calcDamage();
 
 
 		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )

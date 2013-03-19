@@ -13,15 +13,15 @@
 #include "Tile.hpp"
 
 // static variables
-float Creature::NutritionFactor = 1;
-float Creature::huntingThreshold = 0.75;
-float Creature::matingThreshold = 0.9;
-float Creature::matingAge = 0.2;
-float Creature::matingHealthCost = 0.25;
-float Creature::migProb = 0.01;
-float Creature::altModifier1 = 16;
-float Creature::altModifier2 = 2;
-float Creature::envMult = 0.0001;
+float Creature::NutritionFactor = 0;
+float Creature::huntingThreshold = 0;
+float Creature::matingThreshold = 0;
+float Creature::matingAge = 0;
+float Creature::matingHealthCost = 0;
+float Creature::migProb = 0;
+float Creature::altModifier1 = 0;
+float Creature::altModifier2 = 0;
+float Creature::envMult = 0;
 
 
 
@@ -77,125 +77,111 @@ void Creature::movePosition( const Geom::Pointf& pos)
 void Creature::live()
 {
 	// damage from environment
-	calcEnv();
-	// feed
-	int found = 0;
+	calcDamage();
+
+	// do nothing, we're dead
+	// the simulator will remove this creature after the current tick
+	if ( currentHealth <= 0 ) return;
+
+	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
 	float healthPercentage = currentHealth/mySpecies->getMaxHealth();
 
 	if ( healthPercentage < huntingThreshold )
 	{
-		huntFood();
+		didsomethingthistick = huntFood();
 	}
 	else if ( age - lastmating > mySpecies->getBreedingSpeed()
 				&& healthPercentage > matingThreshold
 				&& age > mySpecies->getMaxAge()*matingAge )
 	{
-		mate();
+		didsomethingthistick = mate();
 	}
-	else
-	{
-		move(found);
-	}
+
+	if ( didsomethingthistick )
+		move();
 
 	age++;
 }
 
-void Creature::huntFood()
-{
-	currentHealth-= mySpecies->getFoodRequirement();
+//################################################
+//					HUNTING
+//################################################
 
+bool Creature::huntFood()
+{
 	switch (mySpecies->getType())
 	{
 		case Species::HERBA:
 			currentHealth += currentTile->getNutrition()*NutritionFactor;
+			return true;
 			break;
 
 		case Species::CARNIVORE:
-			huntNearest( Species::HERBIVORE );
+			return huntNearest( Species::HERBIVORE );
 			break;
 
 		case Species::HERBIVORE:
-			huntNearest( Species::HERBA );
+			return huntNearest( Species::HERBA );
 			break;
 	}
 
 }
 
-void Creature::huntNearest( int type )
+bool Creature::huntNearest( int type )
 {
 	// get nearest creature
 	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), type);
-	// nothing found? move randomly
-	if ( !nearest ) {
-		move(0);
-		return;
-	}
+	if ( !nearest ) return false;
 
-	// check if we can reach our target in a single tick
-	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
-	{
-		// move in direction of the target
-		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
-		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
-		target += Position;
-		if (validPos( target ) )
-			setPosition( target );
-	} else {
+	// move to prey
+	if ( moveTo( nearest->getPosition() ) {
 		// consume our prey
 		currentHealth += nearest->getCurrentHealth();
 		if(currentHealth > mySpecies->getMaxHealth()) currentHealth = mySpecies->getMaxHealth();
 		nearest->setCurrentHealth(0);
 	}
+
+	return true;
 }
 
-void Creature::mate()
+//################################################
+//					MATING
+//################################################
+
+bool Creature::mate()
 {
 	switch (mySpecies->getType())
 	{
 		case Species::HERBA:
 			reproduce();
+			return true;
 			break;
 
 		// fall through
 		case Species::CARNIVORE:
 		case Species::HERBIVORE:
 
-		mateNearest( [&]( const std::shared_ptr<Creature>& C )
-		{
-			 return ( C.get() != this
-					&& C->getCurrentHealth() > matingThreshold
-					&& C->getAge() > (C->getSpecies()->getMaxAge()*matingAge));
-		});
+			std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), mySpecies, [&]( const std::shared_ptr<Creature>& C )
+			{
+				 return ( C.get() != this
+						&& C->getCurrentHealth() > matingThreshold
+						&& C->getAge() > (C->getSpecies()->getMaxAge()*matingAge));
+			});
+
+			if ( !nearest ) return false;
+
+			// move to mating partner
+			if ( moveTo( nearest->getPosition() )
+				reproduce( nearest );
+
+			return true;
 
 		break;
 	}
 
 }
 
-
-
-void Creature::mateNearest(std::function< bool( std::shared_ptr<Creature> ) > filter)
-{
-	std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), mySpecies, filter);
-	if ( !nearest ) {
-		move(0);
-		return;
-	}
-
-	// move to mating partner
-	if ( Geom::distance( nearest->getPosition(), Position ) > mySpecies->getMaxSpeed() )
-	{
-		Geom::Vec2f target = Geom::normalize( nearest->getPosition() - Position );
-		target *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
-		target += Position;
-		if ( validPos( target ) )
-			setPosition( target );
-	// mate
-	} else {
-		reproduce( nearest );
-	}
-}
 
 void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 {
@@ -228,6 +214,49 @@ void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 		currentHealth -= healthCost;
 		// plants dont need another parent
 		if ( otherparent ) otherparent->setCurrentHealth(otherparent->getCurrentHealth() - healthCost);
+}
+
+//################################################
+//					MOVING
+//################################################
+
+void Creature::move(int found)
+{
+	if ( mySpecies->getMaxSpeed() == 0 ) return;
+
+	float hab = currentTile->getHabitability(found, mySpecies);
+
+	std::uniform_real_distribution<float> rnd(0, 1);
+
+
+	if( hab < 10 ) {
+		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
+	}
+	else
+	{
+	//maybe GTFO
+	if( rnd(Simulator::GetRnd()) < migProb )
+		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
+	}
+}
+
+
+bool Creature::moveTo( Geom::Pointf Target )
+{
+	// move as far in direction of the target as possible
+	if ( Geom::distance( Target, Position ) > mySpecies->getMaxSpeed() )
+	{
+		Geom::Vec2f direction = Geom::normalize( Target - Position );
+		direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		direction += Position;
+		if ( validPos( direction ) )
+			setPosition( direction );
+		return false;
+	// move to the target
+	} else {
+		setPosition( Target );
+		return true;
+	}
 }
 
 bool Creature::moveYourAss()
@@ -263,26 +292,6 @@ bool Creature::moveYourAss()
 	return false;
 }
 
-void Creature::move(int found)
-{
-	if ( mySpecies->getMaxSpeed() == 0 ) return;
-
-	float hab = currentTile->getHabitability(found, mySpecies);
-
-	std::uniform_real_distribution<float> rnd(0, 1);
-
-
-	if( hab < 10 ) {
-		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
-	}
-	else
-	{
-	//maybe GTFO
-	if( rnd(Simulator::GetRnd()) < migProb )
-		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
-	}
-}
-
 bool Creature::validPos( Geom::Pointf NewPosition )
 {
 	std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
@@ -292,18 +301,21 @@ bool Creature::validPos( Geom::Pointf NewPosition )
 	return false;
 }
 
-void Creature::calcEnv()
+//################################################
+//					VARIOUS
+//################################################
+
+/**
+ 	Calculate Damage from food and water requirement and required temperature
+ */
+void Creature::calcDamage()
 {
-	//####### calculate external effects on creature ########
+	currentHealth-= mySpecies->getFoodRequirement();
+	currentHealth-= mySpecies->getWaterRequirement()- currentTile->getHumidity();
 
 	//--damage from wrong elevation/temperature
-	int damage = (int)(pow((double)( currentTile->getHeight() - mySpecies->getOptimalTemperature() ) / altModifier1, altModifier2));
-
-	damage += (mySpecies->getWaterRequirement()- currentTile->getHumidity() );
-
-	float fdmg = (float)(damage)*envMult;
-
-	currentHealth -= fdmg;
+	float envDmg = std::pow( (currentTile->getHeight() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
+	currentHealth-= envDmg*envMult;
 }
 
 void Creature::loadConfigValues()
