@@ -5,16 +5,16 @@
 
 Species::Species(const std::string& _name, SPECIES_TYPE t)
  : name( _name ),
- maxAge( 2400 ), /// 20*60*2 , 2min livetime at 20tps
- maxHealth( 100),
- maxSpeed( .05 ), /// 20 meters
- Reach( 0 ), /// default varies for different types
- resistance( 1.0 ),
- breedingSpeed( 200 ), ///
+ maxAge( 0 ),
+ maxHealth( 0),
+ maxSpeed( 0 ),
+ Reach( 0 ),
+ resistance( 0 ),
+ breedingSpeed( 0 ),
  type( t ),
- foodRequirement( 10 ), /// a creature with 100hp lasts for 10 days?
- waterRequirement( 0.5 ), /// just
- optimalTemperature( 20 ), /// 20°C
+ foodRequirement( 0 ),
+ waterRequirement( 0 ),
+ optimalTemperature( 0 ),
  ImageSetName("Creatures_serious"),
  Frame( t )
 {
