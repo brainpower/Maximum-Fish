@@ -30,6 +30,7 @@ void DetailsTile::UpdateLabel()
     AddToLabel( DetailsLabel, "Nutrition", str(format("%.2f") % currentTile->getNutrition()));
     AddToLabel( DetailsLabel, "Humidity", str(format("%.2f / %.2f") % currentTile->getHumidity() % currentTile->getBaseHumidity() ));
     AddToLabel( DetailsLabel, "Temperature", str(format("%.2f") % currentTile->calcTemperature() ));
+    AddToLabel( DetailsLabel, "Parallelisation ID", str(format("%.2f") % currentTile->getParallelId() ));
 }
 
 void DetailsTile::UpdateBox()

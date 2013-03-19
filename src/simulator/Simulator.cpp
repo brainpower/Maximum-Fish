@@ -19,6 +19,7 @@
 #include "resources/TerrainIOPlugin.hpp"
 
 #include <string>
+#include <sstream>
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -190,6 +191,9 @@ void Simulator::NewSimulation( int seed )
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
 		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
 
+	// categorize tiles for parallel computation of the simulation
+	Terra->CreateParallelisationGraph();
+
 	// send terrain to renderer
 	Terra->UpdateTerrain();
 	// send creatures to renderer
@@ -281,22 +285,15 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
 {
-
+	std::shared_ptr<Tile>& T = Terra->getTile( pos );
 
 
 	// Check if the Coordinates are valid
-	if (!(
-			(0 <= pos.x && pos.x < Terra->getSize().x + 1 )
-		 && (0 <= pos.y && pos.y < Terra->getSize().y +1 )
-		))
+	if (!T)
 	{
 		Module::Get()->QueueEvent(Event("TILE_CLICKED", std::shared_ptr<Tile>()), true);
 		return;
 	}
-
-
-
-	std::shared_ptr<Tile>& T = Terra->getTile( pos );
 
 	Module::Get()->QueueEvent(Event("TILE_CLICKED", T), true);
 
@@ -304,18 +301,27 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 
 	// minimum distance to recognise a click
 	float curdist = .2;
+	std::shared_ptr<Creature> tmp;
 	for ( std::shared_ptr<Creature>& C : T->getCreatures())
 	{
 		float dist = Geom::distance(pos, C->getPosition());
 		if ( dist < curdist )
 		{
-			ev.SetData( C );
+			tmp = C;
 			curdist = dist;
 		}
 	}
 
+	if ( tmp ) ev.SetData( tmp );
+
 	Module::Get()->QueueEvent(ev, true);
 
+	// required to hightlight the creatures species in the renderer, as this can only be done when a new CreatureRenderlist is received
+	if (tmp)
+	{
+		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+		Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
+	}
 }
 
 
@@ -371,6 +377,9 @@ void Simulator::saveWhole(const std::string &savePath){
 		auto simCfg = std::shared_ptr<sbe::Config>( new sbe::Config("simState.info", "sim") );
 		simCfg->set("sim.currentTick", currentTick);
 		// save state of random engine
+		std::stringstream ss;
+		ss << gen;
+		simCfg->set("sim.random.gen", ss.str());
 		simCfg->set("sim.random.seed", currentSeed);
 		simCfg->set("sim.random.numGenerated", numGenerated);
 
@@ -434,8 +443,8 @@ void Simulator::loadWhole(const std::string &loadPath){
 	numGenerated = simCfg->get<unsigned int>("sim.random.numGenerated");
 
 	// reset random engine
-	gen.seed( currentSeed );
-	gen.discard(numGenerated);// load random engine state
+	std::stringstream ss(simCfg->get<std::string>("sim.random.gen"));
+	ss >> gen;
 
 	// reset statistics
 	CreatureCounts[0] = 0;

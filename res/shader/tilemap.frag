@@ -32,6 +32,6 @@ void main()
   	vec2 internalPos = mod( Coords, 1.0);
 	internalPos /= AtlasSize;
 	
-	gl_FragColor = texture2D( tileGraphics, baseTilePos+internalPos );
+	gl_FragColor = texture2D( tileGraphics, (baseTilePos+internalPos) );
 }
 

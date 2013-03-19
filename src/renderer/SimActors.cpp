@@ -11,10 +11,13 @@
 #include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
+#include "sbe/geom/Helpers.hpp"
+
 #include "sbe/sfg/Message.hpp"
 #include "sbe/sfg/MessageHandler.hpp"
 
 #include "simulator/world/Creature.hpp"
+#include "simulator/world/Species.hpp"
 #include "simulator/world/Tile.hpp"
 
 #include <SFGUI/Window.hpp>
@@ -34,6 +37,7 @@ SimActors::SimActors()
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
 	RegisterForEvent("UpdateTilemapTexture");
+	RegisterForEvent("CREATURE_CLICKED");
 
 	RegisterForEvent("EVT_SAVE_GOOD");
 	RegisterForEvent("EVT_SAVE_BAD");
@@ -43,7 +47,6 @@ SimActors::SimActors()
 	GridColor = sf::Color( Engine::getCfg()->get<int>("system.ui.simView.gridColor.r"),
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.g"),
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.b") );
-
 }
 
 SimActors::~SimActors()
@@ -79,7 +82,17 @@ void SimActors::HandleEvent(Event& e)
 	{
 		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD OK!", "Saving / Loading successfull!") );
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
-	}
+	} else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> ) ) )
+    {
+		std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
+
+		if( c )
+		{
+			m_highlight = c->getSpecies().get();
+		} else {
+			m_highlight = nullptr;
+		}
+    }
 }
 
 void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
@@ -101,6 +114,10 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	for ( std::shared_ptr<Creature> C : r)
 	{
 		auto Pos = DetermineCreaturePos( C );
+		if(C->getSpecies().get() == m_highlight)
+		{
+			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos, -1, sf::Color::Red );
+		}
 		if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
 	}
 
@@ -122,9 +139,12 @@ void SimActors::ReadTileRenderList(TileRenderList& r)
 		CreateTerrainVertexArray( r );
 		Engine::out() << "[SimActors] Recreated tiles vertexarray!" << std::endl;
 	}
+
 	// and create the corresponding grid
 	CreateGrid();
 }
+
+
 
 void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 {

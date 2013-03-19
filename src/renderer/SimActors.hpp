@@ -29,6 +29,7 @@ namespace sbe
 }
 class Tile;
 class Creature;
+class Species;
 
 
 
@@ -69,6 +70,7 @@ class SimActors : public sbe::EventUser
 
 		void PlotGraph ( std::shared_ptr<sbe::GraphPlotter>& G );
 		void ReadTileRenderList( TileRenderList& r );
+
 		void ReadCreatureRenderList( CreatureRenderList& r );
 
 		/// Creates an Actor for rendering the Grid
@@ -105,6 +107,9 @@ class SimActors : public sbe::EventUser
 		int TerrainSize;
 
 		std::unique_ptr<sbe::MessageHandler> MessageHandler_;
+
+		/// pointer to currently highlighted species a.o
+		Species* m_highlight;
 };
 
 #endif // SimActors_HPP

@@ -64,6 +64,8 @@ class Terrain
 
 		void CreateDebugTerrain();
 		void CreateMapPlotters();
+		void CreateParallelisationGraph();
+
 	private:
 
 		friend class TerrainIOPlugin;
