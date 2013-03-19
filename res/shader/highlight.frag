@@ -5,5 +5,6 @@ precision highp float;
 
 void main()
 {
-	gl_FragColor = texture2D(creatures, gl_TexCoord[0].xy)*gl_Color;
+	vec4 temp = vec4(gl_Color.xyz, 0);
+	gl_FragColor = texture2D(creatures, gl_TexCoord[0].xy)+temp;
 }
