@@ -84,7 +84,12 @@ void SimActors::HandleEvent(Event& e)
     {
 		std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
 
-		m_highlight = c->getSpecies().get();
+		if( c )
+		{
+			m_highlight = c->getSpecies().get();
+		} else {
+			m_highlight = nullptr;
+		}
     }
 }
 
