@@ -19,6 +19,7 @@
 #include "resources/TerrainIOPlugin.hpp"
 
 #include <string>
+#include <sstream>
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -364,6 +365,9 @@ void Simulator::saveWhole(const std::string &savePath){
 		auto simCfg = std::shared_ptr<sbe::Config>( new sbe::Config("simState.info", "sim") );
 		simCfg->set("sim.currentTick", currentTick);
 		// save state of random engine
+		std::stringstream ss;
+		ss << gen;
+		simCfg->set("sim.random.gen", ss.str());
 		simCfg->set("sim.random.seed", currentSeed);
 		simCfg->set("sim.random.numGenerated", numGenerated);
 
@@ -427,8 +431,8 @@ void Simulator::loadWhole(const std::string &loadPath){
 	numGenerated = simCfg->get<unsigned int>("sim.random.numGenerated");
 
 	// reset random engine
-	gen.seed( currentSeed );
-	gen.discard(numGenerated);// load random engine state
+	std::stringstream ss(simCfg->get<std::string>("sim.random.gen"));
+	ss >> gen;
 
 	// reset statistics
 	CreatureCounts[0] = 0;
