@@ -190,6 +190,9 @@ void Simulator::NewSimulation( int seed )
 	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
 		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
 
+	// categorize tiles for parallel computation of the simulation
+	Terra->CreateParallelisationGraph();
+
 	// send terrain to renderer
 	Terra->UpdateTerrain();
 	// send creatures to renderer

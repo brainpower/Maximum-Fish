@@ -70,6 +70,7 @@ class SimActors : public sbe::EventUser
 
 		void PlotGraph ( std::shared_ptr<sbe::GraphPlotter>& G );
 		void ReadTileRenderList( TileRenderList& r );
+
 		void ReadCreatureRenderList( CreatureRenderList& r );
 
 		/// Creates an Actor for rendering the Grid

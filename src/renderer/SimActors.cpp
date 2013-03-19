@@ -11,6 +11,8 @@
 #include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
+#include "sbe/geom/Helpers.hpp"
+
 #include "sbe/sfg/Message.hpp"
 #include "sbe/sfg/MessageHandler.hpp"
 
@@ -137,9 +139,12 @@ void SimActors::ReadTileRenderList(TileRenderList& r)
 		CreateTerrainVertexArray( r );
 		Engine::out() << "[SimActors] Recreated tiles vertexarray!" << std::endl;
 	}
+
 	// and create the corresponding grid
 	CreateGrid();
 }
+
+
 
 void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 {

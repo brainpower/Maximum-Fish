@@ -232,6 +232,79 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	return nearest;
 }
 
+void Terrain::CreateParallelisationGraph()
+{
+	using namespace Geom;
+
+	unsigned int currentID = 0;
+	unsigned int idsAssigned = 0;
+
+	int maxreach = Engine::getCfg()->get<int>("sim.creatureActionRadius");
+	bool minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
+
+	std::list< std::list<std::shared_ptr<Tile> > > Colors;
+
+	while ( idsAssigned < Tiles.size())
+	{
+		currentID++;
+		Colors.emplace_back();
+
+		for ( auto Tile = Tiles.begin(); Tile != Tiles.end(); ++Tile )
+		{
+			// already set in another color?
+			if ( (*Tile)->getParallelId() != 0 ) continue;
+
+			// if not check all other tiles before this one for overlapping
+			for ( auto Tile2 = Tiles.begin(); Tile2 != Tile; ++Tile2 )
+			{
+				// only consider tiles of the same id
+				if ((*Tile2)->getParallelId() != currentID) continue;
+
+				Point points1[4];
+				decompose( points1, Rect((*Tile )->getPosition(), (*Tile )->getPosition()+1 ));
+				Point points2[4];
+				decompose( points2, Rect((*Tile2)->getPosition(), (*Tile2)->getPosition()+1 ));
+
+				for ( int i = 0; i < 4; ++i)
+					for ( int j = 0; j < 4; ++j )
+						if ( distance( points1[i], points2[j]) < maxreach )
+							goto nexttile;
+
+				//Engine::out() << "pos1 " << (*Tile)->getPosition() << " - pos2 " << (*Tile2)->getPosition() << " ok!" << std::endl;
+			}
+
+			// all distance checks were succefull
+			if (minimizeParallelRuns)
+			{
+				for (int x = (*Tile)->getPosition().x; x < (*Tile)->getPosition().x + maxreach; ++x)
+				{
+					for (int y = (*Tile)->getPosition().y; y < (*Tile)->getPosition().y + maxreach; ++y)
+					{
+						if ( x >= Size.x || y >= Size.y ) continue;
+
+						Tiles[ linear(x,y, Size.x) ]->setParallelId( currentID );
+						Colors.back().push_back( Tiles[ linear(x,y, Size.x) ] );
+						idsAssigned++;
+					}
+				}
+			}
+			else
+			{
+				(*Tile)->setParallelId( currentID );
+				Colors.back().push_back( *Tile );
+				idsAssigned++;
+			}
+
+
+			nexttile:;
+		}
+	}
+
+	Engine::out() << "Parallelisation: " << Colors.size() << " Colors/IDs" << std::endl;
+	for ( int i = 0; i < Colors.size(); ++i )
+		Engine::out() << "    ID:" << i+1 << " - Tiles: " << (Colors.begin()++)->size() << std::endl;
+
+}
 
 void Terrain::CreateMapPlotters()
 {
@@ -240,6 +313,7 @@ void Terrain::CreateMapPlotters()
 	std::vector<float> height;
 	std::vector<float> humidity;
 	std::vector<float> nutrition;
+	std::vector<float> parallelIds;
 
 
 	for ( std::shared_ptr<Tile>& T : Tiles )
@@ -248,6 +322,7 @@ void Terrain::CreateMapPlotters()
 		humidity.push_back(T->getHumidity() );
 		population.push_back(T->Creatures.size());
 		height.push_back( T->getHeight() );
+		parallelIds.push_back( T->getParallelId() );
 	}
 
 	Event e("DISPLAY_MAP");
@@ -272,6 +347,12 @@ void Terrain::CreateMapPlotters()
 
 	p.reset( new sbe::MapPlotter("Heightmap") );
 	p->setData( height, Size, true );
+	p->plot();
+	e.SetData( p );
+	Module::Get()->QueueEvent( e, true );
+
+	p.reset( new sbe::MapPlotter("Parallelisation", sbe::MapPlotter::PLOT_HEATMAP) );
+	p->setData( parallelIds, Size, true );
 	p->plot();
 	e.SetData( p );
 	Module::Get()->QueueEvent( e, true );

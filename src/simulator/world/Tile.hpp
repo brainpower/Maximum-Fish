@@ -35,6 +35,9 @@ class Tile
 		/// called by the terrain on construction
 		static void loadConfigValues();
 
+		unsigned int getParallelId() { return parallelID; }
+		void setParallelId(unsigned int p) { parallelID = p;}
+
 	private:
 
 		friend class Terrain;
@@ -52,6 +55,9 @@ class Tile
 		int biomass;
 		/// current humidity, decreased through "feeding" plants
 		float humidity;
+
+		///
+		unsigned int parallelID;
 
 		/// a list of all Creatures on that Tile
 		std::list<std::shared_ptr<Creature>> Creatures;
