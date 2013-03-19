@@ -22,19 +22,19 @@ class Terrain
 
 
 		/// will do some weather calculations in the future, for now just sends the current terrain to the renderer
-		void UpdateTerrain();
+		void UpdateTerrain() const;
 		void setHumidityFactor( const float hf ) { humidityFactor = hf;}
 		void setMaxElevation(const float e) {maxElevation = e;}
 		float getHumidityFactor( ) const { return humidityFactor;}
 
 		/// returns a list of Creatures in the given radius around Position for which filter returns true
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
+		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
 		/// returns the nearest Creatures in radius around Position for which the filter returns true
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
+		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const ;
+		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
 
 
 //		/// returns a list of Creatures in the given radius around Position for which filter returns true
@@ -48,19 +48,19 @@ class Terrain
 
 
 		/// returns the eight neighbours of a tile
-		std::list<std::shared_ptr<Tile>> getNeighbours(Tile& T);
+		std::list<std::shared_ptr<Tile>> getNeighbours(Tile& T) const;
 
-		float getTileElevation(Geom::Vec2f pos);
-		float getMaxElevation();
-		float getGlobalTemp();
+		float getTileElevation(Geom::Vec2f pos) const;
+		float getMaxElevation() const ;
+		float getGlobalTemp() const;
 		const Geom::Vec2& getSize() const { return Size; };
 
-		bool validPos( const Geom::Pointf& Pos )
+		bool validPos( const Geom::Pointf& Pos ) const
 		{
 			return (!( Pos.x >= Size.x || Pos.x < 0 || Pos.y >= Size.y || Pos.y < 0));
 		}
 
-		std::shared_ptr<Tile>& getTile( Geom::Vec2f pos );
+		const std::shared_ptr<Tile>& getTile( Geom::Vec2f pos ) const;
 
 		void CreateDebugTerrain();
 		void CreateMapPlotters();

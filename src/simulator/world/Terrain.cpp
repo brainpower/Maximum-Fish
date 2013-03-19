@@ -12,6 +12,7 @@
 #include <SFML/Graphics/Image.hpp>
 
 #include <random>
+#include <cmath>
 
 Terrain::Terrain()
  : Size(0,0),
@@ -25,36 +26,36 @@ Terrain::Terrain()
 	Tile::loadConfigValues();
 }
 
-std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos )
+const std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos ) const
 {
 	unsigned int index = Geom::linear(pos, Size.x);
 	if (!validPos(pos) || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
-float Terrain::getTileElevation(Geom::Vec2f pos)
+float Terrain::getTileElevation(Geom::Vec2f pos) const
 {
 	unsigned int index = Geom::linear(pos, Size.x);
 	if (!validPos(pos) || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
 
-float Terrain::getMaxElevation()
+float Terrain::getMaxElevation() const
 {
 	return maxElevation;
 }
 
-float Terrain::getGlobalTemp()
+float Terrain::getGlobalTemp() const
 {
 	return globalTemp;
 }
 
-void Terrain::UpdateTerrain()
+void Terrain::UpdateTerrain() const
 {
 	Module::Get()->QueueEvent(Event("UpdateTileRenderList", Tiles), true);
 }
 
-std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T)
+std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T) const
 {
 	std::list<std::shared_ptr<Tile>> ret;
 
@@ -72,7 +73,7 @@ std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T)
 	return ret;
 }
 
-std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
@@ -96,7 +97,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	return ret;
 }
 
-std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
@@ -120,7 +121,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	return ret;
 }
 
-std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter )
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
@@ -145,7 +146,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 }
 
 
-std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::shared_ptr<Creature> nearest;
 
@@ -174,7 +175,7 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	return nearest;
 }
 
-std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter )
+std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::shared_ptr<Creature> nearest;
 
@@ -203,7 +204,7 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	return nearest;
 }
 
-std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter )
+std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::shared_ptr<Creature> nearest;
 
@@ -249,6 +250,8 @@ void Terrain::CreateParallelisationGraph()
 		currentID++;
 		Colors.emplace_back();
 
+		if ( currentID == Engine::getCfg()->get<int>("sim.maxIDs")+1 ) break;
+
 		for ( auto Tile = Tiles.begin(); Tile != Tiles.end(); ++Tile )
 		{
 			// already set in another color?
@@ -261,26 +264,45 @@ void Terrain::CreateParallelisationGraph()
 				if ((*Tile2)->getParallelId() != currentID) continue;
 
 				Point points1[4];
-				decompose( points1, Rect((*Tile )->getPosition(), (*Tile )->getPosition()+1 ));
 				Point points2[4];
 				decompose( points2, Rect((*Tile2)->getPosition(), (*Tile2)->getPosition()+1 ));
 
+				if ( minimizeParallelRuns )
+				{
+					// we dont need the points of p1 here, but the corner points of the maxreach x maxreach sized rectangle
+					Point points2[4];
+					points1[0] = (*Tile)->getPosition();
+					points1[1] = (*Tile)->getPosition() + Point( maxreach, 0 );
+					points1[2] = (*Tile)->getPosition() + maxreach;
+					points1[3] = (*Tile)->getPosition() + Point( 0, maxreach );
+				}
+				else
+				{
+					decompose( points1, Rect((*Tile )->getPosition(), (*Tile )->getPosition()+1 ));
+				}
+
 				for ( int i = 0; i < 4; ++i)
 					for ( int j = 0; j < 4; ++j )
+						//if ( std::abs( points1[i].x - points2[j].x) < maxreach || std::abs( points1[i].y - points2[j].y) < maxreach )
 						if ( distance( points1[i], points2[j]) < maxreach )
+						{
+							Engine::out() << "ID: " << currentID << "/" << (*Tile2)->getParallelId() << " Tile: " << (*Tile)->getPosition() << " check: " << (*Tile2)->getPosition() << " failed! " << points1[i] << " -> " << points2[j] << " = " << distance( points1[i], points2[j]) << std::endl;
 							goto nexttile;
+						}
 
-				//Engine::out() << "pos1 " << (*Tile)->getPosition() << " - pos2 " << (*Tile2)->getPosition() << " ok!" << std::endl;
 			}
 
 			// all distance checks were succefull
 			if (minimizeParallelRuns)
 			{
-				for (int x = (*Tile)->getPosition().x; x < (*Tile)->getPosition().x + maxreach; ++x)
+				Vec2 Pos = (*Tile)->getPosition();
+
+				for (int x = Pos.x; x < Pos.x + maxreach; ++x)
 				{
-					for (int y = (*Tile)->getPosition().y; y < (*Tile)->getPosition().y + maxreach; ++y)
+					if ( x >= Size.x ) break;
+					for (int y = Pos.y; y < Pos.y + maxreach; ++y)
 					{
-						if ( x >= Size.x || y >= Size.y ) continue;
+						if ( y >= Size.y ) break;
 
 						Tiles[ linear(x,y, Size.x) ]->setParallelId( currentID );
 						Colors.back().push_back( Tiles[ linear(x,y, Size.x) ] );
@@ -298,6 +320,8 @@ void Terrain::CreateParallelisationGraph()
 
 			nexttile:;
 		}
+
+
 	}
 
 	Engine::out() << "Parallelisation: " << Colors.size() << " Colors/IDs" << std::endl;

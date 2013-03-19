@@ -269,7 +269,7 @@ bool Creature::moveYourAss()
 	NewPosition.y += rnd(Simulator::GetRnd());
 
 	float hab = 0;
-	std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
+	const std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
 	if (newtile) hab = newtile->getHabitability(mySpecies);
 
 	/*
@@ -292,13 +292,12 @@ bool Creature::moveYourAss()
 	return false;
 }
 
-bool Creature::validPos( Geom::Pointf NewPosition )
+bool Creature::validPos( Geom::Pointf NewPosition ) const
 {
-	std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
+	const std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
 
-	if (!newtile) return false;
-	if (!newtile->isWater()) return true;
-	return false;
+	if (!newtile || newtile->isWater()) return false;
+	return true;
 }
 
 //################################################

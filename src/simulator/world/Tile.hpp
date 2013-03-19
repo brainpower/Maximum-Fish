@@ -16,17 +16,17 @@ class Tile
 
 		Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity );
 
-		float getHeight(){return height;}
-		float getNutrition(){return nutrition;}
-		float getBaseHumidity(){return baseHumidity;}
-		float getHumidity(){return humidity;}
-		Geom::Point getPosition() { return Position; }
+		float getHeight() const {return height;}
+		float getNutrition() const {return nutrition;}
+		float getBaseHumidity() const {return baseHumidity;}
+		float getHumidity() const {return humidity;}
+		Geom::Point getPosition() const { return Position; }
 
-		float calcTemperature();
-		Geom::Pointf getCenter() { return Geom::Pointf(Position.x+0.5, Position.y+0.5); }
-		float getHabitability(const std::shared_ptr<Species>& sp);
-		bool isWater() {return baseHumidity > 0.95;}
-		int getTileSpriteIndex();
+		float calcTemperature() const;
+		Geom::Pointf getCenter() const { return Geom::Pointf(Position.x+0.5, Position.y+0.5); }
+		float getHabitability(const std::shared_ptr<Species>& sp) const;
+		bool isWater() const {return baseHumidity > 0.95;}
+		int getTileSpriteIndex() const;
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 		void removeCreature( const std::shared_ptr<Creature>& p);
@@ -35,7 +35,7 @@ class Tile
 		/// called by the terrain on construction
 		static void loadConfigValues();
 
-		unsigned int getParallelId() { return parallelID; }
+		unsigned int getParallelId() const { return parallelID; }
 		void setParallelId(unsigned int p) { parallelID = p;}
 
 	private:

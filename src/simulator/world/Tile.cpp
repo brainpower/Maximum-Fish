@@ -35,12 +35,12 @@ Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseH
 
 }
 
-float Tile::calcTemperature()
+float Tile::calcTemperature() const
 {
 	return Simulator::GetTerrain()->getGlobalTemp() - tempdiffpermeter*height;
 }
 
-float Tile::getHabitability(const std::shared_ptr<Species>& sp)
+float Tile::getHabitability(const std::shared_ptr<Species>& sp) const
 {
 	float hum = getBaseHumidity();
 	float wReq = sp->getWaterRequirement();
@@ -69,7 +69,7 @@ float Tile::getHabitability(const std::shared_ptr<Species>& sp)
 	return ret;
 }
 
-int Tile::getTileSpriteIndex()
+int Tile::getTileSpriteIndex() const
 {
 	if(isWater()) return 0;
 

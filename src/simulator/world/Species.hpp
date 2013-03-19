@@ -32,7 +32,7 @@ class Species
 		float getWaterRequirement() const {return waterRequirement;}
 		int getOptimalTemperature() const {return optimalTemperature;}
 
-		const std::string& getName() { return name; }
+		const std::string& getName() const { return name; }
 
 		//+1 style
 		void setMaxAge(int ma) {                        maxAge = ma;}

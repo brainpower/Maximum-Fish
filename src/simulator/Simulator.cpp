@@ -285,7 +285,7 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
 {
-	std::shared_ptr<Tile>& T = Terra->getTile( pos );
+	const std::shared_ptr<Tile>& T = Terra->getTile( pos );
 
 
 	// Check if the Coordinates are valid
@@ -302,7 +302,7 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	// minimum distance to recognise a click
 	float curdist = .2;
 	std::shared_ptr<Creature> tmp;
-	for ( std::shared_ptr<Creature>& C : T->getCreatures())
+	for ( const std::shared_ptr<Creature>& C : T->getCreatures())
 	{
 		float dist = Geom::distance(pos, C->getPosition());
 		if ( dist < curdist )

@@ -37,7 +37,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		const Geom::Vec2f& getPosition() const { return Position; }
 		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
 
-		bool validPos( Geom::Pointf NewPosition );
+		bool validPos( Geom::Pointf NewPosition ) const ;
 
 		// neccessary to update currentTile after loading from "savegame"
 		void updateTileFromPos();
@@ -59,11 +59,11 @@ class Creature : public std::enable_shared_from_this<Creature>
 		// -- END STATIC SETTINGS --
 
 		friend class CreatureIOPlugin;
-		
+
 		bool huntFood();
 		/// handles eating the nearest possible prey defined by the filter lambda
 		bool huntNearest( int type  );
-		
+
 		bool mate();
 		/// spawn a child
 		void reproduce( std::shared_ptr<Creature> otherparent = std::shared_ptr<Creature>());
