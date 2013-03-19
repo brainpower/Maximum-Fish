@@ -111,6 +111,7 @@ bool SimView::LoadResources()
 	/// Creature Shaders
 	std::shared_ptr<sf::Shader> highlightShader( new sf::Shader );
 	highlightShader->loadFromFile("res/shader/highlight.vert", "res/shader/highlight.frag");
+	highlightShader->setParameter("creatures", *(I->getTexture()));
 	Engine::GetResMgr()->add( highlightShader, "highlightShader" );
 	sbe::Screen::sRndr()->getLayer( L_CREATURES )->States.shader  = &(*highlightShader);
 
