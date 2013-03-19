@@ -64,7 +64,7 @@ std::shared_ptr<Creature> Generator::createRandomCreature()
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( Sim.SpeciesList[species_rnd(Sim.rnd())] ));
 	Geom::Pointf Position (rnd(Sim.rnd()),rnd(Sim.rnd()));
 
-	float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
+	float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(ptr_creature->getSpecies());
 
 	if( hab > 0.0f && ptr_creature->validPos( Position ) )
 	{
@@ -100,7 +100,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 	{
 		Geom::Pointf Position (dist(Sim.rnd()),dist(Sim.rnd()));
 
-		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(1,ptr_creature->getSpecies());
+		float hab = Simulator::GetTerrain()->getTile(Position)->getHabitability(ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )
 		{
 			ptr_creature->setCurrentHealth( healthdist( Sim.rnd() ) );

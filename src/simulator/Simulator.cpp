@@ -419,10 +419,11 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	Terra       = tmp[0]; // resets Terra, there should be only one
 	SpeciesList = tmp2; // resets specieslist
-	Creatures   = a2list<std::shared_ptr<Creature>>(tmp3.cbegin(),tmp3.cend()); // resets creaturelist
+	std::copy( tmp3.cbegin(), tmp3.cend(), std::inserter(Creatures, Creatures.end()) );
 
-	currentTick  = simCfg->get<int>("sim.currentTick");// get ticks
-	currentSeed  = simCfg->get<int>("sim.random.seed");// get seed
+
+	currentTick  = simCfg->get<int>("sim.currentTick"); // get ticks
+	currentSeed  = simCfg->get<int>("sim.random.seed"); // get seed
 	numGenerated = simCfg->get<unsigned int>("sim.random.numGenerated");
 
 	// reset random engine
@@ -457,13 +458,4 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	Engine::out(Engine::SPAM) << Creatures.front()->getSpeciesString() << std::endl;
 	Engine::out(Engine::SPAM) << GetSpecies(Creatures.front()->getSpeciesString())->getName() << std::endl;
-}
-
-template<class T, class FwdIterator>
-std::list<T> Simulator::a2list(FwdIterator begin, FwdIterator end){
-	std::list<T> lst;
-	for( auto it = begin; it != end; ++it){
-		lst.push_back(*it);
-	}
-	return lst;
 }

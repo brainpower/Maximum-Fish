@@ -2,7 +2,7 @@ project(Maximum-Fish)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Modules" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Modules" ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 #######################################################
 ######################## Cmake Options ################
@@ -41,30 +41,6 @@ if (CMAKE_COMPILER_IS_GNUCXX AND NOT VERSION_CHECK_DONE)
 	if(SUPRESS_BOOST_HEADER_WARNINGS)
 		set(CMAKE_CXX_FLAGS "-isystem$(BOOST)")
 	endif()
-endif()
-
-if(NOT VERSION_CHECK_DONE)
-	# set some definitions depending on gcc version
-	if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
-	   add_definitions ( -std=c++11 )
-
-		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
-			add_definitions ( -D__GCC_4_8__ )
-			if(CMAKE_BUILD_TYPE MATCHES Debug)
-				add_definitions( -Og )
-			endif()
-		endif()
-	else()
-		if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
-	    add_definitions ( -std=c++0x -D__GCC_4_6__ )
-		else()
-			message("-- Unsupported compiler detected. Build might fail!")
-			# changing this to -std=c++0x if you've got an old compiler, might work
-			add_definitions( -std=c++11 )
-		endif()
-
-	endif()
-	set(VERSION_CHECK_DONE ON)
 endif()
 
 #######################################################
@@ -134,6 +110,29 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
   link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/ )
 endif()
 
+if(NOT VERSION_CHECK_DONE)
+	# set some definitions depending on gcc version
+	if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
+	   add_definitions ( -std=c++11 )
+
+		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
+			add_definitions ( -D__GCC_4_8__ )
+			if(CMAKE_BUILD_TYPE MATCHES Debug)
+				add_definitions( -Og )
+			endif()
+		endif()
+	else()
+		if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
+	    add_definitions ( -std=c++0x -D__GCC_4_6__ )
+		else()
+			message("-- Unsupported compiler detected. Build might fail!")
+			# changing this to -std=c++0x if you've got an old compiler, might work
+			add_definitions( -std=c++11 )
+		endif()
+
+	endif()
+	set(VERSION_CHECK_DONE ON)
+endif()
 
 add_definitions( -DBOOST_THREAD_USE_LIB )
 
