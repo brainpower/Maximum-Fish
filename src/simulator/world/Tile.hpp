@@ -24,7 +24,7 @@ class Tile
 
 		float calcTemperature();
 		Geom::Pointf getCenter() { return Geom::Pointf(Position.x+0.5, Position.y+0.5); }
-		float getHabitability(int food, std::shared_ptr<Species> sp)	;
+		float getHabitability(const std::shared_ptr<Species>& sp);
 		bool isWater() {return baseHumidity > 0.95;}
 		int getTileSpriteIndex();
 

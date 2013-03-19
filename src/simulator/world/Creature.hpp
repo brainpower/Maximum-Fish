@@ -58,17 +58,18 @@ class Creature : public std::enable_shared_from_this<Creature>
 		static float envMult;
 		// -- END STATIC SETTINGS --
 
-
-
 		friend class CreatureIOPlugin;
+		
 		bool huntFood();
 		/// handles eating the nearest possible prey defined by the filter lambda
 		bool huntNearest( int type  );
+		
 		bool mate();
-		bool moveTo();
 		/// spawn a child
 		void reproduce( std::shared_ptr<Creature> otherparent = std::shared_ptr<Creature>());
-		void move(int found);
+
+		void move();
+		bool moveTo(const Geom::Vec2f Target);
 		bool moveYourAss();
 		/**
 			Calculates environmental effects (damage from temperature, water/food requirement)

@@ -135,7 +135,7 @@ bool Creature::huntNearest( int type )
 	if ( !nearest ) return false;
 
 	// move to prey
-	if ( moveTo( nearest->getPosition() ) {
+	if ( moveTo( nearest->getPosition() ) ) {
 		// consume our prey
 		currentHealth += nearest->getCurrentHealth();
 		if(currentHealth > mySpecies->getMaxHealth()) currentHealth = mySpecies->getMaxHealth();
@@ -172,9 +172,9 @@ bool Creature::mate()
 			if ( !nearest ) return false;
 
 			// move to mating partner
-			if ( moveTo( nearest->getPosition() )
+			if ( moveTo( nearest->getPosition() ) )
 				reproduce( nearest );
-
+			std::cout << "New creature created" << std::endl;
 			return true;
 
 		break;
@@ -220,11 +220,11 @@ void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 //					MOVING
 //################################################
 
-void Creature::move(int found)
+void Creature::move()
 {
 	if ( mySpecies->getMaxSpeed() == 0 ) return;
 
-	float hab = currentTile->getHabitability(found, mySpecies);
+	float hab = currentTile->getHabitability(mySpecies);
 
 	std::uniform_real_distribution<float> rnd(0, 1);
 
@@ -270,7 +270,7 @@ bool Creature::moveYourAss()
 
 	float hab = 0;
 	std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
-	if (newtile) hab = newtile->getHabitability(1,mySpecies);
+	if (newtile) hab = newtile->getHabitability(mySpecies);
 
 	/*
 	Engine::out() << "Pos: " << Position << std::endl;
