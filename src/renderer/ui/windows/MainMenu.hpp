@@ -15,7 +15,6 @@ namespace sfg
 class MainMenu : public sbe::EventUser
 {
 	public:
-
 		MainMenu( const Geom::Vec2 Size = Geom::Vec2(200, 300));
 		virtual ~MainMenu() {};
 
@@ -30,6 +29,7 @@ class MainMenu : public sbe::EventUser
 		void updatePosition();
 
 		sfg::SharedPtr<sfg::Window> Win;
+
 		unsigned int currentlabeltext;
 
 };

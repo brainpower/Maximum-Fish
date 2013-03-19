@@ -4,6 +4,8 @@
 #include "SFGUI/Button.hpp"
 #include "SFGUI/Box.hpp"
 
+//using namespace sfg is not possible because Engine is ambiguous
+
 MainMenu::MainMenu( const Geom::Vec2 Size )
 {
 	RegisterForEvent( "EVT_FRAME" );
