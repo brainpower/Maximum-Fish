@@ -124,8 +124,11 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		int currentSeed;
 		int currentTick;
+		/// how many ticks should be simulated? 0 for infinite
+		int simulateTicks;
+
 		unsigned int numGenerated; // number of generated random numbers
-		std::shared_ptr<std::mt19937> gen;
+		boost::thread_specific_ptr<std::mt19937> gen;
 
 		std::list<std::shared_ptr<Creature>> Creatures;
 		std::vector<std::shared_ptr<Species>> SpeciesList;
@@ -141,7 +144,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		/// thread entry point
 		void initThreads();
 		void stopThreads();
-		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts);
+		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts, int seed);
 
 		int numThreads;
 		bool multiThreaded;

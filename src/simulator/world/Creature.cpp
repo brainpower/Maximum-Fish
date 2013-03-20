@@ -177,7 +177,7 @@ bool Creature::mate()
 			// move to mating partner
 			if ( moveTo( nearest->getPosition() ) )
 				reproduce( nearest );
-			Engine::out() << "New creature created" << std::endl;
+			//Engine::out() << "New creature created" << std::endl;
 			return true;
 
 		break;

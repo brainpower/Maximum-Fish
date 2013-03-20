@@ -23,6 +23,7 @@
 #include <iterator>
 #include <string>
 #include <sstream>
+#include <random>
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -83,6 +84,11 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = false;
 		Engine::getCfg()->set("sim.paused", isPaused);
+
+		if ( e.Data().type() == typeid(unsigned int))
+		{
+			simulateTicks = boost::any_cast<unsigned int>(e.Data());
+		}
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
@@ -147,7 +153,7 @@ void Simulator::init()
 
 	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
 	multiThreaded = numThreads > 1;
-	initThreads();
+
 
 
 	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
@@ -155,7 +161,11 @@ void Simulator::init()
 
 void Simulator::NewSimulation( int seed )
 {
+	stopThreads();
+	initThreads();
+
 	currentTick = 0;
+	simulateTicks = 0;
 
 	Engine::out(Engine::INFO) << "[Simulator] Seeding random engine" << std::endl;
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
@@ -220,6 +230,14 @@ void Simulator::advance()
 {
 	if(!isPaused)
 	{
+		// last tick?
+		if (simulateTicks == 1 )
+		{
+			isPaused = true;
+			Module::Get()->QueueEvent( "SIM_STOPPED" );
+		}
+		if ( simulateTicks > 0 ) simulateTicks--;
+
 
 		sf::Clock TickTimer;
 
@@ -317,6 +335,8 @@ void Simulator::initThreads()
 	startBarrier.reset( new boost::barrier( numThreads+1) );
 	endBarrier.reset( new boost::barrier( numThreads+1 ) );
 
+	std::uniform_int_distribution<int> seeder;
+
 	for ( int thread = 0; thread < numThreads; ++thread)
 	{
 
@@ -331,26 +351,27 @@ void Simulator::initThreads()
 
 		CreatureCounters.push_back( std::shared_ptr<int> (new int[3], ArrDeleter() ) );
 
-		threads.push_back( boost::thread( boost::bind( &Simulator::thread, this, Lists[thread], CreatureCounters[thread] ) ) );
+		threads.push_back( boost::thread( boost::bind( &Simulator::thread, this, Lists[thread], CreatureCounters[thread], thread ) ) );
 	}
 }
 
 void Simulator::stopThreads()
 {
-		for ( int thread = 0; thread < numThreads; ++thread )
-		{
-			//Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
-			threads[thread].interrupt();
-			threads[thread].join();
-		}
+	for ( boost::thread& t : threads )
+	{
+		//Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
+		t.interrupt();
+		t.join();
+	}
 
 	CreatureCounters.clear();
 	threads.clear();
 	Lists.clear();
 }
 
-void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts)
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts, int seed)
 {
+	gen.reset( new std::mt19937(seed));
 	while ( !boost::this_thread::interruption_requested() )
 	{
 		startBarrier->wait();
