@@ -100,7 +100,7 @@ void Creature::live()
 	{
 		didsomethingthistick = huntFood();
 	}
-	else if ( age - lastmating > (mySpecies->getBreedingSpeed()*resistance)
+	else if ( age - lastmating > (mySpecies->getBreedingSpeed()/resistance)
 				&& healthPercentage > matingThreshold
 				&& age > mySpecies->getMaxAge()*matingAge )
 	{
