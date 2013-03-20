@@ -265,18 +265,14 @@ void Control::SimPause( bool _p )
 	if ( _p ) //on locking
 	{
 		if ( simPauseLockLevel == 0 ) //first locking with pause
-		{
 			Module::Get()->QueueEvent( Event( "SIM_PAUSE" ), true );
-		}
 		simPauseLockLevel++;
 	}
 	else
 	{
 		simPauseLockLevel--;
 		if ( simPauseLockLevel == 0 )
-		{
 			Module::Get()->QueueEvent( Event( "SIM_UNPAUSE" ), true );
-		}
 	}
 
 	Engine::out() << "[Control] PauseLock: " << simPauseLockLevel << std::endl;

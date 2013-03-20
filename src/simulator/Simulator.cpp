@@ -151,7 +151,7 @@ void Simulator::NewSimulation( int seed )
 
 	Engine::out(Engine::INFO) << "[Simulator] Seeding random engine" << std::endl;
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
-	gen.seed( seed );
+	gen.reset( new std::mt19937(seed) );
 	currentSeed = seed;
 	numGenerated = 0;
 
@@ -378,7 +378,7 @@ void Simulator::saveWhole(const std::string &savePath){
 		simCfg->set("sim.currentTick", currentTick);
 		// save state of random engine
 		std::stringstream ss;
-		ss << gen;
+		ss << (*gen);
 		simCfg->set("sim.random.gen", ss.str());
 		simCfg->set("sim.random.seed", currentSeed);
 		simCfg->set("sim.random.numGenerated", numGenerated);
@@ -444,7 +444,8 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	// reset random engine
 	std::stringstream ss(simCfg->get<std::string>("sim.random.gen"));
-	ss >> gen;
+	gen.reset( new std::mt19937() );
+	ss >> (*gen);
 
 	// reset statistics
 	CreatureCounts[0] = 0;
