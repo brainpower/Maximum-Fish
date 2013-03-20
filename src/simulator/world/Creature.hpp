@@ -59,6 +59,8 @@ class Creature : public std::enable_shared_from_this<Creature>
 		static float altModifier1;
 		static float altModifier2;
 		static float envMult;
+		static float resistance;
+		static int   ageExponent;
 		// -- END STATIC SETTINGS --
 
 		friend class CreatureIOPlugin;

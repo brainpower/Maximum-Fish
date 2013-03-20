@@ -22,6 +22,8 @@ float Creature::migProb = 0;
 float Creature::altModifier1 = 0;
 float Creature::altModifier2 = 0;
 float Creature::envMult = 0;
+float Creature::resistance = 0;
+int   Creature::ageExponent = 0;
 
 
 
@@ -76,6 +78,10 @@ void Creature::movePosition( const Geom::Pointf& pos)
 
 void Creature::live()
 {
+	float healthPercentage = currentHealth/mySpecies->getMaxHealth();
+	resistance = mySpecies->getResistance() * ( -((2*age - mySpecies->getMaxAge())/mySpecies->getMaxAge())^ageExponent + 1 );
+	resistance = healthPercentage * resistance;
+	
 	// damage from environment
 	calcDamage();
 
@@ -85,13 +91,13 @@ void Creature::live()
 
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
-	float healthPercentage = currentHealth/mySpecies->getMaxHealth();
+	healthPercentage = currentHealth/mySpecies->getMaxHealth();
 
 	if ( healthPercentage < huntingThreshold )
 	{
 		didsomethingthistick = huntFood();
 	}
-	else if ( age - lastmating > mySpecies->getBreedingSpeed()
+	else if ( age - lastmating > (mySpecies->getBreedingSpeed()*resistance)
 				&& healthPercentage > matingThreshold
 				&& age > mySpecies->getMaxAge()*matingAge )
 	{
@@ -138,7 +144,7 @@ bool Creature::huntNearest( int type )
 	if ( moveTo( nearest->getPosition() ) ) {
 		// consume our prey
 		currentHealth += nearest->getCurrentHealth();
-		if(currentHealth > mySpecies->getMaxHealth()) currentHealth = mySpecies->getMaxHealth();
+		if(currentHealth > (mySpecies->getMaxHealth()*resistance)) currentHealth = (mySpecies->getMaxHealth()*resistance);
 		nearest->setCurrentHealth(0);
 	}
 
@@ -174,7 +180,6 @@ bool Creature::mate()
 			// move to mating partner
 			if ( moveTo( nearest->getPosition() ) )
 				reproduce( nearest );
-			std::cout << "New creature created" << std::endl;
 			return true;
 
 		break;
@@ -244,10 +249,10 @@ void Creature::move()
 bool Creature::moveTo( Geom::Pointf Target )
 {
 	// move as far in direction of the target as possible
-	if ( Geom::distance( Target, Position ) > mySpecies->getMaxSpeed() )
+	if ( Geom::distance( Target, Position ) > (mySpecies->getMaxSpeed() * resistance) )
 	{
 		Geom::Vec2f direction = Geom::normalize( Target - Position );
-		direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), (mySpecies->getMaxSpeed() * resistance));
 		direction += Position;
 		if ( validPos( direction ) )
 			setPosition( direction );
@@ -261,7 +266,7 @@ bool Creature::moveTo( Geom::Pointf Target )
 
 bool Creature::moveYourAss()
 {
-	std::uniform_real_distribution<float> rnd(-(mySpecies->getMaxSpeed()), mySpecies->getMaxSpeed());
+	std::uniform_real_distribution<float> rnd( -(mySpecies->getMaxSpeed())*resistance , mySpecies->getMaxSpeed()*resistance );
 
 	Geom::Pointf NewPosition = Position;
 
@@ -280,7 +285,7 @@ bool Creature::moveYourAss()
 	Engine::out() << "maxspeed: " << mySpecies->getMaxSpeed() << std::endl;
 	*/
 
-	if( Geom::distance( Position, NewPosition) < mySpecies->getMaxSpeed())
+	if( Geom::distance( Position, NewPosition) < (mySpecies->getMaxSpeed()*resistance))
 	{
 		if( !validPos( NewPosition ) ||  (hab <= 0.0f))
 			return false;
@@ -309,12 +314,12 @@ bool Creature::validPos( Geom::Pointf NewPosition ) const
  */
 void Creature::calcDamage()
 {
-	currentHealth-= mySpecies->getFoodRequirement();
-	currentHealth-= mySpecies->getWaterRequirement()- currentTile->getHumidity();
+	currentHealth-= mySpecies->getFoodRequirement()*resistance;
+	currentHealth-= (mySpecies->getWaterRequirement()*resistance) - currentTile->getHumidity();
 
 	//--damage from wrong elevation/temperature
 	float envDmg = std::pow( (currentTile->getHeight() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
-	currentHealth-= envDmg*envMult;
+	currentHealth-= (envDmg/resistance)*envMult;
 }
 
 void Creature::loadConfigValues()
@@ -328,4 +333,5 @@ void Creature::loadConfigValues()
 	altModifier1 = 		Engine::getCfg()->get<float>("sim.creature.altModifier1");
 	altModifier2 = 		Engine::getCfg()->get<float>("sim.creature.altModifier2");
 	envMult = 			Engine::getCfg()->get<float>("sim.creature.envMult");
+	ageExponent = 		Engine::getCfg()->get<float>("sim.creature.ageExponent");
 }
