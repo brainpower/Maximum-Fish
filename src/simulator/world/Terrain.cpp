@@ -348,7 +348,7 @@ void Terrain::CreateMapPlotters()
 	for ( std::shared_ptr<Tile>& T : Tiles )
 	{
 		nutrition.push_back(T->getNutrition() );
-		humidity.push_back(T->getHumidity() );
+		humidity.push_back(T->getCurrentHumidity() );
 		population.push_back(T->Creatures.size());
 		height.push_back( T->getHeight() );
 		parallelIds.push_back( T->getParallelId() );
@@ -408,7 +408,7 @@ void Terrain::CreateDebugTerrain()
 
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> rnd;
-	std::normal_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max")/2);
+	std::normal_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.min"), Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max"));
 
 	float minHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.min");
 	float maxHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.max");

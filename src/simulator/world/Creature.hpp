@@ -2,10 +2,11 @@
 #define CREATURE_HPP
 
 #include <memory>
+#include <cmath>
 
 #include "sbe/geom/Point.hpp"
 
-class Species;
+#include "Species.hpp"
 class Tile;
 
 /**
@@ -38,6 +39,17 @@ class Creature : public std::enable_shared_from_this<Creature>
 		const Geom::Vec2f& getPosition() const { return Position; }
 		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
 
+		//## Calculated Values ##
+		inline float ageFactor() { return std::pow( -((2*age - mySpecies->getMaxAge())/mySpecies->getMaxAge()), ageExponent) + 1; }
+		inline float currentMaxHealth() { return mySpecies->getMaxHealth()*currentResistance(); }
+		inline float healthPercentage() { return currentHealth/currentMaxHealth(); }
+		inline float currentResistance() { return mySpecies->getResistance() * ageFactor(); }
+		inline float minAge() { return mySpecies->getMaxAge()*matingAge; }
+		inline float mHealthCost() { return currentMaxHealth() * matingHealthCost; }
+		inline float currentMaxSpeed() { return mySpecies->getMaxSpeed() * currentResistance(); }
+
+		//'' END Calculated Values ##
+
 		bool validPos( Geom::Pointf NewPosition ) const ;
 
 		// neccessary to update currentTile after loading from "savegame"
@@ -51,21 +63,22 @@ class Creature : public std::enable_shared_from_this<Creature>
 	private:
 
 		// static settings loaded from the config
-		static float NutritionFactor;
+		static float NutritionValue;
 		static float huntingThreshold;
+
 		static float matingThreshold;
 		static float matingAge;
 		static float matingHealthCost;
+
 		static float migProb;
 		static float altModifier1;
 		static float altModifier2;
+
 		static float envMult;
+		static float plantEnvDmgFactor;
+
 		static float resistance;
 		static int   ageExponent;
-		static float nutritionIncrease;
-		static float plantEnvDmgFactor;
-		static float plantGrowthModifier;
-		static float foodImportance;
 		// -- END STATIC SETTINGS --
 
 		friend class CreatureIOPlugin;

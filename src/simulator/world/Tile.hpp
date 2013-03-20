@@ -21,6 +21,8 @@ class Tile
 		float getUsedNutrition() const {return usedNutrition;}
 		float getBaseHumidity() const {return baseHumidity;}
 		float getCurrentHumidity() const {return currentHumidity;}
+		/// return the percentage of availablenutrition/usednutrition, but no more than 100%
+		inline float getFoodSupply() const { return nutrition/usedNutrition > 1 ? 1 : nutrition/usedNutrition; }
 
 		Geom::Point getPosition() const { return Position; }
 

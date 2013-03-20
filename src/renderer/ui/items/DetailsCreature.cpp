@@ -25,8 +25,12 @@ void DetailsCreature::UpdateLabel()
 	DetailsLabel->SetText("");
 	AddToLabel(DetailsLabel, "Species", currentCreature->getSpeciesString());
 	AddToLabel(DetailsLabel, "Age", str( format("%d") % currentCreature->getAge() ) );
-	AddToLabel(DetailsLabel, "Health", str( format("%d") % currentCreature->getCurrentHealth() ));
-	AddToLabel(DetailsLabel, "Position", str( format("%.2f,%.2f") % currentCreature->getPosition().x %  currentCreature->getPosition().y ));
+	AddToLabel(DetailsLabel, "cResistance", str( format("%d") % currentCreature->currentResistance() ) );
+	AddToLabel(DetailsLabel, "minAge", str( format("%d") % currentCreature->minAge() ) );
+	AddToLabel(DetailsLabel, "Health ( % )", str( format("%d (%.2f)") % currentCreature->getCurrentHealth() % currentCreature->healthPercentage() ));
+	AddToLabel(DetailsLabel, "Pos", str( format("%.2f,%.2f") % currentCreature->getPosition().x %  currentCreature->getPosition().y ));
+	AddToLabel(DetailsLabel, "ageF / cmHealth", str( format("%.2f / %.2f") % currentCreature->ageFactor() %  currentCreature->currentMaxHealth() ));
+	AddToLabel(DetailsLabel, "mHCost / cmSpeed", str( format("%.2f / %.2f") % currentCreature->mHealthCost() %  currentCreature->currentMaxSpeed() ));
 
 }
 

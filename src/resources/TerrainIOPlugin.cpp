@@ -33,8 +33,9 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 						    pt_t.get<float>("nutrition"),
 						    pt_t.get<float>("baseHumidity")));
 
-						t_ptr->humidity     = pt_t.get<float>("humidity");
-						t_ptr->biomass      = pt_t.get<int>  ("biomass");
+						t_ptr->currentHumidity     = pt_t.get<float>("currentHumidity");
+						// recalculated
+						//t_ptr->usedNutrition= pt_t.get<int>  ("usedNutrition");
 
 						re->Tiles.push_back(t_ptr);
 					}
@@ -72,9 +73,9 @@ bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boos
             pt_t.put<int>("pos.y", tile->Position.y);
             pt_t.put<float>("height", tile->height);
             pt_t.put<float>("nutrition", tile->nutrition);
+            //pt_t.put<float>("usedNutrition", tile->usedNutrition);
             pt_t.put<float>("baseHumidity", tile->baseHumidity);
-            pt_t.put<float>("humidity", tile->humidity);
-            pt_t.put<int>("biomass", tile->biomass);
+            pt_t.put<float>("currentHmidity", tile->currentHumidity);
 
             pt.add_child( "Tile", pt_t);
         }

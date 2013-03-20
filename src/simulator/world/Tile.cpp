@@ -27,10 +27,10 @@ Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseH
  : Position(_Position),
   height(_height),
   nutrition( _nutrition ),
+  usedNutrition(0),
   baseHumidity( _baseHumidity ),
-  biomass(0),
   parallelID(0),
-  humidity( _baseHumidity )
+  currentHumidity( _baseHumidity )
 {
 
 }
