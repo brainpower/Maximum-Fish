@@ -13,7 +13,11 @@ using namespace sfg;
 
 Control::Control( const Geom::Vec2 Size )
 // simulation starts paused, so start with one lock
- : Frames( 0 ), simPauseLockLevel( 1 )
+ : Frames( 0 ),
+ simPauseLockLevel( 1 ),
+ ListenToActionKeys( false ),
+ textchangeavoidrecursive( true ),
+ ChangeframesonButtons( 0 )
 {
 	RegisterForEvent( "WINDOW_RESIZE" );
 	RegisterForEvent( "TOGGLE_FULLSCREEN" );
@@ -24,6 +28,7 @@ Control::Control( const Geom::Vec2 Size )
 	RegisterForEvent( "KEY_SIM_PAUSE" );
 	RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
 	RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
+	RegisterForEvent( "KEY_PRESSED_ENTER" );
 
 	Frames = Engine::getCfg()->get<int>( "system.ui.control.simFrameRate" );
 
@@ -50,8 +55,12 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
 			Framesdisplay->SetRequisition( sf::Vector2f( 40, 0 ) );
-			Framesdisplay->SetState( Widget::State::INSENSITIVE );
+			//Framesdisplay->SetState( Widget::State::INSENSITIVE );
 			Framesdisplay->SetText( boost::lexical_cast<std::string>( Frames ) );
+			textchangeavoidrecursive = false;
+			Framesdisplay->GetSignal( Entry::OnTextChanged ).Connect( &Control::EntryTextChange , this );
+			Framesdisplay->GetSignal( Entry::OnGainFocus ).Connect( &Control::EntryGainFocus , this );
+			Framesdisplay->GetSignal( Entry::OnLostFocus ).Connect( &Control::EntryLostFocus , this );
 			Button::Ptr down = Button::Create( "<" );
 			Button::Ptr up   = Button::Create( ">" );
 				down->GetSignal( Button::OnLeftClick ).Connect( &Control::BtnFramesDownClick, this );
@@ -135,6 +144,87 @@ void Control::HandleEvent( Event& e )
 	{
 		SimPause( false );
 	}
+	else if ( e.Is( "KEY_PRESSED_ENTER" ) && ListenToActionKeys )
+	{
+		CalculateNewFrames();
+	}
+}
+
+void Control::CalculateNewFrames()
+{
+	int cursorPos = Framesdisplay->GetCursorPosition();
+	int input = boost::lexical_cast<int>( Framesdisplay->GetText().toAnsiString() );
+	if ( input < 5 )
+		Frames = 5;
+	else if ( input < 50 )
+		Frames = input - ( ( input + 2 ) % 5 ) + 2;
+	else if ( input < 150 )
+		Frames = input - ( ( input + 5 ) % 10 ) + 5;
+	else if ( input < 500 )
+		Frames = input - ( ( input + 12 ) % 25 ) + 12;
+	else
+		Frames = input - ( ( input + 50 ) % 100 ) + 50;
+	if ( input >= Engine::getCfg()->get<int>( "system.ui.control.simFrameLimit" ) )
+		Frames = 500;
+
+	if ( ChangeframesonButtons == 1 )
+	{
+		if ( Frames < 50 )
+			Frames += 5;
+		else if ( Frames < 150 )
+			Frames += 10;
+		else if ( Frames < 500 )
+			Frames += 25;
+		ChangeframesonButtons = 0;
+	}
+	else if ( ChangeframesonButtons == -1 )
+	{
+		if ( Frames > 150 )
+			Frames -= 25;
+		else if ( Frames > 50 )
+			Frames -= 10;
+		else if ( Frames > 5 )
+			Frames -= 5;
+		ChangeframesonButtons = 0;
+	}
+
+	textchangeavoidrecursive = true;
+	Framesdisplay->SetText( boost::lexical_cast<std::string>( Frames ) );
+	Framesdisplay->SetCursorPosition( cursorPos );
+
+	Module::Get()->QueueEvent( Event( "SET_SIM_TPS", Frames ), true );
+}
+
+void Control::EntryTextChange()
+{
+	if (!textchangeavoidrecursive)
+	{
+		std::string text = Framesdisplay->GetText().toAnsiString();
+		int cursorPos = Framesdisplay->GetCursorPosition();
+		if ( cursorPos != 0 && (text[cursorPos-1] < '0' || text[cursorPos-1] > '9' ) )
+		{
+			text.erase( cursorPos-1 , 1 );
+			cursorPos--;
+		}
+
+		textchangeavoidrecursive = true;
+		Framesdisplay->SetText( text );
+		Framesdisplay->SetCursorPosition( cursorPos );
+	}
+	else
+	{
+		textchangeavoidrecursive=false;
+	}
+}
+
+void Control::EntryGainFocus()
+{
+	ListenToActionKeys = true;
+}
+
+void Control::EntryLostFocus()
+{
+	ListenToActionKeys = false;
 }
 
 void Control::updatePosition()
@@ -200,6 +290,8 @@ void Control::BtnSimResetClick()
 
 void Control::BtnFramesDownClick()
 {
+	ChangeframesonButtons = -1;
+	CalculateNewFrames();/*
 	if ( Frames <= 5 ){ return; }
 	if ( Frames <= 50 ){ Frames -= 5; }
 	else if ( Frames <= 150 ){ Frames -= 10; }
@@ -207,10 +299,12 @@ void Control::BtnFramesDownClick()
 	Framesdisplay->SetText( boost::lexical_cast<std::string>( Frames ) );
 
 	Module::Get()->QueueEvent( Event( "SET_SIM_TPS", Frames ), true );
-}
+*/}
 
 void Control::BtnFramesUpClick()
 {
+	ChangeframesonButtons = 1;
+	CalculateNewFrames();/*
 	if ( Frames >= Engine::getCfg()->get<int>( "system.ui.control.simFrameLimit" ) ){ return; }
 	if ( Frames >= 150 ){ Frames += 25; }
 	else if ( Frames >= 50 ){ Frames += 10; }
@@ -218,4 +312,4 @@ void Control::BtnFramesUpClick()
 	Framesdisplay->SetText( boost::lexical_cast<std::string>( Frames ) );
 
 	Module::Get()->QueueEvent( Event( "SET_SIM_TPS", Frames ), true );
-}
+*/}
