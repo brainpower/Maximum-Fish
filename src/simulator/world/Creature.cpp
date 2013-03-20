@@ -115,7 +115,7 @@ void Creature::live()
 		didsomethingthistick = mate();
 	}
 
-	if ( didsomethingthistick )
+	if ( !didsomethingthistick )
 		move();
 
 	age++;
