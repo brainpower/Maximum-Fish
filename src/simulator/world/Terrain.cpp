@@ -436,6 +436,18 @@ void Terrain::CreateDebugTerrain()
 			Tiles.push_back ( T );
 		}
 	}
+}
+
+void Terrain::UpdateTileMap()
+{
+	maxElevation = 0;
+	for ( int y = 0; y < Size.y; ++y)
+		for ( int x = 0; x < Size.x; ++x)
+		{
+			float h = getTile(Geom::Vec2f(x,y))->getHeight();
+			if ( h > maxElevation ) maxElevation = h;
+		}
+
 
 	tilemapImage.reset ( new sf::Image);
 	tilemapImage->create(Size.x ,Size.y);

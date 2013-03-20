@@ -66,6 +66,8 @@ class Terrain
 		void CreateMapPlotters();
 		void CreateParallelisationGraph();
 
+		void UpdateTileMap();
+
 		std::list<std::list<std::shared_ptr<Tile>>>& getColors() { return Colors; }
 		std::list<std::shared_ptr<Tile>> getTileList() const;
 	private:

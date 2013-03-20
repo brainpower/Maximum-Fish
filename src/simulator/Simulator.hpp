@@ -63,7 +63,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		virtual void HandleEvent( Event& e);
 
 		void init();
+		/// Create a new Simulation from a seed
 		void NewSimulation( int seed = 0);
+		/// Create a new Simulation from the given rng, Terrain, species and Creatures
+		void NewSimulation( std::mt19937* rng,
+							std::shared_ptr<Terrain> newTerrain,
+							std::vector<std::shared_ptr<Species>>& newSpecies,
+							 std::list<std::shared_ptr<Creature>>& newCreatures );
 
 		/// simulate one tick
 		void advance();
