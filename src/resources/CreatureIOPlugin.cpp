@@ -23,7 +23,7 @@ CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree
 
 		re->currentHealth = pt.get<float>("currentHealth");
 		re->age           = pt.get<int>("age");
-
+		re->lastmating	  = pt.get<int>("lastmating");
 		re->Position.x = pt.get<float>("pos.x");
 		re->Position.y = pt.get<float>("pos.y");
 
@@ -50,6 +50,7 @@ bool CreatureIOPlugin::saveObject( const std::string& name, const Creature &c, b
 		pt.put<int>("age", c.age);
 		pt.put<float>("pos.x", c.Position.x);
 		pt.put<float>("pos.y", c.Position.y);
+		pt.put<int>("lastmating", c.lastmating);
 		pt.put<std::string>("species", c.getSpeciesString());
 
 		r.add_child( "Creature", pt);
