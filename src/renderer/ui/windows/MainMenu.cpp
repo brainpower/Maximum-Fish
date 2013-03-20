@@ -72,13 +72,13 @@ void MainMenu::HandleEvent( Event& e )
 			Module::Get()->QueueEvent( Event( "SIM_ON_PAUSE_LOCK" ), true );
 		}
 	}
-	else if ( e.Is( "MESSAGE_ANSWER_MAINMENU" ) )
+	else if ( e.Is( "MESSAGE_ANSWER_MAINMENU", typeid(bool) ) )
 	{
 		/*Engine::out() << "======debug mainmenu answer" << std::endl;
 	}
 	else if ( e.Is( "MESSAGE_ANSWER_MAINMENU", typeid( bool ) ) && boost::any_cast<bool>( e.Data() ) )
 	{*/
-		Module::Get()->QueueEvent( Event( "EVT_QUIT" ) , true );
+		if ( boost::any_cast<bool>(e.Data()) ) Module::Get()->QueueEvent( Event( "EVT_QUIT" ) , true );
 	}
 }
 
