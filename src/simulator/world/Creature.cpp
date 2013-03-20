@@ -351,18 +351,18 @@ void Creature::die()
 
 void Creature::loadConfigValues()
 {
-	NutritionFactor =		Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
-	huntingThreshold =		Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
-	matingThreshold =		Engine::getCfg()->get<float>("sim.creature.matingThreshold");
-	matingAge =				Engine::getCfg()->get<float>("sim.creature.matingAge");
-	matingHealthCost =		Engine::getCfg()->get<float>("sim.creature.matingHealthCost");
-	migProb =				Engine::getCfg()->get<float>("sim.creature.migProb");
-	altModifier1 =			Engine::getCfg()->get<float>("sim.creature.altModifier1");
-	altModifier2 =			Engine::getCfg()->get<float>("sim.creature.altModifier2");
-	envMult =				Engine::getCfg()->get<float>("sim.creature.envMult");
-	ageExponent =			Engine::getCfg()->get<float>("sim.creature.ageExponent");
-	nutritionIncrease =		Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
-	plantEnvDmgFactor =		Engine::getCfg()->get<float>("sim.creature.plantEnvDmgFactor");
-	plantGrowthModifier =	Engine::getCfg()->get<float>("sim.creature.plantGrowthModifier");
-	foodImportance =		Engine::getCfg()->get<float>("sim.creature.foodImportance");
+	NutritionFactor =      Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
+	huntingThreshold =     Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
+	matingThreshold =      Engine::getCfg()->get<float>("sim.creature.matingThreshold");
+	matingAge =            Engine::getCfg()->get<float>("sim.creature.matingAge");
+	matingHealthCost =     Engine::getCfg()->get<float>("sim.creature.matingHealthCost");
+	migProb =              Engine::getCfg()->get<float>("sim.creature.migProb");
+	altModifier1 =         Engine::getCfg()->get<float>("sim.creature.altModifier1");
+	altModifier2 =         Engine::getCfg()->get<float>("sim.creature.altModifier2");
+	envMult =              Engine::getCfg()->get<float>("sim.creature.envMult");
+	ageExponent =          Engine::getCfg()->get<float>("sim.creature.ageExponent");
+	nutritionIncrease =    Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
+	plantEnvDmgFactor =    Engine::getCfg()->get<float>("sim.creature.plantEnvDmgFactor");
+	plantGrowthModifier =  Engine::getCfg()->get<float>("sim.creature.plantGrowthModifier");
+	foodImportance =       Engine::getCfg()->get<float>("sim.creature.foodImportance");
 }
