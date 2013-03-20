@@ -216,7 +216,8 @@ void Simulator::NewSimulation(
 	Creatures.clear();
 	Creatures = newCreatures;
 
-	for(auto C :Creatures )
+	// count Creatures once
+	for( auto C : Creatures )
 	{
 		CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
 		C->updateTileFromPos();
@@ -232,10 +233,7 @@ void Simulator::NewSimulation(
 
 	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
 	Engine::getCfg()->set("sim.paused", isPaused);
-	// count Creatures once
 
-	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
-		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
 
 	// categorize tiles for parallel computation of the simulation
 	Terra->CreateParallelisationGraph();
@@ -266,42 +264,48 @@ void Simulator::advance()
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
 
+		CreatureCounts[0] = 0;
+		CreatureCounts[1] = 0;
+		CreatureCounts[2] = 0;
 
-		sf::Clock TickTimer;
-
-		// cleanup dead creatures
-		for(auto it = Creatures.begin(); it != Creatures.end(); )
+		if ( multiThreaded )
 		{
-			if((*it)->getCurrentHealth() <= 0)
+			// cleanup dead creatures
+			for(auto it = Creatures.begin(); it != Creatures.end(); )
 			{
-				(*it)->getTile()->removeCreature(*it);
-				auto it2 = it++;
-				Creatures.erase( it2 );
+				if((*it)->getCurrentHealth() <= 0)
+				{
+					(*it)->getTile()->removeCreature(*it);
+					auto it2 = it++;
+					Creatures.erase( it2 );
+				}
+				else { (*(++it))->done = false; }
 			}
-			else
-			{
-				(*it)->done = false;
-				++it;
-			}
-		}
 
-		if ( !multiThreaded )
+			parallelTick();
+		}
+		else
 		{
 			std::shared_ptr<std::list<std::shared_ptr<Tile>>> l;
 			l.reset( new std::list<std::shared_ptr<Tile>>(Terra->getTileList()) );
 
 			std::shared_ptr<int> C( new int[3], ArrDeleter());
 
-			tick(l, C);
-
-			CreatureCounts[0] = (C.get())[0];
-			CreatureCounts[1] = (C.get())[1];
-			CreatureCounts[2] = (C.get())[2];
+			for(auto it = Creatures.begin(); it != Creatures.end(); )
+			{
+				if((*it)->getCurrentHealth() <= 0)
+				{
+					(*it)->getTile()->removeCreature(*it);
+					auto it2 = it++;
+					Creatures.erase( it2 );
+				}
+				else
+				{
+					CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+					(*(it++))->live();
+				}
+			}
 		}
-		else
-			parallelTick();
-
-		Engine::out() << "Tick took " << TickTimer.getElapsedTime().asMilliseconds() << " ms, with " << numThreads << " Threads" << std::endl;
 
 		currentTick++;
 		logTickStats();
@@ -412,10 +416,6 @@ void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, s
 
 void Simulator::parallelTick()
 {
-
-	CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
 
 	int b = 0;
 	for( auto& batch : Terra->getColors())

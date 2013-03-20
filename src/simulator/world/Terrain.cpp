@@ -424,13 +424,8 @@ void Terrain::CreateDebugTerrain()
 			float TileHeight = maxHeight*HeightFactor;
 			float Humidity = minHumidity + (maxHumidity-minHumidity)*(1-HeightFactor);
 
+			if( TileHeight < waterlimit ) Humidity = 1;
 
-			if (TileHeight > maxElevation) maxElevation = TileHeight;
-
-			if(TileHeight < waterlimit)
-			{
-				Humidity = 1;
-			}
 			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, nutritionrnd(gen), Humidity );
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
