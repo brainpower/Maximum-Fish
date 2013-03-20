@@ -29,6 +29,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		/// used if you just want to create a creature without affecting the simulator state ( yet )
 		void setPositionUnsafe(const Geom::Pointf& pos);
 		void movePosition(const Geom::Pointf& pos);
+		void die();
 
 		float getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
@@ -61,6 +62,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		static float envMult;
 		static float resistance;
 		static int   ageExponent;
+		static float nutritionIncrease;
 		// -- END STATIC SETTINGS --
 
 		friend class CreatureIOPlugin;
@@ -80,7 +82,6 @@ class Creature : public std::enable_shared_from_this<Creature>
 			Calculates environmental effects (damage from temperature, water/food requirement)
 		*/
 		void calcDamage();
-
 
 		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
 		float currentHealth;

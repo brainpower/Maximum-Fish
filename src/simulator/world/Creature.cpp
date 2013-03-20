@@ -24,7 +24,7 @@ float Creature::altModifier2 = 0;
 float Creature::envMult = 0;
 float Creature::resistance = 0;
 int   Creature::ageExponent = 0;
-
+float Creature::nutritionIncrease = 0;
 
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
@@ -87,7 +87,10 @@ void Creature::live()
 
 	// do nothing, we're dead
 	// the simulator will remove this creature after the current tick
-	if ( currentHealth <= 0 ) return;
+	if ( currentHealth <= 0 ) {
+		die();
+		return;
+	}
 
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
@@ -116,10 +119,16 @@ void Creature::live()
 
 bool Creature::huntFood()
 {
+	float nutritionAmount = 0;
 	switch (mySpecies->getType())
 	{
-		case Species::HERBA:
-			currentHealth += currentTile->getNutrition()*NutritionFactor;
+		case Species::HERBA:			
+			nutritionAmount = (mySpecies->getMaxHealth()*resistance)-currentHealth;
+			if(currentTile->getNutrition() < nutritionAmount) nutritionAmount = currentTile->getNutrition();
+			
+			currentHealth += nutritionAmount;
+			currentTile->setNutrition(currentTile->getNutrition()-nutritionAmount);
+			
 			return true;
 			break;
 
@@ -145,7 +154,7 @@ bool Creature::huntNearest( int type )
 		// consume our prey
 		currentHealth += nearest->getCurrentHealth();
 		if(currentHealth > (mySpecies->getMaxHealth()*resistance)) currentHealth = (mySpecies->getMaxHealth()*resistance);
-		nearest->setCurrentHealth(0);
+		nearest->die();
 	}
 
 	return true;
@@ -322,6 +331,12 @@ void Creature::calcDamage()
 	currentHealth-= (envDmg/resistance)*envMult;
 }
 
+void Creature::die()
+{
+	setCurrentHealth(0);
+	currentTile->setNutrition(currentTile->getNutrition() + (mySpecies->getMaxHealth()*nutritionIncrease));
+}
+
 void Creature::loadConfigValues()
 {
 	NutritionFactor = 	Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
@@ -334,4 +349,5 @@ void Creature::loadConfigValues()
 	altModifier2 = 		Engine::getCfg()->get<float>("sim.creature.altModifier2");
 	envMult = 			Engine::getCfg()->get<float>("sim.creature.envMult");
 	ageExponent = 		Engine::getCfg()->get<float>("sim.creature.ageExponent");
+	nutritionIncrease = Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
 }
