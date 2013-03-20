@@ -13,7 +13,6 @@
 #include "Tile.hpp"
 
 // static variables
-float Creature::NutritionFactor = 0;
 float Creature::huntingThreshold = 0;
 float Creature::matingThreshold = 0;
 float Creature::matingAge = 0;
@@ -27,7 +26,6 @@ int   Creature::ageExponent = 0;
 float Creature::nutritionIncrease = 0;
 float Creature::plantEnvDmgFactor = 0;
 float Creature::plantGrowthModifier = 0;
-float Creature::foodImportance = 0;
 
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
@@ -331,8 +329,7 @@ bool Creature::validPos( Geom::Pointf NewPosition ) const
  */
 void Creature::calcDamage()
 {
-	float hunger = (mySpecies->getFoodRequirement()*foodImportance)*resistance;
-	if(Species::HERBA) hunger *= NutritionFactor;
+	float hunger = (mySpecies->getFoodRequirement())*resistance;
 	currentHealth -= hunger;
 	currentHealth -= (mySpecies->getWaterRequirement()*resistance) - currentTile->getHumidity();
 
@@ -345,20 +342,18 @@ void Creature::calcDamage()
 void Creature::die()
 {
 	setCurrentHealth(0);
-	currentTile->setNutrition(currentTile->getNutrition() + (mySpecies->getMaxHealth()*nutritionIncrease));
+	currentTile->setNutrition(currentTile->getNutrition() + (mySpecies->getMaxHealth()));
 }
 
 void Creature::loadConfigValues()
 {
-	NutritionFactor =      Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
 	huntingThreshold =     Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
-	matingThreshold =      Engine::getCfg()->get<float>("sim.creature.matingThreshold");
-	matingAge =            Engine::getCfg()->get<float>("sim.creature.matingAge");
-	matingHealthCost =     Engine::getCfg()->get<float>("sim.creature.matingHealthCost");
+	matingThreshold =      Engine::getCfg()->get<float>("sim.creature.mating.HealthThreshold");
+	matingAge =            Engine::getCfg()->get<float>("sim.creature.mating.minAge");
+	matingHealthCost =     Engine::getCfg()->get<float>("sim.creature.mating.HealthCost");
 	migProb =              Engine::getCfg()->get<float>("sim.creature.migProb");
-	altModifier1 =         Engine::getCfg()->get<float>("sim.creature.altModifier1");
-	altModifier2 =         Engine::getCfg()->get<float>("sim.creature.altModifier2");
-	envMult =              Engine::getCfg()->get<float>("sim.creature.envMult");
+	altModifier1 =         Engine::getCfg()->get<float>("sim.creature.evn.altModifier1");
+	altModifier2 =         Engine::getCfg()->get<float>("sim.creature.env.altModifier2");
+	envMult =              Engine::getCfg()->get<float>("sim.creature.env.Mult");
 	ageExponent =          Engine::getCfg()->get<float>("sim.creature.ageExponent");
-	nutritionIncrease =    Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
 }
