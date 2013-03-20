@@ -147,6 +147,8 @@ void Simulator::init()
 
 	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
 	multiThreaded = numThreads > 1;
+	initThreads();
+
 
 	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
@@ -241,7 +243,14 @@ void Simulator::advance()
 		{
 			std::shared_ptr<std::list<std::shared_ptr<Tile>>> l;
 			l.reset( new std::list<std::shared_ptr<Tile>>(Terra->getTileList()) );
-			tick(l, CreatureCounts);
+
+			std::shared_ptr<int> C( new int[3], ArrDeleter());
+
+			tick(l, C);
+
+			CreatureCounts[0] = (C.get())[0];
+			CreatureCounts[1] = (C.get())[1];
+			CreatureCounts[2] = (C.get())[2];
 		}
 		else
 			parallelTick();
@@ -272,29 +281,83 @@ void Simulator::advance()
 	}
 }
 
-void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int* CreatureCounts)
+void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts)
 {
+	int* CreatureCounts = _CreatureCounts.get();
 	CreatureCounts[0] = 0;
 	CreatureCounts[1] = 0;
 	CreatureCounts[2] = 0;
 
-	for( std::shared_ptr<Tile>& T : (*list))
-		Engine::out() << "tile: " << T->getPosition() << std::endl;
+//	for( std::shared_ptr<Tile>& T : (*list))
+	//	Engine::out() << "tile: " << T->getPosition() << std::endl;
 
 	int i = 0;
-	for( std::shared_ptr<Tile>& T : (*list))
+	//for( std::shared_ptr<Tile>& T : (*list))
+	for(auto it = list->cbegin(); it != list->cend(); it++)
 	{
 		i++;
 		//Engine::out() << "Tick: tile " << i << std::endl;
-		for ( auto C : T->getCreatures() )
+		//for ( auto C : T->getCreatures() )
+		auto Cs = (*it)->getCreatures();
+		for ( auto it2 = Cs.cbegin(); it2 != Cs.cend(); it2++)
 		{
 			//and ya god said live creature !... LIVE !!!
-			if (C && !C->done)
+			if (*it2 && !(*it2)->done)
 			{
-				C->live();
-				CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
+				(*it2)->live();
+				CreatureCounts[ (int)((*it2)->getSpecies()->getType()) ]++;
 			}
 		}
+	}
+}
+
+void Simulator::initThreads()
+{
+
+	startBarrier.reset( new boost::barrier( numThreads+1) );
+	endBarrier.reset( new boost::barrier( numThreads+1 ) );
+
+	for ( int thread = 0; thread < numThreads; ++thread)
+	{
+
+
+		//Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
+
+		std::shared_ptr<std::list<std::shared_ptr<Tile>>> cur;
+		cur.reset ( new std::list<std::shared_ptr<Tile>> );
+		Lists.push_back(cur);
+
+		//Engine::out() << "from " << (*it1)->getPosition() << std::endl;
+
+		CreatureCounters.push_back( std::shared_ptr<int> (new int[3], ArrDeleter() ) );
+
+		threads.push_back( boost::thread( boost::bind( &Simulator::thread, this, Lists[thread], CreatureCounters[thread] ) ) );
+	}
+}
+
+void Simulator::stopThreads()
+{
+		for ( int thread = 0; thread < numThreads; ++thread )
+		{
+			//Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
+			threads[thread].interrupt();
+			threads[thread].join();
+		}
+
+	CreatureCounters.clear();
+	threads.clear();
+	Lists.clear();
+}
+
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts)
+{
+	while ( !boost::this_thread::interruption_requested() )
+	{
+		startBarrier->wait();
+
+		tick( list, _CreatureCounts );
+
+		endBarrier->wait();
 	}
 }
 
@@ -311,62 +374,38 @@ void Simulator::parallelTick()
 		b++;
 		int worksize = std::ceil(batch.size() / numThreads);
 
-		std::vector< int* > CreatureCounters;
-
-		Engine::out() << "batch " << b << std::endl;
-		Engine::out() << "Work: " << batch.size() << std::endl;
-		Engine::out() << "Worksize: " << worksize << std::endl;
-
-		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> Lists;
+		//Engine::out() << "batch " << b << std::endl;
+		//Engine::out() << "Work: " << batch.size() << std::endl;
+		//Engine::out() << "Worksize: " << worksize << std::endl;
 
 		for ( int thread = 0; thread < numThreads; ++thread)
 		{
 			int from = thread*worksize;
-			int to   = thread*worksize > batch.size()  ?  batch.size()  :  (thread+1)*worksize;
+			int to   = thread*worksize > batch.size()  ?  batch.size()-1  :  (thread+1)*worksize;
 
-			Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
+			//Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
 
 			TileIt it1 = batch.begin();
 			std::advance( it1, from);
 			TileIt it2 = batch.begin();
 			std::advance( it2, to);
 
-			std::shared_ptr<std::list<std::shared_ptr<Tile>>> cur;
-			cur.reset ( new std::list<std::shared_ptr<Tile>> );
-			Lists.push_back(cur);
+			Lists[thread]->clear();
+			std::copy(it1, it2, std::inserter( *(Lists[thread]), Lists[thread]->end() ));
 
-			std::copy(it1, it2, std::inserter( *cur, cur->end() ));
+			//Engine::out() << "from " << (*it1)->getPosition() << std::endl;
 
-			Engine::out() << "from " << (*it1)->getPosition() << std::endl;
-			Engine::out() << "to " << (*it2)->getPosition() << std::endl;
-
-			CreatureCounters.push_back( new int[3] );
 		}
 
-		boost::thread* threads[4];
+		startBarrier->wait();
+		endBarrier->wait();
 
-		Engine::out() << "Starting Threads" << std::endl;
-		sf::Clock BatchTimer;
-
-		for ( int thread = 0; thread < numThreads; ++thread )
-			threads[thread] = new boost::thread( boost::bind( &Simulator::tick, this, Lists[thread], CreatureCounters[thread] ) );
-
-
-		for ( int thread = 0; thread < numThreads; ++thread )
+		for ( int thread = 0; thread < numThreads; ++thread)
 		{
-			Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
-			threads[thread]->join();
-			delete threads[thread];
-			threads[thread] = 0;
-
-			CreatureCounts[0] += CreatureCounters[thread][0];
-			CreatureCounts[1] += CreatureCounters[thread][1];
-			CreatureCounts[2] += CreatureCounters[thread][2];
-
-			delete CreatureCounters[thread];
+			CreatureCounts[0] += (CreatureCounters[thread].get())[0];
+			CreatureCounts[1] += (CreatureCounters[thread].get())[1];
+			CreatureCounts[2] += (CreatureCounters[thread].get())[2];
 		}
-
-		Lists.clear();
 	}
 }
 

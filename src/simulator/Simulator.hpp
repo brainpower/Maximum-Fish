@@ -71,7 +71,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		typedef std::list<std::shared_ptr<Tile>>::iterator TileIt;
 
 		/// simulate a range of Tiles
-		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int* CreatureCounts);
+		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts);
 		void parallelTick();
 
 		static std::shared_ptr<Species> GetSpecies(const std::string& name)
@@ -99,6 +99,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 	private:
 
+		class ArrDeleter
+		{
+			public:
+			void operator()(int* ptr) { delete[] ptr; }
+		};
+
+
 		friend class Generator;
 		//friend class StasisPod;
 
@@ -125,6 +132,16 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;
+
+		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> Lists;
+		std::vector<std::shared_ptr<int>> CreatureCounters;
+		std::vector<boost::thread> threads;
+		std::shared_ptr<boost::barrier> startBarrier;
+		std::shared_ptr<boost::barrier> endBarrier;
+		/// thread entry point
+		void initThreads();
+		void stopThreads();
+		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts);
 
 		int numThreads;
 		bool multiThreaded;
