@@ -84,13 +84,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 			return Instance->Terra;
 		}
 
-		std::default_random_engine& rnd()
+		std::mt19937& rnd()
 		{
 			numGenerated++;
-			return gen;
+			return *gen;
 		}
 
-		static std::default_random_engine& GetRnd()
+		static std::mt19937& GetRnd()
 		{
 			return Instance->rnd();
 		}
@@ -125,7 +125,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		int currentSeed;
 		int currentTick;
 		unsigned int numGenerated; // number of generated random numbers
-		std::default_random_engine gen;
+		std::shared_ptr<std::mt19937> gen;
 
 		std::list<std::shared_ptr<Creature>> Creatures;
 		std::vector<std::shared_ptr<Species>> SpeciesList;
