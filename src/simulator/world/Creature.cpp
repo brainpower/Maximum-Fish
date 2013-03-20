@@ -26,7 +26,8 @@ float Creature::envMult = 0;
 
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
- : 	currentHealth(100),
+ : 	done(true),
+	currentHealth(100),
 	age(0),
 	lastmating(0),
 	Position( 0, 0 ),
@@ -76,6 +77,8 @@ void Creature::movePosition( const Geom::Pointf& pos)
 
 void Creature::live()
 {
+	done = true;
+
 	// damage from environment
 	calcDamage();
 
@@ -174,7 +177,7 @@ bool Creature::mate()
 			// move to mating partner
 			if ( moveTo( nearest->getPosition() ) )
 				reproduce( nearest );
-			std::cout << "New creature created" << std::endl;
+			Engine::out() << "New creature created" << std::endl;
 			return true;
 
 		break;

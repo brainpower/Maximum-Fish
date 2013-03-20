@@ -15,6 +15,7 @@ namespace sbe {
 }
 
 #include <list>
+#include <vector>
 #include <random>
 #include <memory>
 
@@ -64,7 +65,14 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void init();
 		void NewSimulation( int seed = 0);
 
-		void tick();
+		/// simulate one tick
+		void advance();
+
+		typedef std::list<std::shared_ptr<Tile>>::iterator TileIt;
+
+		/// simulate a range of Tiles
+		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int* CreatureCounts);
+		void parallelTick();
 
 		static std::shared_ptr<Species> GetSpecies(const std::string& name)
 		{
@@ -117,6 +125,9 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;
+
+		int numThreads;
+		bool multiThreaded;
 
 		static Simulator* Instance;
 

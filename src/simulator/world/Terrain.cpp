@@ -55,6 +55,13 @@ void Terrain::UpdateTerrain() const
 	Module::Get()->QueueEvent(Event("UpdateTileRenderList", Tiles), true);
 }
 
+std::list<std::shared_ptr<Tile>> Terrain::getTileList() const
+{
+	std::list<std::shared_ptr<Tile>> re;
+	for ( const std::shared_ptr<Tile>& T : Tiles ) re.push_back(T);
+	return re;
+}
+
 std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T) const
 {
 	std::list<std::shared_ptr<Tile>> ret;
@@ -243,7 +250,7 @@ void Terrain::CreateParallelisationGraph()
 	int maxreach = Engine::getCfg()->get<int>("sim.creatureActionRadius");
 	bool minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 
-	std::list< std::list<std::shared_ptr<Tile> > > Colors;
+	Colors.clear();
 
 	while ( idsAssigned < Tiles.size())
 	{

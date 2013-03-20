@@ -18,6 +18,9 @@
 #include "resources/SpeciesIOPlugin.hpp"
 #include "resources/TerrainIOPlugin.hpp"
 
+#include <SFML/System/Clock.hpp>
+
+#include <iterator>
 #include <string>
 #include <sstream>
 
@@ -69,7 +72,7 @@ void Simulator::HandleEvent(Event& e)
 {
 	if(e.Is("EVT_TICK"))
 	{
-		tick();
+		advance();
 	}
 	else if(e.Is("SIM_PAUSE"))
 	{
@@ -142,6 +145,9 @@ void Simulator::init()
 	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
+	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
+	multiThreaded = numThreads > 1;
+
 	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
@@ -208,16 +214,15 @@ void Simulator::NewSimulation( int seed )
 	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Population") ), true );
 }
 
-void Simulator::tick()
+void Simulator::advance()
 {
 	if(!isPaused)
 	{
-		CreatureCounts[0] = 0;
-		CreatureCounts[1] = 0;
-		CreatureCounts[2] = 0;
 
+		sf::Clock TickTimer;
 
-		for(auto it = Creatures.begin(); it != Creatures.end();)
+		// cleanup dead creatures
+		for(auto it = Creatures.begin(); it != Creatures.end(); )
 		{
 			if((*it)->getCurrentHealth() <= 0)
 			{
@@ -227,12 +232,21 @@ void Simulator::tick()
 			}
 			else
 			{
-				//and ya god said live creature !... LIVE !!!
-				(*it)->live();
-				CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+				(*it)->done = false;
 				++it;
 			}
 		}
+
+		if ( !multiThreaded )
+		{
+			std::shared_ptr<std::list<std::shared_ptr<Tile>>> l;
+			l.reset( new std::list<std::shared_ptr<Tile>>(Terra->getTileList()) );
+			tick(l, CreatureCounts);
+		}
+		else
+			parallelTick();
+
+		Engine::out() << "Tick took " << TickTimer.getElapsedTime().asMilliseconds() << " ms, with " << numThreads << " Threads" << std::endl;
 
 		currentTick++;
 		logTickStats();
@@ -255,6 +269,104 @@ void Simulator::tick()
 		}
 
 		RendererUpdate.restart();
+	}
+}
+
+void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int* CreatureCounts)
+{
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+	for( std::shared_ptr<Tile>& T : (*list))
+		Engine::out() << "tile: " << T->getPosition() << std::endl;
+
+	int i = 0;
+	for( std::shared_ptr<Tile>& T : (*list))
+	{
+		i++;
+		//Engine::out() << "Tick: tile " << i << std::endl;
+		for ( auto C : T->getCreatures() )
+		{
+			//and ya god said live creature !... LIVE !!!
+			if (C && !C->done)
+			{
+				C->live();
+				CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
+			}
+		}
+	}
+}
+
+void Simulator::parallelTick()
+{
+
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+	int b = 0;
+	for( auto& batch : Terra->getColors())
+	{
+		b++;
+		int worksize = std::ceil(batch.size() / numThreads);
+
+		std::vector< int* > CreatureCounters;
+
+		Engine::out() << "batch " << b << std::endl;
+		Engine::out() << "Work: " << batch.size() << std::endl;
+		Engine::out() << "Worksize: " << worksize << std::endl;
+
+		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> Lists;
+
+		for ( int thread = 0; thread < numThreads; ++thread)
+		{
+			int from = thread*worksize;
+			int to   = thread*worksize > batch.size()  ?  batch.size()  :  (thread+1)*worksize;
+
+			Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
+
+			TileIt it1 = batch.begin();
+			std::advance( it1, from);
+			TileIt it2 = batch.begin();
+			std::advance( it2, to);
+
+			std::shared_ptr<std::list<std::shared_ptr<Tile>>> cur;
+			cur.reset ( new std::list<std::shared_ptr<Tile>> );
+			Lists.push_back(cur);
+
+			std::copy(it1, it2, std::inserter( *cur, cur->end() ));
+
+			Engine::out() << "from " << (*it1)->getPosition() << std::endl;
+			Engine::out() << "to " << (*it2)->getPosition() << std::endl;
+
+			CreatureCounters.push_back( new int[3] );
+		}
+
+		boost::thread* threads[4];
+
+		Engine::out() << "Starting Threads" << std::endl;
+		sf::Clock BatchTimer;
+
+		for ( int thread = 0; thread < numThreads; ++thread )
+			threads[thread] = new boost::thread( boost::bind( &Simulator::tick, this, Lists[thread], CreatureCounters[thread] ) );
+
+
+		for ( int thread = 0; thread < numThreads; ++thread )
+		{
+			Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
+			threads[thread]->join();
+			delete threads[thread];
+			threads[thread] = 0;
+
+			CreatureCounts[0] += CreatureCounters[thread][0];
+			CreatureCounts[1] += CreatureCounters[thread][1];
+			CreatureCounts[2] += CreatureCounters[thread][2];
+
+			delete CreatureCounters[thread];
+		}
+
+		Lists.clear();
 	}
 }
 
