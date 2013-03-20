@@ -97,7 +97,7 @@ void Creature::live()
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
 	healthPercentage = currentHealth/mySpecies->getMaxHealth();
-	
+
 	float spreadFactor = 1;
 	if(Species::HERBA)
 	{
@@ -115,7 +115,7 @@ void Creature::live()
 		didsomethingthistick = mate();
 	}
 
-	if ( didsomethingthistick )
+	if ( !didsomethingthistick )
 		move();
 
 	age++;
@@ -130,13 +130,13 @@ bool Creature::huntFood()
 	float nutritionAmount = 0;
 	switch (mySpecies->getType())
 	{
-		case Species::HERBA:			
+		case Species::HERBA:
 			nutritionAmount = (mySpecies->getMaxHealth()*resistance)-currentHealth;
 			if(currentTile->getNutrition() < nutritionAmount) nutritionAmount = currentTile->getNutrition();
-			
+
 			currentHealth += nutritionAmount;
 			currentTile->setNutrition(currentTile->getNutrition()-nutritionAmount);
-			
+
 			return true;
 			break;
 
@@ -333,7 +333,7 @@ void Creature::calcDamage()
 {
 	float hunger = (mySpecies->getFoodRequirement()*foodImportance)*resistance;
 	if(Species::HERBA) hunger *= NutritionFactor;
-	currentHealth -= hunger;	
+	currentHealth -= hunger;
 	currentHealth -= (mySpecies->getWaterRequirement()*resistance) - currentTile->getHumidity();
 
 	//--damage from wrong elevation/temperature
@@ -361,7 +361,4 @@ void Creature::loadConfigValues()
 	envMult =              Engine::getCfg()->get<float>("sim.creature.envMult");
 	ageExponent =          Engine::getCfg()->get<float>("sim.creature.ageExponent");
 	nutritionIncrease =    Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
-	plantEnvDmgFactor =    Engine::getCfg()->get<float>("sim.creature.plantEnvDmgFactor");
-	plantGrowthModifier =  Engine::getCfg()->get<float>("sim.creature.plantGrowthModifier");
-	foodImportance =       Engine::getCfg()->get<float>("sim.creature.foodImportance");
 }

@@ -28,7 +28,9 @@ class Species
 		float getResistance()const  {return resistance;}
 		int getBreedingSpeed() const {return breedingSpeed;}
 		SPECIES_TYPE getType() const {return type;}
-		int getFoodRequirement() const {return foodRequirement;}
+
+		float getMaxRegeneration() const { return maxRegeneration; }
+		float getFoodRequirement() const {return foodRequirement;}
 		float getWaterRequirement() const {return waterRequirement;}
 		int getOptimalTemperature() const {return optimalTemperature;}
 
@@ -42,7 +44,9 @@ class Species
 		void setResistance(float re){                 resistance = re;}
 		void setBreedingSpeed(int bs) {          breedingSpeed = bs;}
 		void setType(SPECIES_TYPE t) {                 type = t; if (type == HERBA) maxSpeed = 0; }
-		void setFoodRequirement(int fr) {      foodRequirement = fr;}
+
+		void setMaxRegeneration(float mR) { maxRegeneration = mR; }
+		void setFoodRequirement(float fr) {      foodRequirement = fr;}
 		void setWaterRequirement(float wr){     waterRequirement = wr;}
 		void setOptimalTemperature(int oh) {optimalTemperature = oh;}
 
@@ -65,8 +69,10 @@ class Species
 		int breedingSpeed;
 		/// different types of Creatures we want to simulate
 		SPECIES_TYPE type;
+		/// how much health can a creature absorb each tick
+		float maxRegeneration;
 		/// how much food is required to keep the current health level
-		int foodRequirement;
+		float foodRequirement;
 		/// how much water is required to keep the current health level
 		float waterRequirement;
 
