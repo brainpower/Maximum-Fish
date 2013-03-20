@@ -27,6 +27,8 @@ class Tile
 		float getHabitability(const std::shared_ptr<Species>& sp) const;
 		bool isWater() const {return baseHumidity > 0.95;}
 		int getTileSpriteIndex() const;
+		
+		void setNutrition(float n) { nutrition = n; }
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 		void removeCreature( const std::shared_ptr<Creature>& p);
