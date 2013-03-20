@@ -63,6 +63,9 @@ class Creature : public std::enable_shared_from_this<Creature>
 		static float resistance;
 		static int   ageExponent;
 		static float nutritionIncrease;
+		static float plantEnvDmgFactor;
+		static float plantGrowthModifier;
+		static float foodImportance;
 		// -- END STATIC SETTINGS --
 
 		friend class CreatureIOPlugin;

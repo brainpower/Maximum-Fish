@@ -25,6 +25,9 @@ float Creature::envMult = 0;
 float Creature::resistance = 0;
 int   Creature::ageExponent = 0;
 float Creature::nutritionIncrease = 0;
+float Creature::plantEnvDmgFactor = 0;
+float Creature::plantGrowthModifier = 0;
+float Creature::foodImportance = 0;
 
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
@@ -95,12 +98,18 @@ void Creature::live()
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
 	healthPercentage = currentHealth/mySpecies->getMaxHealth();
+	
+	float spreadFactor = 1;
+	if(Species::HERBA)
+	{
+		spreadFactor = currentTile->getNutrition()/plantGrowthModifier;
+	}
 
 	if ( healthPercentage < huntingThreshold )
 	{
 		didsomethingthistick = huntFood();
 	}
-	else if ( age - lastmating > (mySpecies->getBreedingSpeed()/resistance)
+	else if ( age - lastmating > (mySpecies->getBreedingSpeed()/resistance)*spreadFactor
 				&& healthPercentage > matingThreshold
 				&& age > mySpecies->getMaxAge()*matingAge )
 	{
@@ -323,11 +332,14 @@ bool Creature::validPos( Geom::Pointf NewPosition ) const
  */
 void Creature::calcDamage()
 {
-	currentHealth-= mySpecies->getFoodRequirement()*resistance;
-	currentHealth-= (mySpecies->getWaterRequirement()*resistance) - currentTile->getHumidity();
+	float hunger = (mySpecies->getFoodRequirement()*foodImportance)*resistance;
+	if(Species::HERBA) hunger *= NutritionFactor;
+	currentHealth -= hunger;	
+	currentHealth -= (mySpecies->getWaterRequirement()*resistance) - currentTile->getHumidity();
 
 	//--damage from wrong elevation/temperature
 	float envDmg = std::pow( (currentTile->getHeight() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
+	if(Species::HERBA) envDmg = envDmg*plantEnvDmgFactor;
 	currentHealth-= (envDmg/resistance)*envMult;
 }
 
@@ -339,15 +351,18 @@ void Creature::die()
 
 void Creature::loadConfigValues()
 {
-	NutritionFactor = 	Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
-	huntingThreshold = 	Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
-	matingThreshold = 	Engine::getCfg()->get<float>("sim.creature.matingThreshold");
-	matingAge = 		Engine::getCfg()->get<float>("sim.creature.matingAge");
-	matingHealthCost = 	Engine::getCfg()->get<float>("sim.creature.matingHealthCost");
-	migProb = 			Engine::getCfg()->get<float>("sim.creature.migProb");
-	altModifier1 = 		Engine::getCfg()->get<float>("sim.creature.altModifier1");
-	altModifier2 = 		Engine::getCfg()->get<float>("sim.creature.altModifier2");
-	envMult = 			Engine::getCfg()->get<float>("sim.creature.envMult");
-	ageExponent = 		Engine::getCfg()->get<float>("sim.creature.ageExponent");
-	nutritionIncrease = Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
+	NutritionFactor = 	  Engine::getCfg()->get<float>("sim.creature.NutritionFactor");
+	huntingThreshold = 	  Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
+	matingThreshold = 	  Engine::getCfg()->get<float>("sim.creature.matingThreshold");
+	matingAge = 		  Engine::getCfg()->get<float>("sim.creature.matingAge");
+	matingHealthCost = 	  Engine::getCfg()->get<float>("sim.creature.matingHealthCost");
+	migProb = 			  Engine::getCfg()->get<float>("sim.creature.migProb");
+	altModifier1 = 		  Engine::getCfg()->get<float>("sim.creature.altModifier1");
+	altModifier2 = 		  Engine::getCfg()->get<float>("sim.creature.altModifier2");
+	envMult = 			  Engine::getCfg()->get<float>("sim.creature.envMult");
+	ageExponent = 		  Engine::getCfg()->get<float>("sim.creature.ageExponent");
+	nutritionIncrease =   Engine::getCfg()->get<float>("sim.creature.nutritionIncrease");
+	plantEnvDmgFactor =   Engine::getCfg()->get<float>("sim.creature.plantEnvDmgFactor");
+	plantGrowthModifier = Engine::getCfg()->get<float>("sim.creature.plantGrowthModifier");
+	foodImportance =	  Engine::getCfg()->get<float>("sim.creature.foodImportance");
 }
