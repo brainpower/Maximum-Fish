@@ -18,8 +18,12 @@
 #include "resources/SpeciesIOPlugin.hpp"
 #include "resources/TerrainIOPlugin.hpp"
 
+#include <SFML/System/Clock.hpp>
+
+#include <iterator>
 #include <string>
 #include <sstream>
+#include <random>
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -69,7 +73,7 @@ void Simulator::HandleEvent(Event& e)
 {
 	if(e.Is("EVT_TICK"))
 	{
-		tick();
+		advance();
 	}
 	else if(e.Is("SIM_PAUSE"))
 	{
@@ -80,6 +84,11 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = false;
 		Engine::getCfg()->set("sim.paused", isPaused);
+
+		if ( e.Data().type() == typeid(unsigned int))
+		{
+			simulateTicks = boost::any_cast<unsigned int>(e.Data());
+		}
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
 	{
@@ -142,54 +151,89 @@ void Simulator::init()
 	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
+	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
+	multiThreaded = numThreads > 1;
+
+
+
 	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
 void Simulator::NewSimulation( int seed )
 {
-	currentTick = 0;
-
-	Engine::out(Engine::INFO) << "[Simulator] Seeding random engine" << std::endl;
+	std::mt19937* rng = new std::mt19937(seed);
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
-	gen.reset( new std::mt19937(seed) );
 	currentSeed = seed;
-	numGenerated = 0;
 
-	Creature::loadConfigValues();
+	std::vector<std::shared_ptr<Species>> Spec;
+	std::list<std::shared_ptr<Creature>> Creatures;
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
-	Terra.reset ( new Terrain() );
-
-	Engine::out(Engine::INFO) << "[Simulator] Generating Debug Terrain" << std::endl;
-	Terra->CreateDebugTerrain();
-
-	Engine::out(Engine::INFO) << "[Simulator] Creating creatures and species" << std::endl;
-
-	SpeciesList.clear();
-	Creatures.clear();
-	CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
-
-
-	// add default species
-	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
-	SpeciesList.push_back( S );
-	Generator G (*this);
-
+	// we have to set it here, so Simulator::GetTerrain() will work in Tile
+	std::shared_ptr<Terrain> T( new Terrain() );
+	Terra = T;
+	T->CreateDebugTerrain();
+	Generator G (Spec, Creatures, *T, *rng);
 
 	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("sim.terragen.plantCount") );
 	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.herbivoreCount") );
 	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.carnivoreCount") );
 
+	NewSimulation( rng, T, Spec, Creatures );
+}
+
+void Simulator::NewSimulation(
+	std::mt19937* rng,
+	std::shared_ptr<Terrain> newTerrain,
+	std::vector<std::shared_ptr<Species>>& newSpecies,
+	std::list<std::shared_ptr<Creature>>& newCreatures )
+{
+	if ( multiThreaded)
+	{
+		stopThreads();
+		initThreads();
+	}
+
+
+	currentTick = 0;
+	simulateTicks = 0;
+
+	Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
+	gen.reset( rng );
+	numGenerated = 0;
+
+	Creature::loadConfigValues();
+
+	Engine::out(Engine::INFO) << "[Simulator] Terrain" << std::endl;
+	Terra = newTerrain;
+	Terra->UpdateTileMap();
+
+	Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+	Creatures.clear();
+	Creatures = newCreatures;
+
+	// count Creatures once
+	for( auto C : Creatures )
+	{
+		CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
+		C->updateTileFromPos();
+	}
+
+	SpeciesList.clear();
+	SpeciesList = newSpecies;
+	// add default species
+	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
+	SpeciesList.push_back( S );
+
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
 	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
 	Engine::getCfg()->set("sim.paused", isPaused);
-	// count Creatures once
 
-	for(auto it = Creatures.begin(); it != Creatures.end(); ++it)
-		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
 
 	// categorize tiles for parallel computation of the simulation
 	Terra->CreateParallelisationGraph();
@@ -208,29 +252,58 @@ void Simulator::NewSimulation( int seed )
 	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Population") ), true );
 }
 
-void Simulator::tick()
+void Simulator::advance()
 {
 	if(!isPaused)
 	{
+		// last tick?
+		if (simulateTicks == 1 )
+		{
+			isPaused = true;
+			Module::Get()->QueueEvent( "SIM_STOPPED" );
+		}
+		if ( simulateTicks > 0 ) simulateTicks--;
+
 		CreatureCounts[0] = 0;
 		CreatureCounts[1] = 0;
 		CreatureCounts[2] = 0;
 
-
-		for(auto it = Creatures.begin(); it != Creatures.end();)
+		if ( multiThreaded )
 		{
-			if((*it)->getCurrentHealth() <= 0)
+			// cleanup dead creatures
+			for(auto it = Creatures.begin(); it != Creatures.end(); )
 			{
-				(*it)->getTile()->removeCreature(*it);
-				auto it2 = it++;
-				Creatures.erase( it2 );
+				if((*it)->getCurrentHealth() <= 0)
+				{
+					(*it)->getTile()->removeCreature(*it);
+					auto it2 = it++;
+					Creatures.erase( it2 );
+				}
+				else { (*(++it))->done = false; }
 			}
-			else
+
+			parallelTick();
+		}
+		else
+		{
+			std::shared_ptr<std::list<std::shared_ptr<Tile>>> l;
+			l.reset( new std::list<std::shared_ptr<Tile>>(Terra->getTileList()) );
+
+			std::shared_ptr<int> C( new int[3], ArrDeleter());
+
+			for(auto it = Creatures.begin(); it != Creatures.end(); )
 			{
-				//and ya god said live creature !... LIVE !!!
-				(*it)->live();
-				CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
-				++it;
+				if((*it)->getCurrentHealth() <= 0)
+				{
+					(*it)->getTile()->removeCreature(*it);
+					auto it2 = it++;
+					Creatures.erase( it2 );
+				}
+				else
+				{
+					CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+					(*(it++))->live();
+				}
 			}
 		}
 
@@ -255,6 +328,133 @@ void Simulator::tick()
 		}
 
 		RendererUpdate.restart();
+	}
+}
+
+void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts)
+{
+	int* CreatureCounts = _CreatureCounts.get();
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+//	for( std::shared_ptr<Tile>& T : (*list))
+	//	Engine::out() << "tile: " << T->getPosition() << std::endl;
+
+	int i = 0;
+	//for( std::shared_ptr<Tile>& T : (*list))
+	for(auto it = list->cbegin(); it != list->cend(); it++)
+	{
+		i++;
+		//Engine::out() << "Tick: tile " << i << std::endl;
+		//for ( auto C : T->getCreatures() )
+		auto Cs = (*it)->getCreatures();
+		for ( auto it2 = Cs.cbegin(); it2 != Cs.cend(); it2++)
+		{
+			//and ya god said live creature !... LIVE !!!
+			if (*it2 && !(*it2)->done)
+			{
+				(*it2)->live();
+				CreatureCounts[ (int)((*it2)->getSpecies()->getType()) ]++;
+			}
+		}
+	}
+}
+
+void Simulator::initThreads()
+{
+
+	startBarrier.reset( new boost::barrier( numThreads+1) );
+	endBarrier.reset( new boost::barrier( numThreads+1 ) );
+
+	std::uniform_int_distribution<int> seeder;
+
+	for ( int thread = 0; thread < numThreads; ++thread)
+	{
+
+
+		//Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
+
+		std::shared_ptr<std::list<std::shared_ptr<Tile>>> cur;
+		cur.reset ( new std::list<std::shared_ptr<Tile>> );
+		Lists.push_back(cur);
+
+		//Engine::out() << "from " << (*it1)->getPosition() << std::endl;
+
+		CreatureCounters.push_back( std::shared_ptr<int> (new int[3], ArrDeleter() ) );
+
+		threads.push_back( boost::thread( boost::bind( &Simulator::thread, this, Lists[thread], CreatureCounters[thread], thread ) ) );
+	}
+}
+
+void Simulator::stopThreads()
+{
+	for ( boost::thread& t : threads )
+	{
+		//Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
+		t.interrupt();
+		t.join();
+	}
+
+	CreatureCounters.clear();
+	threads.clear();
+	Lists.clear();
+}
+
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts, int seed)
+{
+	gen.reset( new std::mt19937(seed));
+	while ( !boost::this_thread::interruption_requested() )
+	{
+		startBarrier->wait();
+
+		tick( list, _CreatureCounts );
+
+		endBarrier->wait();
+	}
+}
+
+void Simulator::parallelTick()
+{
+
+	int b = 0;
+	for( auto& batch : Terra->getColors())
+	{
+		b++;
+		int worksize = std::ceil(batch.size() / numThreads);
+
+		//Engine::out() << "batch " << b << std::endl;
+		//Engine::out() << "Work: " << batch.size() << std::endl;
+		//Engine::out() << "Worksize: " << worksize << std::endl;
+
+		for ( int thread = 0; thread < numThreads; ++thread)
+		{
+			int from = thread*worksize;
+			int to   = thread*worksize > batch.size()  ?  batch.size()-1  :  (thread+1)*worksize;
+
+			//Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
+
+			TileIt it1 = batch.begin();
+			std::advance( it1, from);
+			TileIt it2 = batch.begin();
+			std::advance( it2, to);
+
+			Lists[thread]->clear();
+			std::copy(it1, it2, std::inserter( *(Lists[thread]), Lists[thread]->end() ));
+
+			//Engine::out() << "from " << (*it1)->getPosition() << std::endl;
+
+		}
+
+		startBarrier->wait();
+		endBarrier->wait();
+
+		for ( int thread = 0; thread < numThreads; ++thread)
+		{
+			CreatureCounts[0] += (CreatureCounters[thread].get())[0];
+			CreatureCounts[1] += (CreatureCounters[thread].get())[1];
+			CreatureCounts[2] += (CreatureCounters[thread].get())[2];
+		}
 	}
 }
 
@@ -410,7 +610,6 @@ void Simulator::loadWhole(const std::string &loadPath){
 	}
 
 	// do some loading...
-
 	auto tmp  = Engine::GetIO()->loadObjects<Terrain>();
 	auto tmp2 = Engine::GetIO()->loadObjects<Species>();
 	auto tmp3 = Engine::GetIO()->loadObjects<Creature>();
@@ -428,51 +627,22 @@ void Simulator::loadWhole(const std::string &loadPath){
 	if(!loadPath.empty())
 		Engine::GetIO()->popPath(); // pop load path from IO stack
 
-	// clean up, necessary?
-	Terra.reset();
-	SpeciesList.clear();
-	Creatures.clear();
+	std::list<std::shared_ptr<Creature>> newCreatures;
+	std::copy( tmp3.cbegin(), tmp3.cend(), std::inserter(newCreatures, newCreatures.end()) );
 
-	Terra       = tmp[0]; // resets Terra, there should be only one
-	SpeciesList = tmp2; // resets specieslist
-	std::copy( tmp3.cbegin(), tmp3.cend(), std::inserter(Creatures, Creatures.end()) );
+	// create random engine
+	std::mt19937* newGen = new std::mt19937();
+	std::stringstream(simCfg->get<std::string>("sim.random.gen")) >> (*gen);
 
+	NewSimulation( newGen, tmp[0], tmp2, newCreatures );
 
 	currentTick  = simCfg->get<int>("sim.currentTick"); // get ticks
 	currentSeed  = simCfg->get<int>("sim.random.seed"); // get seed
 	numGenerated = simCfg->get<unsigned int>("sim.random.numGenerated");
-
-	// reset random engine
-	std::stringstream ss(simCfg->get<std::string>("sim.random.gen"));
-	gen.reset( new std::mt19937() );
-	ss >> (*gen);
-
-	// reset statistics
-	CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
-
-	// count Creatures once, or save it too?
-	// also, while we're at it, update Tile <-> Creature references
-	for(auto it = Creatures.begin(); it != Creatures.end(); ++it){
-		CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
-
-		(*it)->updateTileFromPos();
-	}
-
-	// send terrain to renderer
-	Terra->UpdateTerrain();
-	// send creatures to renderer
-	Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
-
-	RendererUpdate.restart();
 
 	// loading done...
 	Module::Get()->QueueEvent("EVT_LOAD_GOOD", true);
 
 	isPaused = wasPaused;
 	Engine::getCfg()->set("sim.paused", isPaused);
-
-	Engine::out(Engine::SPAM) << Creatures.front()->getSpeciesString() << std::endl;
-	Engine::out(Engine::SPAM) << GetSpecies(Creatures.front()->getSpeciesString())->getName() << std::endl;
 }

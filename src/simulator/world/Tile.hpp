@@ -18,8 +18,10 @@ class Tile
 
 		float getHeight() const {return height;}
 		float getNutrition() const {return nutrition;}
+		float getUsedNutrition() const {return usedNutrition;}
 		float getBaseHumidity() const {return baseHumidity;}
-		float getHumidity() const {return humidity;}
+		float getCurrentHumidity() const {return currentHumidity;}
+
 		Geom::Point getPosition() const { return Position; }
 
 		float calcTemperature() const;
@@ -27,8 +29,13 @@ class Tile
 		float getHabitability(const std::shared_ptr<Species>& sp) const;
 		bool isWater() const {return baseHumidity > 0.95;}
 		int getTileSpriteIndex() const;
-		
+
 		void setNutrition(float n) { nutrition = n; }
+		void setUsedNutrition(float un) { usedNutrition = un; }
+		void setBaseHumidity(float bh) { baseHumidity = bh; }
+		void setCurrentHumidity(float ch) { currentHumidity = ch; }
+
+		void addUsedNutrition( float un ) { usedNutrition += un; }
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 		void removeCreature( const std::shared_ptr<Creature>& p);
@@ -48,17 +55,17 @@ class Tile
 		Geom::Point Position;
 
 		float height;
-		/// nutrition value on that tile ( required for plant growth
+		/// general nutrition value on that tile ( required for plant growth
 		float nutrition;
 		/// general humidity on that tile
 		float baseHumidity;
 
-		/// number of plants on that field, used to determine overpopulation
-		int biomass;
-		/// current humidity, decreased through "feeding" plants
-		float humidity;
+		/// currently required Nutrition to fully support all plants
+		float usedNutrition;
+		/// current humidity, decreased through Weather or global settings
+		float currentHumidity;
 
-		///
+		/// all Tiles with the same ID can be simulated in parallel
 		unsigned int parallelID;
 
 		/// a list of all Creatures on that Tile

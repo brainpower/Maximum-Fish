@@ -42,7 +42,9 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
 	maxSpeed = Engine::getCfg()->get<float>("sim.species.defaults.maxSpeed");
 
 	resistance = Engine::getCfg()->get<float>("sim.species.defaults.resistance");
-	foodRequirement = Engine::getCfg()->get<int>("sim.species.defaults.foodRequirement");
+
+	maxRegeneration = Engine::getCfg()->get<int>("sim.species.defaults.maxRegeneration." + typestring)
+	foodRequirement = Engine::getCfg()->get<int>("sim.species.defaults.foodRequirement." + typestring);
 	waterRequirement = Engine::getCfg()->get<float>("sim.species.defaults.waterRequirement");
 	optimalTemperature = Engine::getCfg()->get<int>("sim.species.defaults.optimalTemperature");
 	ImageSetName = Engine::getCfg()->get<std::string>("sim.species.defaults.imageSetName");

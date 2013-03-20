@@ -66,6 +66,10 @@ class Terrain
 		void CreateMapPlotters();
 		void CreateParallelisationGraph();
 
+		void UpdateTileMap();
+
+		std::list<std::list<std::shared_ptr<Tile>>>& getColors() { return Colors; }
+		std::list<std::shared_ptr<Tile>> getTileList() const;
 	private:
 
 		friend class TerrainIOPlugin;
@@ -90,6 +94,9 @@ class Terrain
 		std::shared_ptr<Tile> InvalidTile;
 		std::vector<std::shared_ptr<Tile>> Tiles;
 		//QuadTreeNode<Tile> CullTree;
+		/// stores the list of colors and their tiles for parallel simulation. all tiles of the same color are guaranteed to not influence each other when simulated in parallel
+		std::list< std::list<std::shared_ptr<Tile> > > Colors;
+
 
 		std::shared_ptr<sf::Image> tilemapImage;
 };

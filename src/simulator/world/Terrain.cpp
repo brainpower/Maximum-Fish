@@ -55,6 +55,13 @@ void Terrain::UpdateTerrain() const
 	Module::Get()->QueueEvent(Event("UpdateTileRenderList", Tiles), true);
 }
 
+std::list<std::shared_ptr<Tile>> Terrain::getTileList() const
+{
+	std::list<std::shared_ptr<Tile>> re;
+	for ( const std::shared_ptr<Tile>& T : Tiles ) re.push_back(T);
+	return re;
+}
+
 std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T) const
 {
 	std::list<std::shared_ptr<Tile>> ret;
@@ -243,7 +250,7 @@ void Terrain::CreateParallelisationGraph()
 	int maxreach = Engine::getCfg()->get<int>("sim.creatureActionRadius");
 	bool minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 
-	std::list< std::list<std::shared_ptr<Tile> > > Colors;
+	Colors.clear();
 
 	while ( idsAssigned < Tiles.size())
 	{
@@ -417,18 +424,25 @@ void Terrain::CreateDebugTerrain()
 			float TileHeight = maxHeight*HeightFactor;
 			float Humidity = minHumidity + (maxHumidity-minHumidity)*(1-HeightFactor);
 
+			if( TileHeight < waterlimit ) Humidity = 1;
 
-			if (TileHeight > maxElevation) maxElevation = TileHeight;
-
-			if(TileHeight < waterlimit)
-			{
-				Humidity = 1;
-			}
 			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, nutritionrnd(gen), Humidity );
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
 		}
 	}
+}
+
+void Terrain::UpdateTileMap()
+{
+	maxElevation = 0;
+	for ( int y = 0; y < Size.y; ++y)
+		for ( int x = 0; x < Size.x; ++x)
+		{
+			float h = getTile(Geom::Vec2f(x,y))->getHeight();
+			if ( h > maxElevation ) maxElevation = h;
+		}
+
 
 	tilemapImage.reset ( new sf::Image);
 	tilemapImage->create(Size.x ,Size.y);
