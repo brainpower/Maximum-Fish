@@ -67,7 +67,7 @@ void Creature::updateTileFromPos(){
 	{
 		if (currentTile) currentTile->removeCreature( shared_from_this() );
 		newTile->addCreature( shared_from_this() );
-		newTile->addUsedNutrition( NutritionValue* mySpecies->getMaxHealth() );
+		if ( mySpecies->getType() == Species::HERBA ) newTile->addUsedNutrition( NutritionValue );
 		currentTile = newTile;
 	}
 }
@@ -199,32 +199,32 @@ bool Creature::mate()
 
 void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 {
-		lastmating = age;
-		auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));
-		Geom::Pointf newPosition = Position;
+	lastmating = age;
+	auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));
+	Geom::Pointf newPosition = Position;
 
-		// for plants
-		if ( ! otherparent )
+	// for plants
+	if ( ! otherparent )
+	{
+		std::uniform_real_distribution<float> rnd(-(mySpecies->getReach()), mySpecies->getReach());
+		for (int i = 0; i < 10; ++i)
 		{
-			std::uniform_real_distribution<float> rnd(-(mySpecies->getReach()), mySpecies->getReach());
-			for (int i = 0; i < 10; ++i)
-			{
-				newPosition.x += rnd(Simulator::GetRnd());
-				newPosition.y += rnd(Simulator::GetRnd());
-				if ( validPos(newPosition)) break;
-			}
+			newPosition.x += rnd(Simulator::GetRnd());
+			newPosition.y += rnd(Simulator::GetRnd());
+			if ( validPos(newPosition)) break;
 		}
+	}
 
-		if ( !validPos(newPosition) ) newPosition = Position;
+	if ( !validPos(newPosition) ) newPosition = Position;
 
-		newborn->setPosition(newPosition);
-		// health from two parents for animals, from one for plants
-		newborn->setCurrentHealth( otherparent? mHealthCost()*2 : mHealthCost() );
-		Simulator::GetCreatures().push_back(newborn);
+	newborn->setPosition(newPosition);
+	// health from two parents for animals, from one for plants
+	newborn->setCurrentHealth( otherparent? mHealthCost()*2 : mHealthCost() );
+	Simulator::GetCreatures().push_back(newborn);
 
-		currentHealth -= mHealthCost();
-		// plants dont need another parent
-		if ( otherparent ) otherparent->setCurrentHealth(otherparent->getCurrentHealth() - mHealthCost());
+	currentHealth -= mHealthCost();
+	// plants dont need another parent
+	if ( otherparent ) otherparent->setCurrentHealth(otherparent->getCurrentHealth() - mHealthCost());
 }
 
 //################################################
@@ -320,24 +320,18 @@ bool Creature::validPos( Geom::Pointf NewPosition ) const
  */
 void Creature::calcDamage()
 {
-	currentHealth -= mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();
-	float humSupply = currentTile->getCurrentHumidity()/mySpecies->getWaterRequirement();
-	// clip at 100% ( no bonuses for to much water
-	if ( humSupply > 1 ) humSupply = 1;
-
-	currentHealth -= mySpecies->getMaxHealth()*humSupply*currentResistance() ;
-
+	currentHealth -= foodDamage();
+	// clipped at 100% ( no bonuses for to much water )
+	currentHealth -= waterDamage();
 	//--damage from wrong elevation/temperature
-	float envDmg = std::pow( (currentTile->getHeight() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
-	if(Species::HERBA) envDmg = envDmg*plantEnvDmgFactor;
-	currentHealth-= envDmg/currentResistance() * envMult;
+	currentHealth-= envDamage();
 }
 
 void Creature::die()
 {
 	setCurrentHealth(-1);
 	// remove used nutrition
-	currentTile->addUsedNutrition( -NutritionValue* mySpecies->getMaxHealth() );
+	if ( mySpecies->getType() == Species::HERBA ) currentTile->addUsedNutrition( -NutritionValue );
 }
 
 void Creature::loadConfigValues()
@@ -352,4 +346,5 @@ void Creature::loadConfigValues()
 	altModifier2 =         Engine::getCfg()->get<float>("sim.creature.env.altModifier2");
 	envMult =              Engine::getCfg()->get<float>("sim.creature.env.Mult");
 	ageExponent =          Engine::getCfg()->get<int>("sim.creature.ageExponent");
+	plantEnvDmgFactor = Engine::getCfg()->get<float>("sim.creature.env.plantEnvDmgFactor");
 }

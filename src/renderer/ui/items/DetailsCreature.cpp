@@ -31,7 +31,7 @@ void DetailsCreature::UpdateLabel()
 	AddToLabel(DetailsLabel, "Pos", str( format("%.2f,%.2f") % currentCreature->getPosition().x %  currentCreature->getPosition().y ));
 	AddToLabel(DetailsLabel, "ageF / cmHealth", str( format("%.2f / %.2f") % currentCreature->ageFactor() %  currentCreature->currentMaxHealth() ));
 	AddToLabel(DetailsLabel, "mHCost / cmSpeed", str( format("%.2f / %.2f") % currentCreature->mHealthCost() %  currentCreature->currentMaxSpeed() ));
-
+	AddToLabel(DetailsLabel, "DMG (FD/WT/ENV)", str( format("%.2f / %.2f / %.2f") % currentCreature->foodDamage() % currentCreature->waterDamage() % currentCreature->envDamage() ));
 }
 
 void DetailsCreature::UpdateBox()

@@ -7,7 +7,7 @@
 #include "sbe/geom/Point.hpp"
 
 #include "Species.hpp"
-class Tile;
+#include "Tile.hpp"
 
 /**
 	The Creature class is the main scaff for simulation, this is where also the basic stuff is initialized.
@@ -47,6 +47,15 @@ class Creature : public std::enable_shared_from_this<Creature>
 		inline float minAge() { return mySpecies->getMaxAge()*matingAge; }
 		inline float mHealthCost() { return currentMaxHealth() * matingHealthCost; }
 		inline float currentMaxSpeed() { return mySpecies->getMaxSpeed() * currentResistance(); }
+
+		inline float envDamage() {
+			float envDmg = std::pow( (currentTile->calcTemperature() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
+			if ( mySpecies->getType() == Species::HERBA ) envDmg = envDmg*plantEnvDmgFactor;
+			return envDmg/currentResistance() * envMult;
+		}
+		inline float waterSupply() { return currentTile->getCurrentHumidity()/mySpecies->getWaterRequirement(); }
+		inline float waterDamage() { return  waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * (1 - waterSupply()) : 0; }
+		inline float foodDamage() { return mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();}
 
 		//'' END Calculated Values ##
 

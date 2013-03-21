@@ -45,7 +45,7 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
 
 	maxRegeneration = Engine::getCfg()->get<float>("sim.species.defaults.maxRegeneration." + typestring);
 	foodRequirement = Engine::getCfg()->get<float>("sim.species.defaults.foodRequirement." + typestring);
-	waterRequirement = Engine::getCfg()->get<float>("sim.species.defaults.waterRequirement");
+	waterRequirement = Engine::getCfg()->get<float>("sim.species.defaults.waterRequirement." + typestring);
 	optimalTemperature = Engine::getCfg()->get<int>("sim.species.defaults.optimalTemperature");
 	ImageSetName = Engine::getCfg()->get<std::string>("sim.species.defaults.imageSetName");
 
