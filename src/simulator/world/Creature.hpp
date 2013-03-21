@@ -69,10 +69,12 @@ class Creature : public std::enable_shared_from_this<Creature>
 		/// true if this Creature already had its turn this tick
 		bool done;
 
+		// static settings but used in Tile
+		static float NutritionValue;
+
 	private:
 
 		// static settings loaded from the config
-		static float NutritionValue;
 		static float huntingThreshold;
 
 		static float matingThreshold;

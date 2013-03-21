@@ -33,11 +33,8 @@ class Tile
 		int getTileSpriteIndex() const;
 
 		void setNutrition(float n) { nutrition = n; }
-		void setUsedNutrition(float un) { usedNutrition = un; }
 		void setBaseHumidity(float bh) { baseHumidity = bh; }
 		void setCurrentHumidity(float ch) { currentHumidity = ch; }
-
-		void addUsedNutrition( float un ) { usedNutrition += un; }
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 		void removeCreature( const std::shared_ptr<Creature>& p);

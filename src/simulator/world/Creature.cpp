@@ -67,7 +67,7 @@ void Creature::updateTileFromPos(){
 	{
 		if (currentTile) currentTile->removeCreature( shared_from_this() );
 		newTile->addCreature( shared_from_this() );
-		if ( mySpecies->getType() == Species::HERBA ) newTile->addUsedNutrition( NutritionValue );
+		//if ( mySpecies->getType() == Species::HERBA ) newTile->addUsedNutrition( NutritionValue );
 		currentTile = newTile;
 	}
 }
@@ -79,6 +79,7 @@ void Creature::movePosition( const Geom::Pointf& pos)
 
 void Creature::live()
 {
+	if ( done ) return;
 	done = true;
 	// damage from environment
 	resistance = healthPercentage() * currentResistance();
@@ -110,11 +111,6 @@ void Creature::live()
 		move();
 
 	age++;
-
-	// do nothing, we're dead
-	// the simulator will remove this creature after the current tick
-	if ( currentHealth <= 0 )
-		die();
 }
 
 //################################################
@@ -123,7 +119,6 @@ void Creature::live()
 
 bool Creature::huntFood()
 {
-	float nutritionAmount = 0;
 	switch (mySpecies->getType())
 	{
 		case Species::HERBA:
@@ -330,8 +325,10 @@ void Creature::calcDamage()
 void Creature::die()
 {
 	setCurrentHealth(-1);
+	// make sure we won't be simulated later
+	done = true;
 	// remove used nutrition
-	if ( mySpecies->getType() == Species::HERBA ) currentTile->addUsedNutrition( -NutritionValue );
+	//if ( mySpecies->getType() == Species::HERBA ) currentTile->addUsedNutrition( -NutritionValue );
 }
 
 void Creature::loadConfigValues()

@@ -353,7 +353,7 @@ void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std
 		for ( auto it2 = Cs.cbegin(); it2 != Cs.cend(); it2++)
 		{
 			//and ya god said live creature !... LIVE !!!
-			if (*it2 && !(*it2)->done)
+			if (*it2 && (*it2)->getCurrentHealth() > 0)
 			{
 				(*it2)->live();
 				CreatureCounts[ (int)((*it2)->getSpecies()->getType()) ]++;
