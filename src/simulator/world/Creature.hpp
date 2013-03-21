@@ -40,7 +40,12 @@ class Creature : public std::enable_shared_from_this<Creature>
 		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
 
 		//## Calculated Values ##
-		inline float ageFactor() { return std::pow( -((float)(2*age - mySpecies->getMaxAge())/(float)mySpecies->getMaxAge()), ageExponent) + 1; }
+		inline float ageFactor()
+		{
+			float ma = mySpecies->getMaxAge();
+			float re = -std::pow((2*age - ma)/ma, ageExponent) + 1;
+			return re > 0 ? re : 0;
+		}
 		inline float currentMaxHealth() { return mySpecies->getMaxHealth()*currentResistance(); }
 		inline float healthPercentage() { return currentHealth/currentMaxHealth(); }
 		inline float currentResistance() { return mySpecies->getResistance() * ageFactor(); }
