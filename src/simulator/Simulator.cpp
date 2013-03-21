@@ -79,6 +79,7 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = true;
 		Engine::getCfg()->set("sim.paused", isPaused);
+		Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 	}
 	else if(e.Is("SIM_UNPAUSE"))
 	{
@@ -94,6 +95,7 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = !isPaused;
 		Engine::getCfg()->set("sim.paused", isPaused);
+		if (isPaused) Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 	}
 	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
 	{
