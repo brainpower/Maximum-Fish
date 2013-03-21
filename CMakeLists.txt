@@ -13,7 +13,7 @@ option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
 set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
-option(SUPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
+option(SUPPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
 
 set( SFGUI_BUILD_EXAMPLES false CACHE BOOL "Do or dont build examples)")
 set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
@@ -38,9 +38,7 @@ if (CMAKE_COMPILER_IS_GNUCXX AND NOT VERSION_CHECK_DONE)
 	endif()
 
 	# supress boost header warnings by telling gcc they're system headers
-	if(SUPRESS_BOOST_HEADER_WARNINGS)
-		set(CMAKE_CXX_FLAGS "-isystem$(BOOST)")
-	endif()
+
 endif()
 
 #######################################################
@@ -64,15 +62,18 @@ find_package(SFML 2 COMPONENTS audio)
 
 
 if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR})
+	if(CMAKE_COMPILER_IS_GNUCXX AND SUPPRESS_BOOST_HEADER_WARNINGS)
+		set(CMAKE_CXX_FLAGS "-isystem${Boost_INCLUDE_DIR}")
+	endif()
+	include_directories(${Boost_INCLUDE_DIR})
 else()
-  message( FATAL_ERROR "!! Boost not found!")
+	message( FATAL_ERROR "!! Boost not found!")
 endif()
 
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
 else()
-  message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
+	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
 endif()
 
 #
