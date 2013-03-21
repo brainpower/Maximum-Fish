@@ -25,8 +25,8 @@ Control::Control( const Geom::Vec2 Size )
 	RegisterForEvent( "KEY_SHOW_MAINMENU" );
 	RegisterForEvent( "KEY_SHOW_GRAPHBOOK" );
 	RegisterForEvent( "KEY_SIM_PAUSE" );
-	RegisterForEvent( "SIM_ON_PAUSE_LOCK" );
-	RegisterForEvent( "SIM_FROM_PAUSE_RELEASE" );
+	RegisterForEvent( "PAUSELOCK_DOWN" );
+	RegisterForEvent( "PAUSELOCK_UP" );
 
 	Frames = Engine::getCfg()->get<int>( "system.ui.control.simFrameRate" );
 
@@ -50,6 +50,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnGraBoWin = ToggleButton::Create( "GraphBook [F4]" );
 		BtnSimReset =       Button::Create(     "Reset [F5]" );
 		BtnSimSingleFrame = Button::Create(     ">|" );
+		BtnSimFrames = Button::Create(     ">>|" );
 
 		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
@@ -87,15 +88,18 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
 		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimSingleFrameClick, this );
 		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
+		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimFramesClick, this );
+		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
 
 		box->Pack( BtnMnMnWin,  false, false );
 		box->Pack( BtnIPanWin,  false, false );
 		box->Pack( BtnSimPause, false, false );
 		box->Pack( BtnDbgWin,   false, false );
 		box->Pack( BtnGraBoWin, false, false );
-		box->Pack( BtnSimSingleFrame, false, false );
 		box->Pack( BtnSimReset, false, false );
 		box->Pack( framesframe );
+		box->Pack( BtnSimSingleFrame, false, false );
+		box->Pack( BtnSimFrames, false, false );
 
 	Win->Add( box );
 	updatePosition();
@@ -142,11 +146,11 @@ void Control::HandleEvent( Event& e )
 		// kind of OptionsWindow.)
 		BtnSimPause->SetActive( !BtnSimPause->IsActive() );
 	}
-	else if ( e.Is( "SIM_ON_PAUSE_LOCK" ) )
+	else if ( e.Is( "PAUSELOCK_DOWN" ) )
 	{
 		SimPause( true );
 	}
-	else if ( e.Is( "SIM_FROM_PAUSE_RELEASE" ) )
+	else if ( e.Is( "PAUSELOCK_UP" ) )
 	{
 		SimPause( false );
 	}
@@ -183,6 +187,11 @@ void Control::BtnSimPauseClick()
 {
 	SimPause( BtnSimPause->IsActive() );
 	BtnSimPause->SetLabel( BtnSimPause->IsActive() ? "Play > [F2]" : "Pause || [F2]" );
+}
+
+void Control::BtnSimFramesClick()
+{
+	Module::Get()->QueueEvent( Event( "SIM_UNPAUSE", Frames ), true );
 }
 
 void Control::BtnSimSingleFrameClick()

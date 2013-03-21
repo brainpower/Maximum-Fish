@@ -33,6 +33,7 @@ SimActors::SimActors()
 	cullThreshold =    Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
 
 	MessageHandler_.reset( new sbe::MessageHandler() );
+	MessageHandler_->setPauseEvent( "PAUSELOCK_DOWN" );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");
@@ -142,6 +143,8 @@ void SimActors::ReadTileRenderList(TileRenderList& r)
 
 	// and create the corresponding grid
 	CreateGrid();
+	sbe::Screen::sCam()->setTargetCenter(sf::Vector2f((TerrainSize*TileSize)/2,(TerrainSize*TileSize)/2));
+	sbe::Screen::sCam()->zoom ((TerrainSize*TileSize) / sbe::Screen::sCam()->getTargetSize().y );
 }
 
 

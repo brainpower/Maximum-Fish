@@ -116,6 +116,8 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		//friend class StasisPod;
 
 		sf::Clock RendererUpdate;
+		/// measures how long it takes if the user requests to simulate X ticks
+		sf::Clock TickTimer;
 
 		std::shared_ptr<Species>& getSpecies( const std::string& name );
 
@@ -130,6 +132,9 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		int currentSeed;
 		int currentTick;
+
+		/// how many ticks should be simulated? Not changed so the simulated amount is still remembered
+		int TicksToSim;
 		/// how many ticks should be simulated? 0 for infinite
 		int simulateTicks;
 
@@ -155,6 +160,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		int numThreads;
 		bool multiThreaded;
+		bool minimizeParallelRuns;
 
 		static Simulator* Instance;
 

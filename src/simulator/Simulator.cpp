@@ -5,6 +5,7 @@
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
 #include "sbe/geom/Helpers.hpp"
+#include "sbe/sfg/Message.hpp"
 
 #include "sbe/Config.hpp"
 
@@ -88,7 +89,9 @@ void Simulator::HandleEvent(Event& e)
 
 		if ( e.Data().type() == typeid(unsigned int))
 		{
-			simulateTicks = boost::any_cast<unsigned int>(e.Data());
+			TicksToSim =  boost::any_cast<unsigned int>(e.Data());
+			TickTimer.restart();
+			simulateTicks = TicksToSim;
 		}
 	}
 	else if(e.Is("TOGGLE_SIM_PAUSE"))
@@ -154,6 +157,7 @@ void Simulator::init()
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
 	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
+	minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 	multiThreaded = numThreads > 1;
 
 
@@ -317,7 +321,10 @@ void Simulator::advance()
 		if (simulateTicks == 1 )
 		{
 			isPaused = true;
-			Module::Get()->QueueEvent( "SIM_STOPPED", true );
+			std::string text = boost::lexical_cast<std::string>( TicksToSim ) + " Ticks Simulated in " + boost::lexical_cast<std::string>(TickTimer.restart().asSeconds()) + " s.";
+			std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "Simulation Stopped", text, "PAUSELOCK_DOWN" ));
+
+			Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
 			Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
@@ -332,21 +339,40 @@ void Simulator::advance()
 		}
 		else
 		{
-			for(auto it = Creatures.begin(); it != Creatures.end(); )
-			{
-				if((*it)->getCurrentHealth() <= 0)
-				{
-					(*it)->getTile()->removeCreature(*it);
-					auto it2 = it++;
-					Creatures.erase( it2 );
-				}
-				else
-				{
-					CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
-					(*it)->done = false;
-					(*(it++))->live();
-				}
-			}
+			for( auto& batch : Terra->getColors())
+				for ( auto& T : batch)
+					for ( auto Cit = T->getCreatures().begin(); Cit != T->getCreatures().end(); )
+					{
+						if ( (*Cit)->getCurrentHealth() <= 0 )
+						{
+							Creatures.remove(*Cit);
+							auto it2 = Cit++;
+							T->removeCreature(*it2);
+						}
+						else
+						{
+							CreatureCounts[ (int)((*Cit)->getSpecies()->getType()) ]++;
+							(*Cit)->done = false;
+							(*(Cit++))->live();
+						}
+					}
+
+			// old non-MT compatible version
+//			for(auto it = Creatures.begin(); it != Creatures.end(); )
+//			{
+//				if((*it)->getCurrentHealth() <= 0)
+//				{
+//					(*it)->getTile()->removeCreature(*it);
+//					auto it2 = it++;
+//					Creatures.erase( it2 );
+//				}
+//				else
+//				{
+//					CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+//					(*it)->done = false;
+//					(*(it++))->live();
+//				}
+//			}
 		}
 
 		currentTick++;
@@ -419,17 +445,43 @@ void Simulator::parallelTick()
 		b++;
 		int worksize = std::ceil(batch.size() / numThreads);
 
-		// prepare the next batch of work
 		for ( int thread = 0; thread < numThreads; ++thread)
-		{
-			int from = thread*worksize;
-			int to   = thread*worksize > batch.size()  ?  batch.size()-1  :  (thread+1)*worksize;
-			TileIt it1 = batch.begin(); std::advance( it1, from);
-			TileIt it2 = batch.begin(); std::advance( it2, to);
-
 			NextLists[thread]->clear();
-			std::copy(it1, it2, std::inserter( *(NextLists[thread]), NextLists[thread]->end() ));
+
+
+		// prepare the next batch of work
+		if ( minimizeParallelRuns )
+		{
+			int curthread = 0;
+			for ( auto& T : batch )
+			{
+				if ( !T ) curthread = (curthread+1)%numThreads;
+				else
+					NextLists[curthread]->push_back(T);
+			}
 		}
+		else
+		{
+			// sort the tile into the threads
+			int curthread = 0;
+			for ( auto& T : batch)
+			{
+				NextLists[curthread]->push_back(T);
+				curthread = (curthread+1)%numThreads;
+			}
+			// old method: evenly split the number of tiles
+//			for ( int thread = 0; thread < numThreads; ++thread)
+//			{
+//				int from = thread*worksize;
+//				int to   = thread*worksize > batch.size()  ?  batch.size()-1  :  (thread+1)*worksize;
+//				TileIt it1 = batch.begin(); std::advance( it1, from);
+//				TileIt it2 = batch.begin(); std::advance( it2, to);
+//
+//				NextLists[thread]->clear();
+//				std::copy(it1, it2, std::inserter( *(NextLists[thread]), NextLists[thread]->end() ));
+//			}
+		}
+
 
 		// wait till the threads are finished
 		endBarrier->wait();
