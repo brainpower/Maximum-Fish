@@ -42,8 +42,13 @@ class Creature : public std::enable_shared_from_this<Creature>
 		//## Calculated Values ##
 		inline float ageFactor()
 		{
+			static const float a = 0.6;
+			//static const float b = 0.164993; // a=0.4
+			static const float b = 0.0888669; // a=0.6
+			//static const float b = 0.0378908; // a=0.8
+
 			float ma = mySpecies->getMaxAge();
-			float re = -std::pow((2*age - ma)/ma, ageExponent) + 1;
+			float re = -a*std::pow( (2*(age+0.5*b*ma) - ma) / ma, ageExponent) + 1;
 			return re > 0 ? re : 0;
 		}
 		inline float currentMaxHealth() { return mySpecies->getMaxHealth()*currentResistance(); }
