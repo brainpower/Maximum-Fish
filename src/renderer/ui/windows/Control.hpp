@@ -32,6 +32,7 @@ class Control : public sbe::EventUser
         sfg::SharedPtr<sfg::ToggleButton> BtnGraBoWin;
         sfg::SharedPtr<sfg::ToggleButton> BtnSimPause;
         sfg::SharedPtr<sfg::Button> BtnSimReset;
+        sfg::SharedPtr<sfg::Button> BtnSimSingleFrame;
         sfg::SharedPtr<sfg::Entry> Framesdisplay;
         unsigned int Frames;
         void BtnFramesUpClick();
@@ -43,6 +44,7 @@ class Control : public sbe::EventUser
         void BtnGraBoWinClick();
         void BtnSimPauseClick();
         void BtnSimResetClick();
+        void BtnSimSingleFrameClick();
 
         /// This updates the position of the ControlMenu to the bottom left corner of the application.
         /// Its called whenever a change of Application-size occures.

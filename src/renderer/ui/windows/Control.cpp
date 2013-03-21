@@ -9,6 +9,9 @@
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
 
+#include "sbe/gfx/Screen.hpp"
+
+using sbe::Screen;
 using namespace sfg;
 
 Control::Control( const Geom::Vec2 Size )
@@ -46,6 +49,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnDbgWin =   ToggleButton::Create(   "Console [F3]" );
 		BtnGraBoWin = ToggleButton::Create( "GraphBook [F4]" );
 		BtnSimReset =       Button::Create(     "Reset [F5]" );
+		BtnSimSingleFrame = Button::Create(     ">|" );
 
 		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
@@ -55,7 +59,9 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 			Button::Ptr down = Button::Create( "<" );
 			Button::Ptr up   = Button::Create( ">" );
 				down->GetSignal( Button::OnLeftClick ).Connect( &Control::BtnFramesDownClick, this );
+				down->GetSignal( Button::OnLeftClick ).Connect( &Screen::OnHandledEvent, Screen::get() );
 				up->GetSignal(   Button::OnLeftClick ).Connect( &Control::BtnFramesUpClick, this );
+				up->GetSignal(   Button::OnLeftClick ).Connect( &Screen::OnHandledEvent, Screen::get() );
 
 			framesframe->Pack( down, false, false );
 			framesframe->Pack( Framesdisplay, false, false );
@@ -67,18 +73,27 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimPause->SetActive( true );
 
 		BtnDbgWin->GetSignal(   ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
+		BtnDbgWin->GetSignal(   ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
 		BtnIPanWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
+		BtnIPanWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
 		BtnMnMnWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
+		BtnMnMnWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
 		BtnGraBoWin->GetSignal( ToggleButton::OnToggle ).Connect( &Control::BtnGraBoWinClick, this );
+		BtnGraBoWin->GetSignal( ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
 			simPauseConnectionSerial =
 		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
+		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
 		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
+		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
+		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimSingleFrameClick, this );
+		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
 
 		box->Pack( BtnMnMnWin,  false, false );
 		box->Pack( BtnIPanWin,  false, false );
 		box->Pack( BtnSimPause, false, false );
 		box->Pack( BtnDbgWin,   false, false );
 		box->Pack( BtnGraBoWin, false, false );
+		box->Pack( BtnSimSingleFrame, false, false );
 		box->Pack( BtnSimReset, false, false );
 		box->Pack( framesframe );
 
@@ -168,6 +183,11 @@ void Control::BtnSimPauseClick()
 {
 	SimPause( BtnSimPause->IsActive() );
 	BtnSimPause->SetLabel( BtnSimPause->IsActive() ? "Play > [F2]" : "Pause || [F2]" );
+}
+
+void Control::BtnSimSingleFrameClick()
+{
+	Module::Get()->QueueEvent( Event( "SIM_UNPAUSE", (unsigned int)1 ), true );
 }
 
 void Control::SimPause( bool _p )

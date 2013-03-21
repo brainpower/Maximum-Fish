@@ -40,7 +40,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
 
 		//## Calculated Values ##
-		inline float ageFactor() { return std::pow( -((2*age - mySpecies->getMaxAge())/mySpecies->getMaxAge()), ageExponent) + 1; }
+		inline float ageFactor() { return std::pow( -((float)(2*age - mySpecies->getMaxAge())/(float)mySpecies->getMaxAge()), ageExponent) + 1; }
 		inline float currentMaxHealth() { return mySpecies->getMaxHealth()*currentResistance(); }
 		inline float healthPercentage() { return currentHealth/currentMaxHealth(); }
 		inline float currentResistance() { return mySpecies->getResistance() * ageFactor(); }
@@ -54,7 +54,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 			return envDmg/currentResistance() * envMult;
 		}
 		inline float waterSupply() { return currentTile->getCurrentHumidity()/mySpecies->getWaterRequirement(); }
-		inline float waterDamage() { return  waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * (1 - waterSupply()) : 0; }
+		inline float waterDamage() { return  waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * std::pow(1 - waterSupply(), 3) : 0; }
 		inline float foodDamage() { return mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();}
 
 		//'' END Calculated Values ##

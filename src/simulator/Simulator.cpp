@@ -260,7 +260,8 @@ void Simulator::advance()
 		if (simulateTicks == 1 )
 		{
 			isPaused = true;
-			Module::Get()->QueueEvent( "SIM_STOPPED" );
+			Module::Get()->QueueEvent( "SIM_STOPPED", true );
+			Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
 
