@@ -62,14 +62,14 @@ void MainMenu::HandleEvent( Event& e )
 		if ( Win->IsGloballyVisible() )
 		{
 			Win->Show( false );
-			Module::Get()->QueueEvent( Event( "PAUSELOCK_UP" ), true );
+			Module::Get()->QueueEvent( Event( "PAUSELOCK_DOWN" ), true );
 		}
 		else
 		{
 			updatePosition();
 			Win->Show( true );
 			Win->GrabFocus();
-			Module::Get()->QueueEvent( Event( "PAUSELOCK_DOWN" ), true );
+			Module::Get()->QueueEvent( Event( "PAUSELOCK_UP" ), true );
 		}
 	}
 	else if ( e.Is( "MESSAGE_ANSWER_MAINMENU", typeid(bool) ) )

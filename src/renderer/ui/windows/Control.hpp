@@ -52,7 +52,7 @@ class Control : public sbe::EventUser
         /// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
-        void SimPause( bool _p );
+        void SimPause( bool up );
 
 		unsigned int simPauseConnectionSerial;
 		bool simPauseLock;

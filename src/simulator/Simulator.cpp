@@ -321,10 +321,15 @@ void Simulator::advance()
 		if (simulateTicks == 1 )
 		{
 			isPaused = true;
-			std::string text = boost::lexical_cast<std::string>( TicksToSim ) + " Ticks Simulated in " + boost::lexical_cast<std::string>(TickTimer.restart().asSeconds()) + " s.";
-			std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "Simulation Stopped", text, "PAUSELOCK_DOWN" ));
+			// dont notify on single-step
+			if ( TicksToSim > 1 )
+			{
+				std::string text = boost::lexical_cast<std::string>( TicksToSim ) + " Ticks Simulated in " + boost::lexical_cast<std::string>(TickTimer.restart().asSeconds()) + " s.";
+				std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "Simulation Stopped", text, "PAUSELOCK_DOWN", true ));
 
-			Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
+				Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
+			}
+
 			Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", Creatures), true);
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;

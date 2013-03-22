@@ -33,7 +33,7 @@ SimActors::SimActors()
 	cullThreshold =    Engine::getCfg()->get<int>("system.ui.simView.cullThreshold");
 
 	MessageHandler_.reset( new sbe::MessageHandler() );
-	MessageHandler_->setPauseEvent( "PAUSELOCK_DOWN" );
+	MessageHandler_->setPauseEvent( "PAUSELOCK_UP" );
 
 	RegisterForEvent("UpdateCreatureRenderList");
 	RegisterForEvent("UpdateTileRenderList");

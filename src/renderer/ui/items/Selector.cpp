@@ -71,7 +71,7 @@ void Selector::SwitchToCreatureManipulator()
     if ( !CreatureEmpty )
     {
         Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN", CurrentDetailsCreature ) );
-        Module::Get()->QueueEvent( "PAUSELOCK_DOWN" );
+        Module::Get()->QueueEvent( "PAUSELOCK_UP" );
     }
 }
 
@@ -80,7 +80,7 @@ void Selector::SwitchToSpeciesManipulator()
     if ( !SpeciesEmpty )
     {
         Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN", CurrentDetailsSpecies ) );
-        Module::Get()->QueueEvent( "PAUSELOCK_DOWN" );
+        Module::Get()->QueueEvent( "PAUSELOCK_UP" );
     }
 }
 
@@ -89,7 +89,7 @@ void Selector::SwitchToTileManipulator()
     if ( !TileEmpty )
     {
         Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN", CurrentDetailsTile ) );
-        Module::Get()->QueueEvent( "PAUSELOCK_DOWN" );
+        Module::Get()->QueueEvent( "PAUSELOCK_UP" );
     }
 }
 

@@ -146,11 +146,11 @@ void Control::HandleEvent( Event& e )
 		// kind of OptionsWindow.)
 		BtnSimPause->SetActive( !BtnSimPause->IsActive() );
 	}
-	else if ( e.Is( "PAUSELOCK_DOWN" ) )
+	else if ( e.Is( "PAUSELOCK_UP" ) )
 	{
 		SimPause( true );
 	}
-	else if ( e.Is( "PAUSELOCK_UP" ) )
+	else if ( e.Is( "PAUSELOCK_DOWN" ) )
 	{
 		SimPause( false );
 	}
@@ -199,9 +199,9 @@ void Control::BtnSimSingleFrameClick()
 	Module::Get()->QueueEvent( Event( "SIM_UNPAUSE", (unsigned int)1 ), true );
 }
 
-void Control::SimPause( bool _p )
+void Control::SimPause( bool up )
 {
-	if ( _p ) //on locking
+	if ( up ) //on locking
 	{
 		if ( simPauseLockLevel == 0 ) //first locking with pause
 			Module::Get()->QueueEvent( Event( "SIM_PAUSE" ), true );
