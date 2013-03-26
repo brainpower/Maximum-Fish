@@ -21,6 +21,8 @@ class Tile
 		float getUsedNutrition() const {return usedNutrition;}
 		float getBaseHumidity() const {return baseHumidity;}
 		float getCurrentHumidity() const {return currentHumidity;}
+		/// return the percentage of availablenutrition/usednutrition, but no more than 100%
+		inline float getFoodSupply() const { return nutrition/usedNutrition > 1 ? 1 : nutrition/usedNutrition; }
 
 		Geom::Point getPosition() const { return Position; }
 
@@ -31,11 +33,8 @@ class Tile
 		int getTileSpriteIndex() const;
 
 		void setNutrition(float n) { nutrition = n; }
-		void setUsedNutrition(float un) { usedNutrition = un; }
 		void setBaseHumidity(float bh) { baseHumidity = bh; }
 		void setCurrentHumidity(float ch) { currentHumidity = ch; }
-
-		void addUsedNutrition( float un ) { usedNutrition += un; }
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
 		void removeCreature( const std::shared_ptr<Creature>& p);

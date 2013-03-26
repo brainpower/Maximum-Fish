@@ -23,14 +23,11 @@ void DetailsSpecies::UpdateLabel()
 {
 	DetailsLabel->SetText("");
 	AddToLabel( DetailsLabel, "Name", str( format("%s") % currentSpecies->getName()));
-	AddToLabel( DetailsLabel, "Max age", str( format("%d") % currentSpecies->getMaxAge()));
-	AddToLabel( DetailsLabel, "Max health", str( format("%d") % currentSpecies->getMaxHealth()));
-	AddToLabel( DetailsLabel, "Max speed", str( format("%.2f") % currentSpecies->getMaxSpeed()));
-	AddToLabel( DetailsLabel, "Reach", str( format("%.2f") % currentSpecies->getReach()));
+	AddToLabel( DetailsLabel, "Max age/ health", str( format("%d / %d") % currentSpecies->getMaxAge() % currentSpecies->getMaxHealth()));
+	AddToLabel( DetailsLabel, "Speed / Reach", str( format("%.2f / %.2f") % currentSpecies->getMaxSpeed() % currentSpecies->getReach()));
 	AddToLabel( DetailsLabel, "Resistance", str( format(": %.2f") % currentSpecies->getResistance()));
 	AddToLabel( DetailsLabel, "Breeding speed", str( format("%.2f") % currentSpecies->getBreedingSpeed()));
-	AddToLabel( DetailsLabel, "Food requirement", str( format("%d") % currentSpecies->getFoodRequirement()));
-	AddToLabel( DetailsLabel, "Water requirement", str( format("%d") % currentSpecies->getWaterRequirement()));
+	AddToLabel( DetailsLabel, "Food/Water req", str( format("%.2f / %.2f") % currentSpecies->getFoodRequirement() % currentSpecies->getWaterRequirement() ));
 	AddToLabel( DetailsLabel, "Optimal temperature", str( format("%d") % currentSpecies->getOptimalTemperature()));
 
 }

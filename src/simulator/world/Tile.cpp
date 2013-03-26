@@ -27,10 +27,10 @@ Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseH
  : Position(_Position),
   height(_height),
   nutrition( _nutrition ),
+  usedNutrition(0),
   baseHumidity( _baseHumidity ),
-  biomass(0),
   parallelID(0),
-  humidity( _baseHumidity )
+  currentHumidity( _baseHumidity )
 {
 
 }
@@ -84,6 +84,7 @@ void Tile::addCreature ( const std::shared_ptr<Creature>& p )
 	Creatures.push_back(p);
 	Types[p->getSpecies()->getType()].push_back(p);
 	SpeciesList[p->getSpecies()].push_back(p);
+	usedNutrition = Types[Species::HERBA].size() * Creature::NutritionValue;
 }
 
 
@@ -93,4 +94,5 @@ void Tile::removeCreature( const std::shared_ptr<Creature>& p)
 	Creatures.remove(p);
 	Types[p->getSpecies()->getType()].remove(p);
 	SpeciesList[p->getSpecies()].remove(p);
+	usedNutrition = Types[Species::HERBA].size() * Creature::NutritionValue;
 }

@@ -46,7 +46,7 @@ void Manipulator::CreateBox()
 void Manipulator::SwitchToSelector()
 {
     Module::Get()->QueueEvent( Event( "TOGGLE_SELECT_MAN" ) );
-    Module::Get()->QueueEvent( Event( "SIM_FROM_PAUSE_RELEASE" ) );
+    Module::Get()->QueueEvent( Event( "PAUSELOCK_DOWN" ) );
 }
 
 void Manipulator::ResetInformation()

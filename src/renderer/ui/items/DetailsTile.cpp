@@ -27,8 +27,8 @@ void DetailsTile::UpdateLabel()
     AddToLabel( DetailsLabel, "Creatures", str(format("%d") % currentTile->getCreatures().size() ));
     AddToLabel( DetailsLabel, "Position", str(format("%.2f,%.2f") % currentTile->getPosition().x % currentTile->getPosition().y ));
     AddToLabel( DetailsLabel, "Height", str(format("%.2f") % currentTile->getHeight()));
-    AddToLabel( DetailsLabel, "Nutrition", str(format("%.2f") % currentTile->getNutrition()));
-    AddToLabel( DetailsLabel, "Humidity", str(format("%.2f / %.2f") % currentTile->getHumidity() % currentTile->getBaseHumidity() ));
+    AddToLabel( DetailsLabel, "Nutrition", str(format("%.2f / %.2f") % currentTile->getUsedNutrition() % currentTile->getNutrition()));
+    AddToLabel( DetailsLabel, "Humidity", str(format("%.2f / %.2f") % currentTile->getCurrentHumidity() % currentTile->getBaseHumidity() ));
     AddToLabel( DetailsLabel, "Temperature", str(format("%.2f") % currentTile->calcTemperature() ));
     AddToLabel( DetailsLabel, "Parallelisation ID", str(format("%.2f") % currentTile->getParallelId() ));
 }
@@ -79,7 +79,7 @@ void DetailsTile::UpdateBox()
             HumidityDiplay = sfg::Entry::Create();
             //HumidityDiplay->SetRequisition( sf::Vector2f( 40, 0 ) );
             HumidityDiplay->SetState( sfg::Widget::State::INSENSITIVE );
-            HumidityDiplay->SetText( boost::lexical_cast<std::string>( currentTile->getHumidity() ) );
+            HumidityDiplay->SetText( boost::lexical_cast<std::string>( currentTile->getCurrentHumidity() ) );
             sfg::Button::Ptr humidityDown = sfg::Button::Create( "<" );
             humidityDown->SetRequisition( sf::Vector2f( 40, 0 ) );
             sfg::Button::Ptr humidityUp   = sfg::Button::Create( ">" );
