@@ -4,6 +4,7 @@
 
 #include "sbe/event/Event.hpp"
 #include "sbe/Config.hpp"
+#include "sbe/geom/PointHelpers.hpp"
 #include "sbe/geom/Helpers.hpp"
 
 #include "simulator/Simulator.hpp"

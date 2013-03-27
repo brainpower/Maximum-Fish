@@ -2,7 +2,11 @@
 
 #include "sbe/event/Event.hpp"
 #include "sbe/Module.hpp"
+
 #include "sbe/geom/Helpers.hpp"
+#include "sbe/geom/PointHelpers.hpp"
+#include "sbe/geom/RectHelpers.hpp"
+
 #include "sbe/Config.hpp"
 
 #include "sbe/gfx/MapPlotter.hpp"
