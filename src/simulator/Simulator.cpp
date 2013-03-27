@@ -203,6 +203,7 @@ void Simulator::NewSimulation(
 
 	currentTick = 0;
 	simulateTicks = 0;
+	TicksToSim = 0;
 
 	Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
 	gen.reset( rng );
@@ -282,17 +283,17 @@ void Simulator::initThreads()
 
 		CreatureCounters.push_back( std::shared_ptr<int> (new int[3], ArrDeleter() ) );
 
-		threads.push_back( boost::thread( boost::bind( &Simulator::thread, this, CurrentLists[thread], CreatureCounters[thread], thread ) ) );
+		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread( boost::bind( &Simulator::thread, this, CurrentLists[thread], CreatureCounters[thread], thread ))));
 	}
 }
 
 void Simulator::stopThreads()
 {
-	for ( boost::thread& t : threads )
+	for ( std::shared_ptr<boost::thread> t : threads )
 	{
 		//Engine::out() << "Joining Thread " << thread << ": " << BatchTimer.getElapsedTime().asMilliseconds() << " ms" << std::endl;
-		t.interrupt();
-		t.join();
+		t->interrupt();
+		t->join();
 	}
 
 	CreatureCounters.clear();

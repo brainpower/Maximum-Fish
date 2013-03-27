@@ -150,7 +150,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> CurrentLists;
 		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> NextLists;
 		std::vector<std::shared_ptr<int>> CreatureCounters;
-		std::vector<boost::thread> threads;
+		std::vector<std::shared_ptr<boost::thread>> threads;
 		std::shared_ptr<boost::barrier> startBarrier;
 		std::shared_ptr<boost::barrier> endBarrier;
 		/// thread entry point
