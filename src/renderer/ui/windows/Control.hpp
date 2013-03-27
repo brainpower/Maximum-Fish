@@ -37,19 +37,22 @@ class Control : public sbe::EventUser
         sfg::SharedPtr<sfg::Entry> Framesdisplay;
         unsigned int Frames;
         void BtnFramesUpClick();
-        void BtnFramesDownClick();
+		void BtnFramesDownClick();
+		void EntryGainFocus();
+		void EntryLostFocus();
+		void EntryTextChange();
 
-        void BtnDbgWinClick();
-        void BtnIPanWinClick();
-        void BtnMnMnWinClick();
-        void BtnGraBoWinClick();
-        void BtnSimPauseClick();
-        void BtnSimResetClick();
+		void BtnDbgWinClick();
+		void BtnIPanWinClick();
+		void BtnMnMnWinClick();
+		void BtnGraBoWinClick();
+		void BtnSimPauseClick();
+		void BtnSimResetClick();
         void BtnSimSingleFrameClick();
         void BtnSimFramesClick();
 
-        /// This updates the position of the ControlMenu to the bottom left corner of the application.
-        /// Its called whenever a change of Application-size occures.
+		/// This updates the position of the ControlMenu to the bottom left corner of the application.
+		/// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
         void SimPause( bool up );
@@ -57,6 +60,10 @@ class Control : public sbe::EventUser
 		unsigned int simPauseConnectionSerial;
 		bool simPauseLock;
 		int simPauseLockLevel;
+		bool ListenToActionKeys;
+		bool textchangeavoidrecursive;
+		int ChangeframesonButtons;
+		void CalculateNewFrames();
 
 		sfg::SharedPtr<sfg::Window> Win;
 
