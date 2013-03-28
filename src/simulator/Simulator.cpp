@@ -4,7 +4,7 @@
 
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
-#include "sbe/geom/Helpers.hpp"
+#include "sbe/geom/PointHelpers.hpp"
 #include "sbe/sfg/Message.hpp"
 
 #include "sbe/Config.hpp"

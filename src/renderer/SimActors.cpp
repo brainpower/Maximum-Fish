@@ -11,14 +11,15 @@
 #include "sbe/gfx/ImageUtils.hpp"
 #include "sbe/gfx/Screen.hpp"
 
-#include "sbe/geom/Helpers.hpp"
-
 #include "sbe/sfg/Message.hpp"
 #include "sbe/sfg/MessageHandler.hpp"
 
 #include "simulator/world/Creature.hpp"
 #include "simulator/world/Species.hpp"
 #include "simulator/world/Tile.hpp"
+
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Image.hpp>
@@ -48,6 +49,11 @@ SimActors::SimActors()
 	GridColor = sf::Color( Engine::getCfg()->get<int>("system.ui.simView.gridColor.r"),
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.g"),
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.b") );
+
+
+
+	sbe::Screen::sCam()->setZoomLimits( sf::Vector2f( TileSize, TileSize*2 ), sf::Vector2f( TileSize*TerrainSize*3, TileSize*TerrainSize*2 ) );
+	sbe::Screen::sCam()->setCamLimits( sf::FloatRect( -1000, -1000, TileSize*TerrainSize+2000, TileSize*TerrainSize+2000 ) );
 }
 
 SimActors::~SimActors()
@@ -85,6 +91,8 @@ void SimActors::HandleEvent(Event& e)
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
 	} else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> ) ) )
     {
+    	sbe::Screen::sCam()->showDebugInfo();
+
 		std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
 
 		if( c )
