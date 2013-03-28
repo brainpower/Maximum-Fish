@@ -97,6 +97,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		static float envMult;
 		static float plantEnvDmgFactor;
+		static float maxAngle;
 
 		static float resistance;
 		static int   ageExponent;
@@ -115,6 +116,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void move();
 		bool moveTo(const Geom::Vec2f Target);
 		bool moveYourAss();
+		Geom::Vec2f getNewPosition();
 		/**
 			Calculates environmental effects (damage from temperature, water/food requirement)
 		*/
@@ -125,6 +127,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		int age;
 		int lastmating;
 		Geom::Vec2f Position;
+		Geom::Vec2f prevMove;
 
 		//References
 		std::shared_ptr<Species> mySpecies;

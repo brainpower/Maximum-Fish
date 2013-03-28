@@ -25,6 +25,7 @@ float Creature::resistance = 0;
 int   Creature::ageExponent = 0;
 float Creature::plantEnvDmgFactor = 0;
 float Creature::NutritionValue = 0;
+float Creature::maxAngle = 0;
 
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
@@ -33,6 +34,7 @@ Creature::Creature( const std::shared_ptr<Species>& Species)
 	age(0),
 	lastmating(0),
 	Position( 0, 0 ),
+	prevMove( 0, 0 ),
 	mySpecies (Species)
 {
 	if (!Species)
@@ -57,6 +59,7 @@ void Creature::setPositionUnsafe( const Geom::Pointf& pos)
 
 void Creature::setPosition( const Geom::Pointf& pos)
 {
+	prevMove = pos - Position;
 	Position = pos;
 	updateTileFromPos();
 }
@@ -236,14 +239,31 @@ void Creature::move()
 	std::uniform_real_distribution<float> rnd(0, 1);
 
 
+	bool noMove = true;
 	if( hab < 10 ) {
-		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
+		for (int i = 0; i < 1000; ++i) { 
+			if (moveYourAss()) {
+				noMove = false;
+				return; 
+			}
+		}
 	}
 	else
 	{
 	//maybe GTFO
 	if( rnd(Simulator::GetRnd()) < migProb )
-		for (int i = 0; i < 1000; ++i) { if (moveYourAss()) return; }
+		for (int i = 0; i < 1000; ++i) { 
+			if (moveYourAss()) {
+				noMove = false;
+				return; 
+			}
+		}
+	}
+	
+	if(noMove)
+	{
+		prevMove.x = 0;
+		prevMove.y = 0;
 	}
 }
 
@@ -268,12 +288,9 @@ bool Creature::moveTo( Geom::Pointf Target )
 
 bool Creature::moveYourAss()
 {
-	std::uniform_real_distribution<float> rnd( -currentMaxSpeed() , currentMaxSpeed() );
-
 	Geom::Pointf NewPosition = Position;
 
-	NewPosition.x += rnd(Simulator::GetRnd());
-	NewPosition.y += rnd(Simulator::GetRnd());
+	NewPosition = getNewPosition();
 
 	float hab = 0;
 	const std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
@@ -297,6 +314,31 @@ bool Creature::moveYourAss()
 	}
 
 	return false;
+}
+
+Geom::Vec2f Creature::getNewPosition()
+{
+	std::uniform_real_distribution<float> rnd( -currentMaxSpeed() , currentMaxSpeed() );
+	Geom::Vec2f newPos;
+	
+	if(prevMove.x == 0 && prevMove.y == 0)
+	{
+		newPos.x = Position.x + rnd(Simulator::GetRnd());
+		newPos.y = Position.y + rnd(Simulator::GetRnd());
+	}
+	else
+	{
+		std::uniform_real_distribution<float> rndAngle( -maxAngle , maxAngle );
+		int angle = (int)(rndAngle(Simulator::GetRnd()));
+		Geom::Vec2f unitLast = Geom::normalize(prevMove);
+		
+		float spd = std::abs(rnd(Simulator::GetRnd));
+		
+		newPos.x = (Position.x + std::cos( (float)((360-angle)%360) + std::acos(unitLast.x) ) ) * spd ;
+		newPos.y = (Position.y + std::sin( (float)((360-angle)%360) + std::acos(unitLast.x) ) ) * spd ;
+	}
+	
+	return newPos;
 }
 
 bool Creature::validPos( Geom::Pointf NewPosition ) const
@@ -334,7 +376,7 @@ void Creature::die()
 
 void Creature::loadConfigValues()
 {
-	NutritionValue =     Engine::getCfg()->get<float>("sim.creature.NutritionValue");
+	NutritionValue =       Engine::getCfg()->get<float>("sim.creature.NutritionValue");
 	huntingThreshold =     Engine::getCfg()->get<float>("sim.creature.huntingThreshold");
 	matingThreshold =      Engine::getCfg()->get<float>("sim.creature.mating.HealthThreshold");
 	matingAge =            Engine::getCfg()->get<float>("sim.creature.mating.minAge");
@@ -344,5 +386,6 @@ void Creature::loadConfigValues()
 	altModifier2 =         Engine::getCfg()->get<float>("sim.creature.env.altModifier2");
 	envMult =              Engine::getCfg()->get<float>("sim.creature.env.Mult");
 	ageExponent =          Engine::getCfg()->get<int>("sim.creature.ageExponent");
-	plantEnvDmgFactor = Engine::getCfg()->get<float>("sim.creature.env.plantEnvDmgFactor");
+	plantEnvDmgFactor =    Engine::getCfg()->get<float>("sim.creature.env.plantEnvDmgFactor");
+	maxAngle =             Engine::getCfg()->get<float>("sim.creature.maxAngle");
 }
