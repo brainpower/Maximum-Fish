@@ -113,6 +113,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 
 		friend class Generator;
+		friend class SimState;
 		//friend class StasisPod;
 
 		sf::Clock RendererUpdate;
