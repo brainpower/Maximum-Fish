@@ -1,4 +1,5 @@
 #include "TerrainIOPlugin.hpp"
+
 #include "sbe/Engine.hpp"
 
 using boost::property_tree::ptree;
@@ -42,9 +43,9 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 				}
 
     }
-    catch ( boost::property_tree::ptree_error )
+    catch ( boost::property_tree::ptree_error e )
     {
-        Engine::out() << "[TerrainIOPlugin] Error loading Terrain from ptree!" << std::endl;
+        Engine::out() << "[TerrainIOPlugin] Error loading Terrain from ptree!" << e.what() << std::endl;
         re.reset();
         return re;
     }
@@ -75,7 +76,7 @@ bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boos
             pt_t.put<float>("nutrition", tile->nutrition);
             //pt_t.put<float>("usedNutrition", tile->usedNutrition);
             pt_t.put<float>("baseHumidity", tile->baseHumidity);
-            pt_t.put<float>("currentHmidity", tile->currentHumidity);
+            pt_t.put<float>("currentHumidity", tile->currentHumidity);
 
             pt.add_child( "Tile", pt_t);
         }
