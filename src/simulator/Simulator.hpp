@@ -3,6 +3,7 @@
 
 #include "sbe/event/EventUser.hpp"
 #include "world/Species.hpp"
+#include "SimState.hpp"
 
 #include "sbe/geom/Point.hpp"
 
@@ -66,10 +67,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		/// Create a new Simulation from a seed
 		void NewSimulation( int seed = 0);
 		/// Create a new Simulation from the given rng, Terrain, species and Creatures
-		void NewSimulation( std::mt19937* rng,
-							std::shared_ptr<Terrain> newTerrain,
-							std::vector<std::shared_ptr<Species>>& newSpecies,
-							 std::list<std::shared_ptr<Creature>>& newCreatures );
+		void NewSimulation( std::shared_ptr<SimState> state, std::mt19937* rng );
 
 		/// simulate one tick
 		void advance();
@@ -80,6 +78,22 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts);
 		void parallelTick();
 
+		std::shared_ptr<SimState> setState(const SimState &s){
+			auto old = _state;
+			_state.reset( new SimState(s) );
+			return old;
+		}
+
+		std::shared_ptr<SimState> setState( std::shared_ptr<SimState> s){
+			auto old = _state;
+			_state = s;
+			return old;
+		}
+
+		std::shared_ptr<SimState> getState( ){
+			return _state;
+		}
+
 		static std::shared_ptr<Species> GetSpecies(const std::string& name)
 		{
 			return Instance->getSpecies(name);
@@ -87,13 +101,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		static std::shared_ptr<Terrain> GetTerrain()
 		{
-			return Instance->Terra;
+			return Instance->_state->_terrain;
 		}
 
 		std::mt19937& rnd()
 		{
-			numGenerated++;
-			return *gen;
+			_state->_numGenerated++;
+			return *(_state->_gen);
 		}
 
 		static std::mt19937& GetRnd()
@@ -101,7 +115,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 			return Instance->rnd();
 		}
 
-		static std::list<std::shared_ptr<Creature>>& GetCreatures() { return Instance->Creatures; }
+		static std::list<std::shared_ptr<Creature>>& GetCreatures() { return Instance->_state->_creatures; }
 
 	private:
 
@@ -113,7 +127,10 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 
 		friend class Generator;
+		friend class SimState;
 		//friend class StasisPod;
+
+
 
 		sf::Clock RendererUpdate;
 		/// measures how long it takes if the user requests to simulate X ticks
@@ -130,20 +147,12 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void saveWhole(const std::string &savePath);
 		void loadWhole(const std::string &loadPath);
 
-		int currentSeed;
-		int currentTick;
+		std::shared_ptr<SimState> _state;
 
 		/// how many ticks should be simulated? Not changed so the simulated amount is still remembered
 		int TicksToSim;
 		/// how many ticks should be simulated? 0 for infinite
 		int simulateTicks;
-
-		unsigned int numGenerated; // number of generated random numbers
-		boost::thread_specific_ptr<std::mt19937> gen;
-
-		std::list<std::shared_ptr<Creature>> Creatures;
-		std::vector<std::shared_ptr<Species>> SpeciesList;
-		std::shared_ptr<Terrain> Terra;
 
 		bool isPaused;
 

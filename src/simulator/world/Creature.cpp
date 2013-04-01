@@ -332,10 +332,10 @@ Geom::Vec2f Creature::getNewPosition()
 		int angle = (int)(rndAngle(Simulator::GetRnd()));
 		Geom::Vec2f unitLast = Geom::normalize(prevMove);
 		
-		float spd = std::abs(rnd(Simulator::GetRnd));
+		float spd = std::abs(rnd(Simulator::GetRnd()));
 		
-		newPos.x = (Position.x + std::cos( (float)((360-angle)%360) + std::acos(unitLast.x) ) ) * spd ;
-		newPos.y = (Position.y + std::sin( (float)((360-angle)%360) + std::acos(unitLast.x) ) ) * spd ;
+		newPos.x = (Position.x + std::cos( (float)(angle%360) + std::acos(unitLast.x) ) ) * spd ;
+		newPos.y = (Position.y + std::sin( (float)(angle%360) + std::acos(unitLast.x) ) ) * spd ;
 	}
 	
 	return newPos;
