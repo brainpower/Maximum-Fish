@@ -39,7 +39,9 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 {
 	public:
 		Simulator();
-		virtual ~Simulator() {};
+		~Simulator() {
+			if (multiThreaded) stopThreads();
+		}
 
 		/**
 			Handles the following events:

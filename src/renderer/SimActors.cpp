@@ -91,7 +91,6 @@ void SimActors::HandleEvent(Event& e)
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
 	} else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> ) ) )
     {
-    	sbe::Screen::sCam()->showDebugInfo();
 
 		std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
 
