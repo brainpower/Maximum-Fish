@@ -7,7 +7,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Mod
 #######################################################
 ######################## Cmake Options ################
 #######################################################
-#option(DEBUG "enable debug build" ON)
+
+option( PROFILE "" OFF)
 option(USE_CUSTOM_BOOST "" OFF)
 option(USE_CUSTOM_SFML "" ON)
 set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
@@ -22,6 +23,9 @@ set( SFML_STATIC_LIBRARIES true CACHE BOOL "Was SFML built as a static library?"
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #set(VERSION_CHECK_DONE OFF)
 
+if (NOT CMAKE_BUILD_TYPE)
+	set( CMAKE_BUILD_TYPE "Release")
+endif()
 
 #######################################################
 # compiler version detection                          #
@@ -60,6 +64,14 @@ find_package(Boost 1.46 COMPONENTS thread system)# regex)
 #only audio required, the others are pulled in by sfgui
 find_package(SFML 2 COMPONENTS audio)
 
+#######################################################
+####################### SBE ###########################
+#######################################################
+
+#set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
+add_subdirectory(libsbe)
+
+# check for libraries
 
 if(Boost_FOUND)
 	if(CMAKE_COMPILER_IS_GNUCXX AND SUPPRESS_BOOST_HEADER_WARNINGS)
@@ -76,11 +88,7 @@ else()
 	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
 endif()
 
-#
-# SBE
-#
-#set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
-add_subdirectory(libsbe)
+
 
 #######################################################
 ################### File inclusion ####################
@@ -143,8 +151,16 @@ endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
-else()
-	add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
+elseif(CMAKE_BUILD_TYPE MATCHES Release)
+	if( PROFILE )
+		add_definitions( -O1 )
+	else()
+		add_definitions( -fomit-frame-pointer -fexpensive-optimizations -O3 )
+	endif()
+endif()
+
+if( PROFILE )
+	add_definitions( -pg )
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
