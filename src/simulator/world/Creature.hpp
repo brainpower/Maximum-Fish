@@ -115,7 +115,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		void move();
 		bool moveTo(const Geom::Vec2f Target);
-		bool moveYourAss();
+		bool randomMove();
 		Geom::Vec2f getNewPosition();
 		/**
 			Calculates environmental effects (damage from temperature, water/food requirement)

@@ -238,33 +238,13 @@ void Creature::move()
 
 	std::uniform_real_distribution<float> rnd(0, 1);
 
+	if( hab < 10 || rnd(Simulator::GetRnd()) < migProb )
+		for (int i = 0; i < 15; ++i)
+			if (randomMove()) return;
 
-	bool noMove = true;
-	if( hab < 10 ) {
-		for (int i = 0; i < 1000; ++i) { 
-			if (moveYourAss()) {
-				noMove = false;
-				return; 
-			}
-		}
-	}
-	else
-	{
-	//maybe GTFO
-	if( rnd(Simulator::GetRnd()) < migProb )
-		for (int i = 0; i < 1000; ++i) { 
-			if (moveYourAss()) {
-				noMove = false;
-				return; 
-			}
-		}
-	}
-	
-	if(noMove)
-	{
-		prevMove.x = 0;
-		prevMove.y = 0;
-	}
+	// if no move was made
+	prevMove.x = 0;
+	prevMove.y = 0;
 }
 
 
@@ -286,7 +266,7 @@ bool Creature::moveTo( Geom::Pointf Target )
 	}
 }
 
-bool Creature::moveYourAss()
+bool Creature::randomMove()
 {
 	Geom::Pointf NewPosition = Position;
 
@@ -296,31 +276,20 @@ bool Creature::moveYourAss()
 	const std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
 	if (newtile) hab = newtile->getHabitability(mySpecies);
 
-	/*
-	Engine::out() << "Pos: " << Position << std::endl;
-	Engine::out() << "NewPos: " << NewPosition << std::endl;
-	Engine::out() << "Hab: " << hab << std::endl;
-	Engine::out() << "dist: " << Geom::distance( Position, NewPosition) << std::endl;
-	Engine::out() << "maxspeed: " << mySpecies->getMaxSpeed() << std::endl;
-	*/
+	if ( 	hab <= 0.0f
+		|| Geom::distance( Position, NewPosition) < currentMaxSpeed()
+		|| !validPos( NewPosition )
+		) return false;
 
-	if( Geom::distance( Position, NewPosition) < currentMaxSpeed())
-	{
-		if( !validPos( NewPosition ) ||  (hab <= 0.0f))
-			return false;
-
-		setPosition( NewPosition );
-		return true;
-	}
-
-	return false;
+	setPosition( NewPosition );
+	return true;
 }
 
 Geom::Vec2f Creature::getNewPosition()
 {
 	std::uniform_real_distribution<float> rnd( -currentMaxSpeed() , currentMaxSpeed() );
 	Geom::Vec2f newPos;
-	
+
 	if(prevMove.x == 0 && prevMove.y == 0)
 	{
 		newPos.x = Position.x + rnd(Simulator::GetRnd());
@@ -331,13 +300,13 @@ Geom::Vec2f Creature::getNewPosition()
 		std::uniform_real_distribution<float> rndAngle( -maxAngle , maxAngle );
 		int angle = (int)(rndAngle(Simulator::GetRnd()));
 		Geom::Vec2f unitLast = Geom::normalize(prevMove);
-		
+
 		float spd = std::abs(rnd(Simulator::GetRnd()));
-		
+
 		newPos.x = (Position.x + std::cos( (float)(angle%360) + std::acos(unitLast.x) ) ) * spd ;
 		newPos.y = (Position.y + std::sin( (float)(angle%360) + std::acos(unitLast.x) ) ) * spd ;
 	}
-	
+
 	return newPos;
 }
 
