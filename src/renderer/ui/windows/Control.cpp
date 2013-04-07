@@ -184,7 +184,7 @@ void Control::CalculateNewFrames()
 	else
 		Frames = input - ( ( input + 50 ) % 100 ) + 50;
 	if ( input >= Engine::getCfg()->get<int>( "system.ui.control.simFrameLimit" ) )
-		Frames = 500;
+		Frames = Engine::getCfg()->get<int>( "system.ui.control.simFrameLimit" );
 
 	if ( ChangeframesonButtons == 1 )
 	{

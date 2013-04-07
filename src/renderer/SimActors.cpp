@@ -62,10 +62,10 @@ SimActors::~SimActors()
 
 void SimActors::HandleEvent(Event& e)
 {
-	if(e.Is("UpdateCreatureRenderList", typeid( std::list<std::shared_ptr<Creature>> )))
+	if(e.Is("UpdateCreatureRenderList", typeid( CreatureRenderList )))
 	{
-		std::list<std::shared_ptr<Creature>> r = boost::any_cast< std::list<std::shared_ptr<Creature>> >(e.Data());
-		//std::list<std::shared_ptr<Creature>> CullRenderList( r );
+		CreatureRenderList& r = boost::any_cast< CreatureRenderList& >(e.Data());
+		//CreatureRenderList CullRenderList( r );
 		ReadCreatureRenderList( r );
 	}
 	else if ( e.Is("UpdateTileRenderList", typeid( std::vector<std::shared_ptr<Tile>> )))
