@@ -165,3 +165,7 @@ endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
 target_link_libraries(MaximumFish sbe sfgui )
+
+if( PROFILE )
+	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )
+endif()
