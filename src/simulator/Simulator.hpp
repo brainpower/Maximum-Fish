@@ -121,6 +121,10 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 	private:
 
+		typedef std::tuple<Geom::Pointf,int,Species*> CreatureRenderInfo;
+		void UpdateCreatureRenderList();
+
+
 		class ArrDeleter
 		{
 			public:

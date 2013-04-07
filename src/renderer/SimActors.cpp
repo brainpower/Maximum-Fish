@@ -62,6 +62,7 @@ SimActors::~SimActors()
 
 void SimActors::HandleEvent(Event& e)
 {
+	//if(e.Is("UpdateCreatureRenderList", typeid( std::vector<std::tuple<Geom::Pointf,int,Species*>> )))
 	if(e.Is("UpdateCreatureRenderList", typeid( CreatureRenderList )))
 	{
 		CreatureRenderList& r = boost::any_cast< CreatureRenderList& >(e.Data());
@@ -119,14 +120,14 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	bool cull = r.size() > cullThreshold;
 	auto imgs = Engine::GetResMgr()->get<sbe::ImageSet>("Creatures");
 
-	for ( std::shared_ptr<Creature> C : r)
+	for ( CreatureRenderInfo& R : r)
 	{
-		auto Pos = DetermineCreaturePos( C );
-		if(C->getSpecies().get() == m_highlight)
+		auto Pos = DetermineCreaturePos(std::get<0>(R));
+		if(std::get<2>(R) == m_highlight)
 		{
-			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos, -1, sf::Color::Red );
+			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color::Red );
 		}
-		if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( DetermineCreatureSpriteIndex( C ) , Creatures, Pos );
+		if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
@@ -283,6 +284,18 @@ sf::FloatRect SimActors::DetermineTilePos( std::shared_ptr<Tile>& t)
 	re.top 		= TileSize * t->getPosition().y;
 	re.width 	= TileSize;
 	re.height 	= TileSize;
+
+	return re;
+}
+
+sf::FloatRect SimActors::DetermineCreaturePos( Geom::Pointf& Pos)
+{
+	sf::FloatRect re;
+
+	re.left 	= TileSize * Pos.x - CreatureSize/2;
+	re.top 		= TileSize * Pos.y - CreatureSize/2;
+	re.width 	= CreatureSize;
+	re.height 	= CreatureSize;
 
 	return re;
 }

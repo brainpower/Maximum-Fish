@@ -26,6 +26,8 @@
 #include <string>
 #include <sstream>
 #include <random>
+#include <tuple>
+
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -80,7 +82,7 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = true;
 		Engine::getCfg()->set("sim.paused", isPaused);
-		Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", _state->_creatures), true);
+		UpdateCreatureRenderList();
 	}
 	else if(e.Is("SIM_UNPAUSE"))
 	{
@@ -98,7 +100,7 @@ void Simulator::HandleEvent(Event& e)
 	{
 		isPaused = !isPaused;
 		Engine::getCfg()->set("sim.paused", isPaused);
-		if (isPaused) Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", _state->_creatures), true);
+		if (isPaused) UpdateCreatureRenderList();
 	}
 	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
 	{
@@ -253,7 +255,7 @@ void Simulator::NewSimulation(
 	// send terrain to renderer
 	state->_terrain->UpdateTerrain();
 	// send creatures to renderer
-	Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", state->_creatures), true);
+	UpdateCreatureRenderList();
 
 	state->_terrain->CreateMapPlotters();
 
@@ -336,7 +338,7 @@ void Simulator::advance()
 				Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
 			}
 
-			Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", _state->_creatures), true);
+			UpdateCreatureRenderList();
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
 
@@ -401,8 +403,7 @@ void Simulator::advance()
 		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( _state->_numGenerated ));
 		if ( !isPaused )
 		{
-			Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", _state->_creatures), true);
-
+			UpdateCreatureRenderList();
 			if (Engine::getCfg()->get<bool>("system.ui.Overlays.live")) _state->_terrain->CreateMapPlotters();
 		}
 
@@ -612,10 +613,24 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	if (tmp)
 	{
 		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-		Module::Get()->QueueEvent(Event("UpdateCreatureRenderList", _state->_creatures), true);
+		UpdateCreatureRenderList();
 	}
 }
 
+void Simulator::UpdateCreatureRenderList()
+{
+	Event Ev("UpdateCreatureRenderList", std::vector<CreatureRenderInfo>() );
+	 std::vector<CreatureRenderInfo>& RI = boost::any_cast< std::vector<CreatureRenderInfo>& >(Ev.Data());
+
+	RI.resize(_state->_creatures.size());
+	int i = 0;
+	for ( auto& C : _state->_creatures )
+	{
+		RI[i++] = std::make_tuple( C->getPosition(), (int)C->getSpecies()->getType(), C->getSpecies().get() );
+	}
+
+	Module::Get()->QueueEvent(Ev, true);
+}
 
 void Simulator::registerIOPlugins()
 {

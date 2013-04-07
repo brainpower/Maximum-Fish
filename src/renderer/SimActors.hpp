@@ -3,6 +3,8 @@
 
 #include "sbe/event/EventUser.hpp"
 
+#include "sbe/geom/Point.hpp"
+
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -10,6 +12,7 @@
 #include <list>
 #include <vector>
 #include <memory>
+#include <tuple>
 
 enum RenderLayers {
 	L_BACK = 0,
@@ -65,7 +68,9 @@ class SimActors : public sbe::EventUser
 
 	private:
 
-		typedef std::list<std::shared_ptr<Creature>> CreatureRenderList;
+		typedef std::tuple<Geom::Pointf,int,Species*> CreatureRenderInfo;
+		typedef std::vector<CreatureRenderInfo> CreatureRenderList;
+		//typedef std::list<std::shared_ptr<Creature>> CreatureRenderList;
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;
 
 		void PlotGraph ( std::shared_ptr<sbe::GraphPlotter>& G );
@@ -85,7 +90,8 @@ class SimActors : public sbe::EventUser
 		sf::FloatRect DetermineTilePos ( std::shared_ptr<Tile>& t);
 		/// determines where a Creature should be rendered on the viewport
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
-
+		/// determines where a Creature should be rendered on the viewport
+		sf::FloatRect DetermineCreaturePos( Geom::Pointf& Pos);
 
 		bool useShaderTileMap;
 		// one pixel for each tile to determine the right sprite to render
