@@ -85,6 +85,8 @@ void Creature::live()
 {
 	if ( done ) return;
 	done = true;
+	curAgeFactor = ageFactor();
+
 	// damage from environment
 	resistance = healthPercentage() * currentResistance();
 	calcDamage();

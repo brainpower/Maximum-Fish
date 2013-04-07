@@ -53,7 +53,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		}
 		inline float currentMaxHealth() { return mySpecies->getMaxHealth()*currentResistance(); }
 		inline float healthPercentage() { return currentHealth/currentMaxHealth(); }
-		inline float currentResistance() { return mySpecies->getResistance() * ageFactor(); }
+		inline float currentResistance() { return mySpecies->getResistance() * curAgeFactor; }
 		inline float minAge() { return mySpecies->getMaxAge()*matingAge; }
 		inline float mHealthCost() { return currentMaxHealth() * matingHealthCost; }
 		inline float currentMaxSpeed() { return mySpecies->getMaxSpeed() * currentResistance(); }
@@ -124,6 +124,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		/// describes the current health of the Creature ( max is species->maxage, usually around 100 )
 		float currentHealth;
+		float curAgeFactor;
 		int age;
 		int lastmating;
 		Geom::Vec2f Position;
