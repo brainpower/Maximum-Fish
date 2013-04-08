@@ -184,9 +184,10 @@ void Simulator::NewSimulation( int seed )
 	state->_terrain->CreateDebugTerrain();
 	Generator G (state, *rng);
 
-	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.plantSpecies"), Engine::getCfg()->get<int>("sim.terragen.plantCount") );
-	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.herbivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.herbivoreCount") );
-	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.carnivoreSpecies"), Engine::getCfg()->get<int>("sim.terragen.carnivoreCount") );
+	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
+	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.species.plant"), Engine::getCfg()->get<int>("sim.terragen.count.plant")*countMult );
+	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.species.herbivore"), Engine::getCfg()->get<int>("sim.terragen.count.herbivore")*countMult );
+	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.species.carnivore"), Engine::getCfg()->get<int>("sim.terragen.count.carnivore")*countMult );
 
 	NewSimulation( state, rng );
 }
