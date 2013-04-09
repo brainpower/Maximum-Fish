@@ -9,9 +9,11 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Mod
 #######################################################
 
 option( PROFILE "" OFF)
-option(USE_CUSTOM_BOOST "" OFF)
+if(NOT USE_CUSTOM_BOOST)
+	option(USE_CUSTOM_BOOST "" OFF)
+endif()
 option(USE_CUSTOM_SFML "" ON)
-set(CUSTOM_BOOST_ROOT "" CACHE PATH "custom boost build root dir")
+set(CUSTOM_BOOST_ROOT "${CUSTOM_BOOST_ROOT}" CACHE PATH "custom boost build root dir")
 set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
 option(SUPPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
