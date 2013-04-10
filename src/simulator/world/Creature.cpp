@@ -152,10 +152,29 @@ bool Creature::huntNearest( int type )
 
 	// move to prey
 	if ( moveTo( nearest->getPosition() ) ) {
-		// consume our prey
-		currentHealth += nearest->getCurrentHealth();
-		if ( currentHealth > currentMaxHealth() ) currentHealth = currentMaxHealth();
-		nearest->die();
+		switch(mySpecies->getType())
+		{
+			case Species::CARNIVORE:
+				// consume our prey
+				currentHealth += nearest->getCurrentHealth();
+				if ( currentHealth > currentMaxHealth() ) currentHealth = currentMaxHealth();
+				nearest->die();
+				break;
+			
+			case Species::HERBIVORE:
+				float diff = currentMaxHealth() - currentHealth;
+				float nearestHealth = nearest->getCurrentHealth();
+				if ( diff > nearest->getCurrentHealth() )
+				{
+					currentHealth += nearestHealth;
+					nearest->die();
+				}
+				else
+				{
+					currentHealth += diff;
+					nearest->setCurrentHealth(nearestHealth-diff);
+				}
+		}
 	}
 
 	return true;
