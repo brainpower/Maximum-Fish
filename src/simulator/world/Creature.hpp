@@ -9,6 +9,8 @@
 #include "Species.hpp"
 #include "Tile.hpp"
 
+class Terrain;
+
 /**
 	The Creature class is the main scaff for simulation, this is where also the basic stuff is initialized.
 	Also basic AI calculations are happening here.
