@@ -39,7 +39,7 @@ Terrain::Terrain(const Terrain &o)
 		InvalidTile.reset(new Tile(*(o.InvalidTile))); // necessary?
 
 		for( auto &t : o.Tiles) { // deep copy of tiles
-			Tiles.push_back(std::shared_ptr(new Tile(*t)));
+			Tiles.push_back(std::shared_ptr<Tile>(new Tile(*t)));
 		}
 
 		tilemapImage.reset( new sf::Image(*(o.tilemapImage)));
