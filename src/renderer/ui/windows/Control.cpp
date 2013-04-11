@@ -142,7 +142,7 @@ void Control::HandleEvent( Event& e )
 		// in the Mainmenu.)
 		BtnMnMnWin->SetActive( !BtnMnMnWin->IsActive() );
 	}
-	else if ( e.Is( "KEY_SHOW_GRAPHBOOK" ) && !simPauseLock )
+	else if ( e.Is( "KEY_SHOW_GRAPHBOOK" ) )
 	{   // KEY_SHOW_GRAPHBOOK is sent whenever an action toggles the
 		// visibility of the GraphBook other than the ControlButton.
 		// (Most likely this is the assigned keyboardkey.)

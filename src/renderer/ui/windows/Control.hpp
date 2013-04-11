@@ -58,7 +58,6 @@ class Control : public sbe::EventUser
         void SimPause( bool up );
 
 		unsigned int simPauseConnectionSerial;
-		bool simPauseLock;
 		int simPauseLockLevel;
 		bool ListenToActionKeys;
 		bool textchangeavoidrecursive;
