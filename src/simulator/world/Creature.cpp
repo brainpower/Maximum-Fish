@@ -65,7 +65,11 @@ void Creature::setPosition( const Geom::Pointf& pos)
 }
 
 void Creature::updateTileFromPos(){
-	auto& newTile = Simulator::GetTerrain()->getTile(Position);
+	updateTileFromPos(Simulator::GetTerrain());
+}
+
+void Creature::updateTileFromPos(std::shared_ptr<Terrain> t){
+	auto& newTile = t->getTile(Position);
 
 	if ( currentTile != newTile)
 	{
@@ -160,7 +164,7 @@ bool Creature::huntNearest( int type )
 				if ( currentHealth > currentMaxHealth() ) currentHealth = currentMaxHealth();
 				nearest->die();
 				break;
-			
+
 			case Species::HERBIVORE:
 				float diff = currentMaxHealth() - currentHealth;
 				float nearestHealth = nearest->getCurrentHealth();

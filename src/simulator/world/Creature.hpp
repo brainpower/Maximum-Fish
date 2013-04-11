@@ -73,6 +73,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		// neccessary to update currentTile after loading from "savegame"
 		void updateTileFromPos();
+		void updateTileFromPos(std::shared_ptr<Terrain> t);
 
 		static void loadConfigValues();
 
