@@ -27,7 +27,7 @@ Tile::Tile(const Tile &o)
 		baseHumidity(o.baseHumidity),
 		usedNutrition(usedNutrition),
 		currentHumidity(o.currentHumidity),
-		parallelID(o-parallelID)
+		parallelID(o.parallelID)
 {
 }
 
