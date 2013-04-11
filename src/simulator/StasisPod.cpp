@@ -1,12 +1,15 @@
 
+#include "StasisPod.hpp"
+#include "SimState.hpp"
+
 void StasisPod::freeze(std::shared_ptr<SimState> s){
-	_pod.push_back(std::shared_ptr(new SimState(s)));
+	_pod.push_back(std::shared_ptr<SimState>(new SimState(*s)));
 }
 
-void StasisPod::taw(const size_t i){
+std::shared_ptr<SimState> StasisPod::taw(const size_t i){
 	auto ret = _pod[i];
 	_pod.erase(_pod.begin()+i);
-	return _ret;
+	return ret;
 }
 
 const std::shared_ptr<SimState> StasisPod::peek(const size_t i){
