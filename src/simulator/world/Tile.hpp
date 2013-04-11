@@ -15,6 +15,7 @@ class Tile
 	public:
 
 		Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity );
+		Tile(const Tile &o);
 
 		float getHeight() const {return height;}
 		float getNutrition() const {return nutrition;}
@@ -83,4 +84,3 @@ class Tile
 
 
 #endif // TILE_H
-

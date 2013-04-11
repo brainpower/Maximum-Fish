@@ -14,6 +14,23 @@ float Tile::maxsandheight = 0;
 float Tile::maxgrassheight = 0;
 float Tile::maxwalkableHumidity = 0;
 
+
+/**
+ * copies everyting except the Creature lists
+ * those have to be updated using Creature::updateTileFromPos
+ * or addCreature()
+ */
+Tile::Tile(const Tile &o)
+	: Position(o.Position),
+	  height(o.height),
+	  nutrition(o.nutrition),
+		baseHumidity(o.baseHumidity),
+		usedNutrition(usedNutrition),
+		currentHumidity(o.currentHumidity),
+		parallelID(o-parallelID)
+{
+}
+
 void Tile::loadConfigValues()
 {
 	// set some const values
