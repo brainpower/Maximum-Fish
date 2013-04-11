@@ -20,6 +20,8 @@ class Terrain
 
 		Terrain();
 
+		Terrain(const Terrain &o);
+
 
 		/// will do some weather calculations in the future, for now just sends the current terrain to the renderer
 		void UpdateTerrain() const;

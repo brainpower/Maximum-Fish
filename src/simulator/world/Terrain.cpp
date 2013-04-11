@@ -30,6 +30,35 @@ Terrain::Terrain()
 	Tile::loadConfigValues();
 }
 
+Terrain::Terrain(const Terrain &o)
+ : Size(o.Size),
+   maxElevation(o.maxElevation),
+   humidityFactor(o.humidityFactor),
+   globalTemp(o.globalTemp) {
+
+		InvalidTile.reset(new Tile(*(o.InvalidTile))); // necessary?
+
+		for( auto &t : o.Tiles) { // deep copy of tiles, is it save to use default copy-constructor for Tiles?
+			Tiles.push_back(std::shared_ptr(new Tile(*t)));
+		}
+
+		tilemapImage.reset( new sf::Image(*(o.tilemapImage)));
+
+		//deep copy of colors ?
+		//~ for( auto &cl : o.Colors ){
+			//~ std::list<std::shared_ptr<Tile>> l;
+			//~ for( auto &c : cl ){
+				//~ l.push_back(shared_ptr(new Tile(*c)));
+			//~ }
+			//~ Colors.push_back(l);
+		//~ }
+
+		//or call CreateParallelisationGraph ?
+		CreateParallelisationGraph();
+
+		// other things neccessary?
+}
+
 const std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos ) const
 {
 	unsigned int index = Geom::linear(pos, Size.x);
