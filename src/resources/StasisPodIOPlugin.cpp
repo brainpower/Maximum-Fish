@@ -58,7 +58,7 @@ bool StasisPodIOPlugin::saveObject( const std::string& name, const StasisPod &po
 
 		ptree pt;
 
-		auto siop = std::dynamic_pointer_cast<SpeciesIOPlugin>(Engine::GetIO()->getPlugin(std::type_index( typeid(SimState) )));
+		auto siop = std::dynamic_pointer_cast<SimStateIOPlugin>(Engine::GetIO()->getPlugin(std::type_index( typeid(SimState) )));
 
 		for( auto s : pod._pod )
 			siop->saveObject("SimState", *s, pt);
