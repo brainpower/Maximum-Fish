@@ -28,31 +28,22 @@ SimStateIOPlugin::ObjPtr SimStateIOPlugin::loadObject(const boost::property_tree
 		auto siop = std::dynamic_pointer_cast<SpeciesIOPlugin>(Engine::GetIO()->getPlugin(std::type_index( typeid(Species) )));
 		auto ciop = std::dynamic_pointer_cast<CreatureIOPlugin>(Engine::GetIO()->getPlugin(std::type_index( typeid(Creature) )));
 
-		std::shared_ptr<Terrain> t;
-		std::vector<std::shared_ptr<Species>> s;
-		std::list<std::shared_ptr<Creature>> c;
+		re.reset( new SimState() );
 
 		for( const ptree::value_type& e : pt){
 			if(e.first == "Terrain"){
-				t = tiop->loadObject(e);
+				re->_terrain = tiop->loadObject(e);
 			} else if (e.first == "Species") {
-				s.push_back(siop->loadObject(e));
+				re->_species.push_back(siop->loadObject(e));
 			} else if (e.first == "Creature") {
-				c.push_back(ciop->loadObject(e));
+				re->_creatures.push_back(ciop->loadObject(e));
 			}
 		}
 
-		if(!t || s.empty() || c.empty()) {
+		if(!re->_terrain || re->_species.empty() || re->_creatures.empty()) {
 			Engine::out(Engine::ERROR) << "[SimStateIOPlugin] Error loading SimState from ptree!" << std::endl;
 			return re;
 		}
-
-		re.reset( new SimState() );
-
-		std::copy( c.cbegin(), c.cend(), std::inserter(re->_creatures, re->_creatures.end()) );
-
-		re->_species = s;
-		re->_terrain = t;
 
 		re->_gen.reset(new std::mt19937());
 		std::stringstream(pt.get<std::string>("sim.random.gen")) >> (*(re->_gen));
