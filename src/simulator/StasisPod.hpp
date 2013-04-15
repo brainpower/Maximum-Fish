@@ -16,6 +16,7 @@ public:
 	const std::shared_ptr<SimState> peek(const size_t i);
 
 private:
+	friend class StasisPodIOPlugin;
 
 	std::deque<std::shared_ptr<SimState>> _pod;
 };
