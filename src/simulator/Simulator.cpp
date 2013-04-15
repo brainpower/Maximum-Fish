@@ -359,9 +359,9 @@ void Simulator::advance()
 					{
 						if ( (*Cit)->getCurrentHealth() <= 0 )
 						{
-							_state->_creatures.remove(*Cit);
-							auto it2 = Cit++;
-							T->removeCreature(*it2);
+							auto ptr = *(Cit++);
+							T->removeCreature(ptr);
+							_state->_creatures.remove(ptr);
 						}
 						else
 						{
@@ -370,23 +370,6 @@ void Simulator::advance()
 							(*(Cit++))->live();
 						}
 					}
-
-			// old non-MT compatible version
-//			for(auto it = Creatures.begin(); it != Creatures.end(); )
-//			{
-//				if((*it)->getCurrentHealth() <= 0)
-//				{
-//					(*it)->getTile()->removeCreature(*it);
-//					auto it2 = it++;
-//					Creatures.erase( it2 );
-//				}
-//				else
-//				{
-//					CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
-//					(*it)->done = false;
-//					(*(it++))->live();
-//				}
-//			}
 		}
 
 		_state->_currentTick++;

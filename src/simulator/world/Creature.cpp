@@ -312,13 +312,14 @@ bool Creature::randomMove()
 
 Geom::Vec2f Creature::getNewPosition()
 {
-	std::uniform_real_distribution<float> rnd( -currentMaxSpeed() , currentMaxSpeed() );
+	std::uniform_real_distribution<float> rndNoDir( -currentMaxSpeed() , currentMaxSpeed() );
+	std::uniform_real_distribution<float> rnd( 0 , currentMaxSpeed() );
 	Geom::Vec2f newPos;
 
 	if(prevMove.x == 0 && prevMove.y == 0)
 	{
-		newPos.x = Position.x + rnd(Simulator::GetRnd());
-		newPos.y = Position.y + rnd(Simulator::GetRnd());
+		newPos.x = Position.x + rndNoDir(Simulator::GetRnd());
+		newPos.y = Position.y + rndNoDir(Simulator::GetRnd());
 	}
 	else
 	{
