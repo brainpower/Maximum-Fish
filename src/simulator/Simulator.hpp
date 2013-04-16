@@ -10,6 +10,7 @@
 class Tile;
 class Terrain;
 class Creature;
+class StasisPod;
 
 namespace sbe {
 	class GraphPlotter;
@@ -154,7 +155,9 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void loadWhole(const std::string &loadPath);
 
 		std::shared_ptr<SimState> _state;
+		std::shared_ptr<StasisPod> _pod;
 
+		int _freezeRate;
 		/// how many ticks should be simulated? Not changed so the simulated amount is still remembered
 		int TicksToSim;
 		/// how many ticks should be simulated? 0 for infinite

@@ -14,11 +14,13 @@
 #include "world/Tile.hpp"
 
 #include "Generator.hpp"
+#include "StasisPod.hpp"
 
 #include "resources/CreatureIOPlugin.hpp"
 #include "resources/SpeciesIOPlugin.hpp"
 #include "resources/TerrainIOPlugin.hpp"
 #include "resources/SimStateIOPlugin.hpp"
+#include "resources/StasisPodIOPlugin.hpp"
 
 #include <SFML/System/Clock.hpp>
 
@@ -162,7 +164,8 @@ void Simulator::init()
 	minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 	multiThreaded = numThreads > 1;
 
-
+	_pod.reset(new StasisPod());
+	_freezeRate = Engine::getCfg()->get<int>("sim.freezeRate");
 
 	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
@@ -374,6 +377,9 @@ void Simulator::advance()
 
 		_state->_currentTick++;
 		logTickStats();
+
+		if(! (_state->_currentTick % _freezeRate))
+			_pod->freeze(_state);
 	}
 
 	// update the renderer at up to 30 fps
@@ -632,6 +638,9 @@ void Simulator::registerIOPlugins()
 	std::shared_ptr<sbe::IOPlugin> SimStateIOP ( new SimStateIOPlugin() );
 	Engine::GetResMgr()->registerResource<SimState>( sbe::iResource::createResInfo("SimState", true, false), SimStateIOP);
 
+	std::shared_ptr<sbe::IOPlugin> StasisPodIOP ( new StasisPodIOPlugin() );
+	Engine::GetResMgr()->registerResource<StasisPod>( sbe::iResource::createResInfo("StasisPod", true, false), StasisPodIOP);
+
 	Engine::out(Engine::INFO) << "[Simulator] IO Plugins loaded." << std::endl;
 }
 
@@ -651,11 +660,13 @@ void Simulator::saveWhole(const std::string &savePath){
 
 	Engine::out(Engine::SPAM) << "Save to path: " << Engine::GetIO()->topPath() << std::endl;
 
+	_pod->freeze(_state); // freeze latest state
+
 	// do some saving...
 	//~ if(!Engine::GetIO()->saveObject( "tick"+boost::lexical_cast<std::string>(_state->_currentTick), *_state, true)){
-	if(!Engine::GetIO()->saveObject( "SimState", *_state, true)){
+	if(!Engine::GetIO()->saveObject( "StasisPod", *_pod, true)){
 
-		Event e("EVT_SAVE_BAD", std::string("Error saving SimState!"));
+		Event e("EVT_SAVE_BAD", std::string("Error saving StasisPod!"));
 		Module::Get()->QueueEvent(e, true);
 
 	} else {
@@ -684,7 +695,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 	}
 
 	// do some loading...
-	auto tmp  = Engine::GetIO()->loadObjects<SimState>();
+	auto tmp  = Engine::GetIO()->loadObjects<StasisPod>();
 
 	if(tmp.empty())
 	{
@@ -698,10 +709,13 @@ void Simulator::loadWhole(const std::string &loadPath){
 	if(!loadPath.empty())
 		Engine::GetIO()->popPath(); // pop load path from IO stack
 
+	_pod = tmp[0];
+	auto latestState = _pod->tawTop(); // taw latest state
+
 	std::mt19937* newGen = new std::mt19937();
 
-	setState(tmp[0]);
-	NewSimulation( tmp[0], newGen );
+	setState(latestState);
+	NewSimulation( latestState, newGen );
 
 	// loading done...
 	Module::Get()->QueueEvent("EVT_LOAD_GOOD", true);
