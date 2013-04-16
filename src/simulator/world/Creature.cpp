@@ -26,6 +26,7 @@ int   Creature::ageExponent = 0;
 float Creature::plantEnvDmgFactor = 0;
 float Creature::NutritionValue = 0;
 float Creature::maxAngle = 0;
+float Creature::fleeFactor = 0;
 
 
 Creature::Creature( const std::shared_ptr<Species>& Species)
@@ -100,6 +101,14 @@ void Creature::live()
 
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
+	
+	if(mySpecies->getType() == Species::HERBIVORE)
+	{
+		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, this->currentMaxSpeed()*fleeFactor, Species::CARNIVORE);
+		if(nearest) {
+			didsomethingthistick = moveTo(Position - nearest->getPosition());
+		}
+	}
 
 
 	if ( healthPercentage() < huntingThreshold )
@@ -379,4 +388,5 @@ void Creature::loadConfigValues()
 	ageExponent =          Engine::getCfg()->get<int>("sim.creature.ageExponent");
 	plantEnvDmgFactor =    Engine::getCfg()->get<float>("sim.creature.env.plantEnvDmgFactor");
 	maxAngle =             Engine::getCfg()->get<float>("sim.creature.maxAngle");
+	fleeFactor =           Engine::getCfg()->get<float>("sim.creature.fleeFactor");
 }
