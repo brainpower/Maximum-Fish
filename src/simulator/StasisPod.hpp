@@ -13,7 +13,9 @@ public:
 
 	void freeze(std::shared_ptr<SimState> s);
 	std::shared_ptr<SimState> taw(const size_t i);
+	std::shared_ptr<SimState> tawTop();
 	const std::shared_ptr<SimState> peek(const size_t i);
+	const std::shared_ptr<SimState> peekTop();
 
 private:
 	friend class StasisPodIOPlugin;
