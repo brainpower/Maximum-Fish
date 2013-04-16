@@ -47,6 +47,20 @@ Creature::Creature( const std::shared_ptr<Species>& Species)
 	}
 }
 
+/**
+ * copies everything except critical pointers
+ */
+
+Creature::Creature(const Creature &o)
+	: done(o.done),
+	  currentHealth(o.currentHealth),
+	  age(o.age),
+	  lastmating(o.lastmating),
+	  Position(o.Position),
+	  prevMove(o.prevMove),
+	  mySpecies(o.mySpecies) {
+}
+
 const std::string& Creature::getSpeciesString() const
 {
 	return mySpecies->getName();

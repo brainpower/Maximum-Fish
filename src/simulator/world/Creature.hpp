@@ -19,6 +19,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 {
 	public:
 		Creature( const std::shared_ptr<Species>& Species);
+		Creature( const Creature &o);
 		virtual ~Creature() {};
 
 		void live();
