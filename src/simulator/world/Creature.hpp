@@ -105,6 +105,8 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		static float resistance;
 		static int   ageExponent;
+		
+		static float fleeFactor;
 		// -- END STATIC SETTINGS --
 
 		friend class CreatureIOPlugin;
