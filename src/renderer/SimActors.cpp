@@ -97,7 +97,7 @@ void SimActors::HandleEvent(Event& e)
 
 		if( c )
 		{
-			m_highlight = c->getSpecies().get();
+			m_highlight = c;
 		} else {
 			m_highlight = nullptr;
 		}
@@ -123,11 +123,20 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	for ( CreatureRenderInfo& R : r)
 	{
 		auto Pos = DetermineCreaturePos(std::get<0>(R));
-		if(std::get<2>(R) == m_highlight)
+
+		if(m_highlight
+			&& m_highlight->getPosition().x >= Pos.left-10 && m_highlight->getPosition().x <= Pos.left+10
+			&& m_highlight->getPosition().y >= Pos.top-10 && m_highlight->getPosition().y <= Pos.top+10
+			&& m_highlight->getCurrentHealth() > 0)
 		{
-			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,0,0,0 ));
+			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,255,0,0 ));
+		} else {
+			if(m_highlight && std::get<2>(R) == m_highlight->getSpecies().get())
+			{
+				if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,0,0,0 ));
+			}
+			else if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos );
 		}
-		else if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos );
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;

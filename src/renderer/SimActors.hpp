@@ -115,7 +115,7 @@ class SimActors : public sbe::EventUser
 		std::unique_ptr<sbe::MessageHandler> MessageHandler_;
 
 		/// pointer to currently highlighted species a.o
-		Species* m_highlight;
+		std::shared_ptr<Creature> m_highlight;
 };
 
 #endif // SimActors_HPP
