@@ -134,6 +134,10 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 		{
 			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,255,0,0 ));
 		} else {
+			if(m_highlight && m_highlight->getCurrentHealth() <= 0)
+			{
+				m_highlight.reset();
+			}
 			if(m_highlight && std::get<2>(R) == m_highlight->getSpecies().get())
 			{
 				if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,0,0,0 ));
