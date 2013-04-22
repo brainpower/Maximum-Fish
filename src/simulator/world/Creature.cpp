@@ -290,7 +290,7 @@ void Creature::move()
 
 	std::uniform_real_distribution<float> rnd(0, 1);
 
-	if( hab < 10 || rnd(Simulator::GetRnd()) < migProb )
+	if(hab < 10 || rnd(Simulator::GetRnd()) < migProb  /*TEST  true*/)
 		for (int i = 0; i < 15; ++i)
 			if (randomMove()) return;
 
@@ -324,12 +324,13 @@ bool Creature::randomMove()
 
 	NewPosition = getNewPosition();
 
-	float hab = 0;
+	float hab = 1;
 	const std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
+	
 	if (newtile) hab = newtile->getHabitability(mySpecies);
 
 	if ( 	hab <= 0.0f
-		|| Geom::distance( Position, NewPosition) < currentMaxSpeed()
+		|| Geom::distance( Position, NewPosition) > currentMaxSpeed()
 		|| !validPos( NewPosition )
 		) return false;
 
@@ -354,10 +355,12 @@ Geom::Vec2f Creature::getNewPosition()
 		int angle = (int)(rndAngle(Simulator::GetRnd()));
 		Geom::Vec2f unitLast = Geom::normalize(prevMove);
 
-		float spd = std::abs(rnd(Simulator::GetRnd()));
-
-		newPos.x = (Position.x + std::cos( (float)(angle%360) + std::acos(unitLast.x) ) ) * spd ;
-		newPos.y = (Position.y + std::sin( (float)(angle%360) + std::acos(unitLast.x) ) ) * spd ;
+		float spd = std::abs(rnd(Simulator::GetRnd()));		
+		
+		float currentAngle = std::acos(unitLast.x);
+		
+		newPos.x = Position.x + (std::cos(currentAngle + (float)angle) * spd);
+		newPos.y = Position.y + (std::sin(currentAngle + (float)angle) * spd);
 	}
 
 	return newPos;
