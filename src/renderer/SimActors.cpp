@@ -142,7 +142,14 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 			{
 				if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,0,0,0 ));
 			}
-			else if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos );
+			else {
+				if(m_highlight)
+				{
+					if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(0,0,0,0));
+				} else {
+					if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos);
+				}
+			}
 		}
 	}
 
