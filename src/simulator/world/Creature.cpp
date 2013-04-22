@@ -59,7 +59,9 @@ Creature::Creature(const Creature &o)
 	  lastmating(o.lastmating),
 	  Position(o.Position),
 	  prevMove(o.prevMove),
-	  mySpecies(o.mySpecies) {
+	  mySpecies(o.mySpecies),
+	  currentTile(nullptr)
+{
 }
 
 const std::string& Creature::getSpeciesString() const
@@ -79,11 +81,13 @@ void Creature::setPosition( const Geom::Pointf& pos)
 	updateTileFromPos();
 }
 
-void Creature::updateTileFromPos(){
+void Creature::updateTileFromPos()
+{
 	updateTileFromPos(Simulator::GetTerrain());
 }
 
-void Creature::updateTileFromPos(std::shared_ptr<Terrain> t){
+void Creature::updateTileFromPos(std::shared_ptr<Terrain> t)
+{
 	auto& newTile = t->getTile(Position);
 
 	if ( currentTile != newTile)
@@ -119,7 +123,7 @@ void Creature::live()
 
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
-	
+
 	if(mySpecies->getType() == Species::HERBIVORE)
 	{
 		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::CARNIVORE);

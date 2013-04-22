@@ -34,19 +34,15 @@ Terrain::Terrain(const Terrain &o)
  : Size(o.Size),
    maxElevation(o.maxElevation),
    humidityFactor(o.humidityFactor),
-   globalTemp(o.globalTemp) {
+   globalTemp(o.globalTemp),
+   InvalidTile()
+{
 
-		InvalidTile.reset(new Tile(*(o.InvalidTile))); // necessary?
+	for( const std::shared_ptr<Tile> &t : o.Tiles) { // deep copy of tiles
+		Tiles.push_back(std::shared_ptr<Tile>(new Tile(*t)));
+	}
 
-		for( auto &t : o.Tiles) { // deep copy of tiles
-			Tiles.push_back(std::shared_ptr<Tile>(new Tile(*t)));
-		}
-
-		tilemapImage.reset( new sf::Image(*(o.tilemapImage)));
-
-		CreateParallelisationGraph();
-
-		// other things neccessary?
+	CreateParallelisationGraph();
 }
 
 const std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos ) const
@@ -273,6 +269,7 @@ void Terrain::CreateParallelisationGraph()
 	int maxreach = Engine::getCfg()->get<int>("sim.creatureActionRadius");
 	bool minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 
+	for( std::shared_ptr<Tile> &t : Tiles) t->setParallelId(0);
 	Colors.clear();
 
 	while ( idsAssigned < Tiles.size())

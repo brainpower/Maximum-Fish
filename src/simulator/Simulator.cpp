@@ -272,7 +272,6 @@ void Simulator::NewSimulation(
 
 void Simulator::initThreads()
 {
-
 	startBarrier.reset( new boost::barrier( numThreads+1) );
 	endBarrier.reset( new boost::barrier( numThreads+1 ) );
 
@@ -280,21 +279,13 @@ void Simulator::initThreads()
 
 	for ( int thread = 0; thread < numThreads; ++thread)
 	{
-
-
-		//Engine::out() << "Thread " << thread << ": workload " << from << "-" << to << std::endl;
-
 		std::shared_ptr<std::list<std::shared_ptr<Tile>>> cur;
 		cur.reset ( new std::list<std::shared_ptr<Tile>> );
 		CurrentLists.push_back(cur);
 		cur.reset ( new std::list<std::shared_ptr<Tile>> );
 		NextLists.push_back(cur);
 
-		//Engine::out() << "from " << (*it1)->getPosition() << std::endl;
-
-		CreatureCounters.push_back( std::shared_ptr<int> (new int[3], ArrDeleter() ) );
-
-		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread( boost::bind( &Simulator::thread, this, CurrentLists[thread], CreatureCounters[thread], thread ))));
+		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread( boost::bind( &Simulator::thread, this, CurrentLists[thread], thread ))));
 	}
 }
 
@@ -306,21 +297,19 @@ void Simulator::stopThreads()
 		t->interrupt();
 		t->join();
 	}
-
-	CreatureCounters.clear();
 	threads.clear();
 	CurrentLists.clear();
 	NextLists.clear();
 }
 
-void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts, int seed)
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed)
 {
 	_state->_gen.reset( new std::mt19937(seed));
 	while ( !boost::this_thread::interruption_requested() )
 	{
 		startBarrier->wait();
 
-		tick( list, _CreatureCounts );
+		tick( list );
 
 		endBarrier->wait();
 	}
@@ -379,7 +368,13 @@ void Simulator::advance()
 		logTickStats();
 
 		if(! (_state->_currentTick % _freezeRate))
+		{
+			Engine::out() << "[Sim] Freeze" << std::endl;
 			_pod->freeze(_state);
+			Engine::out() << "[Sim] Freezed" << std::endl;
+		}
+
+
 	}
 
 	// update the renderer at up to 30 fps
@@ -401,33 +396,14 @@ void Simulator::advance()
 	}
 }
 
-void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts)
+void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list)
 {
-	int* CreatureCounts = _CreatureCounts.get();
-	CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
-
-//	for( std::shared_ptr<Tile>& T : (*list))
-	//	Engine::out() << "tile: " << T->getPosition() << std::endl;
-
-	int i = 0;
-	//for( std::shared_ptr<Tile>& T : (*list))
 	for(auto it = list->cbegin(); it != list->cend(); it++)
 	{
-		i++;
-		//Engine::out() << "Tick: tile " << i << std::endl;
-		//for ( auto C : T->getCreatures() )
 		auto Cs = (*it)->getCreatures();
 		for ( auto it2 = Cs.cbegin(); it2 != Cs.cend(); it2++)
-		{
-			//and ya god said live creature !... LIVE !!!
 			if (*it2 && (*it2)->getCurrentHealth() > 0)
-			{
 				(*it2)->live();
-				CreatureCounts[ (int)((*it2)->getSpecies()->getType()) ]++;
-			}
-		}
 	}
 }
 
@@ -471,17 +447,6 @@ void Simulator::parallelTick()
 				NextLists[curthread]->push_back(T);
 				curthread = (curthread+1)%numThreads;
 			}
-			// old method: evenly split the number of tiles
-//			for ( int thread = 0; thread < numThreads; ++thread)
-//			{
-//				int from = thread*worksize;
-//				int to   = thread*worksize > batch.size()  ?  batch.size()-1  :  (thread+1)*worksize;
-//				TileIt it1 = batch.begin(); std::advance( it1, from);
-//				TileIt it2 = batch.begin(); std::advance( it2, to);
-//
-//				NextLists[thread]->clear();
-//				std::copy(it1, it2, std::inserter( *(NextLists[thread]), NextLists[thread]->end() ));
-//			}
 		}
 
 
@@ -491,21 +456,16 @@ void Simulator::parallelTick()
 		// cleanup dead creatures
 		for(auto it = _state->_creatures.begin(); it != _state->_creatures.end(); )
 		{
-			if((*it)->getCurrentHealth() <= 0)
+
+			if ((*it)->getCurrentHealth() <= 0)
 			{
 				(*it)->getTile()->removeCreature(*it);
 				auto it2 = it++;
 				_state->_creatures.erase( it2 );
 			}
-			else { (*(++it))->done = false; }
-		}
-
-		// collect counts
-		for ( int thread = 0; thread < numThreads; ++thread)
-		{
-			CreatureCounts[0] += (CreatureCounters[thread].get())[0];
-			CreatureCounts[1] += (CreatureCounters[thread].get())[1];
-			CreatureCounts[2] += (CreatureCounters[thread].get())[2];
+			else {
+				(*(++it))->done = false;
+			}
 		}
 
 		// swap the lists
@@ -522,23 +482,18 @@ void Simulator::parallelTick()
 	// cleanup dead creatures
 	for(auto it = _state->_creatures.begin(); it != _state->_creatures.end(); )
 	{
-		if((*it)->getCurrentHealth() <= 0)
+
+		if ((*it)->getCurrentHealth() <= 0)
 		{
 			(*it)->getTile()->removeCreature(*it);
 			auto it2 = it++;
 			_state->_creatures.erase( it2 );
 		}
-		else { (*(++it))->done = false; }
+		else {
+			CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+			(*(++it))->done = false;
+		}
 	}
-
-	// collect counts
-	for ( int thread = 0; thread < numThreads; ++thread)
-	{
-		CreatureCounts[0] += (CreatureCounters[thread].get())[0];
-		CreatureCounts[1] += (CreatureCounters[thread].get())[1];
-		CreatureCounts[2] += (CreatureCounters[thread].get())[2];
-	}
-
 }
 
 void Simulator::logTickStats()
