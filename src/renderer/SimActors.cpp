@@ -123,10 +123,13 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	for ( CreatureRenderInfo& R : r)
 	{
 		auto Pos = DetermineCreaturePos(std::get<0>(R));
+		sf::FloatRect hPos;
+
+		if(m_highlight)
+			hPos = DetermineCreaturePos(m_highlight);
 
 		if(m_highlight
-			&& m_highlight->getPosition().x >= Pos.left-10 && m_highlight->getPosition().x <= Pos.left+10
-			&& m_highlight->getPosition().y >= Pos.top-10 && m_highlight->getPosition().y <= Pos.top+10
+			&& Pos == hPos
 			&& m_highlight->getCurrentHealth() > 0)
 		{
 			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,255,0,0 ));
