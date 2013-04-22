@@ -122,7 +122,7 @@ void Creature::live()
 	
 	if(mySpecies->getType() == Species::HERBIVORE)
 	{
-		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, this->currentMaxSpeed()*fleeFactor, Species::CARNIVORE);
+		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::CARNIVORE);
 		if(nearest) {
 			didsomethingthistick = moveTo(Position - nearest->getPosition());
 		}
