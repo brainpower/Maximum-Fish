@@ -78,7 +78,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		typedef std::list<std::shared_ptr<Tile>>::iterator TileIt;
 
 		/// simulate a range of Tiles
-		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts);
+		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list);
 		void parallelTick();
 
 		std::shared_ptr<SimState> setState(const SimState &s){
@@ -167,14 +167,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> CurrentLists;
 		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> NextLists;
-		std::vector<std::shared_ptr<int>> CreatureCounters;
 		std::vector<std::shared_ptr<boost::thread>> threads;
 		std::shared_ptr<boost::barrier> startBarrier;
 		std::shared_ptr<boost::barrier> endBarrier;
 		/// thread entry point
 		void initThreads();
 		void stopThreads();
-		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, std::shared_ptr<int> _CreatureCounts, int seed);
+		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed);
 
 		int numThreads;
 		bool multiThreaded;
