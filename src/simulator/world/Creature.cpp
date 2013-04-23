@@ -128,7 +128,9 @@ void Creature::live()
 	{
 		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::CARNIVORE);
 		if(nearest) {
-			didsomethingthistick = moveTo(Position - nearest->getPosition());
+			//std::cout << "Fleeing from " << Position << " to " << Position + Geom::normalize(Position - nearest->getPosition())*currentMaxSpeed() << " - nearest is at " << nearest->getPosition() << std::flush;
+			didsomethingthistick = moveTo(Position + Geom::normalize(Position - nearest->getPosition())*currentMaxSpeed());
+			//std::cout << " => SUCCESS!" << std::endl;
 		}
 	}
 
@@ -290,7 +292,7 @@ void Creature::move()
 
 	std::uniform_real_distribution<float> rnd(0, 1);
 
-	if(hab < 10 || rnd(Simulator::GetRnd()) < migProb  /*TEST  true*/)
+	if(hab < 10 || rnd(Simulator::GetRnd()) < migProb)
 		for (int i = 0; i < 15; ++i)
 			if (randomMove()) return;
 
@@ -303,18 +305,26 @@ void Creature::move()
 bool Creature::moveTo( Geom::Pointf Target )
 {
 	// move as far in direction of the target as possible
+	Geom::Vec2f direction = Geom::normalize( Target - Position );
+	direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), currentMaxSpeed());
+	direction += Position;
+	
 	if ( Geom::distance( Target, Position ) > currentMaxSpeed() )
 	{
-		Geom::Vec2f direction = Geom::normalize( Target - Position );
-		direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), currentMaxSpeed());
-		direction += Position;
 		if ( validPos( direction ) )
 			setPosition( direction );
 		return false;
 	// move to the target
 	} else {
-		setPosition( Target );
-		return true;
+		if ( validPos( direction ) )
+		{
+			setPosition( Target );
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 

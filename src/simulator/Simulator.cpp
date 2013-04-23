@@ -30,6 +30,9 @@
 #include <random>
 #include <tuple>
 
+#include <iostream>
+#include <fstream>
+
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -473,7 +476,6 @@ void Simulator::parallelTick()
 			CurrentLists[thread]->swap( *(NextLists[thread]) );
 
 		startBarrier->wait();
-
 	}
 
 	// make sure we correctly stop the last batch
@@ -503,6 +505,22 @@ void Simulator::logTickStats()
 	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
 
 	//ProcessingTimes.push_back(  )
+	
+	
+	//##########################################
+	//TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTE
+	//##########################################
+	std::ofstream myfile;
+	if(_state->_currentTick % 100 == 0)
+	{
+		myfile.open("numCreatures.txt", std::ofstream::app);
+		//std::cout << CreatureCounts[0] << '\t' << CreatureCounts[1] << '\t' << CreatureCounts[2] << std::endl;
+		myfile << CreatureCounts[0] << '\t' << CreatureCounts[1] << '\t' << CreatureCounts[2] << '\n';
+		myfile.close();
+	}
+	//##########################################
+	//ENDTESTENDTESTENDTESTENDTESTENDTESTENDTEST
+	//##########################################
 }
 
 std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
