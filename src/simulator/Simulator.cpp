@@ -528,11 +528,17 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 	std::shared_ptr<sbe::GraphPlotter> re( new sbe::GraphPlotter );
 
 	sbe::Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));	
 	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+	
+	for(int i = 0; i < g.getCurves().size(); i++) {
+		for(int j = 0; j < g.getCurves()[i].data.size(); j++) {
+			if(g.AxisSize.y < g.getCurves()[i].data[j]) g.AxisSize.y = g.getCurves()[i].data[j];
+		}
+	}
 
 	re->setGraph( g );
 
