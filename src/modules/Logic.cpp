@@ -7,6 +7,7 @@
 
 
 #include "sbe/event/Event.hpp"
+#include "sbe/scripting/PythonEngine.hpp"
 
 #include "simulator/Simulator.hpp"
 
@@ -27,6 +28,8 @@ void Logic::Init()
 {
 	Engine::out() << "[Logic] Creating Sim" << std::endl;
 	Sim.reset ( new Simulator() );
+	Script.reset ( new sbe::PythonEngine() );
+	Script->init();
 }
 
 void Logic::DeInit()

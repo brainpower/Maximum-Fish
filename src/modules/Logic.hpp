@@ -2,6 +2,7 @@
 #define LOGIC_H
 
 #include "sbe/Module.hpp"
+#include "sbe/ScriptingEngine.hpp"
 #include "sbe/event/EventUser.hpp"
 
 #include <memory>
@@ -22,6 +23,7 @@ class Logic : public sbe::Module
 
 		static Logic* mInstance;
 		std::shared_ptr<Simulator> Sim;
+		std::shared_ptr<sbe::ScriptingEngine> Script;
 };
 
 
