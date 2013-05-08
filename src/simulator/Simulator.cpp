@@ -533,12 +533,6 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
-	
-	for(int i = 0; i < g.getCurves().size(); i++) {
-		for(int j = 0; j < g.getCurves()[i].data.size(); j++) {
-			if(g.AxisSize.y < g.getCurves()[i].data[j]) g.AxisSize.y = g.getCurves()[i].data[j];
-		}
-	}
 
 	re->setGraph( g );
 
