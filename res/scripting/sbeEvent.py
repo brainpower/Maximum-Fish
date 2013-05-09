@@ -1,1 +1,0 @@
-../../build.lnx/libsbe/scripting/sbeEvent.py

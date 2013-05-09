@@ -1,15 +1,15 @@
-import sbeEvent
-from sbeEvent import EventUser
+import SBE
+from SBE import EventUser
 
 print ( "Hello, sbeevent!" )
-s = sbeEvent.Event("TOGGLE_SIM_PAUSE")
-sbeEvent.Module.Get().QueueEvent( s, True )
-print( sbeEvent.Module.Get() )
+s = SBE.Event("TOGGLE_SIM_PAUSE")
+SBE.Module.Get().QueueEvent( s, True )
+print( SBE.Module.Get() )
 
 class myTest(EventUser):
 	def __init__(self):
-		print(dir(self))
-		self.RegisterForEvent( "TEST" )
+		EventUser.__init__(self)
+		self.RegisterForEvent( "SCRIPT_HELLO" )
 	
 	def HandleEvent( self, e ):
 		print( "EVENTFUCKYEAH!" )
