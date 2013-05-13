@@ -548,7 +548,8 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
 {
-	if(!isInitialized) return;
+	if( !isInitialized ) return;
+
 	const std::shared_ptr<Tile>& T = _state->_terrain->getTile( pos );
 
 
@@ -556,6 +557,9 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	if (!T)
 	{
 		Module::Get()->QueueEvent(Event("TILE_CLICKED", std::shared_ptr<Tile>()), true);
+		Module::Get()->QueueEvent(Event("CREATURE_CLICKED", std::shared_ptr<Creature>()), true);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+		UpdateCreatureRenderList();
 		return;
 	}
 
@@ -581,11 +585,8 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	Module::Get()->QueueEvent(ev, true);
 
 	// required to hightlight the creatures species in the renderer, as this can only be done when a new CreatureRenderlist is received
-	if (tmp)
-	{
-		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-		UpdateCreatureRenderList();
-	}
+	boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+	UpdateCreatureRenderList();
 }
 
 void Simulator::UpdateCreatureRenderList()

@@ -73,7 +73,8 @@ void SimActors::HandleEvent(Event& e)
 	{
 		std::vector<std::shared_ptr<Tile>> r = boost::any_cast< std::vector<std::shared_ptr<Tile>> >(e.Data());
 		ReadTileRenderList( r );
-	} else if ( e.Is("UpdateTilemapTexture", typeid( std::shared_ptr<sf::Image> )))
+	}
+	else if ( e.Is("UpdateTilemapTexture", typeid( std::shared_ptr<sf::Image> )))
 	{
 		if ( useShaderTileMap )
 		{
@@ -82,25 +83,20 @@ void SimActors::HandleEvent(Event& e)
 			tilemapTexture.loadFromImage( *i );
 			CreateTerrainShaderMap();
 		}
-	} else if ( (e.Is("EVT_SAVE_BAD", typeid(std::string)) || e.Is("EVT_LOAD_BAD", typeid(std::string))) )
+	}
+	else if ( (e.Is("EVT_SAVE_BAD", typeid(std::string)) || e.Is("EVT_LOAD_BAD", typeid(std::string))) )
 	{
 		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
-	} else if ( (e.Is("EVT_SAVE_GOOD") || e.Is("EVT_LOAD_GOOD")) )
+	}
+	else if ( (e.Is("EVT_SAVE_GOOD") || e.Is("EVT_LOAD_GOOD")) )
 	{
 		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD OK!", "Saving / Loading successfull!") );
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
-	} else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> ) ) )
+	}
+	else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> )))
     {
-
-		std::shared_ptr<Creature> c = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
-
-		if( c )
-		{
-			m_highlight = c;
-		} else {
-			m_highlight = nullptr;
-		}
+		m_highlight = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
     }
 }
 
@@ -120,45 +116,32 @@ void SimActors::ReadCreatureRenderList(CreatureRenderList& r)
 	bool cull = r.size() > cullThreshold;
 	auto imgs = Engine::GetResMgr()->get<sbe::ImageSet>("Creatures");
 
+	if ( m_highlight && m_highlight->getCurrentHealth() <= 0 ) m_highlight.reset();
+
 	for ( CreatureRenderInfo& R : r)
 	{
 		auto Pos = DetermineCreaturePos(std::get<0>(R));
-		sf::FloatRect hPos;
+		if ( cull && !sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) continue;
 
-		if(m_highlight)
-			hPos = DetermineCreaturePos(m_highlight);
-
-		if(m_highlight
-			&& Pos == hPos
-			&& m_highlight->getCurrentHealth() > 0)
+		sf::Color Col = sf::Color::Black;
+		// Determine Highlighting Color, if any
+		if ( m_highlight )
 		{
-			if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,255,0,0 ));
-		} else {
-			if(m_highlight && m_highlight->getCurrentHealth() <= 0)
-			{
-				m_highlight.reset();
-			}
-			if(m_highlight && std::get<2>(R) == m_highlight->getSpecies().get())
-			{
-				if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(255,0,0,0 ));
-			}
-			else {
-				if(m_highlight)
-				{
-					if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, sf::Color(0,0,0,0));
-				} else {
-					if ( !cull || sbe::Screen::sCam()->getDrawnArea().intersects(Pos) ) imgs->CreateQuad( std::get<1>(R) , Creatures, Pos);
-				}
-			}
+			// currently selected Creature
+			if (Pos == DetermineCreaturePos(m_highlight)) {Col = sf::Color(255,255,0,0 );}
+			// currently selected Species
+			else if ( std::get<2>(R) == m_highlight->getSpecies().get()) {Col = sf::Color(255,0,0,0 );}
+			// not selected, fade
+			else {Col = sf::Color(0,0,0,0);}
 		}
+
+		imgs->CreateQuad( std::get<1>(R) , Creatures, Pos, -1, Col);
 	}
 
 	//Engine::out() << "[SimActors] Recreated creature vertexarray!" << r.size() << std::endl;
 
 	if ( newActor )
-	{
 		sbe::Screen::get()->getRenderer()->addActor ( CreaturesActor, L_CREATURES );
-	}
 
 }
 
