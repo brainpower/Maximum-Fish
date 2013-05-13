@@ -36,7 +36,7 @@
 
 Simulator* Simulator::Instance = nullptr;
 
-Simulator::Simulator() : isPaused(false) {
+Simulator::Simulator() : isPaused(true), isInitialized(false) {
 
 	Instance = this;
 
@@ -79,17 +79,17 @@ std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
 
 void Simulator::HandleEvent(Event& e)
 {
-	if(e.Is("EVT_TICK"))
+	if(e.Is("EVT_TICK") && isInitialized )
 	{
 		advance();
 	}
-	else if(e.Is("SIM_PAUSE"))
+	else if(e.Is("SIM_PAUSE") && isInitialized )
 	{
 		isPaused = true;
 		Engine::getCfg()->set("sim.paused", isPaused);
 		UpdateCreatureRenderList();
 	}
-	else if(e.Is("SIM_UNPAUSE"))
+	else if(e.Is("SIM_UNPAUSE") && isInitialized )
 	{
 		isPaused = false;
 		Engine::getCfg()->set("sim.paused", isPaused);
@@ -101,13 +101,13 @@ void Simulator::HandleEvent(Event& e)
 			simulateTicks = TicksToSim;
 		}
 	}
-	else if(e.Is("TOGGLE_SIM_PAUSE"))
+	else if(e.Is("TOGGLE_SIM_PAUSE") && isInitialized )
 	{
 		isPaused = !isPaused;
 		Engine::getCfg()->set("sim.paused", isPaused);
 		if (isPaused) UpdateCreatureRenderList();
 	}
-	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )))
+	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )) && isInitialized )
 	{
 		// cast into desired type
 		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
@@ -116,7 +116,7 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
 	}
-	else if ( e.Is( "PLOT_GRAPH", typeid( std::string ) ) )
+	else if ( e.Is( "PLOT_GRAPH", typeid( std::string ) ) && isInitialized  )
 	{
 		std::string graphName = boost::any_cast<std::string>( e.Data() );
 		///TODO: Choose the right Graph to plot
@@ -127,7 +127,7 @@ void Simulator::HandleEvent(Event& e)
 			Module::Get()->QueueEvent(Event("DISPLAY_GRAPH", p), true);
 		}
 	}
-	else if ( e.Is( "UPDATE_OVERLAYS" ) )
+	else if ( e.Is( "UPDATE_OVERLAYS" ) && isInitialized  )
 	{
 		_state->_terrain->CreateMapPlotters();
 	}
@@ -135,20 +135,20 @@ void Simulator::HandleEvent(Event& e)
 	{
 		NewSimulation();
 	}
-	else if (e.Is("EVT_SAVE_TERRAIN"))
+	else if (e.Is("EVT_SAVE_TERRAIN") && isInitialized )
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", _state->_terrain, true);
 	}
-	else if (e.Is("EVT_SAVE_WHOLE_TEST")) {
+	else if (e.Is("EVT_SAVE_WHOLE_TEST") && isInitialized ) {
 		saveWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
-	else if (e.Is("EVT_LOAD_WHOLE_TEST")) {
+	else if (e.Is("EVT_LOAD_WHOLE_TEST") && isInitialized ) {
 		loadWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
 	}
-	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string))) {
+	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string)) && isInitialized ) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
 	}
-	else if (e.Is("EVT_LOAD_WHOLE", typeid(std::string))) {
+	else if (e.Is("EVT_LOAD_WHOLE", typeid(std::string)) && isInitialized ) {
 		loadWhole(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_QUIT"))
@@ -170,7 +170,7 @@ void Simulator::init()
 	_pod.reset(new StasisPod());
 	_freezeRate = Engine::getCfg()->get<int>("sim.freezeRate");
 
-	NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
+	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
 void Simulator::NewSimulation( int seed )
@@ -271,6 +271,7 @@ void Simulator::NewSimulation(
 	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
 	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Any other graph") ), true );//@TODO
 	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Population") ), true );
+	isInitialized = true;
 }
 
 void Simulator::initThreads()
@@ -319,6 +320,8 @@ void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, i
 }
 void Simulator::advance()
 {
+	if(!isInitialized) return;
+
 	if(!isPaused)
 	{
 		// last tick?
@@ -500,13 +503,15 @@ void Simulator::parallelTick()
 
 void Simulator::logTickStats()
 {
+	if(!isInitialized) return;
+
 	HerbaeCounts.push_back(CreatureCounts[(int)Species::HERBA]);
 	HerbivoreCounts.push_back(CreatureCounts[(int)Species::HERBIVORE]);
 	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
 
 	//ProcessingTimes.push_back(  )
-	
-	
+
+
 	//##########################################
 	//TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTE
 	//##########################################
@@ -525,10 +530,12 @@ void Simulator::logTickStats()
 
 std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 {
+	if(!isInitialized) return std::shared_ptr<sbe::GraphPlotter>();
+
 	std::shared_ptr<sbe::GraphPlotter> re( new sbe::GraphPlotter );
 
 	sbe::Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));	
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
 	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
@@ -541,6 +548,7 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
 {
+	if(!isInitialized) return;
 	const std::shared_ptr<Tile>& T = _state->_terrain->getTile( pos );
 
 
@@ -618,6 +626,7 @@ void Simulator::registerIOPlugins()
 }
 
 void Simulator::saveWhole(const std::string &savePath){
+	if(!isInitialized) return;
 	bool wasPaused = isPaused;
 
 	isPaused = true; // pause sim while saving
@@ -656,6 +665,8 @@ void Simulator::saveWhole(const std::string &savePath){
 }
 
 void Simulator::loadWhole(const std::string &loadPath){
+	if(!isInitialized) return;
+
 	bool wasPaused = isPaused;
 	isPaused = true; // pause sim while saving
 	Engine::getCfg()->set("sim.paused", isPaused);

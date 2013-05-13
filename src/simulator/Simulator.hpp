@@ -164,6 +164,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		int simulateTicks;
 
 		bool isPaused;
+		bool isInitialized;
 
 		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> CurrentLists;
 		std::vector<std::shared_ptr<std::list<std::shared_ptr<Tile>>>> NextLists;

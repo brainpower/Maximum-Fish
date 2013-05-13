@@ -77,8 +77,9 @@ void GraphBook::AddNewGraph( std::string displayName )
 
 void GraphBook::UpdateGraph()
 {
+	std::string currentTabName = "";
 	//get current tab-label-string
-	std::string currentTabName = DynamicPointerCast<Label>( Tabs->GetNthTabLabel( Tabs->GetCurrentPage() ) )->GetText();
+	if ( Tabs->GetPageCount() > 0 ) currentTabName = DynamicPointerCast<Label>( Tabs->GetNthTabLabel( Tabs->GetCurrentPage() ) )->GetText();
 	//make update
 	Module::Get()->QueueEvent( Event( "PLOT_GRAPH", currentTabName ), true );
 }
