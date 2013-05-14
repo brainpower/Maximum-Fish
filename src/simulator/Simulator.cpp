@@ -61,7 +61,6 @@ Simulator::Simulator() : isPaused(false) {
 
 	RegisterForEvent("SET_SIM_TPS");
 
-	RegisterForEvent("PLOT_GRAPH");
 	RegisterForEvent("UPDATE_OVERLAYS");
 
 	init();
@@ -118,14 +117,7 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if ( e.Is( "PLOT_GRAPH", typeid( std::string ) ) )
 	{
-		std::string graphName = boost::any_cast<std::string>( e.Data() );
-		///TODO: Choose the right Graph to plot
-		if ( graphName == "Population" )
-		{
-			std::shared_ptr<sbe::GraphPlotter> p = CreateCountPlotter();
-			if ( p->isValid() )
-			Module::Get()->QueueEvent(Event("DISPLAY_GRAPH", p), true);
-		}
+
 	}
 	else if ( e.Is( "UPDATE_OVERLAYS" ) )
 	{
@@ -269,8 +261,13 @@ void Simulator::NewSimulation(
 	RendererUpdate.restart();
 
 	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
-	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Any other graph") ), true );//@TODO
-	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", std::string("Population") ), true );
+	std::shared_ptr<sbe::GraphPlotter> p = CreateCountPlotter();
+	auto data = std::make_pair( std::string( "Population" ), p );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
+	/******/Engine::out() << "[Simulator] added graphplotter 'population' to book." << std::endl;
+
+	data = std::make_pair( std::string( "Any other graph" ), p );
+	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", data ), true );
 }
 
 void Simulator::initThreads()
@@ -505,8 +502,8 @@ void Simulator::logTickStats()
 	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
 
 	//ProcessingTimes.push_back(  )
-	
-	
+
+
 	//##########################################
 	//TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTE
 	//##########################################
@@ -528,7 +525,7 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 	std::shared_ptr<sbe::GraphPlotter> re( new sbe::GraphPlotter );
 
 	sbe::Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));	
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
 	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
