@@ -43,6 +43,7 @@ private:
 	friend class Simulator;
 	friend class SimStateIOPlugin;
 	friend class Generator;
+	friend class StasisPod;
 };
 
 #endif //SIMSTATE_HPP
