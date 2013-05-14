@@ -23,6 +23,7 @@ class MainMenu : public sbe::EventUser
 	private:
 		void CreateWindow(const Geom::Vec2 Size);
 		void BtnResumeClick();
+		void BtnNewClick();
 		void BtnSaveClick();
 		void BtnLoadClick();
 		void BtnExitClick();

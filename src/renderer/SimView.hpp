@@ -9,6 +9,7 @@ class InfoPanel;
 class MainMenu;
 class GraphBook;
 class SimActors;
+class NewSimWindow;
 
 namespace sbe {
 	class DebugWindow;
@@ -43,6 +44,7 @@ class SimView : public sbe::SFMLEventUser
         std::unique_ptr<InfoPanel> IPan;
         //std::unique_ptr<Manipulator> Man;
 		std::unique_ptr<sbe::DebugWindow> DbgWin;
+		std::unique_ptr<NewSimWindow> NewWin;
 		std::unique_ptr<MainMenu> MnMnWin;
 		std::unique_ptr<GraphBook> GraBo;
 

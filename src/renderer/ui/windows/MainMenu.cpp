@@ -28,6 +28,9 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 	sfg::Button::Ptr btnResume( sfg::Button::Create( "Resume" ) );
 	btnResume->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnResumeClick, this );
 
+	sfg::Button::Ptr btnNew( sfg::Button::Create( "New Simulation" ) );
+	btnNew->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnNewClick, this );
+
 	// exit button
 	sfg::Button::Ptr btnExit( sfg::Button::Create( "Exit Program" ) );
 	btnExit->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnExitClick, this );
@@ -42,6 +45,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 	// main box, vertical
 	sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ) );
 	box->Pack( btnResume, false, false );
+	box->Pack( btnNew, false, false );
 	box->Pack( btnSave, false, false );
 	box->Pack( btnLoad, false, false );
 	box->Pack( btnOptions, false, false );
@@ -87,6 +91,11 @@ void MainMenu::updatePosition()
 	sf::FloatRect Allocation = Win->GetAllocation();
 	sf::Vector2u winSize =  Engine::GetApp().getSize();
 	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width )/2 , ( winSize.y - Allocation.height )/2   ) );
+}
+
+void MainMenu::BtnNewClick()
+{
+	Module::Get()->QueueEvent( Event( "KEY_SHOW_NEWSIM" ) );
 }
 
 void MainMenu::BtnResumeClick()

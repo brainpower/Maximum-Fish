@@ -15,6 +15,7 @@
 //#include "renderer/items/Manipulator.hpp"
 #include "renderer/ui/windows/MainMenu.hpp"
 #include "renderer/ui/windows/GraphBook.hpp"
+#include "renderer/ui/windows/NewSimulation.hpp"
 
 #include "renderer/SimActors.hpp"
 
@@ -33,6 +34,7 @@ SimView::SimView()
 	InitDesktop();
 	ISim.reset ( new SimActors );
 
+	Module::Get()->QueueEvent("KEY_SHOW_NEWSIM");
 }
 
 SimView::~SimView()
@@ -42,6 +44,7 @@ SimView::~SimView()
     IPan.reset();
 	//Man;
 	DbgWin.reset();
+	NewWin.reset();
 	MnMnWin.reset();
 	GraBo.reset();
 }
@@ -62,6 +65,7 @@ void SimView::InitDesktop()
     IPan.reset    ( new InfoPanel() );
     //Man.reset     ( new Manipulator() );
 	DbgWin.reset  ( new sbe::DebugWindow() );
+	NewWin.reset  ( new NewSimWindow() );
 	MnMnWin.reset ( new MainMenu() );
 	GraBo.reset   ( new GraphBook() );
 

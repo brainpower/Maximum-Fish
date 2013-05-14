@@ -201,7 +201,7 @@ void GraphBook::handleEntryInput( int entry )
 		Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry handled." << std::endl;
 		return;
 	}
-	///@TODO: set new values in GraphPlotter
+	// set new values in GraphPlotter
 	UpdateGraphSettings();
 	textchangeavoidrecursive = true;
 }
