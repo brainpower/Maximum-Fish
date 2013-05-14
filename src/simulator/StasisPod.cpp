@@ -20,7 +20,8 @@ std::shared_ptr<SimState> StasisPod::taw(const size_t i){
 }
 
 std::shared_ptr<SimState> StasisPod::tawTick(const int i){
-	for( auto it = _pod.begin(); (*it)->_currentTick > i ; ++it);
+	auto it = _pod.begin();
+	for( ; (*it)->_currentTick > i ; ++it);
 	auto _ret = *it;
 	_pod.erase(it);
 	//_pod.erase(_pod.begin(), it); // discard states newer than this tawed one???
@@ -36,7 +37,8 @@ const std::shared_ptr<SimState> StasisPod::peekTop(){
 }
 
 const std::shared_ptr<SimState> StasisPod::peekTick(const int i){
-	for( auto it = _pod.begin(); (*it)->_currentTick > i ; ++it);
+	auto it = _pod.begin();
+	for( ; (*it)->_currentTick > i ; ++it);
 	return *it;
 }
 
