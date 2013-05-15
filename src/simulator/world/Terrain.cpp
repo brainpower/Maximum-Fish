@@ -261,98 +261,31 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 
 void Terrain::CreateParallelisationGraph()
 {
-	using namespace Geom;
-
-	unsigned int currentID = 0;
-	unsigned int idsAssigned = 0;
-
 	int maxreach = Engine::getCfg()->get<int>("sim.creatureActionRadius");
-	bool minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 
-	for( std::shared_ptr<Tile> &t : Tiles) t->setParallelId(0);
 	Colors.clear();
+	Colors.resize(4);
 
-	while ( idsAssigned < Tiles.size())
+	for( int x = 0; x < Size.x; x+=maxreach)
 	{
-		currentID++;
-		Colors.emplace_back();
-
-		for ( auto Tile = Tiles.begin(); Tile != Tiles.end(); ++Tile )
+		for ( int y = 0; y < Size.y; y+=maxreach)
 		{
-			// already set in another color?
-			if ( (*Tile)->getParallelId() != 0 ) continue;
-
-			// if not check all other tiles before this one for overlapping
-			for ( auto Tile2 = Tiles.begin(); Tile2 != Tile; ++Tile2 )
+			int id;
+			for (int xx = 0; xx < maxreach && x+xx < Size.x; ++xx)
 			{
-				// only consider tiles of the same id
-				if ((*Tile2)->getParallelId() != currentID) continue;
-
-				Point points1[4];
-				Point points2[4];
-				decompose( points2, Rect((*Tile2)->getPosition(), (*Tile2)->getPosition()+1 ));
-
-				if ( minimizeParallelRuns )
+				for (int yy = 0; yy < maxreach && y+yy < Size.y; ++yy)
 				{
-					// we dont need the points of p1 here, but the corner points of the maxreach x maxreach sized rectangle
-					Point points2[4];
-					points1[0] = (*Tile)->getPosition();
-					points1[1] = (*Tile)->getPosition() + Point( maxreach, 0 );
-					points1[2] = (*Tile)->getPosition() + maxreach;
-					points1[3] = (*Tile)->getPosition() + Point( 0, maxreach );
-				}
-				else
-				{
-					decompose( points1, Rect((*Tile )->getPosition(), (*Tile )->getPosition()+1 ));
-				}
-
-				for ( int i = 0; i < 4; ++i)
-					for ( int j = 0; j < 4; ++j )
-						//if ( std::abs( points1[i].x - points2[j].x) < maxreach || std::abs( points1[i].y - points2[j].y) < maxreach )
-						if ( distance( points1[i], points2[j]) < maxreach || (std::abs( points1[i].x - points2[j].x) < maxreach && std::abs( points1[i].y - points2[j].y) < maxreach) )
-						{
-							//Engine::out() << "ID: " << currentID << "/" << (*Tile2)->getParallelId() << " Tile: " << (*Tile)->getPosition() << " check: " << (*Tile2)->getPosition() << " failed! " << points1[i] << " -> " << points2[j] << " = " << distance( points1[i], points2[j]) << " dx: " << std::abs( points1[i].x - points2[j].x) << " dy: " << std::abs( points1[i].y - points2[j].y) << std::endl;
-							goto nexttile;
-						}
-
-			}
-
-			// all distance checks were succefull
-			if (minimizeParallelRuns)
-			{
-				Vec2 Pos = (*Tile)->getPosition();
-
-				for (int x = Pos.x; x < Pos.x + maxreach; ++x)
-				{
-					if ( x >= Size.x ) break;
-					for (int y = Pos.y; y < Pos.y + maxreach; ++y)
-					{
-						if ( y >= Size.y ) break;
-
-						Tiles[ linear(x,y, Size.x) ]->setParallelId( currentID );
-						Colors.back().push_back( Tiles[ linear(x,y, Size.x) ] );
-						idsAssigned++;
-					}
+					int col = (x+xx/maxreach) % 2;
+					int odd = (y+yy/maxreach) % 2;
+					id  = (2*odd)+col;
+					Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ]->setParallelId( id );
+					Colors[ id ].push_back( Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ] );
 				}
 			}
-			else
-			{
-				(*Tile)->setParallelId( currentID );
-				Colors.back().push_back( *Tile );
-				idsAssigned++;
-			}
-
-
-			nexttile:;
+			// acts as a divider between the squares of this color
+			Colors[ id ].emplace_back();
 		}
-
-
 	}
-
-	Engine::out() << "Parallelisation: " << Colors.size() << " Colors/IDs" << std::endl;
-	for ( int i = 0; i < Colors.size(); ++i )
-		Engine::out() << "    ID:" << i+1 << " - Tiles: " << (Colors.begin()++)->size() << std::endl;
-
 }
 
 void Terrain::CreateMapPlotters()

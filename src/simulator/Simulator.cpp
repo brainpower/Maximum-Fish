@@ -156,7 +156,6 @@ void Simulator::init()
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
 	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
-	minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 	multiThreaded = numThreads > 1;
 
 	_pod.reset(new StasisPod());
@@ -192,10 +191,7 @@ void Simulator::NewSimulation( int seed )
 
 void Simulator::NewSimulation(
 	std::shared_ptr<SimState> state,
-	std::mt19937* rng) //,
-	//~ std::shared_ptr<Terrain> newTerrain,
-	//~ std::vector<std::shared_ptr<Species>>& newSpecies,
-	//~ std::list<std::shared_ptr<Creature>>& newCreatures )
+	std::mt19937* rng)
 {
 	if ( multiThreaded)
 	{
@@ -216,7 +212,7 @@ void Simulator::NewSimulation(
 
 	Engine::out(Engine::INFO) << "[Simulator] Terrain" << std::endl;
 	//Terra = newTerrain; // we've done that before already
-	state->_terrain->UpdateTileMap();
+
 
 	Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
 	CreatureCounts[0] = 0;
@@ -252,6 +248,7 @@ void Simulator::NewSimulation(
 	state->_terrain->CreateParallelisationGraph();
 
 	// send terrain to renderer
+	state->_terrain->UpdateTileMap();
 	state->_terrain->UpdateTerrain();
 	// send creatures to renderer
 	UpdateCreatureRenderList();
@@ -437,27 +434,13 @@ void Simulator::parallelTick()
 
 
 		// prepare the next batch of work
-		if ( minimizeParallelRuns )
+		int curthread = 0;
+		for ( auto& T : batch )
 		{
-			int curthread = 0;
-			for ( auto& T : batch )
-			{
-				if ( !T ) curthread = (curthread+1)%numThreads;
-				else
-					NextLists[curthread]->push_back(T);
-			}
-		}
-		else
-		{
-			// sort the tile into the threads
-			int curthread = 0;
-			for ( auto& T : batch)
-			{
+			if ( !T ) curthread = (curthread+1)%numThreads;
+			else
 				NextLists[curthread]->push_back(T);
-				curthread = (curthread+1)%numThreads;
-			}
 		}
-
 
 		// wait till the threads are finished
 		endBarrier->wait();

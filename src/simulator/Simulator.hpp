@@ -179,7 +179,6 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		int numThreads;
 		bool multiThreaded;
-		bool minimizeParallelRuns;
 
 		static Simulator* Instance;
 
