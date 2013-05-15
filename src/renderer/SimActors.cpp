@@ -41,6 +41,8 @@ SimActors::SimActors()
 	RegisterForEvent("UpdateTilemapTexture");
 	RegisterForEvent("CREATURE_CLICKED");
 
+	RegisterForEvent("RESET_SIMULATION");
+
 	RegisterForEvent("EVT_SAVE_GOOD");
 	RegisterForEvent("EVT_SAVE_BAD");
 	RegisterForEvent("EVT_LOAD_BAD");
@@ -97,6 +99,10 @@ void SimActors::HandleEvent(Event& e)
 	else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> )))
     {
 		m_highlight = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
+    }
+	else if ( e.Is( "RESET_SIMULATION" ))
+    {
+		SetCamLimits();
     }
 }
 
@@ -157,11 +163,17 @@ void SimActors::ReadTileRenderList(TileRenderList& r)
 
 	// and create the corresponding grid
 	CreateGrid();
+	SetCamLimits();
+}
+
+void SimActors::SetCamLimits()
+{
+	TileSize =         Engine::getCfg()->get<int>("system.ui.simView.tileSize");
+	TerrainSize =      Engine::getCfg()->get<int>("sim.terragen.debug.size");
+
 	sbe::Screen::sCam()->setTargetCenter(sf::Vector2f((TerrainSize*TileSize)/2,(TerrainSize*TileSize)/2));
 	sbe::Screen::sCam()->zoom ((TerrainSize*TileSize) / sbe::Screen::sCam()->getTargetSize().y );
 }
-
-
 
 void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 {
