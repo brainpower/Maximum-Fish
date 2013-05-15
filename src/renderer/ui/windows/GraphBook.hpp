@@ -52,6 +52,9 @@ class GraphBook : public sbe::EventUser
 		/// called whenever the graphplotter is updated or modified
 		void UpdateGraphSettings();
 
+		/// check if Graphbook has actionability (when a tab is active)
+		bool hasActionability();
+
 		/// called from event-handler on enter, executing the changes from the active entry
 		void handleEntryInput( int entry );
 

@@ -77,6 +77,8 @@ void GraphBook::HandleEvent( Event& e )
 
 void GraphBook::EntryTextChange()
 {
+	if ( !hasActionability() )
+		return;
 	if ( !textchangeavoidrecursive )
 	{
 		SharedPtr<Entry> entry;
@@ -117,6 +119,8 @@ void GraphBook::EntryTextChange()
 ///@TODO: set for current tab
 void GraphBook::hViewingRange()
 {
+	if ( !hasActionability() )
+		return;
 	auto graphpl = std::get<0>( cTT() );
 	auto box = std::get<2>( cTT() );
 	if ( box->IsGloballyVisible() )
@@ -126,6 +130,8 @@ void GraphBook::hViewingRange()
 
 void GraphBook::vViewingRange()
 {
+	if ( !hasActionability() )
+		return;
 	std::get<3>( cTT() )->Show( !std::get<3>( cTT() )->IsGloballyVisible() );
 }
 
@@ -156,6 +162,8 @@ void GraphBook::EntryLostFocus()
 
 void GraphBook::handleEntryInput( int entry )
 {
+	if ( !hasActionability() )
+		return;
 	// determine which entry
 	switch ( entry )
 	{
@@ -276,7 +284,11 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 
 void GraphBook::UpdateGraphSettings()
 {
+	if ( !hasActionability() )
+		return;
 	auto G = std::get<0>( cTT() );
+	if ( !G )
+		return;
 	Geom::Vec2 start = Geom::Vec2( std::get<4>( cTT() ), std::get<6>( cTT() ) );
 	Geom::Vec2 stop  = Geom::Vec2( std::get<5>( cTT() ), std::get<7>( cTT() ) );
 	G->getGraph().AxisStart = start;
@@ -296,19 +308,16 @@ std::tuple<std::shared_ptr<sbe::GraphPlotter>,
 		SharedPtr<Entry>,
 		SharedPtr<Entry> > GraphBook::cTT()
 {
+	/// the way to prevent return value if current page = -1 is to check hasActionability() first
 	int i = Tabs->GetCurrentPage();
-///@TODO: find a way to prevent return value if current page = -1
-//	if ( i < 0 )
-//		return auto;
 	return graphPlotterList.at( i );
 }
 
 void GraphBook::PlotGraph()
 {
-	int i = Tabs->GetCurrentPage();
-	if ( i < 0 )
+	if ( !hasActionability() )
 		return;
-	auto G = std::get<0>( graphPlotterList.at( i ) );
+	auto G = std::get<0>( cTT() );
 	if ( !G ) {
 		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] INVALID POINTER!" << std::endl;
 		return;
@@ -323,7 +332,12 @@ void GraphBook::PlotGraph()
 		tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
 		G->draw( tex );
 		tex.display();
-	std::get<1>( graphPlotterList.at( i ) ) = Image::Create( tex.getTexture().copyToImage() );
+	std::get<1>( cTT() ) = Image::Create( tex.getTexture().copyToImage() );
+}
+
+bool GraphBook::hasActionability()
+{
+	return ( Tabs->GetCurrentPage() >= 0 );
 }
 
 void GraphBook::updatePosition()

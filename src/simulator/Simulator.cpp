@@ -115,10 +115,6 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Module::Get()->SetTPS(boost::any_cast<unsigned int>(e.Data()));
 	}
-	else if ( e.Is( "PLOT_GRAPH", typeid( std::string ) ) && isInitialized  )
-	{
-
-	}
 	else if ( e.Is( "UPDATE_OVERLAYS" ) && isInitialized  )
 	{
 		_state->_terrain->CreateMapPlotters();
@@ -256,6 +252,8 @@ void Simulator::NewSimulation(
 	// send creatures to renderer
 	UpdateCreatureRenderList();
 
+	isInitialized = true;
+
 	state->_terrain->CreateMapPlotters();
 
 	RendererUpdate.restart();
@@ -264,11 +262,7 @@ void Simulator::NewSimulation(
 	std::shared_ptr<sbe::GraphPlotter> p = CreateCountPlotter();
 	auto data = std::make_pair( std::string( "Population" ), p );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
-	/******/Engine::out() << "[Simulator] added graphplotter 'population' to book." << std::endl;
 
-	data = std::make_pair( std::string( "Any other graph" ), p );
-	Module::Get()->QueueEvent( Event( "ADD_GRAPH_TO_BOOK", data ), true );
-	isInitialized = true;
 }
 
 void Simulator::initThreads()
