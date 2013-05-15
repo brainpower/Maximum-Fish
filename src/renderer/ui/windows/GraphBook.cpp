@@ -85,16 +85,16 @@ void GraphBook::EntryTextChange()
 		switch ( ListenToActionKeys )
 		{
 		case 1:
-			entry = std::get<4>( cTT() );
+			entry = cTT().hFrom;
 			break;
 		case 2:
-			entry = std::get<5>( cTT() );
+			entry = cTT().hTo;
 			break;
 		case 3:
-			entry = std::get<6>( cTT() );
+			entry = cTT().vFrom;
 			break;
 		case 4:
-			entry = std::get<7>( cTT() );
+			entry = cTT().vTo;
 			break;
 		default:
 			Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry changed." << std::endl;
@@ -121,18 +121,16 @@ void GraphBook::hViewingRange()
 {
 	if ( !hasActionability() )
 		return;
-	auto graphpl = std::get<0>( cTT() );
-	auto box = std::get<2>( cTT() );
-	if ( box->IsGloballyVisible() )
-		graphpl->updateVertexArrays();
-	box->Show( !box->IsGloballyVisible() );
+	cTT().hBox->Show( !cTT().hBox->IsGloballyVisible() );
+	UpdateGraphSettings();
 }
 
 void GraphBook::vViewingRange()
 {
 	if ( !hasActionability() )
 		return;
-	std::get<3>( cTT() )->Show( !std::get<3>( cTT() )->IsGloballyVisible() );
+	cTT().vBox->Show( !cTT().vBox->IsGloballyVisible() );
+	UpdateGraphSettings();
 }
 
 void GraphBook::HViewingRangeFromEntryGainFocus()
@@ -169,41 +167,41 @@ void GraphBook::handleEntryInput( int entry )
 	{
 	// check if bigger or lower
 	case 1: {
-		int cursorPos = std::get<4>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<4>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = cTT().hFrom->GetCursorPosition();
+		int input = boost::lexical_cast<int>( cTT().hFrom->GetText().toAnsiString() );
 		int minimum = 0;
-		int maximum = boost::lexical_cast<int>( std::get<5>( cTT() )->GetText().toAnsiString() );
+		int maximum = boost::lexical_cast<int>( cTT().hTo->GetText().toAnsiString() );
 		if ( input > maximum )
 			input = maximum;
-		std::get<4>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<4>( cTT() )->SetCursorPosition( cursorPos );
+		cTT().hFrom->SetText( boost::lexical_cast<std::string>( input ) );
+		cTT().hFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 2: {
-		int cursorPos = std::get<5>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<5>( cTT() )->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( std::get<4>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = cTT().hTo->GetCursorPosition();
+		int input = boost::lexical_cast<int>( cTT().hTo->GetText().toAnsiString() );
+		int minimum =boost::lexical_cast<int>( cTT().hFrom->GetText().toAnsiString() );
 		if ( input < minimum )
 			input = minimum;
-		std::get<5>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<5>( cTT() )->SetCursorPosition( cursorPos );
+		cTT().hTo->SetText( boost::lexical_cast<std::string>( input ) );
+		cTT().hTo->SetCursorPosition( cursorPos );
 		} break;
 	case 3: {
-		int cursorPos = std::get<6>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<6>( cTT() )->GetText().toAnsiString() );
-		int maximum =boost::lexical_cast<int>( std::get<4>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = cTT().vFrom->GetCursorPosition();
+		int input = boost::lexical_cast<int>( cTT().vFrom->GetText().toAnsiString() );
+		int maximum =boost::lexical_cast<int>( cTT().vTo->GetText().toAnsiString() );
 		if ( input > maximum )
 			input = maximum;
-		std::get<6>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<6>( cTT() )->SetCursorPosition( cursorPos );
+		cTT().vFrom->SetText( boost::lexical_cast<std::string>( input ) );
+		cTT().vFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 4: {
-		int cursorPos = std::get<7>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<7>( cTT() )->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( std::get<6>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = cTT().vTo->GetCursorPosition();
+		int input = boost::lexical_cast<int>( cTT().vTo->GetText().toAnsiString() );
+		int minimum =boost::lexical_cast<int>( cTT().vFrom->GetText().toAnsiString() );
 		if ( input < minimum )
 			input = minimum;
-		std::get<7>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<7>( cTT() )->SetCursorPosition( cursorPos );
+		cTT().vTo->SetText( boost::lexical_cast<std::string>( input ) );
+		cTT().vTo->SetCursorPosition( cursorPos );
 		} break;
 	default:
 		Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry handled." << std::endl;
@@ -275,49 +273,42 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotGraph, this );
 	Tabs->AppendPage( box, label );
 
-	auto y = std::make_tuple( graph, I, hViewingRangeBox, vViewingRangeBox,
+	auto y = graphTuple( graph, I, hViewingRangeBox, vViewingRangeBox,
 	                          hViewingRangeFromEntry, hViewingRangeToEntry,
 	                          vViewingRangeFromEntry, vViewingRangeToEntry );
 
-	graphPlotterList.push_back( y );
+	graphTupleList.push_back( y );
 }
 
 void GraphBook::UpdateGraphSettings()
 {
 	if ( !hasActionability() )
 		return;
-	auto G = std::get<0>( cTT() );
+	auto G = cTT().plotter;
 	if ( !G )
 		return;
-	Geom::Vec2 start = Geom::Vec2( std::get<4>( cTT() ), std::get<6>( cTT() ) );
-	Geom::Vec2 stop  = Geom::Vec2( std::get<5>( cTT() ), std::get<7>( cTT() ) );
+	Geom::Vec2 start = Geom::Vec2( cTT().hFrom, cTT().vFrom );
+	Geom::Vec2 stop  = Geom::Vec2( cTT().hTo, cTT().vTo );
 	G->getGraph().AxisStart = start;
 	G->getGraph().AxisSize  = ( stop - start );
-	G->getGraph().dynX = !( std::get<2>( cTT() )->IsGloballyVisible() );
-	G->getGraph().dynY = !( std::get<3>( cTT() )->IsGloballyVisible() );
+	G->getGraph().dynX = !( cTT().hBox->IsGloballyVisible() );
+	G->getGraph().dynY = !( cTT().vBox->IsGloballyVisible() );
 	G->updateVertexArrays();
 	PlotGraph();
 }
 
-std::tuple<std::shared_ptr<sbe::GraphPlotter>,
-		SharedPtr<Image>,
-		SharedPtr<Box>,
-		SharedPtr<Box>,
-		SharedPtr<Entry>,
-		SharedPtr<Entry>,
-		SharedPtr<Entry>,
-		SharedPtr<Entry> > GraphBook::cTT()
+GraphBook::graphTuple& GraphBook::cTT()
 {
 	/// the way to prevent return value if current page = -1 is to check hasActionability() first
 	int i = Tabs->GetCurrentPage();
-	return graphPlotterList.at( i );
+	return graphTupleList.at( i );
 }
 
 void GraphBook::PlotGraph()
 {
 	if ( !hasActionability() )
 		return;
-	auto G = std::get<0>( cTT() );
+	auto G = cTT().plotter;
 	if ( !G ) {
 		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] INVALID POINTER!" << std::endl;
 		return;
@@ -332,7 +323,7 @@ void GraphBook::PlotGraph()
 		tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
 		G->draw( tex );
 		tex.display();
-	std::get<1>( cTT() ) = Image::Create( tex.getTexture().copyToImage() );
+	cTT().image = Image::Create( tex.getTexture().copyToImage() );
 }
 
 bool GraphBook::hasActionability()
