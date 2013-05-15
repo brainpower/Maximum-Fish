@@ -8,6 +8,7 @@
 #include <SFGUI/Entry.hpp>
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
+#include <SFGUI/Scale.hpp>
 
 #include "sbe/gfx/Screen.hpp"
 
@@ -32,6 +33,7 @@ Control::Control( const Geom::Vec2 Size )
 	RegisterForEvent( "KEY_PRESSED_ENTER" );
 	RegisterForEvent( "PAUSELOCK_DOWN" );
 	RegisterForEvent( "PAUSELOCK_UP" );
+	RegisterForEvent( "SIM_CURRENT_TICK" );
 
 	Frames = Engine::getCfg()->get<int>( "system.ui.control.simFrameRate" );
 
@@ -47,6 +49,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 
 	// main box, vertical
 	Box::Ptr box( Box::Create( Box::HORIZONTAL, 5.0f ) );
+	box->SetRequisition({ (float)Size.x, 0});
 
 		BtnMnMnWin =  ToggleButton::Create(  "MainMenu [Esc]" );
 		BtnIPanWin =  ToggleButton::Create( "InfoPanel [F1]" );
@@ -56,10 +59,17 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimReset =       Button::Create(     "Reset [F5]" );
 		BtnSimSingleFrame = Button::Create(     ">|" );
 		BtnSimFrames = Button::Create(     ">>|" );
+		SclTickSlider = sfg::Scale::Create();
+
+		SclTickSlider->SetRequisition({ 100, 0});
+		SclTickSlider->SetIncrements(1,500);
+		SclTickSlider->SetValue(0);
+		SclTickSlider->Show(Engine::getCfg()->get<bool>("sim.paused"));
+		SclTickSlider->GetSignal(sfg::Scale::OnMouseLeftRelease).Connect( &Control::TickSliderReleased, this );
 
 		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
-			Framesdisplay->SetRequisition( sf::Vector2f( 40, 0 ) );
+			Framesdisplay->SetRequisition( { 60, 0 } );
 			//Framesdisplay->SetState( Widget::State::INSENSITIVE );
 			Framesdisplay->SetText( boost::lexical_cast<std::string>( Frames ) );
 			textchangeavoidrecursive = false;
@@ -106,9 +116,10 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		box->Pack( BtnDbgWin,   false, false );
 		box->Pack( BtnGraBoWin, false, false );
 		box->Pack( BtnSimReset, false, false );
-		box->Pack( framesframe );
+		box->Pack( framesframe, false, false );
 		box->Pack( BtnSimSingleFrame, false, false );
 		box->Pack( BtnSimFrames, false, false );
+		box->Pack( SclTickSlider, true, true);
 
 	Win->Add( box );
 	updatePosition();
@@ -167,6 +178,11 @@ void Control::HandleEvent( Event& e )
 	{
 		CalculateNewFrames();
 	}
+	else if ( e.Is( "SIM_CURRENT_TICK" ) ){
+		int ct = boost::any_cast<int>( e.Data() );
+		SclTickSlider->SetRange(0, ct );
+		if(simPauseLockLevel == 0) SclTickSlider->SetValue(ct);
+	}
 }
 
 void Control::CalculateNewFrames()
@@ -212,6 +228,10 @@ void Control::CalculateNewFrames()
 	Framesdisplay->SetCursorPosition( cursorPos );
 
 	Module::Get()->QueueEvent( Event( "SET_SIM_TPS", Frames ), true );
+}
+
+void Control::TickSliderReleased(){
+	Module::Get()->QueueEvent(Event("SIM_FORWARD_TO_TICK", (int)SclTickSlider->GetValue()), true);
 }
 
 void Control::EntryTextChange()
@@ -293,15 +313,19 @@ void Control::SimPause( bool up )
 {
 	if ( up ) //on locking
 	{
-		if ( simPauseLockLevel == 0 ) //first locking with pause
+		if ( simPauseLockLevel == 0 ){ //first locking with pause
+			SclTickSlider->Show();
 			Module::Get()->QueueEvent( Event( "SIM_PAUSE" ), true );
+		}
 		simPauseLockLevel++;
 	}
 	else
 	{
 		simPauseLockLevel--;
-		if ( simPauseLockLevel == 0 )
+		if ( simPauseLockLevel == 0 ){
+			SclTickSlider->Show(false);
 			Module::Get()->QueueEvent( Event( "SIM_UNPAUSE" ), true );
+		}
 	}
 
 	Engine::out() << "[Control] PauseLock: " << simPauseLockLevel << std::endl;

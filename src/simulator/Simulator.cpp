@@ -58,6 +58,7 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 	RegisterForEvent("EVT_LOAD_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
+	RegisterForEvent("SIM_FORWARD_TO_TICK");
 
 	RegisterForEvent("SET_SIM_TPS");
 
@@ -142,6 +143,9 @@ void Simulator::HandleEvent(Event& e)
 	else if (e.Is("EVT_QUIT"))
 	{
 		Module::Get()->RequestQuit();
+	}
+	else if (e.Is("SIM_FORWARD_TO_TICK")){
+		forwardTo(boost::any_cast<int>(e.Data()));
 	}
 }
 
@@ -263,6 +267,11 @@ void Simulator::NewSimulation(
 	auto data = std::make_pair( std::string( "Population" ), p );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
 
+	_pod->clear();
+	Engine::out() << "[Sim] Freeze" << std::endl;
+	_pod->freeze(_state);
+	Engine::out() << "[Sim] Freezed" << std::endl;
+
 }
 
 void Simulator::initThreads()
@@ -362,6 +371,7 @@ void Simulator::advance()
 		}
 
 		_state->_currentTick++;
+
 		logTickStats();
 
 		if(! (_state->_currentTick % _freezeRate))
@@ -377,6 +387,8 @@ void Simulator::advance()
 	// update the renderer at up to 30 fps
 	if (RendererUpdate.getElapsedTime() > sf::milliseconds(33))
 	{
+		Module::Get()->QueueEvent(Event("SIM_CURRENT_TICK", _state->_currentTick), true);
+
 		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species.size()));
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
@@ -698,4 +710,23 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	isPaused = wasPaused;
 	Engine::getCfg()->set("sim.paused", isPaused);
+}
+
+void Simulator::forwardTo(const int i){
+	bool wasPaused = isPaused;
+
+	Engine::out(Engine::SPAM) << "[forwardTo] forwarding to " << i << std::endl;
+	setState(_pod->peekTick(i));
+	Engine::out(Engine::SPAM) << "[forwardTo] got state for tick " << _state->_currentTick << std::endl;
+	TicksToSim = i - _state->_currentTick;
+
+	isPaused = false;
+	Engine::getCfg()->set("sim.paused", isPaused);
+
+	TickTimer.restart();
+	simulateTicks = TicksToSim;
+	Engine::out(Engine::SPAM) << "[forwardTo] yet to simulate " << TicksToSim << std::endl;
+
+	//~ isPaused = wasPaused;
+	//~ Engine::getCfg()->set("sim.paused", isPaused);
 }

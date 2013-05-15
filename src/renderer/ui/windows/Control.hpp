@@ -12,6 +12,7 @@ namespace sfg
 	class Button;
 	class Entry;
 	class Window;
+	class Scale;
 }
 
 /// Controls for the simulator ( play,pause,reset, settps etc )
@@ -35,6 +36,7 @@ class Control : public sbe::EventUser
         sfg::SharedPtr<sfg::Button> BtnSimSingleFrame;
         sfg::SharedPtr<sfg::Button> BtnSimFrames;
         sfg::SharedPtr<sfg::Entry> Framesdisplay;
+        sfg::SharedPtr<sfg::Scale> SclTickSlider;
         unsigned int Frames;
         void BtnFramesUpClick();
 		void BtnFramesDownClick();
@@ -48,14 +50,15 @@ class Control : public sbe::EventUser
 		void BtnGraBoWinClick();
 		void BtnSimPauseClick();
 		void BtnSimResetClick();
-        void BtnSimSingleFrameClick();
-        void BtnSimFramesClick();
+		void BtnSimSingleFrameClick();
+		void BtnSimFramesClick();
+		void TickSliderReleased();
 
 		/// This updates the position of the ControlMenu to the bottom left corner of the application.
 		/// Its called whenever a change of Application-size occures.
 		void updatePosition();
 
-        void SimPause( bool up );
+		void SimPause( bool up );
 
 		unsigned int simPauseConnectionSerial;
 		int simPauseLockLevel;
@@ -69,4 +72,3 @@ class Control : public sbe::EventUser
 };
 
 #endif // CONTROL_H
-

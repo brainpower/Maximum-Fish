@@ -74,6 +74,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		/// simulate one tick
 		void advance();
+		void forwardTo(const int tick);
 
 		typedef std::list<std::shared_ptr<Tile>>::iterator TileIt;
 

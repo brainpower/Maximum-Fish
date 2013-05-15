@@ -19,6 +19,9 @@ public:
 	const std::shared_ptr<SimState> peekTop();
 	const std::shared_ptr<SimState> peekTick(const int i);
 
+	void discardStartingWith(const int tick);
+	void clear();
+
 private:
 	friend class StasisPodIOPlugin;
 
