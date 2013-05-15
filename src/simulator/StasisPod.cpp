@@ -42,3 +42,12 @@ const std::shared_ptr<SimState> StasisPod::peekTick(const int i){
 	return *it;
 }
 
+void StasisPod::discardStartingWith(const int tick){
+	auto it = _pod.begin();
+	for( ; (*it)->_currentTick > tick; ++it);
+	_pod.erase(_pod.begin(), it);
+}
+
+void StasisPod::clear(){
+	_pod.clear();
+}
