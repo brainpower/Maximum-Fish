@@ -38,6 +38,8 @@ private:
 
 	unsigned int _numGenerated;
 
+	std::shared_ptr<std::mt19937> _seeder;
+	std::vector<std::shared_ptr<std::mt19937>> _gens;
 	boost::thread_specific_ptr<std::mt19937> _gen;
 
 	friend class Simulator;

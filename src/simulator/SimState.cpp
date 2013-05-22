@@ -8,7 +8,9 @@ SimState::SimState(const SimState &o)
 	  _currentSeed(o._currentSeed),
 	  _numGenerated(o._numGenerated),
 	  _terrain( new Terrain(*o._terrain) ),
-	  _species(o._species)
+	  _species(o._species),
+	  _seeder(o._seeder),
+	  _gens(o._gens)
 {
 
 	for ( auto it = o._creatures.begin(); it != o._creatures.end(); ++it )

@@ -205,7 +205,7 @@ void Simulator::NewSimulation(
 	TicksToSim = 0;
 
 	Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
-	state->_gen.reset( rng );
+	state->_seeder.reset( rng );
 	state->_numGenerated = 0;
 
 	Creature::loadConfigValues();
@@ -286,7 +286,9 @@ void Simulator::initThreads()
 		cur.reset ( new std::list<std::shared_ptr<Tile>> );
 		NextLists.push_back(cur);
 
-		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread( boost::bind( &Simulator::thread, this, CurrentLists[thread], thread ))));
+		_state->_gens.push_back(std::shared_ptr<std::mt19937>( new std::mt19937(seeder(*(_state->_seeder))) ));
+		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread(
+		    boost::bind( &Simulator::thread, this, CurrentLists[thread], thread ))));
 	}
 }
 
@@ -303,9 +305,9 @@ void Simulator::stopThreads()
 	NextLists.clear();
 }
 
-void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed)
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, const int tid)
 {
-	_state->_gen.reset( new std::mt19937(seed));
+	_state->_gen.reset(_state->_gens[tid].get());
 	while ( !boost::this_thread::interruption_requested() )
 	{
 		startBarrier->wait();
