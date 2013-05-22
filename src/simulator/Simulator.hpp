@@ -42,7 +42,6 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		Simulator();
 		~Simulator() {
 			if (multiThreaded) stopThreads();
-			_state->_gen.release();
 		}
 
 		/**
@@ -84,14 +83,18 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void parallelTick();
 
 		std::shared_ptr<SimState> setState(const SimState &s){
+			if ( multiThreaded)	stopThreads();
 			auto old = _state;
 			_state.reset( new SimState(s) );
+			if ( multiThreaded)	initThreads();
 			return old;
 		}
 
 		std::shared_ptr<SimState> setState( std::shared_ptr<SimState> s){
+			if ( multiThreaded)	stopThreads();
 			auto old = _state;
 			_state = s;
+			if ( multiThreaded)	initThreads();
 			return old;
 		}
 
@@ -112,7 +115,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::mt19937& rnd()
 		{
 			_state->_numGenerated++;
-			return *(_state->_gen);
+			return *_tid < 0 ? *(_state->_seeder) : *(_state->_gens[*_tid]);
 		}
 
 		static std::mt19937& GetRnd()
@@ -180,6 +183,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		int numThreads;
 		bool multiThreaded;
+		boost::thread_specific_ptr<int> _tid;
 
 		static Simulator* Instance;
 

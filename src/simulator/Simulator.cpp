@@ -168,6 +168,8 @@ void Simulator::init()
 	_pod.reset(new StasisPod());
 	_freezeRate = Engine::getCfg()->get<int>("sim.freezeRate");
 
+	_tid.reset(new int(-1));
+
 	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
 
@@ -184,7 +186,8 @@ void Simulator::NewSimulation( int seed )
 	state->_terrain.reset( new Terrain() );
 
 	// we have to set it here, so Simulator::GetTerrain() will work in Tile
-	this->setState(state);
+	//this->setState(state, true);
+	_state = state;
 
 	state->_terrain->CreateDebugTerrain();
 	Generator G (state, *rng);
@@ -203,8 +206,6 @@ void Simulator::NewSimulation(
 {
 
 	state->_seeder.reset( rng ); // must do it this early for initThreads to work
-	state->_gen.release();
-	state->_gen.reset(state->_seeder.get());
 
 	if ( multiThreaded)
 	{
@@ -322,7 +323,7 @@ void Simulator::stopThreads()
 
 void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, const int tid)
 {
-	_state->_gen.reset(_state->_gens[tid].get());
+	_tid.reset(new int(tid));
 	while ( !boost::this_thread::interruption_requested() )
 	{
 		startBarrier->wait();
@@ -331,7 +332,6 @@ void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, c
 
 		endBarrier->wait();
 	}
-	_state->_gen.release();
 }
 void Simulator::advance()
 {
