@@ -42,6 +42,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		Simulator();
 		~Simulator() {
 			if (multiThreaded) stopThreads();
+			_state->_gen.release();
 		}
 
 		/**

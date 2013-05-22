@@ -45,12 +45,23 @@ SimStateIOPlugin::ObjPtr SimStateIOPlugin::loadObject(const boost::property_tree
 			return re;
 		}
 
-		re->_gen.reset(new std::mt19937());
-		std::stringstream(pt.get<std::string>("sim.random.gen")) >> (*(re->_gen));
+		re->_seeder.reset(new std::mt19937());
+		std::stringstream(pt.get<std::string>("sim.random.seeder")) >> (*(re->_seeder));
+
+		for ( const boost::property_tree::ptree::value_type& e : pt){
+			if(e.first == "gen"){
+				auto genpt = e.second;
+
+				std::shared_ptr<std::mt19937> gen(new std::mt19937());
+				std::stringstream(genpt.get<std::string>("gen")) >> (*(gen));
+				re->_gens.push_back(gen);
+			}
+		}
 
 		re->_currentTick  = pt.get<int>("sim.currentTick"); // get ticks
 		re->_currentSeed  = pt.get<int>("sim.random.seed"); // get seed
 		re->_numGenerated = pt.get<unsigned int>("sim.random.numGenerated");
+		re->_numThreads   = pt.get<int>("sim.numThreads");
 
 	}
 	catch ( boost::property_tree::ptree_error ) {
@@ -84,12 +95,22 @@ bool SimStateIOPlugin::saveObject( const std::string& name, const SimState &stat
 
 		pt.put("sim.currentTick", state._currentTick);
 
-		// save state of random engine
+		// save state of random engines
 		std::stringstream ss;
-		ss << (*(state._gen));
-		pt.put("sim.random.gen", ss.str());
+		ss << (*(state._seeder));
+		pt.put("sim.random.seeder", ss.str());
+
+		for( auto gen : state._gens){
+			ptree genspt;
+			ss.str("");
+			ss << (*gen);
+			genspt.put("gen", ss.str());
+			pt.add_child( "gen", genspt);
+		}
+
 		pt.put("sim.random.seed", state._currentSeed);
 		pt.put("sim.random.numGenerated", state._numGenerated);
+		pt.put("sim.numThreads", state._numThreads);
 
 		root.add_child("SimState", pt);
 		return true;

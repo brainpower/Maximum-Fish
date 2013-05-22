@@ -122,7 +122,14 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
+		bool wasPaused = isPaused;
+		isPaused = true;
+		Engine::getCfg()->set("sim.paused", isPaused);
+
 		NewSimulation();
+
+		isPaused = wasPaused;
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if (e.Is("EVT_SAVE_TERRAIN") && isInitialized )
 	{
@@ -171,6 +178,7 @@ void Simulator::NewSimulation( int seed )
 	std::mt19937* rng = new std::mt19937(seed);
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	state->_currentSeed = seed;
+	state->_numThreads = numThreads;
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 	state->_terrain.reset( new Terrain() );
@@ -193,6 +201,11 @@ void Simulator::NewSimulation(
 	std::shared_ptr<SimState> state,
 	std::mt19937* rng)
 {
+
+	state->_seeder.reset( rng ); // must do it this early for initThreads to work
+	state->_gen.release();
+	state->_gen.reset(state->_seeder.get());
+
 	if ( multiThreaded)
 	{
 		stopThreads();
@@ -204,8 +217,9 @@ void Simulator::NewSimulation(
 	simulateTicks = 0;
 	TicksToSim = 0;
 
-	Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
-	state->_seeder.reset( rng );
+	//Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
+	// ^ crap, there's nothing here that has anything to do with random generators
+
 	state->_numGenerated = 0;
 
 	Creature::loadConfigValues();
@@ -275,6 +289,7 @@ void Simulator::initThreads()
 {
 	startBarrier.reset( new boost::barrier( numThreads+1) );
 	endBarrier.reset( new boost::barrier( numThreads+1 ) );
+	_state->_gens.clear();
 
 	std::uniform_int_distribution<int> seeder;
 
@@ -316,6 +331,7 @@ void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, c
 
 		endBarrier->wait();
 	}
+	_state->_gen.release();
 }
 void Simulator::advance()
 {
@@ -682,12 +698,23 @@ void Simulator::loadWhole(const std::string &loadPath){
 	if(!loadPath.empty())
 		Engine::GetIO()->popPath(); // pop load path from IO stack
 
-	_pod = tmp[0];
-	auto latestState = _pod->tawTop(); // taw latest state
+	auto latestState = tmp[0]->tawTop(); // taw latest state
 
 	std::mt19937* newGen = new std::mt19937();
 
-	setState(latestState);
+	if(!setState(latestState) ){
+		Event e("EVT_LOAD_BAD", std::string("Error loading"));
+		Module::Get()->QueueEvent(e, true);
+
+		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "Won't continue with SimState saved with " << latestState->_numThreads
+		                           << " threads using " << numThreads << "threads!" << std::endl;
+
+		delete newGen;
+		return;
+	}
+
+	_pod = tmp[0];
 	NewSimulation( latestState, newGen );
 
 	// loading done...

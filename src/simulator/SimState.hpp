@@ -35,6 +35,7 @@ private:
 
 	int _currentTick;
 	int _currentSeed;
+	int _numThreads;
 
 	unsigned int _numGenerated;
 
