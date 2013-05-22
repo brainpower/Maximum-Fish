@@ -126,7 +126,7 @@ void Simulator::HandleEvent(Event& e)
 		isPaused = true;
 		Engine::getCfg()->set("sim.paused", isPaused);
 
-		NewSimulation();
+		NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 
 		isPaused = wasPaused;
 		Engine::getCfg()->set("sim.paused", isPaused);
@@ -189,7 +189,7 @@ void Simulator::NewSimulation( int seed )
 	//this->setState(state, true);
 	_state = state;
 
-	state->_terrain->CreateDebugTerrain();
+	state->_terrain->CreateDebugTerrain( _state->_currentSeed );
 	Generator G (state, *rng);
 
 	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");

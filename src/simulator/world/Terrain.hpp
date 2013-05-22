@@ -64,7 +64,7 @@ class Terrain
 
 		const std::shared_ptr<Tile>& getTile( Geom::Vec2f pos ) const;
 
-		void CreateDebugTerrain();
+		void CreateDebugTerrain( int seed );
 		void CreateMapPlotters();
 		void CreateParallelisationGraph();
 

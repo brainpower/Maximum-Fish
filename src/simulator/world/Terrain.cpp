@@ -270,23 +270,27 @@ void Terrain::CreateParallelisationGraph()
 	{
 		for ( int y = 0; y < Size.y; y+=maxreach)
 		{
-			int id;
-			for (int xx = 0; xx < maxreach; ++xx)
+			int col = ((x)/maxreach) % 2;
+			int odd = ((y)/maxreach) % 2;
+			int id  = (2*odd)+col;
+
+			int xx,yy;
+			for (xx = 0; xx < maxreach; ++xx)
 			{
 				if (x+xx >= Size.x) break;
-				for (int yy = 0; yy < maxreach; ++yy)
+				for (yy = 0; yy < maxreach; ++yy)
 				{
 					if (y+yy >= Size.y) break;
-					int col = ((x+xx)/maxreach) % 2;
-					int odd = ((y+yy)/maxreach) % 2;
-					id  = (2*odd)+col;
 
 					Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ]->setParallelId( id );
 					Colors[ id ].push_back( Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ] );
 				}
 			}
+
 			// acts as a divider between the squares of this color
 			Colors[ id ].emplace_back();
+
+			//Engine::out() << "Color[" << id << "] " << x << "," << y << " size " << xx << "," << yy << std::endl;
 		}
 	}
 }
@@ -344,7 +348,7 @@ void Terrain::CreateMapPlotters()
 
 }
 
-void Terrain::CreateDebugTerrain()
+void Terrain::CreateDebugTerrain( int seed )
 {
 	Tiles.clear();
 	{
@@ -362,7 +366,7 @@ void Terrain::CreateDebugTerrain()
 	Geom::Pointf Mid = Geom::Pointf( Size.x/2, Size.y/2 );
 
 
-	std::default_random_engine gen;
+	std::mt19937 gen(seed);
 	std::uniform_real_distribution<float> rnd;
 	std::uniform_real_distribution<float> nutritionrnd(Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.min"),
 														Engine::getCfg()->get<float>("sim.terragen.debug.nutrition.max"));
