@@ -266,21 +266,25 @@ void Terrain::CreateParallelisationGraph()
 	Colors.clear();
 	Colors.resize(4);
 
-	for( int x = 0; x < Size.x; x+=maxreach)
+	int i = 0;
+
+	for ( int y = 0; y < Size.y; y+=maxreach)
 	{
-		for ( int y = 0; y < Size.y; y+=maxreach)
+		for( int x = 0; x < Size.x; x+=maxreach)
 		{
 			int col = ((x)/maxreach) % 2;
 			int odd = ((y)/maxreach) % 2;
 			int id  = (2*odd)+col;
 
 			int xx,yy;
-			for (xx = 0; xx < maxreach; ++xx)
+			for (yy = 0; yy < maxreach; ++yy)
 			{
-				if (x+xx >= Size.x) break;
-				for (yy = 0; yy < maxreach; ++yy)
+				if (y+yy >= Size.y) break;
+
+				for (xx = 0; xx < maxreach; ++xx)
 				{
-					if (y+yy >= Size.y) break;
+					if (x+xx >= Size.x) break;
+
 
 					Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ]->setParallelId( id );
 					Colors[ id ].push_back( Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ] );
