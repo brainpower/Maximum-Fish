@@ -43,7 +43,7 @@ void GraphBook::HandleEvent( Event& e )
 		PlotGraph();
 		UpdateTimer.restart();
 	}
-	if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
+	else if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
 	{
 		if ( Win->IsGloballyVisible() )
 		{
@@ -316,7 +316,11 @@ std::tuple<std::shared_ptr<sbe::GraphPlotter>,
 void GraphBook::PlotGraph()
 {
 	if ( !hasActionability() )
+	{
+		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] Invalid Tabs!" << std::endl;
 		return;
+	}
+
 	auto G = std::get<0>( cTT() );
 	if ( !G ) {
 		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] INVALID POINTER!" << std::endl;

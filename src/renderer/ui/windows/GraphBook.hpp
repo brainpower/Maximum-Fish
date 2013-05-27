@@ -24,6 +24,10 @@ class GraphBook : public sbe::EventUser
 		GraphBook( const Geom::Vec2 Size = Geom::Vec2( 400, 400 ) );
 		virtual ~GraphBook() {};
 
+		/**
+			Handles (data):
+			ADD_GRAPH_TO_BOOK : add a new graphplotter to the list (shared_ptr<GraphPlotter>)
+		*/
 		virtual void HandleEvent( Event& e );
 
 	private:

@@ -275,8 +275,8 @@ void Simulator::NewSimulation(
 	RendererUpdate.restart();
 
 	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
-	std::shared_ptr<sbe::GraphPlotter> p = CreateCountPlotter();
-	auto data = std::make_pair( std::string( "Population" ), p );
+	CreateCountPlotter();
+	auto data = std::make_pair( std::string( "Population" ), CountGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
 
 	_pod->clear();
@@ -410,6 +410,7 @@ void Simulator::advance()
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
 		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( _state->_currentTick ));
 		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( _state->_numGenerated ));
+
 		if ( !isPaused )
 		{
 			UpdateCreatureRenderList();
@@ -441,24 +442,24 @@ void Simulator::parallelTick()
 		CurrentLists[thread]->clear();
 	startBarrier->wait();
 
-	int b = 0;
 	for( auto& batch : _state->_terrain->getColors())
 	{
-		b++;
-		int worksize = std::ceil(batch.size() / numThreads);
 
 		for ( int thread = 0; thread < numThreads; ++thread)
 			NextLists[thread]->clear();
-
 
 		// prepare the next batch of work
 		int curthread = 0;
 		for ( auto& T : batch )
 		{
 			if ( !T ) curthread = (curthread+1)%numThreads;
-			else
-				NextLists[curthread]->push_back(T);
+			else 	  NextLists[curthread]->push_back(T);
 		}
+
+//		for ( int i = 0; i < numThreads; ++i)
+//		{
+//			Engine::out() << "Thread: " << i << " has " << NextLists[i]->size() << std::endl;
+//		}
 
 		// wait till the threads are finished
 		endBarrier->wait();
@@ -513,30 +514,18 @@ void Simulator::logTickStats()
 	HerbivoreCounts.push_back(CreatureCounts[(int)Species::HERBIVORE]);
 	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
 
+	CountGraph->updateCurveData( "Herbs", HerbaeCounts );
+	CountGraph->updateCurveData( "Herbivore", HerbivoreCounts );
+	CountGraph->updateCurveData( "Carnivore", CarnivoreCounts );
+
 	//ProcessingTimes.push_back(  )
-
-
-	//##########################################
-	//TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTE
-	//##########################################
-	std::ofstream myfile;
-	if(_state->_currentTick % 100 == 0)
-	{
-		myfile.open("numCreatures.txt", std::ofstream::app);
-		//std::cout << CreatureCounts[0] << '\t' << CreatureCounts[1] << '\t' << CreatureCounts[2] << std::endl;
-		myfile << CreatureCounts[0] << '\t' << CreatureCounts[1] << '\t' << CreatureCounts[2] << '\n';
-		myfile.close();
-	}
-	//##########################################
-	//ENDTESTENDTESTENDTESTENDTESTENDTESTENDTEST
-	//##########################################
 }
 
-std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
+void Simulator::CreateCountPlotter()
 {
-	if(!isInitialized) return std::shared_ptr<sbe::GraphPlotter>();
+	if(!isInitialized) return;
 
-	std::shared_ptr<sbe::GraphPlotter> re( new sbe::GraphPlotter );
+	CountGraph.reset(new sbe::GraphPlotter );
 
 	sbe::Graph g;
 	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
@@ -545,9 +534,8 @@ std::shared_ptr<sbe::GraphPlotter> Simulator::CreateCountPlotter()
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
 
-	re->setGraph( g );
+	CountGraph->setGraph( g );
 
-	return re;
 }
 
 void Simulator::HandleClick( const Geom::Pointf& pos)
