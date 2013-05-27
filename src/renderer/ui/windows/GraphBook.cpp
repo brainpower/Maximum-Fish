@@ -327,7 +327,7 @@ void GraphBook::PlotGraph()
 		tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
 		G->draw( tex );
 		tex.display();
-	cTT().image = Image::Create( tex.getTexture().copyToImage() );
+		cTT().image->SetImage( tex.getTexture().copyToImage() );
 }
 
 bool GraphBook::hasActionability()
