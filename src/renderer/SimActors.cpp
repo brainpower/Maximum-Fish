@@ -41,6 +41,8 @@ SimActors::SimActors()
 	RegisterForEvent("UpdateTilemapTexture");
 	RegisterForEvent("CREATURE_CLICKED");
 
+	RegisterForEvent("RESET_SIMULATION");
+
 	RegisterForEvent("EVT_SAVE_GOOD");
 	RegisterForEvent("EVT_SAVE_BAD");
 	RegisterForEvent("EVT_LOAD_BAD");
@@ -51,9 +53,7 @@ SimActors::SimActors()
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.b") );
 
 
-
-	sbe::Screen::sCam()->setZoomLimits( sf::Vector2f( TileSize, TileSize*2 ), sf::Vector2f( TileSize*TerrainSize*3, TileSize*TerrainSize*2 ) );
-	sbe::Screen::sCam()->setCamLimits( sf::FloatRect( -1000, -1000, TileSize*TerrainSize+2000, TileSize*TerrainSize+2000 ) );
+	SetCamLimits();
 }
 
 SimActors::~SimActors()
@@ -97,6 +97,10 @@ void SimActors::HandleEvent(Event& e)
 	else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> )))
     {
 		m_highlight = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
+    }
+	else if ( e.Is( "RESET_SIMULATION" ))
+    {
+		SetCamLimits();
     }
 }
 
@@ -157,11 +161,22 @@ void SimActors::ReadTileRenderList(TileRenderList& r)
 
 	// and create the corresponding grid
 	CreateGrid();
+	SetCamLimits();
+}
+
+void SimActors::SetCamLimits()
+{
+	TileSize =         Engine::getCfg()->get<int>("system.ui.simView.tileSize");
+	TerrainSize =      Engine::getCfg()->get<int>("sim.terragen.debug.size");
+
+	Engine::out() << "[SimActors] caminfo " << TileSize << " - " << TerrainSize << std::endl;
+
+	sbe::Screen::sCam()->setZoomLimits( sf::Vector2f( TileSize, TileSize*2 ), sf::Vector2f( TileSize*TerrainSize*3, TileSize*TerrainSize*2 ) );
+	sbe::Screen::sCam()->setCamLimits( sf::FloatRect( -1000, -1000, TileSize*TerrainSize+2000, TileSize*TerrainSize+2000 ) );
+
 	sbe::Screen::sCam()->setTargetCenter(sf::Vector2f((TerrainSize*TileSize)/2,(TerrainSize*TileSize)/2));
 	sbe::Screen::sCam()->zoom ((TerrainSize*TileSize) / sbe::Screen::sCam()->getTargetSize().y );
 }
-
-
 
 void SimActors::CreateTerrainVertexArray(TileRenderList& r)
 {

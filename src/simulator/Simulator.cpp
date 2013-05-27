@@ -58,6 +58,7 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 	RegisterForEvent("EVT_LOAD_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE");
 	RegisterForEvent("TERRAIN_CLICKED");
+	RegisterForEvent("SIM_FORWARD_TO_TICK");
 
 	RegisterForEvent("SET_SIM_TPS");
 
@@ -121,7 +122,14 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
-		NewSimulation();
+		bool wasPaused = isPaused;
+		isPaused = true;
+		Engine::getCfg()->set("sim.paused", isPaused);
+
+		NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
+
+		isPaused = wasPaused;
+		Engine::getCfg()->set("sim.paused", isPaused);
 	}
 	else if (e.Is("EVT_SAVE_TERRAIN") && isInitialized )
 	{
@@ -143,6 +151,9 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Module::Get()->RequestQuit();
 	}
+	else if (e.Is("SIM_FORWARD_TO_TICK")){
+		forwardTo(boost::any_cast<int>(e.Data()));
+	}
 }
 
 void Simulator::init()
@@ -152,11 +163,12 @@ void Simulator::init()
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
 	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
-	minimizeParallelRuns = Engine::getCfg()->get<bool>("sim.minimizeParallelRuns");
 	multiThreaded = numThreads > 1;
 
 	_pod.reset(new StasisPod());
 	_freezeRate = Engine::getCfg()->get<int>("sim.freezeRate");
+
+	_tid.reset(new int(-1));
 
 	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 }
@@ -168,14 +180,16 @@ void Simulator::NewSimulation( int seed )
 	std::mt19937* rng = new std::mt19937(seed);
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	state->_currentSeed = seed;
+	state->_numThreads = numThreads;
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 	state->_terrain.reset( new Terrain() );
 
 	// we have to set it here, so Simulator::GetTerrain() will work in Tile
-	this->setState(state);
+	//this->setState(state, true);
+	_state = state;
 
-	state->_terrain->CreateDebugTerrain();
+	state->_terrain->CreateDebugTerrain( _state->_currentSeed );
 	Generator G (state, *rng);
 
 	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
@@ -188,11 +202,11 @@ void Simulator::NewSimulation( int seed )
 
 void Simulator::NewSimulation(
 	std::shared_ptr<SimState> state,
-	std::mt19937* rng) //,
-	//~ std::shared_ptr<Terrain> newTerrain,
-	//~ std::vector<std::shared_ptr<Species>>& newSpecies,
-	//~ std::list<std::shared_ptr<Creature>>& newCreatures )
+	std::mt19937* rng)
 {
+
+	state->_seeder.reset( rng ); // must do it this early for initThreads to work
+
 	if ( multiThreaded)
 	{
 		stopThreads();
@@ -204,15 +218,16 @@ void Simulator::NewSimulation(
 	simulateTicks = 0;
 	TicksToSim = 0;
 
-	Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
-	state->_gen.reset( rng );
+	//Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
+	// ^ crap, there's nothing here that has anything to do with random generators
+
 	state->_numGenerated = 0;
 
 	Creature::loadConfigValues();
 
 	Engine::out(Engine::INFO) << "[Simulator] Terrain" << std::endl;
 	//Terra = newTerrain; // we've done that before already
-	state->_terrain->UpdateTileMap();
+
 
 	Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
 	CreatureCounts[0] = 0;
@@ -248,6 +263,7 @@ void Simulator::NewSimulation(
 	state->_terrain->CreateParallelisationGraph();
 
 	// send terrain to renderer
+	state->_terrain->UpdateTileMap();
 	state->_terrain->UpdateTerrain();
 	// send creatures to renderer
 	UpdateCreatureRenderList();
@@ -263,12 +279,18 @@ void Simulator::NewSimulation(
 	auto data = std::make_pair( std::string( "Population" ), p );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
 
+	_pod->clear();
+	Engine::out() << "[Sim] Freeze" << std::endl;
+	_pod->freeze(_state);
+	Engine::out() << "[Sim] Freezed" << std::endl;
+
 }
 
 void Simulator::initThreads()
 {
 	startBarrier.reset( new boost::barrier( numThreads+1) );
 	endBarrier.reset( new boost::barrier( numThreads+1 ) );
+	_state->_gens.clear();
 
 	std::uniform_int_distribution<int> seeder;
 
@@ -280,7 +302,9 @@ void Simulator::initThreads()
 		cur.reset ( new std::list<std::shared_ptr<Tile>> );
 		NextLists.push_back(cur);
 
-		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread( boost::bind( &Simulator::thread, this, CurrentLists[thread], thread ))));
+		_state->_gens.push_back(std::shared_ptr<std::mt19937>( new std::mt19937(seeder(*(_state->_seeder))) ));
+		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread(
+		    boost::bind( &Simulator::thread, this, CurrentLists[thread], thread ))));
 	}
 }
 
@@ -297,9 +321,9 @@ void Simulator::stopThreads()
 	NextLists.clear();
 }
 
-void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed)
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, const int tid)
 {
-	_state->_gen.reset( new std::mt19937(seed));
+	_tid.reset(new int(tid));
 	while ( !boost::this_thread::interruption_requested() )
 	{
 		startBarrier->wait();
@@ -362,6 +386,7 @@ void Simulator::advance()
 		}
 
 		_state->_currentTick++;
+
 		logTickStats();
 
 		if(! (_state->_currentTick % _freezeRate))
@@ -377,6 +402,8 @@ void Simulator::advance()
 	// update the renderer at up to 30 fps
 	if (RendererUpdate.getElapsedTime() > sf::milliseconds(33))
 	{
+		Module::Get()->QueueEvent(Event("SIM_CURRENT_TICK", _state->_currentTick), true);
+
 		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species.size()));
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
@@ -425,27 +452,13 @@ void Simulator::parallelTick()
 
 
 		// prepare the next batch of work
-		if ( minimizeParallelRuns )
+		int curthread = 0;
+		for ( auto& T : batch )
 		{
-			int curthread = 0;
-			for ( auto& T : batch )
-			{
-				if ( !T ) curthread = (curthread+1)%numThreads;
-				else
-					NextLists[curthread]->push_back(T);
-			}
-		}
-		else
-		{
-			// sort the tile into the threads
-			int curthread = 0;
-			for ( auto& T : batch)
-			{
+			if ( !T ) curthread = (curthread+1)%numThreads;
+			else
 				NextLists[curthread]->push_back(T);
-				curthread = (curthread+1)%numThreads;
-			}
 		}
-
 
 		// wait till the threads are finished
 		endBarrier->wait();
@@ -685,12 +698,23 @@ void Simulator::loadWhole(const std::string &loadPath){
 	if(!loadPath.empty())
 		Engine::GetIO()->popPath(); // pop load path from IO stack
 
-	_pod = tmp[0];
-	auto latestState = _pod->tawTop(); // taw latest state
+	auto latestState = tmp[0]->tawTop(); // taw latest state
 
 	std::mt19937* newGen = new std::mt19937();
 
-	setState(latestState);
+	if(!setState(latestState) ){
+		Event e("EVT_LOAD_BAD", std::string("Error loading"));
+		Module::Get()->QueueEvent(e, true);
+
+		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "Won't continue with SimState saved with " << latestState->_numThreads
+		                           << " threads using " << numThreads << "threads!" << std::endl;
+
+		delete newGen;
+		return;
+	}
+
+	_pod = tmp[0];
 	NewSimulation( latestState, newGen );
 
 	// loading done...
@@ -698,4 +722,23 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	isPaused = wasPaused;
 	Engine::getCfg()->set("sim.paused", isPaused);
+}
+
+void Simulator::forwardTo(const int i){
+	bool wasPaused = isPaused;
+
+	Engine::out(Engine::SPAM) << "[forwardTo] forwarding to " << i << std::endl;
+	setState(_pod->peekTick(i));
+	Engine::out(Engine::SPAM) << "[forwardTo] got state for tick " << _state->_currentTick << std::endl;
+	TicksToSim = i - _state->_currentTick;
+
+	isPaused = false;
+	Engine::getCfg()->set("sim.paused", isPaused);
+
+	TickTimer.restart();
+	simulateTicks = TicksToSim;
+	Engine::out(Engine::SPAM) << "[forwardTo] yet to simulate " << TicksToSim << std::endl;
+
+	//~ isPaused = wasPaused;
+	//~ Engine::getCfg()->set("sim.paused", isPaused);
 }

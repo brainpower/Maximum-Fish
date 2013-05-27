@@ -64,13 +64,13 @@ class Terrain
 
 		const std::shared_ptr<Tile>& getTile( Geom::Vec2f pos ) const;
 
-		void CreateDebugTerrain();
+		void CreateDebugTerrain( int seed );
 		void CreateMapPlotters();
 		void CreateParallelisationGraph();
 
 		void UpdateTileMap();
 
-		std::list<std::list<std::shared_ptr<Tile>>>& getColors() { return Colors; }
+		std::vector<std::list<std::shared_ptr<Tile>>>& getColors() { return Colors; }
 		std::list<std::shared_ptr<Tile>> getTileList() const;
 	private:
 
@@ -97,7 +97,7 @@ class Terrain
 		std::vector<std::shared_ptr<Tile>> Tiles;
 		//QuadTreeNode<Tile> CullTree;
 		/// stores the list of colors and their tiles for parallel simulation. all tiles of the same color are guaranteed to not influence each other when simulated in parallel
-		std::list< std::list<std::shared_ptr<Tile> > > Colors;
+		std::vector< std::list<std::shared_ptr<Tile> > > Colors;
 
 
 		std::shared_ptr<sf::Image> tilemapImage;

@@ -35,10 +35,12 @@ private:
 
 	int _currentTick;
 	int _currentSeed;
+	int _numThreads;
 
 	unsigned int _numGenerated;
 
-	boost::thread_specific_ptr<std::mt19937> _gen;
+	std::shared_ptr<std::mt19937> _seeder;
+	std::vector<std::shared_ptr<std::mt19937>> _gens;
 
 	friend class Simulator;
 	friend class SimStateIOPlugin;

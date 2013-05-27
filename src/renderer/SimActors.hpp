@@ -84,6 +84,8 @@ class SimActors : public sbe::EventUser
 		void CreateTerrainVertexArray(TileRenderList& r);
 		/// Creates an Actor for rendering the Terrain via Shaders
 		void CreateTerrainShaderMap();
+		/// Sets the correct Cameralimits for the current Simulation
+		void SetCamLimits();
 
 		int DetermineCreatureSpriteIndex ( std::shared_ptr<Creature>& t);
 		/// determines where a Tile should be rendered on the viewport
