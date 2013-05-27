@@ -336,7 +336,7 @@ void GraphBook::PlotGraph()
 		tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
 		G->draw( tex );
 		tex.display();
-	std::get<1>( cTT() ) = Image::Create( tex.getTexture().copyToImage() );
+	std::get<1>( cTT() )->SetImage(tex.getTexture().copyToImage() );
 }
 
 bool GraphBook::hasActionability()
