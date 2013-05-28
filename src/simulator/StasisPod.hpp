@@ -22,6 +22,8 @@ public:
 	void discardStartingWith(const int tick);
 	void clear();
 
+	size_t size() const { return _pod.size(); }
+
 private:
 	friend class StasisPodIOPlugin;
 

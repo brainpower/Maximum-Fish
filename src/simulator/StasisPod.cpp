@@ -13,19 +13,21 @@ std::shared_ptr<SimState> StasisPod::tawTop(){
 }
 
 std::shared_ptr<SimState> StasisPod::taw(const size_t i){
-	auto ret = _pod[i];
-	_pod.erase(_pod.begin()+i);
-	//_pod.erase(_pod.begin(), _pod.begin()+i); // discard states newer than this tawed one???
-	return ret;
+		auto ret = _pod[i];
+		_pod.erase(_pod.begin()+i);
+		//_pod.erase(_pod.begin(), _pod.begin()+i); // discard states newer than this tawed one???
+		return ret;
 }
 
 std::shared_ptr<SimState> StasisPod::tawTick(const int i){
 	auto it = _pod.begin();
-	for( ; (*it)->_currentTick > i ; ++it);
-	auto _ret = *it;
-	_pod.erase(it);
-	//_pod.erase(_pod.begin(), it); // discard states newer than this tawed one???
-	return _ret;
+	for( ; (*it)->_currentTick > i  && it != _pod.end(); ++it);
+	if( it != _pod.end()){
+		auto _ret = *it;
+		_pod.erase(it);
+		//_pod.erase(_pod.begin(), it); // discard states newer than this tawed one???
+		return _ret;
+	} return nullptr;
 }
 
 const std::shared_ptr<SimState> StasisPod::peek(const size_t i){
@@ -38,13 +40,13 @@ const std::shared_ptr<SimState> StasisPod::peekTop(){
 
 const std::shared_ptr<SimState> StasisPod::peekTick(const int i){
 	auto it = _pod.begin();
-	for( ; (*it)->_currentTick > i ; ++it);
-	return *it;
+	for( ; (*it)->_currentTick > i && it != _pod.end() ; ++it);
+	return it != _pod.end() ? *it : nullptr;
 }
 
 void StasisPod::discardStartingWith(const int tick){
 	auto it = _pod.begin();
-	for( ; (*it)->_currentTick > tick; ++it);
+	for( ; (*it)->_currentTick > tick && it != _pod.end(); ++it);
 	_pod.erase(_pod.begin(), it);
 }
 
