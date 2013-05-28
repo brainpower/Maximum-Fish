@@ -90,10 +90,10 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 			return old;
 		}
 
-		std::shared_ptr<SimState> setState( std::shared_ptr<SimState> s){
+		std::shared_ptr<SimState> setState( const std::shared_ptr<const SimState> s){
 			if ( multiThreaded)	stopThreads();
 			auto old = _state;
-			_state = s;
+			_state = std::make_shared<SimState>(*s);
 			if ( multiThreaded)	initThreads();
 			return old;
 		}
