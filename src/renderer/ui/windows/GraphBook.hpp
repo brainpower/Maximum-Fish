@@ -24,9 +24,46 @@ class GraphBook : public sbe::EventUser
 		GraphBook( const Geom::Vec2 Size = Geom::Vec2( 400, 400 ) );
 		virtual ~GraphBook() {};
 
+		/**
+			Handles (data):
+			ADD_GRAPH_TO_BOOK : add a new graphplotter to the list (shared_ptr<GraphPlotter>)
+		*/
 		virtual void HandleEvent( Event& e );
 
 	private:
+
+				/// tuple in which all pointers are saved
+		struct graphTuple
+		{
+			std::shared_ptr<sbe::GraphPlotter> plotter;
+			sfg::SharedPtr <sfg::Image>        image;
+			sfg::SharedPtr <sfg::Box>          hBox;
+			sfg::SharedPtr <sfg::Box>          vBox;
+			sfg::SharedPtr <sfg::Entry>        hFrom;
+			sfg::SharedPtr <sfg::Entry>        hTo;
+			sfg::SharedPtr <sfg::Entry>        vFrom;
+			sfg::SharedPtr <sfg::Entry>        vTo;
+
+				/// constructor for graphTuple
+				graphTuple( std::shared_ptr<sbe::GraphPlotter> _plotter,
+				            sfg::SharedPtr <sfg::Image>        _image,
+				            sfg::SharedPtr <sfg::Box>          _hBox,
+				            sfg::SharedPtr <sfg::Box>          _vBox,
+				            sfg::SharedPtr <sfg::Entry>        _hFrom,
+				            sfg::SharedPtr <sfg::Entry>        _hTo,
+				            sfg::SharedPtr <sfg::Entry>        _vFrom,
+				            sfg::SharedPtr <sfg::Entry>        _vTo )
+					{
+						plotter = _plotter;
+						image   = _image;
+						hBox    = _hBox;
+						vBox    = _vBox;
+						hFrom   = _hFrom;
+						hTo     = _hTo;
+						vFrom   = _vFrom;
+						vTo     = _vTo;
+					}
+		};
 
 		/// initializer for the Window
 		void CreateWindow( const Geom::Vec2 Size );
@@ -35,7 +72,8 @@ class GraphBook : public sbe::EventUser
 		void AddNewGraph( std::string displayName, std::shared_ptr<sbe::GraphPlotter> graph );
 
 		/// redraw the graphplotter to the image
-		void PlotGraph();
+		void PlotGraph( graphTuple& GT );
+		void PlotCurrentGraph( );
 
 		/// rearange the sfg::window
 		void updatePosition();
@@ -50,7 +88,7 @@ class GraphBook : public sbe::EventUser
 		void EntryTextChange();
 
 		/// called whenever the graphplotter is updated or modified
-		void UpdateGraphSettings();
+		void UpdateGraphSettings( graphTuple& GT );
 
 		/// check if Graphbook has actionability (when a tab is active)
 		bool hasActionability();
@@ -80,28 +118,12 @@ class GraphBook : public sbe::EventUser
 		/// signal-connection for entry
 		void EntryLostFocus();
 
-		/// Deque where all pointer-tuples from the different Graphs are saved
-		std::deque< std::tuple<
-				std::shared_ptr<sbe::GraphPlotter>,
-				sfg::SharedPtr<sfg::Image>,
-				sfg::SharedPtr<sfg::Box>,
-				sfg::SharedPtr<sfg::Box>,
-				sfg::SharedPtr<sfg::Entry>,
-				sfg::SharedPtr<sfg::Entry>,
-				sfg::SharedPtr<sfg::Entry>,
-				sfg::SharedPtr<sfg::Entry> > > graphPlotterList;
+		/// Deque where all graphtuples are saved
+		std::deque<graphTuple> graphTupleList;
 
 
 		/// I will name the this function "Current-Tab-Tuple", because it will give you the tuple from the list at the current tab of the graphbook.
-		std::tuple<
-				std::shared_ptr<sbe::GraphPlotter>,
-				sfg::SharedPtr<sfg::Image>,
-				sfg::SharedPtr<sfg::Box>,
-				sfg::SharedPtr<sfg::Box>,
-				sfg::SharedPtr<sfg::Entry>,
-				sfg::SharedPtr<sfg::Entry>,
-				sfg::SharedPtr<sfg::Entry>,
-				sfg::SharedPtr<sfg::Entry> > cTT();
+		graphTuple& cTT();
 
 		/// The SFGUI-Window (Parent-Widget) of GraphBook
 		sfg::SharedPtr<sfg::Window> Win;

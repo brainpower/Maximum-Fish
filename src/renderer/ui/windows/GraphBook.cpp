@@ -40,10 +40,11 @@ void GraphBook::HandleEvent( Event& e )
 {
 	if ( UpdateTimer.getElapsedTime() > sf::seconds( 2.0 ) && Win->IsGloballyVisible() )
 	{
-		PlotGraph();
+		UpdateGraphSettings(cTT());
+		PlotGraph(cTT());
 		UpdateTimer.restart();
 	}
-	if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
+	else if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
 	{
 		if ( Win->IsGloballyVisible() )
 		{
@@ -52,7 +53,7 @@ void GraphBook::HandleEvent( Event& e )
 		else
 		{
 			updatePosition();
-			PlotGraph();//not realy clicked, but for updating the current tab
+			PlotGraph(cTT());//not realy clicked, but for updating the current tab
 			Win->Show( true );
 			Win->GrabFocus();
 			UpdateTimer.restart();
@@ -70,8 +71,8 @@ void GraphBook::HandleEvent( Event& e )
 	}
 	else if ( e.Is( "debug_reload_graph" ) )
 	{
-		UpdateGraphSettings();
-		PlotGraph();
+		UpdateGraphSettings(cTT());
+		PlotGraph(cTT());
 	}
 }
 
@@ -85,16 +86,16 @@ void GraphBook::EntryTextChange()
 		switch ( ListenToActionKeys )
 		{
 		case 1:
-			entry = std::get<4>( cTT() );
+			entry = cTT().hFrom;
 			break;
 		case 2:
-			entry = std::get<5>( cTT() );
+			entry = cTT().hTo;
 			break;
 		case 3:
-			entry = std::get<6>( cTT() );
+			entry = cTT().vFrom;
 			break;
 		case 4:
-			entry = std::get<7>( cTT() );
+			entry = cTT().vTo;
 			break;
 		default:
 			Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry changed." << std::endl;
@@ -121,18 +122,16 @@ void GraphBook::hViewingRange()
 {
 	if ( !hasActionability() )
 		return;
-	auto graphpl = std::get<0>( cTT() );
-	auto box = std::get<2>( cTT() );
-	if ( box->IsGloballyVisible() )
-		graphpl->updateVertexArrays();
-	box->Show( !box->IsGloballyVisible() );
+	cTT().hBox->Show( !cTT().hBox->IsGloballyVisible() );
+	UpdateGraphSettings(cTT());
 }
 
 void GraphBook::vViewingRange()
 {
 	if ( !hasActionability() )
 		return;
-	std::get<3>( cTT() )->Show( !std::get<3>( cTT() )->IsGloballyVisible() );
+	cTT().vBox->Show( !cTT().vBox->IsGloballyVisible() );
+	UpdateGraphSettings(cTT());
 }
 
 void GraphBook::HViewingRangeFromEntryGainFocus()
@@ -164,53 +163,55 @@ void GraphBook::handleEntryInput( int entry )
 {
 	if ( !hasActionability() )
 		return;
+
+	auto& curTuple = cTT();
 	// determine which entry
 	switch ( entry )
 	{
 	// check if bigger or lower
 	case 1: {
-		int cursorPos = std::get<4>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<4>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = curTuple.hFrom->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString() );
 		int minimum = 0;
-		int maximum = boost::lexical_cast<int>( std::get<5>( cTT() )->GetText().toAnsiString() );
+		int maximum = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString() );
 		if ( input > maximum )
 			input = maximum;
-		std::get<4>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<4>( cTT() )->SetCursorPosition( cursorPos );
+		curTuple.hFrom->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.hFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 2: {
-		int cursorPos = std::get<5>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<5>( cTT() )->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( std::get<4>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = curTuple.hTo->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString() );
+		int minimum =boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString() );
 		if ( input < minimum )
 			input = minimum;
-		std::get<5>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<5>( cTT() )->SetCursorPosition( cursorPos );
+		curTuple.hTo->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.hTo->SetCursorPosition( cursorPos );
 		} break;
 	case 3: {
-		int cursorPos = std::get<6>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<6>( cTT() )->GetText().toAnsiString() );
-		int maximum =boost::lexical_cast<int>( std::get<4>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = curTuple.vFrom->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString() );
+		int maximum =boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString() );
 		if ( input > maximum )
 			input = maximum;
-		std::get<6>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<6>( cTT() )->SetCursorPosition( cursorPos );
+		curTuple.vFrom->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.vFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 4: {
-		int cursorPos = std::get<7>( cTT() )->GetCursorPosition();
-		int input = boost::lexical_cast<int>( std::get<7>( cTT() )->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( std::get<6>( cTT() )->GetText().toAnsiString() );
+		int cursorPos = curTuple.vTo->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString() );
+		int minimum = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString() );
 		if ( input < minimum )
 			input = minimum;
-		std::get<7>( cTT() )->SetText( boost::lexical_cast<std::string>( input ) );
-		std::get<7>( cTT() )->SetCursorPosition( cursorPos );
+		curTuple.vTo->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.vTo->SetCursorPosition( cursorPos );
 		} break;
 	default:
 		Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry handled." << std::endl;
 		return;
 	}
 	// set new values in GraphPlotter
-	UpdateGraphSettings();
+	UpdateGraphSettings(curTuple);
 	textchangeavoidrecursive = true;
 }
 
@@ -272,52 +273,50 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 		//optionBox->SetRequisition( sf::Vector2f( optionBox->GetAllocation().width, optionBox->GetAllocation().height ) );
 	box->Pack( optionBox, false, false );
 	Label::Ptr label = Label::Create( displayName );
-	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotGraph, this );
-	Tabs->AppendPage( box, label );
+	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotCurrentGraph, this );
+	Tabs->SetCurrentPage( Tabs->AppendPage( box, label ) );
 
-	auto y = std::make_tuple( graph, I, hViewingRangeBox, vViewingRangeBox,
+	auto y = graphTuple( graph, I, hViewingRangeBox, vViewingRangeBox,
 	                          hViewingRangeFromEntry, hViewingRangeToEntry,
 	                          vViewingRangeFromEntry, vViewingRangeToEntry );
 
-	graphPlotterList.push_back( y );
+	graphTupleList.push_back( y );
+	Engine::out() << "setting new graph" << std::endl;
+	UpdateGraphSettings( y );
+
+	Engine::out() << "set new graph" << std::endl;
 }
 
-void GraphBook::UpdateGraphSettings()
+void GraphBook::UpdateGraphSettings( graphTuple& GT )
 {
-	if ( !hasActionability() )
-		return;
-	auto G = std::get<0>( cTT() );
+	auto G = GT.plotter;
 	if ( !G )
 		return;
-	Geom::Vec2 start = Geom::Vec2( std::get<4>( cTT() ), std::get<6>( cTT() ) );
-	Geom::Vec2 stop  = Geom::Vec2( std::get<5>( cTT() ), std::get<7>( cTT() ) );
+
+	Geom::Vec2 start = Geom::Vec2( boost::lexical_cast<int>( GT.hFrom->GetText().toAnsiString() ), boost::lexical_cast<int>( GT.vFrom->GetText().toAnsiString() ) );
+	Geom::Vec2 stop  = Geom::Vec2( boost::lexical_cast<int>( GT.hTo->GetText().toAnsiString() ), boost::lexical_cast<int>( GT.vTo->GetText().toAnsiString() ) );
 	G->getGraph().AxisStart = start;
 	G->getGraph().AxisSize  = ( stop - start );
-	G->getGraph().dynX = !( std::get<2>( cTT() )->IsGloballyVisible() );
-	G->getGraph().dynY = !( std::get<3>( cTT() )->IsGloballyVisible() );
+	G->getGraph().dynX = !( GT.hBox->IsGloballyVisible() );
+	G->getGraph().dynY = !( GT.vBox->IsGloballyVisible() );
 	G->updateVertexArrays();
-	PlotGraph();
+	G->printSettings();
+	PlotGraph(GT);
 }
 
-std::tuple<std::shared_ptr<sbe::GraphPlotter>,
-		SharedPtr<Image>,
-		SharedPtr<Box>,
-		SharedPtr<Box>,
-		SharedPtr<Entry>,
-		SharedPtr<Entry>,
-		SharedPtr<Entry>,
-		SharedPtr<Entry> > GraphBook::cTT()
+GraphBook::graphTuple& GraphBook::cTT()
 {
 	/// the way to prevent return value if current page = -1 is to check hasActionability() first
 	int i = Tabs->GetCurrentPage();
-	return graphPlotterList.at( i );
+	return graphTupleList.at( i );
 }
 
-void GraphBook::PlotGraph()
+void GraphBook::PlotCurrentGraph() { PlotGraph(cTT()); }
+
+void GraphBook::PlotGraph( graphTuple& GT )
 {
-	if ( !hasActionability() )
-		return;
-	auto G = std::get<0>( cTT() );
+	auto G = GT.plotter;
+
 	if ( !G ) {
 		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] INVALID POINTER!" << std::endl;
 		return;
@@ -329,10 +328,10 @@ void GraphBook::PlotGraph()
 	}
 
 	sf::RenderTexture tex;
-		tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
-		G->draw( tex );
-		tex.display();
-	std::get<1>( cTT() ) = Image::Create( tex.getTexture().copyToImage() );
+	tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
+	G->draw( tex );
+	tex.display();
+	GT.image->SetImage( tex.getTexture().copyToImage() );
 }
 
 bool GraphBook::hasActionability()

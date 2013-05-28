@@ -153,7 +153,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void HandleClick( const Geom::Pointf& pos );
 
 		void logTickStats();
-		std::shared_ptr<sbe::GraphPlotter> CreateCountPlotter();
+		void CreateCountPlotter();
 
 		void registerIOPlugins();
 		void saveWhole(const std::string &savePath);
@@ -191,9 +191,11 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		// Statistics
 		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
 		int CreatureCounts[3];
+
 		std::vector<int> CarnivoreCounts;
 		std::vector<int> HerbivoreCounts;
 		std::vector<int> HerbaeCounts;
+		std::shared_ptr<sbe::GraphPlotter> CountGraph;
 
 		std::vector<int> ProcessingTimes;
 

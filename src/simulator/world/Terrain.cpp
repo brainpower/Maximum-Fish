@@ -266,37 +266,39 @@ void Terrain::CreateParallelisationGraph()
 	Colors.clear();
 	Colors.resize(4);
 
-	int i = 0;
-
-	for ( int y = 0; y < Size.y; y+=maxreach)
+	for( int y = 0; y < Size.y; y+=maxreach)
 	{
-		for( int x = 0; x < Size.x; x+=maxreach)
+		for ( int x = 0; x < Size.x; x+=maxreach)
 		{
 			int col = ((x)/maxreach) % 2;
 			int odd = ((y)/maxreach) % 2;
 			int id  = (2*odd)+col;
 
-			int xx,yy;
+			int xx,yy, count = 0;
 			for (yy = 0; yy < maxreach; ++yy)
 			{
 				if (y+yy >= Size.y) break;
-
 				for (xx = 0; xx < maxreach; ++xx)
 				{
 					if (x+xx >= Size.x) break;
 
-
-					Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ]->setParallelId( id );
-					Colors[ id ].push_back( Tiles[ Geom::linear( x+xx,y+yy, Size.x ) ] );
+					getTile({ x+xx,y+yy })->setParallelId( id );
+					Colors[ id ].push_back( getTile({ x+xx,y+yy }) );
+					count++;
 				}
 			}
 
 			// acts as a divider between the squares of this color
-			Colors[ id ].emplace_back();
-
-			//Engine::out() << "Color[" << id << "] " << x << "," << y << " size " << xx << "," << yy << std::endl;
+//			Colors[ id ].emplace_back();
+//			Engine::out() << "Color[" << id << "] " << x << "," << y << " size " << xx << "," << yy << " c: " << count << " . Size: " << Colors[id].size() << std::endl;
 		}
 	}
+
+	Engine::out() << "Parallelisation: " << Colors.size() << " Colors/IDs" << std::endl;
+	int i = 0;
+	for ( auto it = Colors.begin(); it != Colors.end(); ++it )
+		Engine::out() << "    ID:" << ++i << " - Tiles: " << it->size() << std::endl;
+
 }
 
 void Terrain::CreateMapPlotters()
