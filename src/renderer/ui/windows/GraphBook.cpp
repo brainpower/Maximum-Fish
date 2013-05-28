@@ -171,38 +171,37 @@ void GraphBook::handleEntryInput( int entry )
 	// check if bigger or lower
 	case 1: {
 		int cursorPos = curTuple.hFrom->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString() );
-		int minimum = 0;
-		int maximum = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString() );
-		if ( input > maximum )
-			input = maximum;
+		int input = boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString().empty() ? "0" : curTuple.hFrom->GetText().toAnsiString() );
+		int maximum = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString().empty() ? "0" : curTuple.hTo->GetText().toAnsiString() ) - 1;
+		if ( input >= maximum ) input = maximum;
+		curTuple.borders->hFrom = input;
 		curTuple.hFrom->SetText( boost::lexical_cast<std::string>( input ) );
 		curTuple.hFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 2: {
 		int cursorPos = curTuple.hTo->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString() );
-		if ( input < minimum )
-			input = minimum;
+		int input = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString().empty() ? "0" : curTuple.hTo->GetText().toAnsiString() );
+		int minimum =boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString().empty() ? "0" : curTuple.hFrom->GetText().toAnsiString() ) + 1;
+		if ( input < minimum ) input = minimum;
+		curTuple.borders->hTo = input;
 		curTuple.hTo->SetText( boost::lexical_cast<std::string>( input ) );
 		curTuple.hTo->SetCursorPosition( cursorPos );
 		} break;
 	case 3: {
 		int cursorPos = curTuple.vFrom->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString() );
-		int maximum =boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString() );
-		if ( input > maximum )
-			input = maximum;
+		int input = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString().empty() ? "0" : curTuple.vFrom->GetText().toAnsiString() );
+		int maximum =boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString().empty() ? "0" : curTuple.vTo->GetText().toAnsiString() ) - 1;
+		if ( input > maximum ) input = maximum;
+		curTuple.borders->vFrom = input;
 		curTuple.vFrom->SetText( boost::lexical_cast<std::string>( input ) );
 		curTuple.vFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 4: {
 		int cursorPos = curTuple.vTo->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString() );
-		int minimum = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString() );
-		if ( input < minimum )
-			input = minimum;
+		int input = boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString().empty() ? "0" : curTuple.vTo->GetText().toAnsiString() );
+		int minimum = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString().empty() ? "0" : curTuple.vFrom->GetText().toAnsiString() ) + 1;
+		if ( input < minimum ) input = minimum;
+		curTuple.borders->vTo = input;
 		curTuple.vTo->SetText( boost::lexical_cast<std::string>( input ) );
 		curTuple.vTo->SetCursorPosition( cursorPos );
 		} break;
@@ -279,6 +278,10 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	auto y = graphTuple( graph, I, hViewingRangeBox, vViewingRangeBox,
 	                          hViewingRangeFromEntry, hViewingRangeToEntry,
 	                          vViewingRangeFromEntry, vViewingRangeToEntry );
+	y.borders->hFrom = 0;
+	y.borders->hTo = 5000;
+	y.borders->vFrom = 0;
+	y.borders->vTo = 5000;
 
 	graphTupleList.push_back( y );
 	Engine::out() << "setting new graph" << std::endl;
@@ -293,8 +296,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	if ( !G )
 		return;
 
-	Geom::Vec2 start = Geom::Vec2( boost::lexical_cast<int>( GT.hFrom->GetText().toAnsiString() ), boost::lexical_cast<int>( GT.vFrom->GetText().toAnsiString() ) );
-	Geom::Vec2 stop  = Geom::Vec2( boost::lexical_cast<int>( GT.hTo->GetText().toAnsiString() ), boost::lexical_cast<int>( GT.vTo->GetText().toAnsiString() ) );
+	Geom::Vec2 start = Geom::Vec2( GT.borders->hFrom, GT.borders->vFrom );
+	Geom::Vec2 stop  = Geom::Vec2( GT.borders->hTo,   GT.borders->vTo   );
 	G->getGraph().AxisStart = start;
 	G->getGraph().AxisSize  = ( stop - start );
 	G->getGraph().dynX = !( GT.hBox->IsGloballyVisible() );

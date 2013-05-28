@@ -32,7 +32,16 @@ class GraphBook : public sbe::EventUser
 
 	private:
 
-				/// tuple in which all pointers are saved
+		/// tuple in which all approved renderborders are saved
+		struct rect
+		{
+			int hFrom = 0;
+			int hTo = 0;
+			int vFrom = 0;
+			int vTo = 0;
+		};
+
+		/// tuple in which all pointers are saved
 		struct graphTuple
 		{
 			std::shared_ptr<sbe::GraphPlotter> plotter;
@@ -43,6 +52,7 @@ class GraphBook : public sbe::EventUser
 			sfg::SharedPtr <sfg::Entry>        hTo;
 			sfg::SharedPtr <sfg::Entry>        vFrom;
 			sfg::SharedPtr <sfg::Entry>        vTo;
+			std::shared_ptr<rect>              borders;
 
 				/// constructor for graphTuple
 				graphTuple( std::shared_ptr<sbe::GraphPlotter> _plotter,
@@ -62,6 +72,7 @@ class GraphBook : public sbe::EventUser
 						hTo     = _hTo;
 						vFrom   = _vFrom;
 						vTo     = _vTo;
+						borders = std::make_shared<rect>();
 					}
 		};
 
