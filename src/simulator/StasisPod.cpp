@@ -6,8 +6,8 @@
 void StasisPod::freeze(std::shared_ptr<SimState> s){
 	Engine::out(Engine::SPAM) << "[StasisPod] Freeze" << std::endl;
 
-	if(s->_currentTick > peekTop()->_currentTick){
-		_pod.push_front(std::make_shared<SimState>(*s));
+	if(_pod.empty() || s->_currentTick > peekTop()->_currentTick){
+		_pod.push_front(std::shared_ptr<SimState>(new SimState(*s)));
 
 		Engine::out() << "[StasisPod] Freezed - tick " << peekTop()->_currentTick << std::endl;
 		return;
@@ -48,7 +48,7 @@ const std::shared_ptr<const SimState> StasisPod::peek(const size_t i){
 }
 
 const std::shared_ptr<const SimState> StasisPod::peekTop(){
-	return _pod.front();
+	return _pod.empty() ? nullptr : _pod.front();
 }
 
 const std::shared_ptr<const SimState> StasisPod::peekTick(const int i){
