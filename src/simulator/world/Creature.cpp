@@ -146,8 +146,17 @@ void Creature::live()
 		didsomethingthistick = mate();
 	}
 
-	if ( !didsomethingthistick )
-		move();
+	if ( !didsomethingthistick ) {
+/*		if ( mySpecies->getType() == Species::CARNIVORE )
+		{
+
+			std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::HERBIVORE);
+			if(nearest)
+				didsomethingthistick = moveTo(Position + Geom::normalize(nearest->getPosition() - Position)*currentMaxSpeed());
+		}
+		else*/
+			move();
+	}
 
 	age++;
 }
@@ -308,7 +317,7 @@ bool Creature::moveTo( Geom::Pointf Target )
 	Geom::Vec2f direction = Geom::normalize( Target - Position );
 	direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), currentMaxSpeed());
 	direction += Position;
-	
+
 	if ( Geom::distance( Target, Position ) > currentMaxSpeed() )
 	{
 		if ( validPos( direction ) )
@@ -336,7 +345,7 @@ bool Creature::randomMove()
 
 	float hab = 1;
 	const std::shared_ptr<Tile>& newtile = Simulator::GetTerrain()->getTile( NewPosition );
-	
+
 	if (newtile) hab = newtile->getHabitability(mySpecies);
 
 	if ( 	hab <= 0.0f
@@ -365,10 +374,10 @@ Geom::Vec2f Creature::getNewPosition()
 		int angle = (int)(rndAngle(Simulator::GetRnd()));
 		Geom::Vec2f unitLast = Geom::normalize(prevMove);
 
-		float spd = std::abs(rnd(Simulator::GetRnd()));		
-		
+		float spd = std::abs(rnd(Simulator::GetRnd()));
+
 		float currentAngle = std::acos(unitLast.x);
-		
+
 		newPos.x = Position.x + (std::cos(currentAngle + (float)angle) * spd);
 		newPos.y = Position.y + (std::sin(currentAngle + (float)angle) * spd);
 	}
