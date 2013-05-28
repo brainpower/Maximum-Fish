@@ -21,7 +21,7 @@ std::shared_ptr<SimState> StasisPod::taw(const size_t i){
 
 std::shared_ptr<SimState> StasisPod::tawTick(const int i){
 	auto it = _pod.begin();
-	for( ; (*it)->_currentTick > i  && it != _pod.end(); ++it);
+	for( ; it != _pod.end() && (*it)->_currentTick > i ; ++it);
 	if( it != _pod.end()){
 		auto _ret = *it;
 		_pod.erase(it);
@@ -40,13 +40,13 @@ const std::shared_ptr<SimState> StasisPod::peekTop(){
 
 const std::shared_ptr<SimState> StasisPod::peekTick(const int i){
 	auto it = _pod.begin();
-	for( ; (*it)->_currentTick > i && it != _pod.end() ; ++it);
+	for( ; it != _pod.end() && (*it)->_currentTick > i ; ++it);
 	return it != _pod.end() ? *it : nullptr;
 }
 
 void StasisPod::discardStartingWith(const int tick){
 	auto it = _pod.begin();
-	for( ; (*it)->_currentTick > tick && it != _pod.end(); ++it);
+	for( ; it != _pod.end() && (*it)->_currentTick > tick; ++it);
 	_pod.erase(_pod.begin(), it);
 }
 
