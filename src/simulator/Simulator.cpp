@@ -180,6 +180,7 @@ void Simulator::NewSimulation( int seed )
 	std::mt19937* rng = new std::mt19937(seed);
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	state->_currentSeed = seed;
+	// set a valid thread num in state, weirdly Simulator::numThreads seems to contain a invalid number of threads
 	state->_numThreads = numThreads;
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
@@ -279,10 +280,14 @@ void Simulator::NewSimulation(
 	auto data = std::make_pair( std::string( "Population" ), CountGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
 
+	// set a valid thread num in state 0, weirdly Simulator::numThreads seems to contain a invalid number of threads
+	//_state->_numThreads = Engine::getCfg()->get<int>("sim.numThreads");
+	Engine::out(Engine::SPAM) << "[Simulator][debug] Sim::numThreads " << numThreads << ", state: " << state->_numThreads << ", _state: " << _state->_numThreads << std::endl;
+
 	_pod->clear();
 	Engine::out() << "[Sim] Freeze" << std::endl;
 	_pod->freeze(_state);
-	Engine::out() << "[Sim] Freezed" << std::endl;
+	Engine::out() << "[Sim] Freezed - " << _pod->peekTop()->_currentTick << "/" << _pod->peekTop()->_numThreads << std::endl;
 
 }
 

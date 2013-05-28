@@ -1,9 +1,22 @@
-
+#include <sbe/Engine.hpp>
 #include "StasisPod.hpp"
 #include "SimState.hpp"
 
+
 void StasisPod::freeze(std::shared_ptr<SimState> s){
-	_pod.push_front(std::shared_ptr<SimState>(new SimState(*s)));
+	Engine::out(Engine::SPAM) << "[StasisPod] Freeze" << std::endl;
+
+	if(s->_currentTick > peekTop()->_currentTick){
+		_pod.push_front(std::make_shared<SimState>(*s));
+
+		Engine::out() << "[StasisPod] Freezed - tick " << peekTop()->_currentTick << std::endl;
+		return;
+	}
+	auto it = _pod.begin();
+	for(; it != _pod.end() && (*it)->_currentTick != s->_currentTick ; ++it);
+	*it = std::make_shared<SimState>(*s);
+
+	Engine::out() << "[StasisPod] Freezed - tick " << peekTop()->_currentTick << " overwritten" << std::endl;
 }
 
 std::shared_ptr<SimState> StasisPod::tawTop(){
@@ -30,15 +43,15 @@ std::shared_ptr<SimState> StasisPod::tawTick(const int i){
 	} return nullptr;
 }
 
-const std::shared_ptr<SimState> StasisPod::peek(const size_t i){
+const std::shared_ptr<const SimState> StasisPod::peek(const size_t i){
 	return _pod[i];
 }
 
-const std::shared_ptr<SimState> StasisPod::peekTop(){
+const std::shared_ptr<const SimState> StasisPod::peekTop(){
 	return _pod.front();
 }
 
-const std::shared_ptr<SimState> StasisPod::peekTick(const int i){
+const std::shared_ptr<const SimState> StasisPod::peekTick(const int i){
 	auto it = _pod.begin();
 	for( ; it != _pod.end() && (*it)->_currentTick > i ; ++it);
 	return it != _pod.end() ? *it : nullptr;
