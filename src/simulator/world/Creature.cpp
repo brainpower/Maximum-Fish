@@ -36,7 +36,8 @@ Creature::Creature( const std::shared_ptr<Species>& Species)
 	lastmating(0),
 	Position( 0, 0 ),
 	prevMove( 0, 0 ),
-	mySpecies (Species)
+	mySpecies (Species),
+	causeOfDeath(NONE)
 {
 	if (!Species)
 	{
@@ -60,7 +61,8 @@ Creature::Creature(const Creature &o)
 	  Position(o.Position),
 	  prevMove(o.prevMove),
 	  mySpecies(o.mySpecies),
-	  currentTile(nullptr)
+	  currentTile(nullptr),
+	  causeOfDeath(o.causeOfDeath)
 {
 }
 
@@ -113,13 +115,6 @@ void Creature::live()
 	// damage from environment
 	resistance = healthPercentage() * currentResistance();
 	calcDamage();
-
-	// do nothing, we're dead
-	// the simulator will remove this creature after the current tick
-	if ( currentHealth <= 0 ) {
-		die();
-		return;
-	}
 
 	bool didsomethingthistick = false;
 	//std::list<std::shared_ptr<Creature>> nearby = Simulator::GetTerrain()->getNearby(this->getPosition(), 2.0);
@@ -191,7 +186,7 @@ bool Creature::huntNearest( int type )
 				// consume our prey
 				currentHealth += nearest->getCurrentHealth();
 				if ( currentHealth > currentMaxHealth() ) currentHealth = currentMaxHealth();
-				nearest->die();
+				nearest->die(EATEN);
 				break;
 
 			case Species::HERBIVORE:
@@ -200,7 +195,7 @@ bool Creature::huntNearest( int type )
 				if ( diff > nearest->getCurrentHealth() )
 				{
 					currentHealth += nearestHealth;
-					nearest->die();
+					nearest->die(EATEN);
 				}
 				else
 				{
@@ -400,10 +395,11 @@ void Creature::calcDamage()
 	currentHealth-= envDamage();
 }
 
-void Creature::die()
+void Creature::die(CauseOfDeath cod)
 {
 	setCurrentHealth(-1);
 	// make sure we won't be simulated later
+	causeOfDeath = cod;
 	done = true;
 	// remove used nutrition
 	//if ( mySpecies->getType() == Species::HERBA ) currentTile->addUsedNutrition( -NutritionValue );

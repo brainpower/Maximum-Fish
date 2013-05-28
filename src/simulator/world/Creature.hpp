@@ -21,6 +21,8 @@ class Creature : public std::enable_shared_from_this<Creature>
 		Creature( const std::shared_ptr<Species>& Species);
 		Creature( const Creature &o);
 		virtual ~Creature() {};
+		enum CauseOfDeath {EATEN, STARVED, OLD, FROZEN, THIRST, NONE};
+		int causeOfDeath;
 
 		void live();
 
@@ -33,7 +35,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		/// used if you just want to create a creature without affecting the simulator state ( yet )
 		void setPositionUnsafe(const Geom::Pointf& pos);
 		void movePosition(const Geom::Pointf& pos);
-		void die();
+		void die(CauseOfDeath cod);
 
 		float getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
@@ -64,11 +66,31 @@ class Creature : public std::enable_shared_from_this<Creature>
 		inline float envDamage() {
 			float envDmg = std::pow( (currentTile->calcTemperature() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
 			if ( mySpecies->getType() == Species::HERBA ) envDmg = envDmg*plantEnvDmgFactor;
-			return envDmg/currentResistance() * envMult;
+
+			envDmg = envDmg/currentResistance() * envMult;
+			if ( currentHealth <= envDmg ) {
+				if(age > old * mySpecies->getMaxAge()) die(OLD);
+				else die(FROZEN);
+			}
+			return envDmg;
 		}
 		inline float waterSupply() { return currentTile->getCurrentHumidity()/mySpecies->getWaterRequirement(); }
-		inline float waterDamage() { return  waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * std::pow(1 - waterSupply(), 3) : 0; }
-		inline float foodDamage() { return mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();}
+		inline float waterDamage() {
+			float dmg = waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * std::pow(1 - waterSupply(), 3) : 0;
+			if ( currentHealth <= dmg ) {
+				if(age > old * mySpecies->getMaxAge()) die(OLD);
+				else die(THIRST);
+			}
+			return dmg;
+		}
+		inline float foodDamage() { 
+			float dmg = mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();
+			if ( currentHealth <= dmg ) {
+				if(age > old * mySpecies->getMaxAge()) die(OLD);
+				else die(STARVED);
+			}
+			return dmg;
+		}
 
 		//'' END Calculated Values ##
 
@@ -108,6 +130,9 @@ class Creature : public std::enable_shared_from_this<Creature>
 		
 		static float fleeFactor;
 		// -- END STATIC SETTINGS --
+		
+		//defines when a creature is "old" (in relation to maxAge)
+		const float old = 0.9;
 
 		friend class CreatureIOPlugin;
 

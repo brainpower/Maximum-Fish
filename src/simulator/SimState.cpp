@@ -14,11 +14,11 @@ SimState::SimState(const SimState &o)
 {
 	_seeder.reset(new std::mt19937(*o._seeder));
 	for( auto p : o._gens)
-		_gens.push_back(std::shared_ptr<std::mt19937>(new std::mt19937(*p)));
+		_gens.push_back(std::make_shared<std::mt19937>(*p));
 
 	for ( auto it = o._creatures.begin(); it != o._creatures.end(); ++it )
 	{ // deep copy of creatures
-		_creatures.push_back(std::shared_ptr<Creature>(new Creature(**it)));
+		_creatures.push_back(std::make_shared<Creature>(**it));
 		_creatures.back()->updateTileFromPos(_terrain);
 	}
 

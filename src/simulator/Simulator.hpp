@@ -196,6 +196,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::vector<int> CarnivoreCounts;
 		std::vector<int> HerbivoreCounts;
 		std::vector<int> HerbaeCounts;
+		
+		std::vector<int> EatenCounts;
+		std::vector<int> StarvedCounts;
+		std::vector<int> FrozenCounts;
+		std::vector<int> ThirstCounts;
+		std::vector<int> OldCounts;
+		
 		std::shared_ptr<sbe::GraphPlotter> CountGraph;
 
 		std::vector<int> ProcessingTimes;
