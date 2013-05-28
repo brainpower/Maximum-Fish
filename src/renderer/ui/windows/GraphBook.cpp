@@ -40,7 +40,8 @@ void GraphBook::HandleEvent( Event& e )
 {
 	if ( UpdateTimer.getElapsedTime() > sf::seconds( 2.0 ) && Win->IsGloballyVisible() )
 	{
-		PlotGraph();
+		UpdateGraphSettings(cTT());
+		PlotGraph(cTT());
 		UpdateTimer.restart();
 	}
 	else if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
@@ -52,7 +53,7 @@ void GraphBook::HandleEvent( Event& e )
 		else
 		{
 			updatePosition();
-			PlotGraph();//not realy clicked, but for updating the current tab
+			PlotGraph(cTT());//not realy clicked, but for updating the current tab
 			Win->Show( true );
 			Win->GrabFocus();
 			UpdateTimer.restart();
@@ -70,8 +71,8 @@ void GraphBook::HandleEvent( Event& e )
 	}
 	else if ( e.Is( "debug_reload_graph" ) )
 	{
-		UpdateGraphSettings();
-		PlotGraph();
+		UpdateGraphSettings(cTT());
+		PlotGraph(cTT());
 	}
 }
 
@@ -122,7 +123,7 @@ void GraphBook::hViewingRange()
 	if ( !hasActionability() )
 		return;
 	cTT().hBox->Show( !cTT().hBox->IsGloballyVisible() );
-	UpdateGraphSettings();
+	UpdateGraphSettings(cTT());
 }
 
 void GraphBook::vViewingRange()
@@ -130,7 +131,7 @@ void GraphBook::vViewingRange()
 	if ( !hasActionability() )
 		return;
 	cTT().vBox->Show( !cTT().vBox->IsGloballyVisible() );
-	UpdateGraphSettings();
+	UpdateGraphSettings(cTT());
 }
 
 void GraphBook::HViewingRangeFromEntryGainFocus()
@@ -162,53 +163,55 @@ void GraphBook::handleEntryInput( int entry )
 {
 	if ( !hasActionability() )
 		return;
+
+	auto& curTuple = cTT();
 	// determine which entry
 	switch ( entry )
 	{
 	// check if bigger or lower
 	case 1: {
-		int cursorPos = cTT().hFrom->GetCursorPosition();
-		int input = boost::lexical_cast<int>( cTT().hFrom->GetText().toAnsiString() );
+		int cursorPos = curTuple.hFrom->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString() );
 		int minimum = 0;
-		int maximum = boost::lexical_cast<int>( cTT().hTo->GetText().toAnsiString() );
+		int maximum = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString() );
 		if ( input > maximum )
 			input = maximum;
-		cTT().hFrom->SetText( boost::lexical_cast<std::string>( input ) );
-		cTT().hFrom->SetCursorPosition( cursorPos );
+		curTuple.hFrom->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.hFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 2: {
-		int cursorPos = cTT().hTo->GetCursorPosition();
-		int input = boost::lexical_cast<int>( cTT().hTo->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( cTT().hFrom->GetText().toAnsiString() );
+		int cursorPos = curTuple.hTo->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString() );
+		int minimum =boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString() );
 		if ( input < minimum )
 			input = minimum;
-		cTT().hTo->SetText( boost::lexical_cast<std::string>( input ) );
-		cTT().hTo->SetCursorPosition( cursorPos );
+		curTuple.hTo->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.hTo->SetCursorPosition( cursorPos );
 		} break;
 	case 3: {
-		int cursorPos = cTT().vFrom->GetCursorPosition();
-		int input = boost::lexical_cast<int>( cTT().vFrom->GetText().toAnsiString() );
-		int maximum =boost::lexical_cast<int>( cTT().vTo->GetText().toAnsiString() );
+		int cursorPos = curTuple.vFrom->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString() );
+		int maximum =boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString() );
 		if ( input > maximum )
 			input = maximum;
-		cTT().vFrom->SetText( boost::lexical_cast<std::string>( input ) );
-		cTT().vFrom->SetCursorPosition( cursorPos );
+		curTuple.vFrom->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.vFrom->SetCursorPosition( cursorPos );
 		} break;
 	case 4: {
-		int cursorPos = cTT().vTo->GetCursorPosition();
-		int input = boost::lexical_cast<int>( cTT().vTo->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( cTT().vFrom->GetText().toAnsiString() );
+		int cursorPos = curTuple.vTo->GetCursorPosition();
+		int input = boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString() );
+		int minimum = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString() );
 		if ( input < minimum )
 			input = minimum;
-		cTT().vTo->SetText( boost::lexical_cast<std::string>( input ) );
-		cTT().vTo->SetCursorPosition( cursorPos );
+		curTuple.vTo->SetText( boost::lexical_cast<std::string>( input ) );
+		curTuple.vTo->SetCursorPosition( cursorPos );
 		} break;
 	default:
 		Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry handled." << std::endl;
 		return;
 	}
 	// set new values in GraphPlotter
-	UpdateGraphSettings();
+	UpdateGraphSettings(curTuple);
 	textchangeavoidrecursive = true;
 }
 
@@ -270,31 +273,35 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 		//optionBox->SetRequisition( sf::Vector2f( optionBox->GetAllocation().width, optionBox->GetAllocation().height ) );
 	box->Pack( optionBox, false, false );
 	Label::Ptr label = Label::Create( displayName );
-	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotGraph, this );
-	Tabs->AppendPage( box, label );
+	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotCurrentGraph, this );
+	Tabs->SetCurrentPage( Tabs->AppendPage( box, label ) );
 
 	auto y = graphTuple( graph, I, hViewingRangeBox, vViewingRangeBox,
 	                          hViewingRangeFromEntry, hViewingRangeToEntry,
 	                          vViewingRangeFromEntry, vViewingRangeToEntry );
 
 	graphTupleList.push_back( y );
+	Engine::out() << "setting new graph" << std::endl;
+	UpdateGraphSettings( y );
+
+	Engine::out() << "set new graph" << std::endl;
 }
 
-void GraphBook::UpdateGraphSettings()
+void GraphBook::UpdateGraphSettings( graphTuple& GT )
 {
-	if ( !hasActionability() )
-		return;
-	auto G = cTT().plotter;
+	auto G = GT.plotter;
 	if ( !G )
 		return;
-	Geom::Vec2 start = Geom::Vec2( cTT().hFrom, cTT().vFrom );
-	Geom::Vec2 stop  = Geom::Vec2( cTT().hTo, cTT().vTo );
+
+	Geom::Vec2 start = Geom::Vec2( boost::lexical_cast<int>( GT.hFrom->GetText().toAnsiString() ), boost::lexical_cast<int>( GT.vFrom->GetText().toAnsiString() ) );
+	Geom::Vec2 stop  = Geom::Vec2( boost::lexical_cast<int>( GT.hTo->GetText().toAnsiString() ), boost::lexical_cast<int>( GT.vTo->GetText().toAnsiString() ) );
 	G->getGraph().AxisStart = start;
 	G->getGraph().AxisSize  = ( stop - start );
-	G->getGraph().dynX = !( cTT().hBox->IsGloballyVisible() );
-	G->getGraph().dynY = !( cTT().vBox->IsGloballyVisible() );
+	G->getGraph().dynX = !( GT.hBox->IsGloballyVisible() );
+	G->getGraph().dynY = !( GT.vBox->IsGloballyVisible() );
 	G->updateVertexArrays();
-	PlotGraph();
+	G->printSettings();
+	PlotGraph(GT);
 }
 
 GraphBook::graphTuple& GraphBook::cTT()
@@ -304,14 +311,11 @@ GraphBook::graphTuple& GraphBook::cTT()
 	return graphTupleList.at( i );
 }
 
-void GraphBook::PlotGraph()
+void GraphBook::PlotCurrentGraph() { PlotGraph(cTT()); }
+
+void GraphBook::PlotGraph( graphTuple& GT )
 {
-	if ( !hasActionability() )
-	{
-		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] Invalid Tabs!" << std::endl;
-		return;
-	}
-	auto G = cTT().plotter;
+	auto G = GT.plotter;
 
 	if ( !G ) {
 		Engine::out( Engine::ERROR ) << "[GraphBook::PlotGraph] INVALID POINTER!" << std::endl;
@@ -324,10 +328,10 @@ void GraphBook::PlotGraph()
 	}
 
 	sf::RenderTexture tex;
-		tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
-		G->draw( tex );
-		tex.display();
-		cTT().image->SetImage( tex.getTexture().copyToImage() );
+	tex.create( G->getGraph().Size.x, G->getGraph().Size.y );
+	G->draw( tex );
+	tex.display();
+	GT.image->SetImage( tex.getTexture().copyToImage() );
 }
 
 bool GraphBook::hasActionability()

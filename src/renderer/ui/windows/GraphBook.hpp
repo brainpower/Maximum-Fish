@@ -32,59 +32,7 @@ class GraphBook : public sbe::EventUser
 
 	private:
 
-		/// initializer for the Window
-		void CreateWindow( const Geom::Vec2 Size );
-
-		/// called from eventhandler, adding a new graph and optionBox
-		void AddNewGraph( std::string displayName, std::shared_ptr<sbe::GraphPlotter> graph );
-
-		/// redraw the graphplotter to the image
-		void PlotGraph();
-
-		/// rearange the sfg::window
-		void updatePosition();
-
-		/// signal-connection to make hviewingrangebox visible
-		void hViewingRange();
-
-		/// signal-connection to make vviewingrangebox visible
-		void vViewingRange();
-
-		/// spellchecker (only numbers are allowed)
-		void EntryTextChange();
-
-		/// called whenever the graphplotter is updated or modified
-		void UpdateGraphSettings();
-
-		/// check if Graphbook has actionability (when a tab is active)
-		bool hasActionability();
-
-		/// called from event-handler on enter, executing the changes from the active entry
-		void handleEntryInput( int entry );
-
-		/// determines if listenling to enter (should be active when an entry is active)
-		int ListenToActionKeys;
-
-		/// flag to avoid spellchecking while spellchecking
-		bool textchangeavoidrecursive;
-
-
-		/// signal-connection for entry
-		void HViewingRangeFromEntryGainFocus();
-
-		/// signal-connection for entry
-		void HViewingRangeToEntryGainFocus();
-
-		/// signal-connection for entry
-		void VViewingRangeFromEntryGainFocus();
-
-		/// signal-connection for entry
-		void VViewingRangeToEntryGainFocus();
-
-		/// signal-connection for entry
-		void EntryLostFocus();
-
-		/// tuple in which all pointers are saved
+				/// tuple in which all pointers are saved
 		struct graphTuple
 		{
 			std::shared_ptr<sbe::GraphPlotter> plotter;
@@ -116,6 +64,59 @@ class GraphBook : public sbe::EventUser
 						vTo     = _vTo;
 					}
 		};
+
+		/// initializer for the Window
+		void CreateWindow( const Geom::Vec2 Size );
+
+		/// called from eventhandler, adding a new graph and optionBox
+		void AddNewGraph( std::string displayName, std::shared_ptr<sbe::GraphPlotter> graph );
+
+		/// redraw the graphplotter to the image
+		void PlotGraph( graphTuple& GT );
+		void PlotCurrentGraph( );
+
+		/// rearange the sfg::window
+		void updatePosition();
+
+		/// signal-connection to make hviewingrangebox visible
+		void hViewingRange();
+
+		/// signal-connection to make vviewingrangebox visible
+		void vViewingRange();
+
+		/// spellchecker (only numbers are allowed)
+		void EntryTextChange();
+
+		/// called whenever the graphplotter is updated or modified
+		void UpdateGraphSettings( graphTuple& GT );
+
+		/// check if Graphbook has actionability (when a tab is active)
+		bool hasActionability();
+
+		/// called from event-handler on enter, executing the changes from the active entry
+		void handleEntryInput( int entry );
+
+		/// determines if listenling to enter (should be active when an entry is active)
+		int ListenToActionKeys;
+
+		/// flag to avoid spellchecking while spellchecking
+		bool textchangeavoidrecursive;
+
+
+		/// signal-connection for entry
+		void HViewingRangeFromEntryGainFocus();
+
+		/// signal-connection for entry
+		void HViewingRangeToEntryGainFocus();
+
+		/// signal-connection for entry
+		void VViewingRangeFromEntryGainFocus();
+
+		/// signal-connection for entry
+		void VViewingRangeToEntryGainFocus();
+
+		/// signal-connection for entry
+		void EntryLostFocus();
 
 		/// Deque where all graphtuples are saved
 		std::deque<graphTuple> graphTupleList;
