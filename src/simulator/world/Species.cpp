@@ -42,7 +42,8 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
 	//Engine::out() << "species!" << std::endl;
 	maxAge = Engine::getCfg()->get<int>("sim.species.defaults.maxAge");
 	maxHealth = Engine::getCfg()->get<int>("sim.species.defaults.maxHealth");
-	maxSpeed = Engine::getCfg()->get<float>("sim.species.defaults.maxSpeed");
+	maxSpeed = Engine::getCfg()->get<float>("sim.species.defaults.maxSpeed")
+					* Engine::getCfg()->get<int>("sim.species.defaults.maxSpeed." + typestring);
 
 	resistance = Engine::getCfg()->get<float>("sim.species.defaults.resistance");
 
