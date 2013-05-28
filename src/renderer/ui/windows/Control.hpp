@@ -37,6 +37,7 @@ class Control : public sbe::EventUser
         sfg::SharedPtr<sfg::Button> BtnSimFrames;
         sfg::SharedPtr<sfg::Entry> Framesdisplay;
         sfg::SharedPtr<sfg::Scale> SclTickSlider;
+        sfg::SharedPtr<sfg::Entry> TickScaleDisplay;
         unsigned int Frames;
         void BtnFramesUpClick();
 		void BtnFramesDownClick();
@@ -53,6 +54,7 @@ class Control : public sbe::EventUser
 		void BtnSimSingleFrameClick();
 		void BtnSimFramesClick();
 		void TickSliderReleased();
+		void TickSliderLabelUpdate();
 
 		/// This updates the position of the ControlMenu to the bottom left corner of the application.
 		/// Its called whenever a change of Application-size occures.

@@ -33,7 +33,7 @@ Control::Control( const Geom::Vec2 Size )
 	RegisterForEvent( "KEY_PRESSED_ENTER" );
 	RegisterForEvent( "PAUSELOCK_DOWN" );
 	RegisterForEvent( "PAUSELOCK_UP" );
-	RegisterForEvent( "SIM_CURRENT_TICK" );
+	RegisterForEvent( "SIM_UPDATE_TICK_SCALE" );
 
 	Frames = Engine::getCfg()->get<int>( "system.ui.control.simFrameRate" );
 
@@ -48,8 +48,9 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 	Win->SetRequisition( sf::Vector2f( Size.x, Size.y ) );
 
 	// main box, vertical
-	Box::Ptr box( Box::Create( Box::HORIZONTAL, 5.0f ) );
-	box->SetRequisition({ (float)Size.x, 0});
+	Box::Ptr box( Box::Create( Box::VERTICAL, 5.0f ) );
+	Box::Ptr buttonBox( Box::Create( Box::HORIZONTAL, 5.0f ) );
+	buttonBox->SetRequisition({ (float)Size.x, 0});
 
 		BtnMnMnWin =  ToggleButton::Create(  "MainMenu [Esc]" );
 		BtnIPanWin =  ToggleButton::Create( "InfoPanel [F1]" );
@@ -61,11 +62,20 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimFrames = Button::Create(     ">>|" );
 		SclTickSlider = sfg::Scale::Create();
 
-		SclTickSlider->SetRequisition({ 100, 0});
+		Box::Ptr boxTickSlider = Box::Create( Box::HORIZONTAL, 5.0f );
+		boxTickSlider->SetRequisition({ 100, 30 });
+		SclTickSlider->SetRequisition({ 100, 20 });
 		SclTickSlider->SetIncrements(1,500);
 		SclTickSlider->SetValue(0);
 		SclTickSlider->Show(Engine::getCfg()->get<bool>("sim.paused"));
 		SclTickSlider->GetSignal(sfg::Scale::OnMouseLeftRelease).Connect( &Control::TickSliderReleased, this );
+		SclTickSlider->GetSignal(sfg::Scale::OnMouseMove).Connect( &Control::TickSliderLabelUpdate, this );
+		TickScaleDisplay = Entry::Create( "0 / 0" );
+		TickScaleDisplay->SetRequisition({ 100, 0 });
+		TickScaleDisplay->SetState( Widget::State::INSENSITIVE );
+
+		boxTickSlider->Pack( SclTickSlider, true, true );
+		boxTickSlider->Pack( TickScaleDisplay, false, false );
 
 		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
@@ -110,16 +120,17 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimFramesClick, this );
 		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
 
-		box->Pack( BtnMnMnWin,  false, false );
-		box->Pack( BtnIPanWin,  false, false );
-		box->Pack( BtnSimPause, false, false );
-		box->Pack( BtnDbgWin,   false, false );
-		box->Pack( BtnGraBoWin, false, false );
-		box->Pack( BtnSimReset, false, false );
-		box->Pack( framesframe, false, false );
-		box->Pack( BtnSimSingleFrame, false, false );
-		box->Pack( BtnSimFrames, false, false );
-		box->Pack( SclTickSlider, true, true);
+		buttonBox->Pack( BtnMnMnWin,  false, false );
+		buttonBox->Pack( BtnIPanWin,  false, false );
+		buttonBox->Pack( BtnSimPause, false, false );
+		buttonBox->Pack( BtnDbgWin,   false, false );
+		buttonBox->Pack( BtnGraBoWin, false, false );
+		buttonBox->Pack( BtnSimReset, false, false );
+		buttonBox->Pack( framesframe, false, false );
+		buttonBox->Pack( BtnSimSingleFrame, false, false );
+		buttonBox->Pack( BtnSimFrames, false, false );
+		box->Pack( boxTickSlider, true, true );
+		box->Pack( buttonBox, false, false );
 
 	Win->Add( box );
 	updatePosition();
@@ -178,10 +189,12 @@ void Control::HandleEvent( Event& e )
 	{
 		CalculateNewFrames();
 	}
-	else if ( e.Is( "SIM_CURRENT_TICK" ) ){
-		int ct = boost::any_cast<int>( e.Data() );
-		SclTickSlider->SetRange(0, ct );
-		if(simPauseLockLevel == 0) SclTickSlider->SetValue(ct);
+	else if ( e.Is( "SIM_UPDATE_TICK_SCALE", typeid( sf::Vector2i ) ) )
+	{
+		auto curt_maxt = boost::any_cast<sf::Vector2i>( e.Data() );
+		SclTickSlider->SetRange( 0, curt_maxt.y );
+		if ( simPauseLockLevel == 0 ) SclTickSlider->SetValue( curt_maxt.x );
+		TickSliderLabelUpdate();
 	}
 }
 
@@ -230,8 +243,14 @@ void Control::CalculateNewFrames()
 	Module::Get()->QueueEvent( Event( "SET_SIM_TPS", Frames ), true );
 }
 
-void Control::TickSliderReleased(){
+void Control::TickSliderReleased()
+{
 	Module::Get()->QueueEvent(Event("SIM_FORWARD_TO_TICK", (int)SclTickSlider->GetValue()), true);
+}
+
+void Control::TickSliderLabelUpdate()
+{
+	TickScaleDisplay->SetText( boost::lexical_cast<std::string>( (int)( SclTickSlider->GetValue() ) ) + " / " + boost::lexical_cast<std::string>( (int)( SclTickSlider->GetAdjustment()->GetUpper() ) ) );
 }
 
 void Control::EntryTextChange()
@@ -315,6 +334,8 @@ void Control::SimPause( bool up )
 	{
 		if ( simPauseLockLevel == 0 ){ //first locking with pause
 			SclTickSlider->Show();
+			TickScaleDisplay->Show();
+			TickSliderLabelUpdate();
 			Module::Get()->QueueEvent( Event( "SIM_PAUSE" ), true );
 		}
 		simPauseLockLevel++;
@@ -324,6 +345,7 @@ void Control::SimPause( bool up )
 		simPauseLockLevel--;
 		if ( simPauseLockLevel == 0 ){
 			SclTickSlider->Show(false);
+			TickScaleDisplay->Show(false);
 			Module::Get()->QueueEvent( Event( "SIM_UNPAUSE" ), true );
 		}
 	}

@@ -358,6 +358,7 @@ void Simulator::advance()
 			}
 
 			UpdateCreatureRenderList();
+			SendScaleUpdate();
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
 
@@ -407,7 +408,7 @@ void Simulator::advance()
 	// update the renderer at up to 30 fps
 	if (RendererUpdate.getElapsedTime() > sf::milliseconds(33))
 	{
-		Module::Get()->QueueEvent(Event("SIM_CURRENT_TICK", _state->_currentTick), true);
+		SendScaleUpdate();
 
 		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species.size()));
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
@@ -424,6 +425,13 @@ void Simulator::advance()
 
 		RendererUpdate.restart();
 	}
+}
+
+void Simulator::SendScaleUpdate()
+{
+	int maxTick = std::max( _state->_currentTick, _pod->peekTop()->_currentTick );
+		sf::Vector2i data = sf::Vector2i( _state->_currentTick, maxTick );
+		Module::Get()->QueueEvent(Event("SIM_UPDATE_TICK_SCALE", data ), true);
 }
 
 void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list)
@@ -638,7 +646,7 @@ void Simulator::saveWhole(const std::string &savePath){
 		return;
 	}
 
-	Engine::out(Engine::SPAM) << "Save to path: " << Engine::GetIO()->topPath() << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator]Save to path: " << Engine::GetIO()->topPath() << std::endl;
 
 	_pod->freeze(_state); // freeze latest state
 
@@ -684,7 +692,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 		Event e("EVT_LOAD_BAD", std::string("Error loading"));
 		Module::Get()->QueueEvent(e, true);
 
-		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "[Simulator]Error loading from '" << loadPath << "'!" << std::endl;
 		return;
 	}
 
@@ -699,8 +707,8 @@ void Simulator::loadWhole(const std::string &loadPath){
 		Event e("EVT_LOAD_BAD", std::string("Error loading"));
 		Module::Get()->QueueEvent(e, true);
 
-		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
-		Engine::out(Engine::ERROR) << "Won't continue with SimState saved with " << latestState->_numThreads
+		Engine::out(Engine::ERROR) << "[Simulator]Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "[Simulator]Won't continue with SimState saved with " << latestState->_numThreads
 		                           << " threads using " << numThreads << "threads!" << std::endl;
 
 		delete newGen;
@@ -720,9 +728,9 @@ void Simulator::loadWhole(const std::string &loadPath){
 void Simulator::forwardTo(const int i){
 	bool wasPaused = isPaused;
 
-	Engine::out(Engine::SPAM) << "[forwardTo] forwarding to " << i << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] forwarding to " << i << std::endl;
 	setState(_pod->peekTick(i));
-	Engine::out(Engine::SPAM) << "[forwardTo] got state for tick " << _state->_currentTick << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] got state for tick " << _state->_currentTick << std::endl;
 	TicksToSim = i - _state->_currentTick;
 
 	isPaused = false;
@@ -730,7 +738,7 @@ void Simulator::forwardTo(const int i){
 
 	TickTimer.restart();
 	simulateTicks = TicksToSim;
-	Engine::out(Engine::SPAM) << "[forwardTo] yet to simulate " << TicksToSim << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] yet to simulate " << TicksToSim << std::endl;
 
 	//~ isPaused = wasPaused;
 	//~ Engine::getCfg()->set("sim.paused", isPaused);

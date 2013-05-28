@@ -154,6 +154,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		void logTickStats();
 		void CreateCountPlotter();
+		void SendScaleUpdate();
 
 		void registerIOPlugins();
 		void saveWhole(const std::string &savePath);
