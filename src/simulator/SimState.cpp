@@ -1,5 +1,6 @@
 #include "SimState.hpp"
 
+#include <sbe/Engine.hpp>
 #include "world/Terrain.hpp"
 #include "world/Creature.hpp"
 
@@ -8,7 +9,8 @@ SimState::SimState(const SimState &o)
 	  _currentSeed(o._currentSeed),
 	  _numGenerated(o._numGenerated),
 	  _terrain( new Terrain(*o._terrain) ),
-	  _species(o._species)
+	  _species(o._species),
+	  _numThreads(o._numThreads)
 {
 	_seeder.reset(new std::mt19937(*o._seeder));
 	for( auto p : o._gens)
@@ -20,4 +22,5 @@ SimState::SimState(const SimState &o)
 		_creatures.back()->updateTileFromPos(_terrain);
 	}
 
+	Engine::out(Engine::SPAM) << "[SimState] Copied!" << std::endl;
 }
