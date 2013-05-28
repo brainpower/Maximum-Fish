@@ -33,6 +33,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/atomic.hpp>
+
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -171,6 +173,12 @@ void Simulator::init()
 	_tid.reset(new int(-1));
 
 	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
+	
+	EatenCounts.push_back(0);
+	StarvedCounts.push_back(0);
+	FrozenCounts.push_back(0);
+	ThirstCounts.push_back(0);
+	OldCounts.push_back(0);
 }
 
 void Simulator::NewSimulation( int seed )
@@ -358,6 +366,7 @@ void Simulator::advance()
 			}
 
 			UpdateCreatureRenderList();
+			SendScaleUpdate();
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
 
@@ -407,7 +416,7 @@ void Simulator::advance()
 	// update the renderer at up to 30 fps
 	if (RendererUpdate.getElapsedTime() > sf::milliseconds(33))
 	{
-		Module::Get()->QueueEvent(Event("SIM_CURRENT_TICK", _state->_currentTick), true);
+		SendScaleUpdate();
 
 		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species.size()));
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
@@ -415,6 +424,11 @@ void Simulator::advance()
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
 		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( _state->_currentTick ));
 		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( _state->_numGenerated ));
+		Module::Get()->DebugString("Dead - Eaten", boost::lexical_cast<std::string>( EatenCounts.back() ));
+		Module::Get()->DebugString("Dead - Starved", boost::lexical_cast<std::string>( StarvedCounts.back() ));
+		Module::Get()->DebugString("Dead - Thirst", boost::lexical_cast<std::string>( ThirstCounts.back() ));
+		Module::Get()->DebugString("Dead - Frozen", boost::lexical_cast<std::string>( FrozenCounts.back() ));
+		Module::Get()->DebugString("Dead - Old", boost::lexical_cast<std::string>( OldCounts.back() ));
 
 		if ( !isPaused )
 		{
@@ -424,6 +438,13 @@ void Simulator::advance()
 
 		RendererUpdate.restart();
 	}
+}
+
+void Simulator::SendScaleUpdate()
+{
+	int maxTick = std::max( _state->_currentTick, _pod->peekTop()->_currentTick );
+		sf::Vector2i data = sf::Vector2i( _state->_currentTick, maxTick );
+		Module::Get()->QueueEvent(Event("SIM_UPDATE_TICK_SCALE", data ), true);
 }
 
 void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list)
@@ -440,7 +461,17 @@ void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list)
 
 void Simulator::parallelTick()
 {
-
+	boost::atomic<int> eaten;
+	boost::atomic<int> frozen;
+	boost::atomic<int> starved;
+	boost::atomic<int> thirst;
+	boost::atomic<int> old;
+	eaten = 0;
+	frozen = 0;
+	starved = 0;
+	thirst = 0;
+	old = 0;
+		
 	//  makes sure our threads are waiting at the "endBarrier" needed for the loop
 	// do this by starting an empty batch
 	for ( int thread = 0; thread < numThreads; ++thread)
@@ -475,6 +506,24 @@ void Simulator::parallelTick()
 
 			if ((*it)->getCurrentHealth() <= 0)
 			{
+				switch((*it)->causeOfDeath)
+				{
+					case Creature::CauseOfDeath::EATEN:
+						eaten++;
+						break;
+					case Creature::CauseOfDeath::FROZEN:
+						frozen++;
+						break;
+					case Creature::CauseOfDeath::THIRST:
+						thirst++;
+						break;
+					case Creature::CauseOfDeath::STARVED:
+						starved++;
+						break;
+					case Creature::CauseOfDeath::OLD:
+						old++;
+						break;
+				}
 				(*it)->getTile()->removeCreature(*it);
 				auto it2 = it++;
 				_state->_creatures.erase( it2 );
@@ -497,9 +546,27 @@ void Simulator::parallelTick()
 	// cleanup dead creatures
 	for(auto it = _state->_creatures.begin(); it != _state->_creatures.end(); )
 	{
-
+		
 		if ((*it)->getCurrentHealth() <= 0)
 		{
+			switch((*it)->causeOfDeath)
+			{
+				case Creature::CauseOfDeath::EATEN:
+					eaten++;
+					break;
+				case Creature::CauseOfDeath::FROZEN:
+					frozen++;
+					break;
+				case Creature::CauseOfDeath::THIRST:
+					thirst++;
+					break;
+				case Creature::CauseOfDeath::STARVED:
+					starved++;
+					break;
+				case Creature::CauseOfDeath::OLD:
+					old++;
+					break;
+			}
 			(*it)->getTile()->removeCreature(*it);
 			auto it2 = it++;
 			_state->_creatures.erase( it2 );
@@ -509,6 +576,11 @@ void Simulator::parallelTick()
 			(*(++it))->done = false;
 		}
 	}
+	EatenCounts.push_back((int)eaten);
+	StarvedCounts.push_back((int)starved);
+	FrozenCounts.push_back((int)frozen);
+	ThirstCounts.push_back((int)thirst);
+	OldCounts.push_back((int)old);
 }
 
 void Simulator::logTickStats()
@@ -522,6 +594,11 @@ void Simulator::logTickStats()
 	CountGraph->updateCurveData( "Herbs", HerbaeCounts );
 	CountGraph->updateCurveData( "Herbivore", HerbivoreCounts );
 	CountGraph->updateCurveData( "Carnivore", CarnivoreCounts );
+	CountGraph->updateCurveData("Dead - Eaten", EatenCounts   );
+	CountGraph->updateCurveData("Dead - Frozen", FrozenCounts);
+	CountGraph->updateCurveData("Dead - Starved", StarvedCounts);
+	CountGraph->updateCurveData("Dead - Thirst", ThirstCounts);
+	CountGraph->updateCurveData("Dead - Old", OldCounts);
 
 	//ProcessingTimes.push_back(  )
 }
@@ -538,6 +615,12 @@ void Simulator::CreateCountPlotter()
 	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+	g.addCurve( sbe::Curve("Dead - Eaten", EatenCounts, sf::Color::Black) );
+	g.addCurve( sbe::Curve("Dead - Frozen", FrozenCounts, sf::Color::Cyan) );
+	g.addCurve( sbe::Curve("Dead - Starved", StarvedCounts, sf::Color::Yellow) );
+	g.addCurve( sbe::Curve("Dead - Thirst", ThirstCounts, sf::Color::Magenta) );
+	g.addCurve( sbe::Curve("Dead - Old", OldCounts, sf::Color(0, 80, 0)) );
+	
 
 	CountGraph->setGraph( g );
 
@@ -638,7 +721,7 @@ void Simulator::saveWhole(const std::string &savePath){
 		return;
 	}
 
-	Engine::out(Engine::SPAM) << "Save to path: " << Engine::GetIO()->topPath() << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator]Save to path: " << Engine::GetIO()->topPath() << std::endl;
 
 	_pod->freeze(_state); // freeze latest state
 
@@ -684,7 +767,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 		Event e("EVT_LOAD_BAD", std::string("Error loading"));
 		Module::Get()->QueueEvent(e, true);
 
-		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "[Simulator]Error loading from '" << loadPath << "'!" << std::endl;
 		return;
 	}
 
@@ -699,8 +782,8 @@ void Simulator::loadWhole(const std::string &loadPath){
 		Event e("EVT_LOAD_BAD", std::string("Error loading"));
 		Module::Get()->QueueEvent(e, true);
 
-		Engine::out(Engine::ERROR) << "Error loading from '" << loadPath << "'!" << std::endl;
-		Engine::out(Engine::ERROR) << "Won't continue with SimState saved with " << latestState->_numThreads
+		Engine::out(Engine::ERROR) << "[Simulator]Error loading from '" << loadPath << "'!" << std::endl;
+		Engine::out(Engine::ERROR) << "[Simulator]Won't continue with SimState saved with " << latestState->_numThreads
 		                           << " threads using " << numThreads << "threads!" << std::endl;
 
 		delete newGen;
@@ -720,9 +803,9 @@ void Simulator::loadWhole(const std::string &loadPath){
 void Simulator::forwardTo(const int i){
 	bool wasPaused = isPaused;
 
-	Engine::out(Engine::SPAM) << "[forwardTo] forwarding to " << i << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] forwarding to " << i << std::endl;
 	setState(_pod->peekTick(i));
-	Engine::out(Engine::SPAM) << "[forwardTo] got state for tick " << _state->_currentTick << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] got state for tick " << _state->_currentTick << std::endl;
 	TicksToSim = i - _state->_currentTick;
 
 	isPaused = false;
@@ -730,7 +813,7 @@ void Simulator::forwardTo(const int i){
 
 	TickTimer.restart();
 	simulateTicks = TicksToSim;
-	Engine::out(Engine::SPAM) << "[forwardTo] yet to simulate " << TicksToSim << std::endl;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] yet to simulate " << TicksToSim << std::endl;
 
 	//~ isPaused = wasPaused;
 	//~ Engine::getCfg()->set("sim.paused", isPaused);
