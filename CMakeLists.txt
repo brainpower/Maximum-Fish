@@ -17,6 +17,7 @@ set(CUSTOM_BOOST_ROOT "${CUSTOM_BOOST_ROOT}" CACHE PATH "custom boost build root
 set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
 option(SUPPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
+option(ENABLE_LTO "enable lto, if ya dont know what this is, ya dont need it!" OFF)
 
 set( SFGUI_BUILD_EXAMPLES false CACHE BOOL "Do or dont build examples)")
 set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
@@ -158,6 +159,9 @@ add_definitions( -DBOOST_THREAD_USE_LIB -pipe )
 if(NOT SHARED)
 	add_definitions( -DSFML_STATIC -DSFGUI_STATIC)
 endif()
+if(ENABLE_LTO)
+	add_definitions( -flto )
+endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
@@ -179,4 +183,7 @@ target_link_libraries(MaximumFish sbe sfgui )
 
 if( PROFILE )
 	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )
+endif()
+if( ENABLE_LTO )
+	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-flto" )
 endif()
