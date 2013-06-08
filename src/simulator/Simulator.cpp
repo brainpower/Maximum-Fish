@@ -33,8 +33,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/atomic.hpp>
-
 
 Simulator* Simulator::Instance = nullptr;
 
@@ -173,7 +171,7 @@ void Simulator::init()
 	_tid.reset(new int(-1));
 
 	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
-	
+
 	EatenCounts.push_back(0);
 	StarvedCounts.push_back(0);
 	FrozenCounts.push_back(0);
@@ -284,9 +282,12 @@ void Simulator::NewSimulation(
 	RendererUpdate.restart();
 
 	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
-	CreateCountPlotter();
+	CreatePlotters();
 	auto data = std::make_pair( std::string( "Population" ), CountGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
+
+	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
 
 	// set a valid thread num in state 0, weirdly Simulator::numThreads seems to contain a invalid number of threads
 	//_state->_numThreads = Engine::getCfg()->get<int>("sim.numThreads");
@@ -461,17 +462,12 @@ void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list)
 
 void Simulator::parallelTick()
 {
-	boost::atomic<int> eaten;
-	boost::atomic<int> frozen;
-	boost::atomic<int> starved;
-	boost::atomic<int> thirst;
-	boost::atomic<int> old;
-	eaten = 0;
-	frozen = 0;
-	starved = 0;
-	thirst = 0;
-	old = 0;
-		
+	int eaten = 0;
+	int frozen = 0;
+	int starved = 0;
+	int thirst = 0;
+	int old = 0;
+
 	//  makes sure our threads are waiting at the "endBarrier" needed for the loop
 	// do this by starting an empty batch
 	for ( int thread = 0; thread < numThreads; ++thread)
@@ -546,7 +542,7 @@ void Simulator::parallelTick()
 	// cleanup dead creatures
 	for(auto it = _state->_creatures.begin(); it != _state->_creatures.end(); )
 	{
-		
+
 		if ((*it)->getCurrentHealth() <= 0)
 		{
 			switch((*it)->causeOfDeath)
@@ -594,35 +590,41 @@ void Simulator::logTickStats()
 	CountGraph->updateCurveData( "Herbs", HerbaeCounts );
 	CountGraph->updateCurveData( "Herbivore", HerbivoreCounts );
 	CountGraph->updateCurveData( "Carnivore", CarnivoreCounts );
-	CountGraph->updateCurveData("Dead - Eaten", EatenCounts   );
-	CountGraph->updateCurveData("Dead - Frozen", FrozenCounts);
-	CountGraph->updateCurveData("Dead - Starved", StarvedCounts);
-	CountGraph->updateCurveData("Dead - Thirst", ThirstCounts);
-	CountGraph->updateCurveData("Dead - Old", OldCounts);
+
+	DeathGraph->updateCurveData("Dead - Eaten", EatenCounts   );
+	DeathGraph->updateCurveData("Dead - Frozen", FrozenCounts);
+	DeathGraph->updateCurveData("Dead - Starved", StarvedCounts);
+	DeathGraph->updateCurveData("Dead - Thirst", ThirstCounts);
+	DeathGraph->updateCurveData("Dead - Old", OldCounts);
 
 	//ProcessingTimes.push_back(  )
 }
 
-void Simulator::CreateCountPlotter()
+void Simulator::CreatePlotters()
 {
 	if(!isInitialized) return;
 
 	CountGraph.reset(new sbe::GraphPlotter );
-
+	DeathGraph.reset(new sbe::GraphPlotter );
+	{
 	sbe::Graph g;
 	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
 	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
 	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
 	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+	CountGraph->setGraph( g );
+	}
+
+	sbe::Graph g;
+	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
 	g.addCurve( sbe::Curve("Dead - Eaten", EatenCounts, sf::Color::Black) );
 	g.addCurve( sbe::Curve("Dead - Frozen", FrozenCounts, sf::Color::Cyan) );
 	g.addCurve( sbe::Curve("Dead - Starved", StarvedCounts, sf::Color::Yellow) );
 	g.addCurve( sbe::Curve("Dead - Thirst", ThirstCounts, sf::Color::Magenta) );
 	g.addCurve( sbe::Curve("Dead - Old", OldCounts, sf::Color(0, 80, 0)) );
-	
-
-	CountGraph->setGraph( g );
+	DeathGraph->setGraph( g );
 
 }
 
@@ -631,7 +633,6 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	if( !isInitialized ) return;
 
 	const std::shared_ptr<Tile>& T = _state->_terrain->getTile( pos );
-
 
 	// Check if the Coordinates are valid
 	if (!T)

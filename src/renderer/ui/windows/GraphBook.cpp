@@ -78,7 +78,7 @@ void GraphBook::HandleEvent( Event& e )
 
 void GraphBook::EntryTextChange()
 {
-	if ( !hasActionability() )
+	if ( !hasValidTab() )
 		return;
 	if ( !textchangeavoidrecursive )
 	{
@@ -120,7 +120,7 @@ void GraphBook::EntryTextChange()
 ///@TODO: set for current tab
 void GraphBook::hViewingRange()
 {
-	if ( !hasActionability() )
+	if ( !hasValidTab() )
 		return;
 	cTT().hBox->Show( !cTT().hBox->IsGloballyVisible() );
 	UpdateGraphSettings(cTT());
@@ -128,7 +128,7 @@ void GraphBook::hViewingRange()
 
 void GraphBook::vViewingRange()
 {
-	if ( !hasActionability() )
+	if ( !hasValidTab() )
 		return;
 	cTT().vBox->Show( !cTT().vBox->IsGloballyVisible() );
 	UpdateGraphSettings(cTT());
@@ -161,54 +161,20 @@ void GraphBook::EntryLostFocus()
 
 void GraphBook::handleEntryInput( int entry )
 {
-	if ( !hasActionability() )
+	if ( !hasValidTab() )
 		return;
 
 	auto& curTuple = cTT();
-	// determine which entry
-	switch ( entry )
-	{
-	// check if bigger or lower
-	case 1: {
-		int cursorPos = curTuple.hFrom->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString().empty() ? "0" : curTuple.hFrom->GetText().toAnsiString() );
-		int maximum = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString().empty() ? "0" : curTuple.hTo->GetText().toAnsiString() ) - 1;
-		if ( input >= maximum ) input = maximum;
-		curTuple.borders->hFrom = input;
-		curTuple.hFrom->SetText( boost::lexical_cast<std::string>( input ) );
-		curTuple.hFrom->SetCursorPosition( cursorPos );
-		} break;
-	case 2: {
-		int cursorPos = curTuple.hTo->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.hTo->GetText().toAnsiString().empty() ? "0" : curTuple.hTo->GetText().toAnsiString() );
-		int minimum =boost::lexical_cast<int>( curTuple.hFrom->GetText().toAnsiString().empty() ? "0" : curTuple.hFrom->GetText().toAnsiString() ) + 1;
-		if ( input < minimum ) input = minimum;
-		curTuple.borders->hTo = input;
-		curTuple.hTo->SetText( boost::lexical_cast<std::string>( input ) );
-		curTuple.hTo->SetCursorPosition( cursorPos );
-		} break;
-	case 3: {
-		int cursorPos = curTuple.vFrom->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString().empty() ? "0" : curTuple.vFrom->GetText().toAnsiString() );
-		int maximum =boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString().empty() ? "0" : curTuple.vTo->GetText().toAnsiString() ) - 1;
-		if ( input > maximum ) input = maximum;
-		curTuple.borders->vFrom = input;
-		curTuple.vFrom->SetText( boost::lexical_cast<std::string>( input ) );
-		curTuple.vFrom->SetCursorPosition( cursorPos );
-		} break;
-	case 4: {
-		int cursorPos = curTuple.vTo->GetCursorPosition();
-		int input = boost::lexical_cast<int>( curTuple.vTo->GetText().toAnsiString().empty() ? "0" : curTuple.vTo->GetText().toAnsiString() );
-		int minimum = boost::lexical_cast<int>( curTuple.vFrom->GetText().toAnsiString().empty() ? "0" : curTuple.vFrom->GetText().toAnsiString() ) + 1;
-		if ( input < minimum ) input = minimum;
-		curTuple.borders->vTo = input;
-		curTuple.vTo->SetText( boost::lexical_cast<std::string>( input ) );
-		curTuple.vTo->SetCursorPosition( cursorPos );
-		} break;
-	default:
-		Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry handled." << std::endl;
-		return;
-	}
+
+	// just load all entrys
+	Geom::Point hlimits  = { entryVal(curTuple.hFrom), entryVal(curTuple.hTo) };
+	Geom::Point vlimits  = { entryVal(curTuple.vFrom), entryVal(curTuple.vTo) };
+	if ( hlimits.x > hlimits.y ) hlimits.x = hlimits.y;
+	if ( vlimits.x > vlimits.y ) vlimits.x = vlimits.y;
+
+	curTuple.hlimit = hlimits;
+	curTuple.vlimit = vlimits;
+
 	// set new values in GraphPlotter
 	UpdateGraphSettings(curTuple);
 	textchangeavoidrecursive = true;
@@ -278,10 +244,10 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	auto y = graphTuple( graph, I, hViewingRangeBox, vViewingRangeBox,
 	                          hViewingRangeFromEntry, hViewingRangeToEntry,
 	                          vViewingRangeFromEntry, vViewingRangeToEntry );
-	y.borders->hFrom = 0;
-	y.borders->hTo = 5000;
-	y.borders->vFrom = 0;
-	y.borders->vTo = 5000;
+	y.hlimit.x = 0;
+	y.hlimit.y = 5000;
+	y.vlimit.x = 0;
+	y.vlimit.y = 5000;
 
 	graphTupleList.push_back( y );
 	Engine::out() << "setting new graph" << std::endl;
@@ -296,8 +262,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	if ( !G )
 		return;
 
-	Geom::Vec2 start = Geom::Vec2( GT.borders->hFrom, GT.borders->vFrom );
-	Geom::Vec2 stop  = Geom::Vec2( GT.borders->hTo,   GT.borders->vTo   );
+	Geom::Vec2 start = Geom::Vec2( GT.hlimit.x, GT.vlimit.x );
+	Geom::Vec2 stop  = Geom::Vec2( GT.hlimit.y,   GT.vlimit.y   );
 	G->getGraph().AxisStart = start;
 	G->getGraph().AxisSize  = ( stop - start );
 	G->getGraph().dynX = !( GT.hBox->IsGloballyVisible() );
@@ -309,7 +275,7 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 
 GraphBook::graphTuple& GraphBook::cTT()
 {
-	/// the way to prevent return value if current page = -1 is to check hasActionability() first
+	/// the way to prevent return value if current page = -1 is to check hasValidTab() first
 	int i = Tabs->GetCurrentPage();
 	return graphTupleList.at( i );
 }
@@ -337,7 +303,7 @@ void GraphBook::PlotGraph( graphTuple& GT )
 	GT.image->SetImage( tex.getTexture().copyToImage() );
 }
 
-bool GraphBook::hasActionability()
+bool GraphBook::hasValidTab()
 {
 	return ( Tabs->GetCurrentPage() >= 0 );
 }
@@ -347,4 +313,12 @@ void GraphBook::updatePosition()
 	sf::FloatRect Allocation = Win->GetAllocation();
 	sf::Vector2u winSize =  Engine::GetApp().getSize();
 	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width ) , ( winSize.y - Allocation.height ) ) );
+}
+
+int GraphBook::entryVal( sfg::SharedPtr <sfg::Entry>& E )
+{
+	int value = boost::lexical_cast<int>( E->GetText().toAnsiString().empty() ? "0" : E->GetText().toAnsiString() );
+	E->SetText( boost::lexical_cast<std::string>( value ) );
+	E->SetCursorPosition( 99 );
+	return value;
 }
