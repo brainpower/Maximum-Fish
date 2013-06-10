@@ -54,7 +54,9 @@ void SimView::InitRenderer()
 
 	// add our RenderLayers with our default Cam
 	for (int i = L_BACK; i < L_END; ++i)
-		sbe::Screen::sRndr()->addLayer( sbe::RenderLayer( sbe::Screen::sCam() ) );
+		sbe::Screen::sRndr()->addLayer( sbe::RenderLayer( (i==L_BACK? nullptr : sbe::Screen::sCam() ) ));
+
+	sbe::Screen::sRndr()->getLayer( L_BACK )->Cam.reset();
 }
 
 void SimView::InitDesktop()
@@ -127,6 +129,23 @@ bool SimView::LoadResources()
 	{
 		Engine::out(Engine::ERROR) << "[SimView] Error loading Textures" << std::endl;
 		return false;
+	}
+
+	std::string backgroundtxt = Engine::getCfg()->get<std::string>("system.renderer.backgroundTexture", "none" );
+	if ( backgroundtxt != "none" )
+	{
+		auto txt3 = Engine::GetIO()->loadPath<sf::Image>( backgroundtxt);
+		if (txt3.size() == 1) Engine::GetResMgr()->add(txt3[0], "backgroundimg");
+		else
+		{
+			Engine::out(Engine::ERROR) << "[SimView] Error loading Textures" << std::endl;
+			return false;
+		}
+
+		std::shared_ptr<sf::Texture> backtxt( new sf::Texture );
+		backtxt->loadFromImage( *(txt3[0]) );
+		backtxt->setRepeated( true );
+		Engine::GetResMgr()->add(backtxt, "backgroundtxt");
 	}
 
 

@@ -41,6 +41,8 @@ SimActors::SimActors()
 	RegisterForEvent("UpdateTilemapTexture");
 	RegisterForEvent("CREATURE_CLICKED");
 
+	RegisterForEvent("WINDOW_RESIZED");
+
 	RegisterForEvent("RESET_SIMULATION");
 
 	RegisterForEvent("EVT_SAVE_GOOD");
@@ -54,6 +56,7 @@ SimActors::SimActors()
 
 
 	SetCamLimits();
+	CreateBackground();
 }
 
 SimActors::~SimActors()
@@ -97,6 +100,10 @@ void SimActors::HandleEvent(Event& e)
 	else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> )))
     {
 		m_highlight = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
+    }
+    	else if ( e.Is( "WINDOW_RESIZED" ))
+    {
+		CreateBackground();
     }
 	else if ( e.Is( "RESET_SIMULATION" ))
     {
@@ -250,6 +257,21 @@ void SimActors::CreateTerrainShaderMap()
 	Engine::out(Engine::INFO) << "[SimView] Updated Tilemap Shader!" << std::endl;
 }
 
+void SimActors::CreateBackground()
+{
+	if ( !BackgroundActor )
+	{
+		BackgroundActor.reset( new sbe::SpriteActor() );
+		sbe::Screen::get()->getRenderer()->addActor ( BackgroundActor, L_BACK );
+	}
+
+	sf::Sprite& sprite = (std::dynamic_pointer_cast<sbe::SpriteActor>(BackgroundActor))->sprite;
+	std::shared_ptr<sf::Texture> txt = Engine::GetResMgr()->get<sf::Texture>( "backgroundtxt" );
+	sprite.setTexture( *txt );
+  	sprite.setTextureRect(sf::IntRect(0,0,Engine::GetApp().getSize().x,Engine::GetApp().getSize().y));
+  	sprite.setScale(1.0f, 1.0f);
+  	sprite.setPosition(0,0);
+}
 
 void SimActors::CreateGrid()
 {

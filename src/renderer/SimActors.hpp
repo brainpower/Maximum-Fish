@@ -84,6 +84,11 @@ class SimActors : public sbe::EventUser
 		void CreateTerrainVertexArray(TileRenderList& r);
 		/// Creates an Actor for rendering the Terrain via Shaders
 		void CreateTerrainShaderMap();
+
+		/// creates an actor for the background
+		void CreateBackground();
+
+
 		/// Sets the correct Cameralimits for the current Simulation
 		void SetCamLimits();
 
@@ -104,6 +109,7 @@ class SimActors : public sbe::EventUser
 		int cullThreshold;
 		std::shared_ptr<sbe::Actor> TileActor;
 		std::shared_ptr<sbe::Actor> CreaturesActor;
+		std::shared_ptr<sbe::Actor> BackgroundActor;
 
 		bool RenderGrid;
 		sf::Color GridColor;
