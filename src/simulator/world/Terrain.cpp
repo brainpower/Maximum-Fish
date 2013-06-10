@@ -390,15 +390,66 @@ void Terrain::CreateDebugTerrain( int seed )
 			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
 			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float TileHeight = maxHeight*HeightFactor;
-			float Humidity = minHumidity + (maxHumidity-minHumidity)*(1-HeightFactor);
 
-			if( TileHeight < waterlimit ) Humidity = 1;
-
-			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, nutritionrnd(gen), Humidity );
+			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, nutritionrnd(gen), ((TileHeight < waterlimit)?1:0));
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
 		}
 	}
+
+	calculateHumidity();
+}
+
+void Terrain::calculateHumidity()
+{
+	float tilesize = Engine::getCfg()->get<float>("sim.terragen.debug.tilesizeinmeters");
+	float _amount = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.rainamount");
+	float _rainfall = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.rainfall");
+
+	for ( int y = 0; y < Size.y; ++y)
+	{
+		float amount = _amount;
+
+		for ( int x = 0; x < Size.x ; ++x)
+		{
+
+			if ( getTile({x,y})->getBaseHumidity() == 1 ) {amount = _amount; continue;}
+
+			float rainfall = _rainfall;
+			float steigung = 0;
+
+			if ( x > 0) {steigung = ( getTile({x,y})->getHeight() - getTile({x-1,y})->getHeight() )/tilesize; }
+			else  { steigung = ( getTile({x+1,y})->getHeight() - getTile({x,y})->getHeight() )/tilesize; }
+			steigung = std::sqrt( steigung );
+			if ( steigung > 0 ) rainfall = rainfall * (1+steigung);
+
+			float tmp = amount*rainfall;
+			if ( tmp >= 1 ) tmp = 0.99;
+			amount -= tmp;
+
+			//Engine::out(Engine::SPAM) << "Pos: " << x << "/"  << y << " Amount/rainfall/tmp:  " << amount << "/" << rainfall << "/" << tmp << " - " << steigung << std::endl;
+
+			getTile({x,y})->setBaseHumidity( tmp );
+		}
+	}
+
+	/* random version */
+	/*
+	float minHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.min");
+	float maxHumidity = Engine::getCfg()->get<float>("sim.terragen.debug.humidity.max");
+
+
+	for ( int y = 0; y < Size.y; ++y)
+	{
+		for ( int x = 0; x < Size.x; ++x)
+		{
+			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
+			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
+			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
+			float Humidity = minHumidity + (maxHumidity-minHumidity)*(1-HeightFactor);
+		}
+	}
+	*/
 }
 
 void Terrain::UpdateTileMap()

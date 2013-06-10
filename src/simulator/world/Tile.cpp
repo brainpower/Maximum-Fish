@@ -59,29 +59,13 @@ float Tile::calcTemperature() const
 
 float Tile::getHabitability(const std::shared_ptr<Species>& sp) const
 {
-	float hum = getBaseHumidity();
+	if(isWater()) return 0;
+
 	float wReq = sp->getWaterRequirement();
-
-	//if(hum > Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity"))
-	if(hum > Tile::maxwalkableHumidity)
-		return 0;
-
-	if(hum >= wReq)
-	{
-		hum = 1;
-	} else {
-		hum = hum/wReq;
-	}
-
+	float hum = (currentHumidity >= wReq) ? 1 : currentHumidity/wReq;
 	float tmp = calcTemperature();
-	//float consp = getNumConspecifics(sp); << hasn't been implemented yet
 	float r1 = 10000 / ( 1 + pow( (tmp - (float)sp->getOptimalTemperature() ),2 ) );
-
-	//std::cout << "r1: " << r1 << " r2: " << r2 << " hum: " << hum << std::endl;
-
 	float ret = r1 * hum;
-
-	//Engine::out() << "hab: " << ret << std::endl;
 
 	return ret;
 }

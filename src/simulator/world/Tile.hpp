@@ -30,11 +30,11 @@ class Tile
 		float calcTemperature() const;
 		Geom::Pointf getCenter() const { return Geom::Pointf(Position.x+0.5, Position.y+0.5); }
 		float getHabitability(const std::shared_ptr<Species>& sp) const;
-		bool isWater() const {return baseHumidity > 0.95;}
+		bool isWater() const {return currentHumidity >= Tile::maxwalkableHumidity;}
 		int getTileSpriteIndex() const;
 
 		void setNutrition(float n) { nutrition = n; }
-		void setBaseHumidity(float bh) { baseHumidity = bh; }
+		void setBaseHumidity(float bh) { baseHumidity = bh; currentHumidity = bh; }
 		void setCurrentHumidity(float ch) { currentHumidity = ch; }
 
 		void addCreature ( const std::shared_ptr<Creature>& p );
