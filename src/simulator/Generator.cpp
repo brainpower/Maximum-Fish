@@ -17,7 +17,7 @@ void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 	for ( int i = 0; i < SpeciesCount; ++i)
 	{
 		std::shared_ptr<Species> S = createSpecies( type );
-		_state->_species.push_back( S );
+		_state->_species->push_back( S );
 		for ( int j = 0; j < (CreatureCount/SpeciesCount); ++j)
 		{
 			std::shared_ptr<Creature> C = createCreature( S );
@@ -48,7 +48,7 @@ std::shared_ptr<Species> Generator::createRandomSpecies()
 		break;
 	}
 
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(_state->_species.size()), t) );
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(_state->_species->size()), t) );
 
 	S->setType( t );
 	S->setOptimalTemperature( temp_rnd( _rnd ) );
@@ -59,9 +59,9 @@ std::shared_ptr<Species> Generator::createRandomSpecies()
 std::shared_ptr<Creature> Generator::createRandomCreature()
 {
 	std::uniform_real_distribution<float> pos_dist(0,_state->_terrain->getSize().x);
-	std::uniform_int_distribution<int> species_dist(0,_state->_species.size()-1);
+	std::uniform_int_distribution<int> species_dist(0,_state->_species->size()-1);
 
-	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( _state->_species[species_dist(_rnd)] ));
+	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( (*_state->_species)[species_dist(_rnd)] ));
 	Geom::Pointf Position (pos_dist(_rnd),pos_dist(_rnd));
 
 	float hab = _state->_terrain->getTile(Position)->getHabitability(ptr_creature->getSpecies());
@@ -77,8 +77,8 @@ std::shared_ptr<Creature> Generator::createRandomCreature()
 
 std::shared_ptr<Creature> Generator::createCreature( const std::string& specName )
 {
-	auto it = std::find_if(_state->_species.begin(), _state->_species.end(), [&specName](const std::shared_ptr<Species>& s){ return s->getName() == specName; } );
-	if ( it == _state->_species.end() )
+	auto it = std::find_if(_state->_species->begin(), _state->_species->end(), [&specName](const std::shared_ptr<Species>& s){ return s->getName() == specName; } );
+	if ( it == _state->_species->end() )
 	{
 		Engine::out(Engine::ERROR) << "[Simulator::addCreature] Species " << specName << " not found!" << std::endl;
 		return std::shared_ptr<Creature>();
@@ -133,7 +133,7 @@ std::shared_ptr<Species> Generator::createSpecies( Species::SPECIES_TYPE type )
 		break;
 	}
 
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(_state->_species.size()), type) );
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(_state->_species->size()), type) );
 
 	S->setType( type );
 	S->setOptimalTemperature( temp_rnd( _rnd ) );

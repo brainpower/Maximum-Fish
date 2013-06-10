@@ -31,7 +31,7 @@ private:
 	//std::string rnd_state;
 	std::shared_ptr<Terrain> _terrain;
 	std::list<std::shared_ptr<Creature>> _creatures;
-	std::vector<std::shared_ptr<Species>> _species;
+	std::shared_ptr<std::vector<std::shared_ptr<Species>>> _species;
 
 	int _currentTick;
 	int _currentSeed;
