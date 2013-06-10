@@ -356,6 +356,7 @@ void Control::SimPause( bool up )
 void Control::BtnSimResetClick()
 {
 	BtnSimPause->SetActive( true );
+	Module::Get()->QueueEvent("CLEAR_OVERLAYS");
 	Module::Get()->QueueEvent( Event( "RESET_SIMULATION" ), true );
 }
 

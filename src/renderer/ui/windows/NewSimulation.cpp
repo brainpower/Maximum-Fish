@@ -235,6 +235,7 @@ void NewSimWindow::okClick()
 	Engine::getCfg()->set("sim.species.defaults.waterRequirement.carnivore", WaterReq->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.species.defaults.optimalTemperature", OptimalTemperature->GetText().toAnsiString());
 
+	Module::Get()->QueueEvent("CLEAR_OVERLAYS", true);
 	Module::Get()->QueueEvent("RESET_SIMULATION", true);
 	Win->Show(false);
 }

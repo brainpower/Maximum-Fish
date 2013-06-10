@@ -210,6 +210,7 @@ void Overlays::RemoveActor( const std::string& name )
 	std::string tmp = "overlay_"+name;
 	Engine::GetResMgr()->remove<sf::Texture>( tmp );
 	std::shared_ptr<sbe::Actor>& A(Maps[name].second);
+	if ( !A ) return;
 	sbe::Screen::sRndr()->removeActor( A->getID() );
 	A.reset();
 }

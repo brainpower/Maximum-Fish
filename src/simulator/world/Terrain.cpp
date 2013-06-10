@@ -320,7 +320,7 @@ void Terrain::CreateMapPlotters()
 		parallelIds.push_back( T->getParallelId() );
 	}
 
-	Module::Get()->QueueEvent("CLEAR_OVERLAYS", true);
+
 
 
 	Event e("DISPLAY_MAP");
@@ -424,7 +424,7 @@ void Terrain::calculateHumidity()
 
 			if ( x > 0) {steigung = ( getTile({x,y})->getHeight() - getTile({x-1,y})->getHeight() )/tilesize; }
 			else  { steigung = ( getTile({x+1,y})->getHeight() - getTile({x,y})->getHeight() )/tilesize; }
-			steigung = std::sqrt( steigung );
+			//steigung = std::sqrt( steigung );
 			if ( steigung > 0 ) rainfall = rainfall * (1+steigung);
 
 			float tmp = amount*rainfall;
