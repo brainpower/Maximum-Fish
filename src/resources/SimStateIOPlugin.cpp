@@ -29,18 +29,19 @@ SimStateIOPlugin::ObjPtr SimStateIOPlugin::loadObject(const boost::property_tree
 		auto ciop = std::dynamic_pointer_cast<CreatureIOPlugin>(Engine::GetIO()->getPlugin(std::type_index( typeid(Creature) )));
 
 		re.reset( new SimState() );
+		re->_species = std::make_shared<std::vector<std::shared_ptr<Species>>>();
 
 		for( const ptree::value_type& e : pt){
 			if(e.first == "Terrain"){
 				re->_terrain = tiop->loadObject(e);
 			} else if (e.first == "Species") {
-				re->_species.push_back(siop->loadObject(e));
+				re->_species->push_back(siop->loadObject(e));
 			} else if (e.first == "Creature") {
 				re->_creatures.push_back(ciop->loadObject(e));
 			}
 		}
 
-		if(!re->_terrain || re->_species.empty() || re->_creatures.empty()) {
+		if(!re->_terrain || re->_species->empty() || re->_creatures.empty()) {
 			Engine::out(Engine::ERROR) << "[SimStateIOPlugin] Error loading SimState from ptree!" << std::endl;
 			return re;
 		}
@@ -90,7 +91,7 @@ bool SimStateIOPlugin::saveObject( const std::string& name, const SimState &stat
 		for( auto c : state._creatures )
 			ciop->saveObject("Creature", *c, pt);
 
-		for( auto s : state._species )
+		for( auto s : *state._species )
 			siop->saveObject("Species", *s, pt);
 
 		pt.put("sim.currentTick", state._currentTick);

@@ -69,12 +69,12 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 
 std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
 {
-	for ( auto& S : _state->_species )
+	for ( auto& S : *_state->_species )
 	{
 		if ( S->getName() == name) return S;
 	}
 
-	return _state->_species[0];
+	return _state->_species->back(); // INVALID_SPECIES
 }
 
 void Simulator::HandleEvent(Event& e)
@@ -191,6 +191,7 @@ void Simulator::NewSimulation( int seed )
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
 	state->_terrain.reset( new Terrain() );
+	state->_species = std::make_shared<std::vector<std::shared_ptr<Species>>>();
 
 	// we have to set it here, so Simulator::GetTerrain() will work in Tile
 	//this->setState(state, true);
@@ -258,7 +259,7 @@ void Simulator::NewSimulation(
 
 	// add default species
 	std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
-	state->_species.push_back( S );
+	state->_species->push_back( S );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
@@ -419,7 +420,7 @@ void Simulator::advance()
 	{
 		SendScaleUpdate();
 
-		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species.size()));
+		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species->size()));
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
