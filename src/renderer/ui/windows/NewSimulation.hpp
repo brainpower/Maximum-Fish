@@ -55,6 +55,8 @@ class NewSimWindow : public sbe::EventUser
 		sfg::SharedPtr<sfg::Entry> NutritionMax;
 		sfg::SharedPtr<sfg::Entry> HumidityMin;
 		sfg::SharedPtr<sfg::Entry> HumidityMax;
+		sfg::SharedPtr<sfg::Entry> RainAmount;
+		sfg::SharedPtr<sfg::Entry> RainFall;
 
 		// Species Page
 		sfg::SharedPtr<sfg::Entry> MaxAge;

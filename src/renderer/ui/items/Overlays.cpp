@@ -29,6 +29,7 @@ Overlays::Overlays()
  {
 	RegisterForEvent( "OVERLAY_CLICK" );
 	RegisterForEvent( "DISPLAY_MAP" );
+	RegisterForEvent( "CLEAR_OVERLAYS" );
 
 	myBox = sfg::Box::Create( sfg::Box::VERTICAL );
 
@@ -91,6 +92,14 @@ void Overlays::HandleEvent(Event& e)
 	{
 		auto s =  boost::any_cast<std::string>(e.Data());
 		ShowMap( s );
+	} else if (e.Is("CLEAR_OVERLAYS"))
+	{
+		Engine::out() << "clearing overlays!" << std::endl;
+		for ( auto& o : Maps ) RemoveActor(o.first);
+
+		ClearOverlays();
+		myOverlays.clear();
+		Maps.clear();
 	}
 }
 
@@ -143,8 +152,6 @@ void Overlays::ShowMap( std::string& name )
 
 void Overlays::ClearOverlays()
 {
-	std::string name = CurrentFrame->GetLabel();
-
 	CurrentFrame->RemoveAll();
 	CurrentFrame->SetLabel( "None" );
 }

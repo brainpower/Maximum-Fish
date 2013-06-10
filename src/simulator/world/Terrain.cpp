@@ -320,7 +320,11 @@ void Terrain::CreateMapPlotters()
 		parallelIds.push_back( T->getParallelId() );
 	}
 
+	Module::Get()->QueueEvent("CLEAR_OVERLAYS", true);
+
+
 	Event e("DISPLAY_MAP");
+
 
 	std::shared_ptr<sbe::MapPlotter> p( new sbe::MapPlotter("Population density" ));
 	p->setData( population, Size, true );

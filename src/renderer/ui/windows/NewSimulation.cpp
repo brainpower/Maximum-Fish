@@ -111,6 +111,8 @@ SharedPtr<Widget> NewSimWindow::CreateTerrainPage()
 	NutritionMax = entry("sim.terragen.debug.nutrition.max");
 	HumidityMin = entry("sim.terragen.debug.humidity.min");
 	HumidityMax = entry("sim.terragen.debug.humidity.max");
+	RainAmount = entry("sim.terragen.debug.humidity.rainamount");
+	RainFall = entry("sim.terragen.debug.humidity.rainfall");
 
 	Table::Ptr main = Table::Create();
 
@@ -134,6 +136,12 @@ SharedPtr<Widget> NewSimWindow::CreateTerrainPage()
 					hBox->Pack( lbl( " - " ), false, false);
 					hBox->Pack( HumidityMax );
 		main->Attach( hBox, 							{{3,4},{1,1}}, Table::FILL, 0 );
+
+		main->Attach( lbl( "Rain Amount" ), {{0,5},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( RainAmount, 						{{3,5},{1,1}}, Table::FILL, 0 );
+
+		main->Attach( lbl( "Rainfall %" ), {{0,6},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( RainFall, 						{{3,6},{1,1}}, Table::FILL, 0 );
 
 		main->Attach( Box::Create(), 					{{1,0},{1,5}});
 	main->Attach( Box::Create(), 						{{0,5},{3,1}});
@@ -213,6 +221,8 @@ void NewSimWindow::okClick()
 	Engine::getCfg()->set("sim.terragen.debug.nutrition.max", NutritionMax->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.terragen.debug.humidity.min", HumidityMin->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.terragen.debug.humidity.max", HumidityMax->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.terragen.debug.humidity.rainfall", RainFall->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.terragen.debug.humidity.rainamount", RainAmount->GetText().toAnsiString());
 
 	Engine::getCfg()->set("sim.species.defaults.maxAge", MaxAge->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.species.defaults.maxHealth", MaxHealth->GetText().toAnsiString());
