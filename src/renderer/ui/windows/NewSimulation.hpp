@@ -24,6 +24,7 @@ class NewSimWindow : public sbe::EventUser
 		void CreateWindow();
 		sfg::SharedPtr<sfg::Widget> CreateGenerationPage();
 		sfg::SharedPtr<sfg::Widget> CreateTerrainPage();
+		sfg::SharedPtr<sfg::Widget> CreateSpeciesPage();
 
 	private:
 
@@ -54,6 +55,19 @@ class NewSimWindow : public sbe::EventUser
 		sfg::SharedPtr<sfg::Entry> NutritionMax;
 		sfg::SharedPtr<sfg::Entry> HumidityMin;
 		sfg::SharedPtr<sfg::Entry> HumidityMax;
+
+		// Species Page
+		sfg::SharedPtr<sfg::Entry> MaxAge;
+		sfg::SharedPtr<sfg::Entry> MaxHealth;
+		sfg::SharedPtr<sfg::Entry> MaxSpeed;
+		sfg::SharedPtr<sfg::Entry> Reach;
+		sfg::SharedPtr<sfg::Entry> Resistance;
+		sfg::SharedPtr<sfg::Entry> BreedingSpeed;
+		sfg::SharedPtr<sfg::Entry> MaxRegen;
+		sfg::SharedPtr<sfg::Entry> FoodReq;
+		sfg::SharedPtr<sfg::Entry> WaterReq;
+		sfg::SharedPtr<sfg::Entry> OptimalTemperature;
+
 };
 
 #endif // NEWSIM_HPP

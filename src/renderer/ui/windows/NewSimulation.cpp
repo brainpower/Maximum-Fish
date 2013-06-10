@@ -1,6 +1,7 @@
 #include "NewSimulation.hpp"
 
 #include "sbe/Config.hpp"
+#include "sbe/sfg/List.hpp"
 
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
@@ -15,6 +16,7 @@ using namespace sfg;
 NewSimWindow::NewSimWindow()
 {
 	RegisterForEvent("KEY_SHOW_NEWSIM");
+	RegisterForEvent("SPECIES_GEN_CLICKED");
 }
 
 void NewSimWindow::HandleEvent(Event& e)
@@ -23,6 +25,10 @@ void NewSimWindow::HandleEvent(Event& e)
 	{
 		CreateWindow();
 		Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
+	}
+	if( e.Is("SPECIES_GEN_CLICKED"))
+	{
+
 	}
 }
 
@@ -33,6 +39,7 @@ void NewSimWindow::CreateWindow()
 		Notebook::Ptr nB = Notebook::Create();
 		nB->AppendPage( CreateGenerationPage(), lbl("Generation") );
 		nB->AppendPage( CreateTerrainPage(), lbl("Terrain") );
+		nB->AppendPage( CreateSpeciesPage(), lbl("Species") );
 	mainBox->Pack( nB, true,true);
 		Box::Ptr hBox;
 		hBox = Box::Create( Box::HORIZONTAL, 3.0f);
@@ -137,6 +144,53 @@ SharedPtr<Widget> NewSimWindow::CreateTerrainPage()
 	return main;
 }
 
+SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
+{
+	MaxAge = entry("sim.species.defaults.maxAge");
+	MaxHealth = entry("sim.species.defaults.maxHealth");
+	MaxSpeed = entry("sim.species.defaults.maxSpeed.carnivore");
+	Reach = entry("sim.species.defaults.reach.carnivore");
+	Resistance = entry("sim.species.defaults.resistance");
+	BreedingSpeed = entry("sim.species.defaults.breedingSpeed.carnivore");
+	MaxRegen = entry("sim.species.defaults.maxRegeneration.carnivore");
+	FoodReq = entry("sim.species.defaults.foodRequirement.carnivore");
+	WaterReq = entry("sim.species.defaults.waterRequirement.carnivore");
+	OptimalTemperature = entry("sim.species.defaults.optimalTemperature");
+
+	Table::Ptr main = Table::Create();
+	sbe::sfgList s_list("SPECIES_GEN_CLICKED");
+	main->Attach(s_list.getList(), {{0,0},{1,1}}, Table::EXPAND, 0);
+
+
+		main->Attach( lbl( "Maximum Age" ),			{{0,1},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxAge, 						{{3,1},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Health" ), 		{{0,2},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxHealth, 					{{3,2},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Speed" ), 		{{0,3},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxSpeed, 					{{3,3},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Reach" ), 		{{0,4},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( Reach, 						{{3,4},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Resistance" ), 			{{0,5},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( Resistance, 					{{3,5},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "BreedingSpeed" ), 		{{0,6},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( BreedingSpeed, 				{{3,6},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Regeneration" ),{{0,7},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxRegen, 					{{3,7},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Food Requirement" ), 	{{0,8},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( FoodReq,			 			{{3,8},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Water Requirement" ), 	{{0,9},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( WaterReq,			 			{{3,9},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Optimal Temperature" ), {{0,10},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( OptimalTemperature, 			{{3,10},{1,1}}, Table::FILL, 0 );
+
+		main->Attach( Box::Create(), 					{{1,0},{1,5}});
+	main->Attach( Box::Create(), 						{{0,5},{3,1}});
+
+	main->SetColumnSpacings( 2.0f );
+	main->SetRowSpacings( 2.0f );
+	return main;
+}
+
 void NewSimWindow::okClick()
 {
 
@@ -159,6 +213,17 @@ void NewSimWindow::okClick()
 	Engine::getCfg()->set("sim.terragen.debug.nutrition.max", NutritionMax->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.terragen.debug.humidity.min", HumidityMin->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.terragen.debug.humidity.max", HumidityMax->GetText().toAnsiString());
+
+	Engine::getCfg()->set("sim.species.defaults.maxAge", MaxAge->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.maxHealth", MaxHealth->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.maxSpeed.carnivore", MaxSpeed->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.reach.carnivore", Reach->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.resistance", Resistance->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.breedingSpeed.carnivore", BreedingSpeed->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.maxRegeneration.carnivore", MaxRegen->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.foodRequirement.carnivore", FoodReq->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.waterRequirement.carnivore", WaterReq->GetText().toAnsiString());
+	Engine::getCfg()->set("sim.species.defaults.optimalTemperature", OptimalTemperature->GetText().toAnsiString());
 
 	Module::Get()->QueueEvent("RESET_SIMULATION", true);
 	Win->Show(false);
