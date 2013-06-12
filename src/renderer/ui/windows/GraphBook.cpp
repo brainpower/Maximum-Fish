@@ -103,7 +103,7 @@ void GraphBook::EntryTextChange()
 		}
 		std::string text = entry->GetText().toAnsiString();
 		int cursorPos = entry->GetCursorPosition();
-		if ( cursorPos != 0 && !std::isdigit( text[cursorPos - 1] ) )
+		if ( cursorPos != 0 && !(std::isdigit( text[cursorPos - 1] ) || text[cursorPos -1] == '-' ) )
 		{
 			text.erase( cursorPos-1 , 1 );
 			cursorPos--;
@@ -265,7 +265,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	Geom::Vec2 start = Geom::Vec2( GT.hlimit.x, GT.vlimit.x );
 	Geom::Vec2 stop  = Geom::Vec2( GT.hlimit.y,   GT.vlimit.y   );
 	G->getGraph().AxisStart = start;
-	G->getGraph().AxisSize  = ( stop - start );
+	G->getGraph().AxisSize.x  = ( ((start.x<0)?stop.x:stop.x - start.x) );
+	G->getGraph().AxisSize.y  = ( ((start.y<0)?stop.y:stop.y - start.y) );
 	G->getGraph().dynX = !( GT.hBox->IsGloballyVisible() );
 	G->getGraph().dynY = !( GT.vBox->IsGloballyVisible() );
 	G->updateVertexArrays();
