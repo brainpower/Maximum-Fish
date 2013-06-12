@@ -25,8 +25,36 @@ void NewSimWindow::HandleEvent(Event& e)
 		CreateWindow();
 		Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
 	}
-	if( e.Is("SPECIES_GEN_CLICKED"))
+	if( e.Is("SPECIES_GEN_CLICKED", typeid( std::string )))
 	{
+		std::string s =  boost::any_cast<std::string>(e.Data());
+
+		for(int i = 0; i < t_species.size(); i++)
+		{
+			if(s.compare(t_species[i]->getName()) == 0)
+			{
+				NewSpecies->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getName()))));
+				MaxAge->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxAge()))));
+				MaxHealth->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxHealth()))));
+				MaxSpeed->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxSpeed()))));
+				Reach->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getReach()))));
+				Resistance->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getResistance()))));
+				BreedingSpeed->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getBreedingSpeed()))));
+				MaxRegen->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxRegeneration()))));
+				FoodReq->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getFoodRequirement()))));
+				WaterReq->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getWaterRequirement()))));
+				OptimalTemperature->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getOptimalTemperature()))));
+				if(t_species[i]->getType() ==  Species::SPECIES_TYPE::HERBA)
+				{
+					SpeciesType->SetText(*(new sf::String("HERBA")));
+				} else if(t_species[i]->getType() ==  Species::SPECIES_TYPE::HERBIVORE) {
+					SpeciesType->SetText(*(new sf::String("HERBIVORE")));
+				} else {
+					SpeciesType->SetText(*(new sf::String("CARNIVORE")));
+				}
+				SpeciesCount->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species_count[i]))));
+			}
+		}
 
 	}
 }
@@ -287,15 +315,15 @@ SharedPtr<Label> NewSimWindow::lbl( const std::string& text, sf::Vector2f Align 
 void NewSimWindow::createSpecies()
 {
 	Species::SPECIES_TYPE type;
-	if(SpeciesType->GetText().toAnsiString().compare("HERBA"))
+	if(SpeciesType->GetText().toAnsiString().compare("HERBA") == 0)
 	{
 		type = Species::SPECIES_TYPE::HERBA;
-	} else if(SpeciesType->GetText().toAnsiString().compare("HERBIVORE")) {
+	} else if(SpeciesType->GetText().toAnsiString().compare("HERBIVORE") == 0) {
 		type = Species::SPECIES_TYPE::HERBIVORE;
 	} else {
 		type = Species::SPECIES_TYPE::CARNIVORE;
 	}
-	std::shared_ptr<Species> S ( new Species( NewSpecies + "_" + boost::lexical_cast<std::string>(t_species.size()), type) );
+	std::shared_ptr<Species> S ( new Species( NewSpecies->GetText().toAnsiString(), type) );
 
 
 	S->setMaxAge(boost::lexical_cast<int>(MaxAge->GetText().toAnsiString()));
