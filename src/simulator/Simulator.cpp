@@ -391,8 +391,6 @@ void Simulator::NewNonRandomSimulation(
 		C->updateTileFromPos();
 	}
 
-	std::cout << CreatureCounts[0] << std::endl;
-
 	// generator writes to state directly
 	//state->_species.clear();
 	//state->_species = newSpecies;
