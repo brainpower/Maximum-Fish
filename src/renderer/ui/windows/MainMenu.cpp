@@ -1,4 +1,5 @@
 #include "MainMenu.hpp"
+#include "FileBrowse.hpp"
 #include "sbe/sfg/Message.hpp"
 #include "SFGUI/Window.hpp"
 #include "SFGUI/Button.hpp"
@@ -11,6 +12,8 @@ MainMenu::MainMenu( const Geom::Vec2 Size )
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "MESSAGE_ANSWER_MAINMENU" );
 	RegisterForEvent( "TOGGLE_SHOW_MAINMENU" );
+	RegisterForEvent( "FB_CANCEL" );
+	RegisterForEvent( "FB_OK" );
 
 	currentlabeltext = 0;
 	CreateWindow( Size );
@@ -56,7 +59,10 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 	Win->SetTitle( "Main Menu [ESC]" );
 	Win->Add( box );
 
+
 	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
+	fb = std::make_shared<FileBrowse>(Geom::Vec2{600,400});
+
 }
 
 void MainMenu::HandleEvent( Event& e )
@@ -84,6 +90,12 @@ void MainMenu::HandleEvent( Event& e )
 	{*/
 		if ( boost::any_cast<bool>(e.Data()) ) Module::Get()->QueueEvent( Event( "EVT_QUIT" ) , true );
 	}
+	//~ else if( e.Is( "FB_CANCEL" )){
+		// default action when presing Cancel in fb
+	//~ }
+	//~ else if( e.Is( "FB_OK" )){
+		// default action when presing OK in fb
+	//~ }
 }
 
 void MainMenu::updatePosition()
@@ -105,12 +117,19 @@ void MainMenu::BtnResumeClick()
 
 void MainMenu::BtnSaveClick()
 {
-	Module::Get()->QueueEvent( Event( "EVT_SAVE_WHOLE" ), true );
+	fb->setTitle("Select folder to save to...");
+	fb->setOkEvt("EVT_SAVE_WHOLE");
+	fb->show();
+
+	//Module::Get()->QueueEvent( Event( "EVT_SAVE_WHOLE" ), true );
 }
 
 void MainMenu::BtnLoadClick()
 {
-	Module::Get()->QueueEvent( Event( "EVT_LOAD_WHOLE" ), true );
+	fb->setTitle("Select folder to load from...");
+	fb->setOkEvt("EVT_LOAD_WHOLE");
+	fb->show();
+	//Module::Get()->QueueEvent( Event( "EVT_LOAD_WHOLE" ), true );
 }
 
 void MainMenu::BtnExitClick()
