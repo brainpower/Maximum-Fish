@@ -123,7 +123,7 @@ include_directories( ${INCLUDE_DIRS} )
 
 #needed on windows to find the libs sfml provides
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
-  link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/ )
+  link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/x86 )
 endif()
 
 if(NOT VERSION_CHECK_DONE)
