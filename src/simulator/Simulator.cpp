@@ -63,6 +63,7 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 	RegisterForEvent("SET_SIM_TPS");
 
 	RegisterForEvent("UPDATE_OVERLAYS");
+	RegisterForEvent("NEW_NONRANDOM_SIM");
 
 	init();
 }
@@ -154,6 +155,21 @@ void Simulator::HandleEvent(Event& e)
 	else if (e.Is("SIM_FORWARD_TO_TICK")){
 		forwardTo(boost::any_cast<int>(e.Data()));
 	}
+	else if(e.Is("NEW_NONRANDOM_SIM"))
+	{
+		if ( e.Data().type() == typeid(std::pair<std::shared_ptr<std::vector<std::shared_ptr<Species>>>, std::shared_ptr<std::vector<int>>>));
+		{
+			auto t_pair = boost::any_cast<std::pair<std::shared_ptr<std::vector<std::shared_ptr<Species>>>, std::shared_ptr<std::vector<int>>>>(e.Data());
+			bool wasPaused = isPaused;
+			isPaused = true;
+			Engine::getCfg()->set("sim.paused", isPaused);
+
+			NewNonRandomSimulation(t_pair.first, t_pair.second, Engine::getCfg()->get<int>("sim.defaultSeed"));
+
+			isPaused = wasPaused;
+			Engine::getCfg()->set("sim.paused", isPaused);
+		}
+	}
 }
 
 void Simulator::init()
@@ -201,12 +217,42 @@ void Simulator::NewSimulation( int seed )
 	Generator G (state, *rng);
 
 	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
+
 	G.CreateSpeciesWithCreatures( Species::HERBA, 		Engine::getCfg()->get<int>("sim.terragen.species.plant"), Engine::getCfg()->get<int>("sim.terragen.count.plant")*countMult );
 	G.CreateSpeciesWithCreatures( Species::HERBIVORE, 	Engine::getCfg()->get<int>("sim.terragen.species.herbivore"), Engine::getCfg()->get<int>("sim.terragen.count.herbivore")*countMult );
 	G.CreateSpeciesWithCreatures( Species::CARNIVORE, 	Engine::getCfg()->get<int>("sim.terragen.species.carnivore"), Engine::getCfg()->get<int>("sim.terragen.count.carnivore")*countMult );
 
 	NewSimulation( state, rng );
 }
+
+void Simulator::NewNonRandomSimulation( std::shared_ptr<std::vector<std::shared_ptr<Species>>> _spec, std::shared_ptr<std::vector<int>> _specnum, int seed )
+{
+	std::shared_ptr<SimState> state(new SimState());
+
+	std::mt19937* rng = new std::mt19937(seed);
+	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
+	state->_currentSeed = seed;
+	// set a valid thread num in state, weirdly Simulator::numThreads seems to contain a invalid number of threads
+	state->_numThreads = numThreads;
+
+	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
+	state->_terrain.reset( new Terrain() );
+	state->_species = _spec;
+	state->_creatures.clear();
+	// we have to set it here, so Simulator::GetTerrain() will work in Tile
+	//this->setState(state, true);
+	_state = state;
+
+	state->_terrain->CreateDebugTerrain( _state->_currentSeed );
+	Generator G (state, *rng);
+
+	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
+
+	G.CreateCreatures(_spec, _specnum, countMult);
+
+	NewNonRandomSimulation( state, rng);
+}
+
 
 void Simulator::NewSimulation(
 	std::shared_ptr<SimState> state,
@@ -291,6 +337,100 @@ void Simulator::NewSimulation(
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
 
 	// set a valid thread num in state 0, weirdly Simulator::numThreads seems to contain a invalid number of threads
+	//_state->_numThreads = Engine::getCfg()r->get<int>("sim.numThreads");
+	Engine::out(Engine::SPAM) << "[Simulator][debug] Sim::numThreads " << numThreads << ", state: " << state->_numThreads << ", _state: " << _state->_numThreads << std::endl;
+
+	_pod->clear();
+	Engine::out() << "[Sim] Freeze" << std::endl;
+	_pod->freeze(_state);
+	Engine::out() << "[Sim] Freezed - " << _pod->peekTop()->_currentTick << "/" << _pod->peekTop()->_numThreads << std::endl;
+}
+
+void Simulator::NewNonRandomSimulation(
+	std::shared_ptr<SimState> state,
+	std::mt19937* rng)
+{
+
+	state->_seeder.reset( rng ); // must do it this early for initThreads to work
+
+	if ( multiThreaded)
+	{
+		stopThreads();
+		initThreads();
+	}
+
+
+	state->_currentTick = 0;
+	simulateTicks = 0;
+	TicksToSim = 0;
+
+	//Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
+	// ^ crap, there's nothing here that has anything to do with random generators
+
+	state->_numGenerated = 0;
+
+	Creature::loadConfigValues();
+
+	Engine::out(Engine::INFO) << "[Simulator] Terrain" << std::endl;
+	//Terra = newTerrain; // we've done that before already
+
+
+	Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
+	CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+	// generator writes to state directly
+	//state->_creatures.clear();
+	//state->_creatures = newCreatures;
+
+	// count Creatures once
+	for( auto C : state->_creatures )
+	{
+		CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
+		C->updateTileFromPos();
+	}
+
+	std::cout << CreatureCounts[0] << std::endl;
+
+	// generator writes to state directly
+	//state->_species.clear();
+	//state->_species = newSpecies;
+
+	// add default species
+	//std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
+	//state->_species->push_back( S );
+
+	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
+
+	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
+	Engine::getCfg()->set("sim.paused", isPaused);
+
+
+	// categorize tiles for parallel computation of the simulation
+	state->_terrain->CreateParallelisationGraph();
+
+	// send terrain to renderer
+	state->_terrain->UpdateTileMap();
+	state->_terrain->UpdateTerrain();
+	// send creatures to renderer
+	UpdateCreatureRenderList();
+
+	isInitialized = true;
+
+	state->_terrain->CreateMapPlotters();
+
+	RendererUpdate.restart();
+
+	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
+	CreatePlotters();
+	auto data = std::make_pair( std::string( "Population" ), CountGraph );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
+
+	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
+
+	// set a valid thread num in state 0, weirdly Simulator::numThreads seems to contain a invalid number of threads
 	//_state->_numThreads = Engine::getCfg()->get<int>("sim.numThreads");
 	Engine::out(Engine::SPAM) << "[Simulator][debug] Sim::numThreads " << numThreads << ", state: " << state->_numThreads << ", _state: " << _state->_numThreads << std::endl;
 
@@ -298,7 +438,6 @@ void Simulator::NewSimulation(
 	Engine::out() << "[Sim] Freeze" << std::endl;
 	_pod->freeze(_state);
 	Engine::out() << "[Sim] Freezed - " << _pod->peekTop()->_currentTick << "/" << _pod->peekTop()->_numThreads << std::endl;
-
 }
 
 void Simulator::initThreads()

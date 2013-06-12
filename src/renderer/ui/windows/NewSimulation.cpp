@@ -182,6 +182,7 @@ SharedPtr<Widget> NewSimWindow::CreateTerrainPage()
 SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 {
 	t_species.clear();
+	t_species_count.clear();
 	MaxAge = entry("sim.species.defaults.maxAge");
 	MaxHealth = entry("sim.species.defaults.maxHealth");
 	MaxSpeed = entry("sim.species.defaults.maxSpeed.carnivore");
@@ -277,6 +278,13 @@ void NewSimWindow::okClick()
 	Module::Get()->QueueEvent("CLEAR_OVERLAYS", true);
 	Module::Get()->QueueEvent("RESET_SIMULATION", true);
 	Win->Show(false);
+
+	if(!t_species.empty())
+	{
+		auto s_tmp = std::make_shared<std::vector<std::shared_ptr<Species>>>(t_species);
+		auto n_tmp = std::make_shared<std::vector<int>>(t_species_count);
+		Module::Get()->QueueEvent(Event("NEW_NONRANDOM_SIM", std::make_pair(s_tmp, n_tmp)), true);
+	}
 }
 
 void NewSimWindow::abortClick()

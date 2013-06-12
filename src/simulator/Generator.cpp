@@ -27,6 +27,21 @@ void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 	}
 }
 
+void Generator::CreateCreatures( std::shared_ptr<std::vector<std::shared_ptr<Species>>> _sp, std::shared_ptr<std::vector<int>> _spc, int _mult )
+{
+	for( int s = 0; s < _sp->size(); s++)
+	{
+		for(int c = 0; c < (_mult*(*_spc)[s]); c++)
+		{
+			std::shared_ptr<Creature> C = createNonRandomCreature( (*_sp)[s] );
+			if (!C) continue;
+			_state->_creatures.push_back(C);
+		}
+	}
+
+}
+
+
 std::shared_ptr<Species> Generator::createRandomSpecies()
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
@@ -105,6 +120,29 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 		{
 			ptr_creature->setCurrentHealth( health_dist( _rnd ) );
 			ptr_creature->setAge( age_dist( _rnd ) );
+			ptr_creature->setPositionUnsafe( Position );
+			return ptr_creature;
+		}
+	}
+
+	return std::shared_ptr<Creature> ();
+}
+
+std::shared_ptr<Creature> Generator::createNonRandomCreature( const std::shared_ptr<Species>& spec )
+{
+	std::uniform_real_distribution<float> pos_dist(0, _state->_terrain->getSize().x );
+	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( spec ));
+
+	// try a few times, but make sure we're not stuck in a loop
+	for (int tries = 0; tries < 1000; ++tries)
+	{
+		Geom::Pointf Position (pos_dist(_rnd),pos_dist(_rnd));
+
+		float hab = _state->_terrain->getTile(Position)->getHabitability(ptr_creature->getSpecies());
+		if( hab > 0.0f && ptr_creature->validPos( Position ) )
+		{
+			ptr_creature->setCurrentHealth( spec->getMaxHealth() );
+			ptr_creature->setAge( 0 );
 			ptr_creature->setPositionUnsafe( Position );
 			return ptr_creature;
 		}
