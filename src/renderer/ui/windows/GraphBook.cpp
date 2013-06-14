@@ -152,13 +152,18 @@ void GraphBook::vViewingRange()
 {
 	if ( !hasValidTab() )
 		return;
-	cTT().vRangeBox->Show( !cTT().vRangeBox->IsGloballyVisible() );
-	UpdateGraphSettings(cTT());
+	auto t = cTT();
+	t.vRangeBox->Show( !t.vRangeBox->IsGloballyVisible() );
+	UpdateGraphSettings( t );
 }
 
 void GraphBook::vViewingLogarithmicToggle()
 {
-///@TODO:
+	if ( !hasValidTab() )
+		return;
+	auto t = cTT();
+	t.vLogAxBox->Show( t.vLogAxBtn->IsActive() );
+	UpdateGraphSettings( t );
 }
 
 void GraphBook::HViewingRangeFromEntryGainFocus()
@@ -278,13 +283,27 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				vViewingRangeBox->Show( false );
 				CheckButton::Ptr vViewingLogarithmic = CheckButton::Create( "Make vertical axis logarithmic" );
 				vViewingLogarithmic->GetSignal( CheckButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+				Box::Ptr vLogBaseBox = Box::Create( Box::Orientation::HORIZONTAL, 3.0f );
+					RadioButton::Ptr base2 = RadioButton::Create( "2     " );
+					base2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+					RadioButton::Ptr baseE = RadioButton::Create( "e     ", base2->GetGroup() );
+					baseE->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+					RadioButton::Ptr base10 = RadioButton::Create( "10     ", base2->GetGroup() );
+					base10->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+					base10->SetActive( true );
+				vLogBaseBox->Pack( Label::Create( "Base:   " ), false, false );
+				vLogBaseBox->Pack( base2, false, false );
+				vLogBaseBox->Pack( baseE, false, false );
+				vLogBaseBox->Pack( base10, false, false );
 			vAxisBox->Pack( vViewingRangeAll, false, false );
 			vAxisBox->Pack( vViewingRangeSelection, false, false );
 			vAxisBox->Pack( vViewingRangeBox, false, false );
 			vAxisBox->Pack( Separator::Create(), false, false );
 			vAxisBox->Pack( vViewingLogarithmic, false, false );
+			vAxisBox->Pack( vLogBaseBox, false, false );
+			vLogBaseBox->Show( false );
 		optionBox->Pack( Separator::Create( Separator::Orientation::VERTICAL ), false, false );
-		optionBox->Pack( vAxisBox );
+		optionBox->Pack( vAxisBox, false, false );
 		//uncomment the following line to ensure space for axis-range-entrys even if they are not visible
 		//optionBox->SetRequisition( sf::Vector2f( optionBox->GetAllocation().width, optionBox->GetAllocation().height ) );
 	box->Pack( optionBox, false, false );
@@ -299,7 +318,8 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	                     vViewingRangeAll, vViewingRangeSelection,
 	                     vViewingRangeBox,
 	                     vViewingRangeFromEntry, vViewingRangeToEntry,
-	                     vViewingLogarithmic,
+	                     vViewingLogarithmic, vLogBaseBox,
+	                     base2, baseE, base10,
 	                     0, 5000, 0, 5000, 50 );
 
 	graphTupleList.push_back( y );
@@ -327,6 +347,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	activeRadioButton = ( GT.vRB0->IsActive() ? 0 : 1 );
 	G->getGraph().dynY = ( activeRadioButton == 0 );
 	G->getGraph().AxisSize.y = stopCorner.y - startCorner.y;
+	G->getGraph().logScale = ( GT.vLogAxBtn->IsActive() );
+	G->getGraph().logBase = ( GT.logBase2->IsActive() ? 2 : ( GT.logBaseE->IsActive() ? 2.71828 : 10 ) );
 
 	G->updateVertexArrays();
 	G->printSettings();

@@ -53,6 +53,10 @@ class GraphBook : public sbe::EventUser
 			sfg::SharedPtr <sfg::Entry>        vFrom;
 			sfg::SharedPtr <sfg::Entry>        vTo;
 			sfg::SharedPtr <sfg::CheckButton>  vLogAxBtn;
+			sfg::SharedPtr <sfg::Box>          vLogAxBox;
+			sfg::SharedPtr <sfg::RadioButton>  logBase2;
+			sfg::SharedPtr <sfg::RadioButton>  logBaseE;
+			sfg::SharedPtr <sfg::RadioButton>  logBase10;
 			Geom::Point                        hLimit;
 			Geom::Point                        vLimit;
 			int                                hEndOffset;
@@ -74,6 +78,10 @@ class GraphBook : public sbe::EventUser
 				            sfg::SharedPtr <sfg::Entry>        _vFrom,
 				            sfg::SharedPtr <sfg::Entry>        _vTo,
 				            sfg::SharedPtr <sfg::CheckButton>  _vLogAxBtn,
+				            sfg::SharedPtr <sfg::Box>          _vLogAxBox,
+				            sfg::SharedPtr <sfg::RadioButton>  _logBase2,
+				            sfg::SharedPtr <sfg::RadioButton>  _logBaseE,
+				            sfg::SharedPtr <sfg::RadioButton>  _logBase10,
 				            int                                _hLimitX,
 				            int                                _hLimitY,
 				            int                                _vLimitX,
@@ -96,6 +104,10 @@ class GraphBook : public sbe::EventUser
 						vFrom       = _vFrom;
 						vTo         = _vTo;
 						vLogAxBtn   = _vLogAxBtn;
+						vLogAxBox   = _vLogAxBox;
+						logBase2    = _logBase2;
+						logBaseE    = _logBaseE;
+						logBase10   = _logBase10;
 						hLimit      = { _hLimitX, _hLimitY };
 						hEndOffset  = _hEndOffset;
 						vLimit      = { _vLimitX, _vLimitY };
