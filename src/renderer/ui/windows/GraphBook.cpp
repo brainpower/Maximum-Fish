@@ -328,6 +328,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	G->getGraph().dynY = ( activeRadioButton == 0 );
 	G->getGraph().AxisSize.y = stopCorner.y - startCorner.y;
 
+	G->getGraph().logScale = GT.vLogAxBtn->IsActive();
+
 	G->updateVertexArrays();
 	G->printSettings();
 	PlotGraph( GT );
