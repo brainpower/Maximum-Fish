@@ -287,7 +287,7 @@ void Simulator::NewSimulation(
 	auto data = std::make_pair( std::string( "Population" ), CountGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
 
-	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
+	auto data2 = std::make_pair( std::string( "Causes of Death" ), DeathGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
 
 	// set a valid thread num in state 0, weirdly Simulator::numThreads seems to contain a invalid number of threads

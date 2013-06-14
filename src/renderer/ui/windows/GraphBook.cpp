@@ -7,6 +7,7 @@
 #include <SFGUI/Label.hpp>
 #include <SFGUI/RadioButton.hpp>
 #include <SFGUI/Entry.hpp>
+#include <SFGUI/Separator.hpp>
 
 using namespace sfg;
 
@@ -66,7 +67,7 @@ void GraphBook::HandleEvent( Event& e )
 	}
 	else if ( e.Is( "KEY_PRESSED_ENTER" ) && ListenToActionKeys )
 	{
-		handleEntryInput( ListenToActionKeys );
+		handleEntryInput();
 		//reviewEntryInput();
 	}
 	else if ( e.Is( "debug_reload_graph" ) )
@@ -97,6 +98,9 @@ void GraphBook::EntryTextChange()
 		case 4:
 			entry = cTT().vTo;
 			break;
+		case 5:
+			entry = cTT().hEndEntry;
+			break;
 		default:
 			Engine::out( Engine::INFO ) << "[GraphBook] Warning!! Text from unidentified Entry changed." << std::endl;
 			return;
@@ -117,21 +121,44 @@ void GraphBook::EntryTextChange()
 		textchangeavoidrecursive = false;
 	}
 }
-///@TODO: set for current tab
-void GraphBook::hViewingRange()
+
+void GraphBook::hViewingRangeAllToggle()
 {
 	if ( !hasValidTab() )
 		return;
-	cTT().hBox->Show( !cTT().hBox->IsGloballyVisible() );
-	UpdateGraphSettings(cTT());
+	auto t = cTT();
+	UpdateGraphSettings( t );
+}
+
+void GraphBook::hViewingRangeSelectionToggle()
+{
+	if ( !hasValidTab() )
+		return;
+	auto t = cTT();
+	t.hRangeBox->Show( !t.hRangeBox->IsGloballyVisible() );
+	UpdateGraphSettings( t );
+}
+
+void GraphBook::hViewingRangeEndToggle()
+{
+	if ( !hasValidTab() )
+		return;
+	auto t = cTT();
+	t.hEndBox->Show( !t.hEndBox->IsGloballyVisible() );
+	UpdateGraphSettings( t );
 }
 
 void GraphBook::vViewingRange()
 {
 	if ( !hasValidTab() )
 		return;
-	cTT().vBox->Show( !cTT().vBox->IsGloballyVisible() );
+	cTT().vRangeBox->Show( !cTT().vRangeBox->IsGloballyVisible() );
 	UpdateGraphSettings(cTT());
+}
+
+void GraphBook::vViewingLogarithmicToggle()
+{
+///@TODO:
 }
 
 void GraphBook::HViewingRangeFromEntryGainFocus()
@@ -142,6 +169,11 @@ void GraphBook::HViewingRangeFromEntryGainFocus()
 void GraphBook::HViewingRangeToEntryGainFocus()
 {
 	ListenToActionKeys = 2;
+}
+
+void GraphBook::HViewingRangeEndEntryGainFocus()
+{
+	ListenToActionKeys = 5;
 }
 
 void GraphBook::VViewingRangeFromEntryGainFocus()
@@ -159,7 +191,7 @@ void GraphBook::EntryLostFocus()
 	ListenToActionKeys = 0;
 }
 
-void GraphBook::handleEntryInput( int entry )
+void GraphBook::handleEntryInput()
 {
 	if ( !hasValidTab() )
 		return;
@@ -167,16 +199,17 @@ void GraphBook::handleEntryInput( int entry )
 	auto& curTuple = cTT();
 
 	// just load all entrys
-	Geom::Point hlimits  = { entryVal(curTuple.hFrom), entryVal(curTuple.hTo) };
-	Geom::Point vlimits  = { entryVal(curTuple.vFrom), entryVal(curTuple.vTo) };
+	Geom::Point hlimits = { entryVal(curTuple.hFrom), entryVal(curTuple.hTo) };
+	Geom::Point vlimits = { entryVal(curTuple.vFrom), entryVal(curTuple.vTo) };
 	if ( hlimits.x > hlimits.y ) hlimits.x = hlimits.y;
 	if ( vlimits.x > vlimits.y ) vlimits.x = vlimits.y;
 
-	curTuple.hlimit = hlimits;
-	curTuple.vlimit = vlimits;
+	curTuple.hLimit = hlimits;
+	curTuple.vLimit = vlimits;
+	curTuple.hEndOffset = entryVal( curTuple.hEndEntry );
 
 	// set new values in GraphPlotter
-	UpdateGraphSettings(curTuple);
+	UpdateGraphSettings( curTuple );
 	textchangeavoidrecursive = true;
 }
 
@@ -184,7 +217,7 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 {
 	Box::Ptr box = Box::Create( Box::Orientation::VERTICAL, 3.0f );
 		Image::Ptr I = Image::Create();
-	box->Pack( I, true, true );
+	box->Pack( I, false, false );
 		Box::Ptr spacer = Box::Create();
 		//box without requisition will not expand
 		spacer->SetRequisition( sf::Vector2f( 1, 1 ) );
@@ -193,8 +226,9 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 			Box::Ptr hAxisBox = Box::Create( Box::Orientation::VERTICAL, 3.0f );
 				RadioButton::Ptr hViewingRangeAll = RadioButton::Create( "auto-adjust horizontal axis." );
 				hViewingRangeAll->SetActive( true );
+				hViewingRangeAll->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeAllToggle, this );
 				RadioButton::Ptr hViewingRangeSelection = RadioButton::Create( "show selection on horizontal axis", hViewingRangeAll->GetGroup() );
-				hViewingRangeAll->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRange, this );
+				hViewingRangeSelection->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeSelectionToggle, this );
 				Box::Ptr hViewingRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
 					Entry::Ptr hViewingRangeFromEntry = Entry::Create( "0" );
 						hViewingRangeFromEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeFromEntryGainFocus , this );
@@ -208,9 +242,21 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				hViewingRangeBox->Pack( Label::Create( "-" ), false, false );
 				hViewingRangeBox->Pack( hViewingRangeToEntry, true, true );
 				hViewingRangeBox->Show( false );
+				RadioButton::Ptr hViewingRangeEnd = RadioButton::Create( "show only the last", hViewingRangeAll->GetGroup() );
+				hViewingRangeEnd->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeEndToggle, this );
+				Box::Ptr hViewingRangeEndBox = Box::Create( Box::Orientation::HORIZONTAL );
+					Entry::Ptr hviewingRangeEndEntry = Entry::Create( "50" );
+						hviewingRangeEndEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeEndEntryGainFocus , this );
+						hviewingRangeEndEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
+						hviewingRangeEndEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+				hViewingRangeEndBox->Pack( hviewingRangeEndEntry, true, true );
+				hViewingRangeEndBox->Pack( Label::Create( "  Ticks" ), true, true );
+				hViewingRangeEndBox->Show( false );
 			hAxisBox->Pack( hViewingRangeAll, false, false );
 			hAxisBox->Pack( hViewingRangeSelection, false, false );
 			hAxisBox->Pack( hViewingRangeBox, false, false );
+			hAxisBox->Pack( hViewingRangeEnd, false, false );
+			hAxisBox->Pack( hViewingRangeEndBox, false, false );
 		optionBox->Pack( hAxisBox );
 			Box::Ptr vAxisBox = Box::Create( Box::Orientation::VERTICAL, 3.0f );
 				RadioButton::Ptr vViewingRangeAll = RadioButton::Create( "auto-adjust vertical axis." );
@@ -230,9 +276,14 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				vViewingRangeBox->Pack( Label::Create( "-" ), false, false );
 				vViewingRangeBox->Pack( vViewingRangeToEntry, true, true );
 				vViewingRangeBox->Show( false );
+				CheckButton::Ptr vViewingLogarithmic = CheckButton::Create( "Make vertical axis logarithmic" );
+				vViewingLogarithmic->GetSignal( CheckButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
 			vAxisBox->Pack( vViewingRangeAll, false, false );
 			vAxisBox->Pack( vViewingRangeSelection, false, false );
 			vAxisBox->Pack( vViewingRangeBox, false, false );
+			vAxisBox->Pack( Separator::Create(), false, false );
+			vAxisBox->Pack( vViewingLogarithmic, false, false );
+		optionBox->Pack( Separator::Create( Separator::Orientation::VERTICAL ), false, false );
 		optionBox->Pack( vAxisBox );
 		//uncomment the following line to ensure space for axis-range-entrys even if they are not visible
 		//optionBox->SetRequisition( sf::Vector2f( optionBox->GetAllocation().width, optionBox->GetAllocation().height ) );
@@ -241,13 +292,15 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotCurrentGraph, this );
 	Tabs->SetCurrentPage( Tabs->AppendPage( box, label ) );
 
-	auto y = graphTuple( graph, I, hViewingRangeBox, vViewingRangeBox,
-	                          hViewingRangeFromEntry, hViewingRangeToEntry,
-	                          vViewingRangeFromEntry, vViewingRangeToEntry );
-	y.hlimit.x = 0;
-	y.hlimit.y = 5000;
-	y.vlimit.x = 0;
-	y.vlimit.y = 5000;
+	auto y = graphTuple( graph, I, hViewingRangeAll, hViewingRangeSelection,
+	                     hViewingRangeBox, hViewingRangeFromEntry,
+	                     hViewingRangeToEntry, hViewingRangeEnd,
+	                     hViewingRangeEndBox, hviewingRangeEndEntry,
+	                     vViewingRangeAll, vViewingRangeSelection,
+	                     vViewingRangeBox,
+	                     vViewingRangeFromEntry, vViewingRangeToEntry,
+	                     vViewingLogarithmic,
+	                     0, 5000, 0, 5000, 50 );
 
 	graphTupleList.push_back( y );
 	Engine::out() << "setting new graph" << std::endl;
@@ -262,15 +315,22 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	if ( !G )
 		return;
 
-	Geom::Vec2 start = Geom::Vec2( GT.hlimit.x, GT.vlimit.x );
-	Geom::Vec2 stop  = Geom::Vec2( GT.hlimit.y,   GT.vlimit.y   );
-	G->getGraph().AxisStart = start;
-	G->getGraph().AxisSize  = ( stop - start );
-	G->getGraph().dynX = !( GT.hBox->IsGloballyVisible() );
-	G->getGraph().dynY = !( GT.vBox->IsGloballyVisible() );
+	Geom::Vec2 startCorner = Geom::Vec2( GT.hLimit.x, GT.vLimit.x );
+	Geom::Vec2 stopCorner  = Geom::Vec2( GT.hLimit.y, GT.vLimit.y );
+	G->getGraph().AxisStart = startCorner;
+	int activeRadioButton = ( GT.hRB0->IsActive() ? 0 : ( GT.hRB1->IsActive() ? 1 : 2 ) );
+	G->getGraph().dynX = ( activeRadioButton == 0 );
+	G->getGraph().AxisSize.x = ( activeRadioButton == 1 ? ( stopCorner.x - startCorner.x ) : GT.hEndOffset );
+	if ( activeRadioButton == 2 )
+		G->getGraph().AxisStart.x = -1 * GT.hEndOffset;
+	//----
+	activeRadioButton = ( GT.vRB0->IsActive() ? 0 : 1 );
+	G->getGraph().dynY = ( activeRadioButton == 0 );
+	G->getGraph().AxisSize.y = stopCorner.y - startCorner.y;
+
 	G->updateVertexArrays();
 	G->printSettings();
-	PlotGraph(GT);
+	PlotGraph( GT );
 }
 
 GraphBook::graphTuple& GraphBook::cTT()

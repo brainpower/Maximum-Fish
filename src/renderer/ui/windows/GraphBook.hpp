@@ -13,6 +13,8 @@ namespace sfg
 	class Box;
 	class Entry;
 	class Image;
+	class RadioButton;
+	class CheckButton;
 }
 #include <SFML/System/Clock.hpp>
 
@@ -37,35 +39,66 @@ class GraphBook : public sbe::EventUser
 		{
 			std::shared_ptr<sbe::GraphPlotter> plotter;
 			sfg::SharedPtr <sfg::Image>        image;
-			sfg::SharedPtr <sfg::Box>          hBox;
-			sfg::SharedPtr <sfg::Box>          vBox;
+			sfg::SharedPtr <sfg::RadioButton>  hRB0;
+			sfg::SharedPtr <sfg::RadioButton>  hRB1;
+			sfg::SharedPtr <sfg::RadioButton>  hRB2;
+			sfg::SharedPtr <sfg::RadioButton>  vRB0;
+			sfg::SharedPtr <sfg::RadioButton>  vRB1;
+			sfg::SharedPtr <sfg::Box>          hRangeBox;
 			sfg::SharedPtr <sfg::Entry>        hFrom;
 			sfg::SharedPtr <sfg::Entry>        hTo;
+			sfg::SharedPtr <sfg::Box>          hEndBox;
+			sfg::SharedPtr <sfg::Entry>        hEndEntry;
+			sfg::SharedPtr <sfg::Box>          vRangeBox;
 			sfg::SharedPtr <sfg::Entry>        vFrom;
 			sfg::SharedPtr <sfg::Entry>        vTo;
-			Geom::Point              hlimit;
-			Geom::Point              vlimit;
+			sfg::SharedPtr <sfg::CheckButton>  vLogAxBtn;
+			Geom::Point                        hLimit;
+			Geom::Point                        vLimit;
+			int                                hEndOffset;
 
 				/// constructor for graphTuple
 				graphTuple( std::shared_ptr<sbe::GraphPlotter> _plotter,
 				            sfg::SharedPtr <sfg::Image>        _image,
-				            sfg::SharedPtr <sfg::Box>          _hBox,
-				            sfg::SharedPtr <sfg::Box>          _vBox,
+				            sfg::SharedPtr <sfg::RadioButton>  _hRB0,
+				            sfg::SharedPtr <sfg::RadioButton>  _hRB1,
+				            sfg::SharedPtr <sfg::Box>          _hRangeBox,
 				            sfg::SharedPtr <sfg::Entry>        _hFrom,
 				            sfg::SharedPtr <sfg::Entry>        _hTo,
+				            sfg::SharedPtr <sfg::RadioButton>  _hRB2,
+				            sfg::SharedPtr <sfg::Box>          _hEndBox,
+				            sfg::SharedPtr <sfg::Entry>        _hEndEntry,
+				            sfg::SharedPtr <sfg::RadioButton>  _vRB0,
+				            sfg::SharedPtr <sfg::RadioButton>  _vRB1,
+				            sfg::SharedPtr <sfg::Box>          _vRangeBox,
 				            sfg::SharedPtr <sfg::Entry>        _vFrom,
-				            sfg::SharedPtr <sfg::Entry>        _vTo )
+				            sfg::SharedPtr <sfg::Entry>        _vTo,
+				            sfg::SharedPtr <sfg::CheckButton>  _vLogAxBtn,
+				            int                                _hLimitX,
+				            int                                _hLimitY,
+				            int                                _vLimitX,
+				            int                                _vLimitY,
+				            int                                _hEndOffset )
 					{
-						plotter = _plotter;
-						image   = _image;
-						hBox    = _hBox;
-						vBox    = _vBox;
-						hFrom   = _hFrom;
-						hTo     = _hTo;
-						vFrom   = _vFrom;
-						vTo     = _vTo;
-						hlimit = {0,0};
-						vlimit = {0,0};
+						plotter     = _plotter;
+						image       = _image;
+						hRB0        = _hRB0;
+						hRB1        = _hRB1;
+						hRangeBox   = _hRangeBox;
+						hFrom       = _hFrom;
+						hTo         = _hTo;
+						hRB2        = _hRB2;
+						hEndBox     = _hEndBox;
+						hEndEntry   = _hEndEntry;
+						vRB0        = _vRB0;
+						vRB1        = _vRB1;
+						vRangeBox   = _vRangeBox;
+						vFrom       = _vFrom;
+						vTo         = _vTo;
+						vLogAxBtn   = _vLogAxBtn;
+						hLimit      = { _hLimitX, _hLimitY };
+						hEndOffset  = _hEndOffset;
+						vLimit      = { _vLimitX, _vLimitY };
 					}
 		};
 
@@ -82,11 +115,20 @@ class GraphBook : public sbe::EventUser
 		/// rearange the sfg::window
 		void updatePosition();
 
-		/// signal-connection to make hviewingrangebox visible
-		void hViewingRange();
+		/// signal-connection to control hviewingrangebox visible
+		void hViewingRangeAllToggle();
+
+		/// signal-connection to control hviewingrangebox visible
+		void hViewingRangeSelectionToggle();
+
+		/// signal-connection to control hviewingrangebox visible
+		void hViewingRangeEndToggle();
 
 		/// signal-connection to make vviewingrangebox visible
 		void vViewingRange();
+
+		/// signal-connection to make vviewingaxis logarithmic
+		void vViewingLogarithmicToggle();
 
 		/// spellchecker (only numbers are allowed)
 		void EntryTextChange();
@@ -98,7 +140,7 @@ class GraphBook : public sbe::EventUser
 		bool hasValidTab();
 
 		/// called from event-handler on enter, executing the changes from the active entry
-		void handleEntryInput( int entry );
+		void handleEntryInput();
 
 		///
 		int entryVal( sfg::SharedPtr <sfg::Entry>& E  );
@@ -115,6 +157,9 @@ class GraphBook : public sbe::EventUser
 
 		/// signal-connection for entry
 		void HViewingRangeToEntryGainFocus();
+
+		/// signal-connection for entry
+		void HViewingRangeEndEntryGainFocus();
 
 		/// signal-connection for entry
 		void VViewingRangeFromEntryGainFocus();
