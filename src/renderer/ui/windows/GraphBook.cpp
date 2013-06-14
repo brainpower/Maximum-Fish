@@ -107,7 +107,7 @@ void GraphBook::EntryTextChange()
 		}
 		std::string text = entry->GetText().toAnsiString();
 		int cursorPos = entry->GetCursorPosition();
-		if ( cursorPos != 0 && !std::isdigit( text[cursorPos - 1] ) )
+		if ( cursorPos != 0 && !(std::isdigit( text[cursorPos - 1] ) || text[cursorPos -1] == '-' ) )
 		{
 			text.erase( cursorPos-1 , 1 );
 			cursorPos--;

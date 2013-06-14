@@ -4,7 +4,11 @@
 #include <SFGUI/SharedPtr.hpp>
 
 #include "sbe/event/EventUser.hpp"
+#include "sbe/sfg/List.hpp"
 #include <SFML/System/Vector2.hpp>
+
+#include "../../../simulator/world/Species.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace sfg
 {
@@ -29,9 +33,12 @@ class NewSimWindow : public sbe::EventUser
 	private:
 
 		void okClick();
+		void newSpeciesClick();
 		void abortClick();
+		void createSpecies();
 
 		sfg::SharedPtr<sfg::Entry> entry( const std::string& cfg, sf::Vector2f req = { 60, 5 } );
+		sfg::SharedPtr<sfg::Entry> entry( std::string _str,int _t, sf::Vector2f req = { 60, 5 } );
 		sfg::SharedPtr<sfg::Label> lbl( const std::string& text, sf::Vector2f Align = {0.5f, 0.5f} );
 
 		sfg::SharedPtr<sfg::Window> Win;
@@ -69,6 +76,13 @@ class NewSimWindow : public sbe::EventUser
 		sfg::SharedPtr<sfg::Entry> FoodReq;
 		sfg::SharedPtr<sfg::Entry> WaterReq;
 		sfg::SharedPtr<sfg::Entry> OptimalTemperature;
+		sfg::SharedPtr<sfg::Entry> NewSpecies;
+		sfg::SharedPtr<sfg::Entry> SpeciesType;
+		sfg::SharedPtr<sfg::Entry> SpeciesCount;
+
+		sbe::sfgList s_list;
+		std::vector<std::shared_ptr<Species>> t_species;
+		std::vector<int> t_species_count;
 
 };
 
