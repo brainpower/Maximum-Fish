@@ -39,7 +39,7 @@ void GraphBook::CreateWindow( const Geom::Vec2 Size )
 
 void GraphBook::HandleEvent( Event& e )
 {
-	if ( UpdateTimer.getElapsedTime() > sf::seconds( 2.0 ) && Win->IsGloballyVisible() )
+	if ( UpdateTimer.getElapsedTime() > sf::seconds( 1.0 ) && Win->IsGloballyVisible() )
 	{
 		UpdateGraphSettings(cTT());
 		PlotGraph(cTT());
@@ -220,88 +220,90 @@ void GraphBook::handleEntryInput()
 
 void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::GraphPlotter> graph )
 {
+	auto t = graphTuple( 0, 5000, 0, 40000, 50 );
+	t.plotter = graph;
 	Box::Ptr box = Box::Create( Box::Orientation::VERTICAL, 3.0f );
-		Image::Ptr I = Image::Create();
-	box->Pack( I, false, false );
+		t.image = Image::Create();
+	box->Pack( t.image, false, false );
 		Box::Ptr spacer = Box::Create();
 		//box without requisition will not expand
 		spacer->SetRequisition( sf::Vector2f( 1, 1 ) );
 	box->Pack( spacer, true, true );
 		Box::Ptr optionBox = Box::Create( Box::Orientation::HORIZONTAL, 3.0f );
 			Box::Ptr hAxisBox = Box::Create( Box::Orientation::VERTICAL, 3.0f );
-				RadioButton::Ptr hViewingRangeAll = RadioButton::Create( "auto-adjust horizontal axis." );
-				hViewingRangeAll->SetActive( true );
-				hViewingRangeAll->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeAllToggle, this );
-				RadioButton::Ptr hViewingRangeSelection = RadioButton::Create( "show selection on horizontal axis", hViewingRangeAll->GetGroup() );
-				hViewingRangeSelection->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeSelectionToggle, this );
-				Box::Ptr hViewingRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
-					Entry::Ptr hViewingRangeFromEntry = Entry::Create( "0" );
-						hViewingRangeFromEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeFromEntryGainFocus , this );
-						hViewingRangeFromEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						hViewingRangeFromEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-					Entry::Ptr hViewingRangeToEntry = Entry::Create( "5000" );
-						hViewingRangeToEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeToEntryGainFocus , this );
-						hViewingRangeToEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						hViewingRangeToEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-				hViewingRangeBox->Pack( hViewingRangeFromEntry, true, true );
-				hViewingRangeBox->Pack( Label::Create( "-" ), false, false );
-				hViewingRangeBox->Pack( hViewingRangeToEntry, true, true );
-				hViewingRangeBox->Show( false );
-				RadioButton::Ptr hViewingRangeEnd = RadioButton::Create( "show only the last", hViewingRangeAll->GetGroup() );
-				hViewingRangeEnd->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeEndToggle, this );
-				Box::Ptr hViewingRangeEndBox = Box::Create( Box::Orientation::HORIZONTAL );
-					Entry::Ptr hviewingRangeEndEntry = Entry::Create( "50" );
-						hviewingRangeEndEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeEndEntryGainFocus , this );
-						hviewingRangeEndEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						hviewingRangeEndEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-				hViewingRangeEndBox->Pack( hviewingRangeEndEntry, true, true );
-				hViewingRangeEndBox->Pack( Label::Create( "  Ticks" ), true, true );
-				hViewingRangeEndBox->Show( false );
-			hAxisBox->Pack( hViewingRangeAll, false, false );
-			hAxisBox->Pack( hViewingRangeSelection, false, false );
-			hAxisBox->Pack( hViewingRangeBox, false, false );
-			hAxisBox->Pack( hViewingRangeEnd, false, false );
-			hAxisBox->Pack( hViewingRangeEndBox, false, false );
+				t.hRB0 = RadioButton::Create( "auto-adjust horizontal axis." );
+				t.hRB0->SetActive( true );
+				t.hRB0->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeAllToggle, this );
+				t.hRB1 = RadioButton::Create( "show selection on horizontal axis", t.hRB0->GetGroup() );
+				t.hRB1->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeSelectionToggle, this );
+				t.hRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
+					t.hFrom = Entry::Create( std::to_string( t.hLimit.x ) );
+						t.hFrom->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeFromEntryGainFocus , this );
+						t.hFrom->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
+						t.hFrom->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+					t.hTo = Entry::Create( std::to_string( t.hLimit.y ) );
+						t.hTo->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeToEntryGainFocus , this );
+						t.hTo->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
+						t.hTo->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+				t.hRangeBox->Pack( t.hFrom, true, true );
+				t.hRangeBox->Pack( Label::Create( "-" ), false, false );
+				t.hRangeBox->Pack( t.hTo, true, true );
+				t.hRangeBox->Show( false );
+				t.hRB2 = RadioButton::Create( "show only the last", t.hRB0->GetGroup() );
+				t.hRB2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeEndToggle, this );
+				t.hEndBox = Box::Create( Box::Orientation::HORIZONTAL );
+					t.hEndEntry = Entry::Create( std::to_string( t.hEndOffset ) );
+						t.hEndEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeEndEntryGainFocus , this );
+						t.hEndEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
+						t.hEndEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+				t.hEndBox->Pack( t.hEndEntry, true, true );
+				t.hEndBox->Pack( Label::Create( "  Ticks" ), true, true );
+				t.hEndBox->Show( false );
+			hAxisBox->Pack( t.hRB0, false, false );
+			hAxisBox->Pack( t.hRB1, false, false );
+			hAxisBox->Pack( t.hRangeBox, false, false );
+			hAxisBox->Pack( t.hRB2, false, false );
+			hAxisBox->Pack( t.hEndBox, false, false );
 		optionBox->Pack( hAxisBox );
 			Box::Ptr vAxisBox = Box::Create( Box::Orientation::VERTICAL, 3.0f );
-				RadioButton::Ptr vViewingRangeAll = RadioButton::Create( "auto-adjust vertical axis." );
-				vViewingRangeAll->SetActive( true );
-				RadioButton::Ptr vViewingRangeSelection = RadioButton::Create( "show selection on vertical axis", vViewingRangeAll->GetGroup() );
-				vViewingRangeAll->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingRange, this );
-				Box::Ptr vViewingRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
-					Entry::Ptr vViewingRangeFromEntry = Entry::Create( "0" );
-						vViewingRangeFromEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeFromEntryGainFocus , this );
-						vViewingRangeFromEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						vViewingRangeFromEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-					Entry::Ptr vViewingRangeToEntry = Entry::Create( "5000" );
-						vViewingRangeToEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeToEntryGainFocus , this );
-						vViewingRangeToEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						vViewingRangeToEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-				vViewingRangeBox->Pack( vViewingRangeFromEntry, true, true );
-				vViewingRangeBox->Pack( Label::Create( "-" ), false, false );
-				vViewingRangeBox->Pack( vViewingRangeToEntry, true, true );
-				vViewingRangeBox->Show( false );
-				CheckButton::Ptr vViewingLogarithmic = CheckButton::Create( "Make vertical axis logarithmic" );
-				vViewingLogarithmic->GetSignal( CheckButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-				Box::Ptr vLogBaseBox = Box::Create( Box::Orientation::HORIZONTAL, 3.0f );
-					RadioButton::Ptr base2 = RadioButton::Create( "2     " );
-					base2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-					RadioButton::Ptr baseE = RadioButton::Create( "e     ", base2->GetGroup() );
-					baseE->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-					RadioButton::Ptr base10 = RadioButton::Create( "10     ", base2->GetGroup() );
-					base10->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-					base10->SetActive( true );
-				vLogBaseBox->Pack( Label::Create( "Base:   " ), false, false );
-				vLogBaseBox->Pack( base2, false, false );
-				vLogBaseBox->Pack( baseE, false, false );
-				vLogBaseBox->Pack( base10, false, false );
-			vAxisBox->Pack( vViewingRangeAll, false, false );
-			vAxisBox->Pack( vViewingRangeSelection, false, false );
-			vAxisBox->Pack( vViewingRangeBox, false, false );
+				t.vRB0 = RadioButton::Create( "auto-adjust vertical axis." );
+				t.vRB0->SetActive( true );
+				t.vRB1 = RadioButton::Create( "show selection on vertical axis", t.vRB0->GetGroup() );
+				t.vRB0->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingRange, this );
+				t.vRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
+					t.vFrom = Entry::Create( std::to_string(t.vLimit.x ) );
+						t.vFrom->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeFromEntryGainFocus , this );
+						t.vFrom->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
+						t.vFrom->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+					t.vTo = Entry::Create( std::to_string( t.vLimit.y ) );
+						t.vTo->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeToEntryGainFocus , this );
+						t.vTo->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
+						t.vTo->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+				t.vRangeBox->Pack( t.vFrom, true, true );
+				t.vRangeBox->Pack( Label::Create( "-" ), false, false );
+				t.vRangeBox->Pack( t.vTo, true, true );
+				t.vRangeBox->Show( false );
+				t.vLogAxBtn = CheckButton::Create( "Make vertical axis logarithmic" );
+				t.vLogAxBtn->GetSignal( CheckButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+				t.vLogAxBox = Box::Create( Box::Orientation::HORIZONTAL, 3.0f );
+					t.logBase2 = RadioButton::Create( "2     " );
+					t.logBase2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+					t.logBaseE = RadioButton::Create( "e     ", t.logBase2->GetGroup() );
+					t.logBaseE->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+					t.logBase10 = RadioButton::Create( "10     ", t.logBase2->GetGroup() );
+					t.logBase10->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+					t.logBase10->SetActive( true );
+				t.vLogAxBox->Pack( Label::Create( "Base:   " ), false, false );
+				t.vLogAxBox->Pack( t.logBase2, false, false );
+				t.vLogAxBox->Pack( t.logBaseE, false, false );
+				t.vLogAxBox->Pack( t.logBase10, false, false );
+				t.vLogAxBox->Show( false );
+			vAxisBox->Pack( t.vRB0, false, false );
+			vAxisBox->Pack( t.vRB1, false, false );
+			vAxisBox->Pack( t.vRangeBox, false, false );
 			vAxisBox->Pack( Separator::Create(), false, false );
-			vAxisBox->Pack( vViewingLogarithmic, false, false );
-			vAxisBox->Pack( vLogBaseBox, false, false );
-			vLogBaseBox->Show( false );
+			vAxisBox->Pack( t.vLogAxBtn, false, false );
+			vAxisBox->Pack( t.vLogAxBox, false, false );
 		optionBox->Pack( Separator::Create( Separator::Orientation::VERTICAL ), false, false );
 		optionBox->Pack( vAxisBox, false, false );
 		//uncomment the following line to ensure space for axis-range-entrys even if they are not visible
@@ -311,20 +313,9 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotCurrentGraph, this );
 	Tabs->SetCurrentPage( Tabs->AppendPage( box, label ) );
 
-	auto y = graphTuple( graph, I, hViewingRangeAll, hViewingRangeSelection,
-	                     hViewingRangeBox, hViewingRangeFromEntry,
-	                     hViewingRangeToEntry, hViewingRangeEnd,
-	                     hViewingRangeEndBox, hviewingRangeEndEntry,
-	                     vViewingRangeAll, vViewingRangeSelection,
-	                     vViewingRangeBox,
-	                     vViewingRangeFromEntry, vViewingRangeToEntry,
-	                     vViewingLogarithmic, vLogBaseBox,
-	                     base2, baseE, base10,
-	                     0, 5000, 0, 5000, 50 );
-
-	graphTupleList.push_back( y );
+	graphTupleList.push_back( t );
 	Engine::out() << "setting new graph" << std::endl;
-	UpdateGraphSettings( y );
+	UpdateGraphSettings( t );
 
 	Engine::out() << "set new graph" << std::endl;
 }

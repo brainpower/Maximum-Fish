@@ -62,56 +62,16 @@ class GraphBook : public sbe::EventUser
 			int                                hEndOffset;
 
 				/// constructor for graphTuple
-				graphTuple( std::shared_ptr<sbe::GraphPlotter> _plotter,
-				            sfg::SharedPtr <sfg::Image>        _image,
-				            sfg::SharedPtr <sfg::RadioButton>  _hRB0,
-				            sfg::SharedPtr <sfg::RadioButton>  _hRB1,
-				            sfg::SharedPtr <sfg::Box>          _hRangeBox,
-				            sfg::SharedPtr <sfg::Entry>        _hFrom,
-				            sfg::SharedPtr <sfg::Entry>        _hTo,
-				            sfg::SharedPtr <sfg::RadioButton>  _hRB2,
-				            sfg::SharedPtr <sfg::Box>          _hEndBox,
-				            sfg::SharedPtr <sfg::Entry>        _hEndEntry,
-				            sfg::SharedPtr <sfg::RadioButton>  _vRB0,
-				            sfg::SharedPtr <sfg::RadioButton>  _vRB1,
-				            sfg::SharedPtr <sfg::Box>          _vRangeBox,
-				            sfg::SharedPtr <sfg::Entry>        _vFrom,
-				            sfg::SharedPtr <sfg::Entry>        _vTo,
-				            sfg::SharedPtr <sfg::CheckButton>  _vLogAxBtn,
-				            sfg::SharedPtr <sfg::Box>          _vLogAxBox,
-				            sfg::SharedPtr <sfg::RadioButton>  _logBase2,
-				            sfg::SharedPtr <sfg::RadioButton>  _logBaseE,
-				            sfg::SharedPtr <sfg::RadioButton>  _logBase10,
-				            int                                _hLimitX,
-				            int                                _hLimitY,
-				            int                                _vLimitX,
-				            int                                _vLimitY,
-				            int                                _hEndOffset )
-					{
-						plotter     = _plotter;
-						image       = _image;
-						hRB0        = _hRB0;
-						hRB1        = _hRB1;
-						hRangeBox   = _hRangeBox;
-						hFrom       = _hFrom;
-						hTo         = _hTo;
-						hRB2        = _hRB2;
-						hEndBox     = _hEndBox;
-						hEndEntry   = _hEndEntry;
-						vRB0        = _vRB0;
-						vRB1        = _vRB1;
-						vRangeBox   = _vRangeBox;
-						vFrom       = _vFrom;
-						vTo         = _vTo;
-						vLogAxBtn   = _vLogAxBtn;
-						vLogAxBox   = _vLogAxBox;
-						logBase2    = _logBase2;
-						logBaseE    = _logBaseE;
-						logBase10   = _logBase10;
-						hLimit      = { _hLimitX, _hLimitY };
-						hEndOffset  = _hEndOffset;
-						vLimit      = { _vLimitX, _vLimitY };
-					}
+				graphTuple( int _hLimitX,
+				            int _hLimitY,
+				            int _vLimitX,
+				            int _vLimitY,
+				            int _hEndOffset )
+				{
+					hLimit     = { _hLimitX, _hLimitY };
+					hEndOffset =   _hEndOffset;
+					vLimit     = { _vLimitX, _vLimitY };
+				}
 		};
 
 		/// initializer for the Window
