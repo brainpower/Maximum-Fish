@@ -350,6 +350,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	G->getGraph().logScale = ( GT.vLogAxBtn->IsActive() );
 	G->getGraph().logBase = ( GT.logBase2->IsActive() ? 2 : ( GT.logBaseE->IsActive() ? 2.71828 : 10 ) );
 
+	G->getGraph().logScale = GT.vLogAxBtn->IsActive();
+
 	G->updateVertexArrays();
 	G->printSettings();
 	PlotGraph( GT );
