@@ -1,0 +1,314 @@
+@charset "utf-8";
+
+html, body {
+	/*margin: 0;
+	padding: 0;*/
+}
+
+body {
+font-family: "DejaVu Sans", "Droid Serif",Helvetica, Verdana, Arial, sans-serif;
+color: #333;
+font-size: 0.8em;
+background-color: #ffffff;
+}
+
+code {
+background: #ffffd8;
+font-weight: normal;
+font-family: "DejaVu Sans Mono", consolas, "courier new", monospace;
+font-size: 0.8em;
+}
+
+ins {
+font-weight: bold;
+text-decoration: none;
+}
+
+img {
+border: 0;
+}
+
+abbr, acronym {
+border-bottom:1px dotted;
+}
+
+a:hover, a:focus {
+/* background-color:#DDDDDD;*/
+/*color:#ffff00;*/
+}
+
+.hidden, #hidden {
+visibility: hidden;
+}
+
+.visible, #visible {
+visibility: visible;
+}
+
+.collapsed , #collapsed{
+visibility: collapse;
+}
+
+
+.wichtig {
+color: #ff0000;
+font-size:  20pt;
+}
+
+td {
+border-color: #000000;
+}
+
+div#banner {
+  /*height: 35px !important;*/
+	margin: 6px;
+	display: table-cell;
+	/*padding: 5px;*/
+}
+
+div#menu {
+    padding: 0px 15px 5px 5px; /* -top: 120px */
+	margin: 5px;
+	width: 170px;
+	display:table-cell;
+}
+div#cnt {
+	display:table-cell;
+	width:100%;
+	vertical-align:top;
+}
+div#footer {
+	height: 40px;
+	font-size: 11px;
+}
+
+iframe {
+	margin: 0;
+	padding: 0;
+	border: 0;
+
+}
+
+iframe#inhalt {
+width: 100%;
+/*height: 700px;*/
+}
+
+img#imglogo {
+	width: 120px;
+}
+
+.gallery:hover {
+color: green;
+}
+
+.gallery{
+	font-weight: bold;
+	text-decoration: none !important;
+}
+
+.green {
+background-color: green;
+}
+
+h1.slogan {
+font-size: 28pt;
+color: #111;
+margin: 10px 0;
+}
+
+.no_underline {
+	text-decoration: none !important;
+}
+
+
+
+
+body {
+	/*margin-top: 40px;
+	margin-left: 60px;*/
+	background: #F2F6FA; /* url('../media/pixmap/blegtext.gif') repeat 0 0; */
+	color: #000000;
+}
+
+a {
+	color: #039;
+	text-decoration:none;
+}
+
+a:visited {
+	/* color: #0000FF;*/
+}
+
+a:hover {
+	color: #0000ff;
+	text-decoration: underline;
+}
+
+a:active, a.active {
+	color: #000066;
+}
+
+img#imglogo {
+	height: 120px;
+	width: auto;
+}
+
+img#banner {
+	width: 600px;
+	height: 60px !important;
+	border: 0;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/*td.title {
+background: #ffff80;
+}*/
+
+.slogan {
+	font-family: 'brains handwriting';
+}
+
+.userbar{
+	color: #356;
+	background: #bdf;
+	padding-left: 5px;
+}
+
+.big {
+	font-size: 18pt;
+}
+
+.menuentry{
+	width: 150px;
+	/*background: url('../media/pixmap/menu/vbtn.gif') no-repeat 0 0;*/
+	display: inline-block;
+    padding-left: 5px;
+    min-height: 24px;
+    padding-top: 5px;
+	font-weight: bold;
+	text-decoration: none !important;
+	color: #000000 ;
+	font-size: 11pt;
+}
+
+.menuentry:hover {
+	/* background: url('../media/pixmap/menu/vbtn_a.gif') no-repeat 0 0; */
+	color: #66f;
+}
+
+.menuentry.empty {
+	background: none;
+}
+
+.menuentry.active {
+	color: #66f;
+}
+
+div#footer, div#footer a {
+	text-align: center;
+	vertical-align: bottom;
+	color: #ddd;
+	margin-top: 20px;
+	text-shadow: 1px 1px 1px #333333;
+}
+
+div#footer a:hover{
+	text-decoration: underline;
+}
+
+/* Styles für die Überschriften, Rahmen, Pseudolinks & Texte */
+p.text, div.text, .baseBP p,
+.shcontent, .einr {
+	padding: 5px 10px;
+}
+p.text em, div.text em, .baseBP p em{
+	color: #333;
+}
+
+p.code,div.code,span.code, code{
+	background: #ffffd8;
+	font-family: "DejaVu Sans Mono", consolas, "courier new", monospace;
+	font-size: 0.9em;
+	font-weight:bold;
+}
+
+p.code, div.code{
+		padding: 5px;
+}
+
+.baseBP h1, .baseBP h2,.baseBP h3 {
+	color:#154268;
+	text-shadow: 2px 2px 2px #BBBBBB;
+}
+.baseBP h2{
+	font-size:14pt;
+	margin-top:16px;
+	margin-bottom:5px;
+}
+.baseBP h3{
+	font-size:12pt;
+	margin-top:10px;
+	margin-bottom:5px;
+}
+.baseBP h1{
+	font-size:18pt;
+}
+.baseBP ul{
+	margin:0;
+}
+.pseudolnk{cursor:pointer;color:#154268;}
+.pseudolnk:hover{color:#000000;}
+div.bpSect{margin: 5px;padding: 15px;border: 1px solid #8DA4B7;}
+
+.baseBP h1#postTopic{
+	font-size:18pt;
+	color:#154268;
+	text-shadow: 2px 2px 2px #BBBBBB;
+}
+.baseBP h3 em, .baseBP h2 em, .baseBP h1 em, .baseBP h4 em, .baseBP h5 em{
+	font-style: normal;
+	color: #4C80FF;
+	font-size: 0.8em;
+}
+
+.baseBP fieldset, .baseBP legend {
+	border: 1px #8DA4B7 solid;
+}
+.baseBP fieldset {
+	background: #e0e6ff;
+	margin: 10px 5px;
+	padding-top:2px;
+}
+.baseBP legend{
+	padding: 2px 6px;
+}
+
+.baseBP code.Termblock, .baseBP pre.Termblock {
+	background: #001020;
+	color: #51C2F5;
+	padding: 10px 15px;
+	font-weight: normal;
+	font-size: 10pt;
+	margin: 10px 10px;
+	display: inline-block;
+	width: 90%;
+	min-width: 500px;
+}
+
+.baseBP .Termblock strong {
+	color: #92FFFF;
+}
+
+.baseBP p { margin:0; }
+.baseBP h1, .baseBP h2, .baseBP h3 { margin-top:30px !important; }
+.baseBP .clear { clear:both; }
+
+
+
+/*###*/
+.toc {
+	font-size: 14pt;
+}
