@@ -9,6 +9,10 @@
 #include <SFGUI/Entry.hpp>
 #include <SFGUI/Separator.hpp>
 
+#include <boost/lexical_cast.hpp>
+
+#include <string>
+
 using namespace sfg;
 
 GraphBook::GraphBook( const Geom::Vec2 Size )
@@ -237,11 +241,11 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				t.hRB1 = RadioButton::Create( "show selection on horizontal axis", t.hRB0->GetGroup() );
 				t.hRB1->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeSelectionToggle, this );
 				t.hRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
-					t.hFrom = Entry::Create( std::to_string( t.hLimit.x ) );
+					t.hFrom = Entry::Create( boost::lexical_cast<std::string>( t.hLimit.x ) );
 						t.hFrom->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeFromEntryGainFocus , this );
 						t.hFrom->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
 						t.hFrom->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-					t.hTo = Entry::Create( std::to_string( t.hLimit.y ) );
+					t.hTo = Entry::Create( boost::lexical_cast<std::string>( t.hLimit.y ) );
 						t.hTo->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeToEntryGainFocus , this );
 						t.hTo->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
 						t.hTo->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
@@ -252,7 +256,7 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				t.hRB2 = RadioButton::Create( "show only the last", t.hRB0->GetGroup() );
 				t.hRB2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeEndToggle, this );
 				t.hEndBox = Box::Create( Box::Orientation::HORIZONTAL );
-					t.hEndEntry = Entry::Create( std::to_string( t.hEndOffset ) );
+					t.hEndEntry = Entry::Create( boost::lexical_cast<std::string>( t.hEndOffset ) );
 						t.hEndEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeEndEntryGainFocus , this );
 						t.hEndEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
 						t.hEndEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
@@ -271,11 +275,11 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				t.vRB1 = RadioButton::Create( "show selection on vertical axis", t.vRB0->GetGroup() );
 				t.vRB0->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingRange, this );
 				t.vRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
-					t.vFrom = Entry::Create( std::to_string(t.vLimit.x ) );
+					t.vFrom = Entry::Create( boost::lexical_cast<std::string>(t.vLimit.x ) );
 						t.vFrom->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeFromEntryGainFocus , this );
 						t.vFrom->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
 						t.vFrom->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
-					t.vTo = Entry::Create( std::to_string( t.vLimit.y ) );
+					t.vTo = Entry::Create( boost::lexical_cast<std::string>( t.vLimit.y ) );
 						t.vTo->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeToEntryGainFocus , this );
 						t.vTo->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
 						t.vTo->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
