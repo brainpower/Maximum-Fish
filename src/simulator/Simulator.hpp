@@ -68,11 +68,9 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		void init();
 		/// Create a new Simulation from a seed
-		void NewSimulation( int seed = 0);
-		void NewNonRandomSimulation(std::shared_ptr<std::vector<std::shared_ptr<Species>>> _spec, std::shared_ptr<std::vector<int>> _specnum, int seed = 0);
+		void NewSimulation(std::shared_ptr<std::vector<std::shared_ptr<Species>>> _spec, std::shared_ptr<std::vector<int>> _specnum, int seed = 0);
 		/// Create a new Simulation from the given rng, Terrain, species and Creatures
-		void NewSimulation( std::shared_ptr<SimState> state, std::mt19937* rng );
-		void NewNonRandomSimulation( std::shared_ptr<SimState> state, std::mt19937* rng);
+		void NewSimulation( std::shared_ptr<SimState> state, std::mt19937* rng);
 
 		/// simulate one tick
 		void advance();
@@ -209,6 +207,8 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::shared_ptr<sbe::GraphPlotter> DeathGraph;
 
 		std::vector<int> ProcessingTimes;
+		std::shared_ptr<std::vector<std::shared_ptr<Species>>> m_specs;
+		std::shared_ptr<std::vector<int>> m_counts;
 
 };
 
