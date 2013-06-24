@@ -262,6 +262,7 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.carnivore"));
 		}
 	}
+	s_list.select(0);
 	return main;
 }
 
