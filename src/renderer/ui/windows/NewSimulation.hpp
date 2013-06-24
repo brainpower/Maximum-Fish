@@ -5,6 +5,7 @@
 
 #include "sbe/event/EventUser.hpp"
 #include "sbe/sfg/List.hpp"
+#include "../../../simulator/Generator.hpp"
 #include <SFML/System/Vector2.hpp>
 
 #include "../../../simulator/world/Species.hpp"
@@ -36,6 +37,8 @@ class NewSimWindow : public sbe::EventUser
 		void newSpeciesClick();
 		void abortClick();
 		void createSpecies();
+		void modifySpecies(std::shared_ptr<Species> _spec);
+		std::shared_ptr<Species> createSpecies( Species::SPECIES_TYPE type );
 
 		sfg::SharedPtr<sfg::Entry> entry( const std::string& cfg, sf::Vector2f req = { 60, 5 } );
 		sfg::SharedPtr<sfg::Entry> entry( std::string _str,int _t, sf::Vector2f req = { 60, 5 } );

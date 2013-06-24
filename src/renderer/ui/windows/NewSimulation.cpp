@@ -16,6 +16,7 @@ NewSimWindow::NewSimWindow()
 {
 	RegisterForEvent("KEY_SHOW_NEWSIM");
 	RegisterForEvent("SPECIES_GEN_CLICKED");
+	RegisterForEvent("SAVE_SPECIES");
 }
 
 void NewSimWindow::HandleEvent(Event& e)
@@ -25,6 +26,13 @@ void NewSimWindow::HandleEvent(Event& e)
 		CreateWindow();
 		Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
 	}
+
+	if( e.Is("SAVE_SPECIES", typeid(std::shared_ptr<Species>)))
+	{
+		modifySpecies(boost::any_cast<std::shared_ptr<Species>>(e.Data()));
+	}
+
+
 	if( e.Is("SPECIES_GEN_CLICKED", typeid( std::string )))
 	{
 		std::string s =  boost::any_cast<std::string>(e.Data());
@@ -236,6 +244,24 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 
 	main->SetColumnSpacings( 2.0f );
 	main->SetRowSpacings( 2.0f );
+
+	t_species.push_back(createSpecies(Species::SPECIES_TYPE::HERBA));
+	t_species.push_back(createSpecies(Species::SPECIES_TYPE::HERBIVORE));
+	t_species.push_back(createSpecies(Species::SPECIES_TYPE::CARNIVORE));
+
+	for(std::shared_ptr<Species> spe : t_species)
+	{
+		s_list.addItem(spe->getName());
+		if(spe->getType() == Species::SPECIES_TYPE::HERBA)
+		{
+			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.plant"));
+		} else if(spe->getType() == Species::SPECIES_TYPE::HERBIVORE)
+		{
+			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.herbivore"));
+		} else {
+			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.carnivore"));
+		}
+	}
 	return main;
 }
 
@@ -285,6 +311,31 @@ void NewSimWindow::okClick()
 		auto n_tmp = std::make_shared<std::vector<int>>(t_species_count);
 		Module::Get()->QueueEvent(Event("NEW_NONRANDOM_SIM", std::make_pair(s_tmp, n_tmp)), true);
 	}
+}
+
+void NewSimWindow::modifySpecies(std::shared_ptr<Species> S)
+{
+	Species::SPECIES_TYPE type;
+	if(SpeciesType->GetText().toAnsiString().compare("HERBA") == 0)
+	{
+		type = Species::SPECIES_TYPE::HERBA;
+	} else if(SpeciesType->GetText().toAnsiString().compare("HERBIVORE") == 0) {
+		type = Species::SPECIES_TYPE::HERBIVORE;
+	} else {
+		type = Species::SPECIES_TYPE::CARNIVORE;
+	}
+
+	S->setMaxAge(boost::lexical_cast<int>(MaxAge->GetText().toAnsiString()));
+	S->setMaxHealth(boost::lexical_cast<float>(MaxHealth->GetText().toAnsiString()));
+	S->setMaxSpeed(boost::lexical_cast<float>(MaxSpeed->GetText().toAnsiString()));
+	S->setReach(boost::lexical_cast<float>(Reach->GetText().toAnsiString()));
+	S->setResistance(boost::lexical_cast<float>(Resistance->GetText().toAnsiString()));
+	S->setBreedingSpeed(boost::lexical_cast<int>(BreedingSpeed->GetText().toAnsiString()));
+	S->setMaxRegeneration(boost::lexical_cast<float>(MaxRegen->GetText().toAnsiString()));
+	S->setFoodRequirement(boost::lexical_cast<float>(FoodReq->GetText().toAnsiString()));
+	S->setWaterRequirement(boost::lexical_cast<float>(WaterReq->GetText().toAnsiString()));
+	S->setType( type );
+	S->setOptimalTemperature(boost::lexical_cast<int>(OptimalTemperature->GetText().toAnsiString()));
 }
 
 void NewSimWindow::abortClick()
@@ -347,4 +398,30 @@ void NewSimWindow::createSpecies()
 	S->setOptimalTemperature(boost::lexical_cast<int>(OptimalTemperature->GetText().toAnsiString()));
 
 	t_species.push_back(S);
+}
+
+std::shared_ptr<Species> NewSimWindow::createSpecies( Species::SPECIES_TYPE type )
+{
+	std::uniform_int_distribution<int> type_rnd(0,2);
+
+	std::string name;
+	switch (type)
+	{
+		case Species::SPECIES_TYPE::HERBA:
+			name = "plant";
+		break;
+		case Species::SPECIES_TYPE::HERBIVORE:
+			name = "herbivore";
+		break;
+		case Species::SPECIES_TYPE::CARNIVORE:
+			name = "carnivore";
+		break;
+	}
+
+	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(t_species.size()), type) );
+
+	S->setType( type );
+	S->setOptimalTemperature( Engine::getCfg()->get<int>("sim.species.rnd.temp.min") );
+
+	return S;
 }
