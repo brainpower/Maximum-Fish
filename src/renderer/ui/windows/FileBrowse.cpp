@@ -13,6 +13,7 @@ FileBrowse::FileBrowse( const Geom::Vec2 Size, const std::string &title,
    : okEvt(okEvent), cancelEvt(cancelEvent) {
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "FB_SEL_CHANGED" );
+	RegisterForEvent( "KEY_PRESSED_ENTER" );
 	//RegisterForEvent();
 
 	CreateWindow( Size, title );
@@ -31,7 +32,7 @@ void FileBrowse::CreateWindow( const Geom::Vec2 Size, const std::string &title){
 	sfg::Button::Ptr btnCancel( sfg::Button::Create("Cancel") );
 	etyLoc = sfg::Entry::Create();
 	etyLoc->SetText(Engine::getCfg()->get<std::string>("sim.debugsavepath"));
-
+	
 	btnOK->GetSignal( sfg::Button::OnLeftClick ).Connect( &FileBrowse::onOkClicked, this);
 	btnCancel->GetSignal( sfg::Button::OnLeftClick ).Connect( &FileBrowse::onCancelClicked, this);
 
@@ -74,6 +75,8 @@ void FileBrowse::HandleEvent( Event& e )
 {
 	if( e.Is("FB_SEL_CHANGED", typeid(std::string)) )
 		updateFolderList(boost::any_cast<std::string>(e.Data()));
+	else if(e.Is("KEY_PRESSED_ENTER"))
+		updateFolderList(std::string(etyLoc->GetText()));
 }
 
 void FileBrowse::updateFolderList(const std::string &p){
@@ -112,5 +115,6 @@ void FileBrowse::updateFolderList(const std::string &p){
 
 	} else {
 		Engine::out() << "[fb] " << bp.string() << " exists: " << exists(bp) << ", is_dir: "<< is_directory(bp) << std::endl;
+		fldrLst->addItem("This folder doesn't exist. Click to create... (nyi!!)");
 	}
 }
