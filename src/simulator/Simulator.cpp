@@ -791,7 +791,8 @@ void Simulator::loadWhole(const std::string &loadPath)
 
 	std::mt19937* newGen = new std::mt19937();
 
-	if(!setState(latestState) ){
+	setState(latestState);
+	if( latestState->_numThreads != numThreads ){
 		Event e("EVT_LOAD_BAD", std::string("Error loading"));
 		Module::Get()->QueueEvent(e, true);
 
