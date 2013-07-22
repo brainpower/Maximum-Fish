@@ -85,7 +85,7 @@ std::shared_ptr<Species> Simulator::GetSpecies( const std::string& name, const s
 		if ( S->getName() == name) return S;
 	}
 
-	return s->_species->back(); // INVALID_SPECIES
+	return nullptr; // INVALID_SPECIES
 }
 
 void Simulator::HandleEvent(Event& e)
