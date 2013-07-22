@@ -78,6 +78,16 @@ std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
 	return _state->_species->back(); // INVALID_SPECIES
 }
 
+std::shared_ptr<Species> Simulator::GetSpecies( const std::string& name, const std::shared_ptr<SimState> s )
+{
+	for ( auto& S : *s->_species )
+	{
+		if ( S->getName() == name) return S;
+	}
+
+	return s->_species->back(); // INVALID_SPECIES
+}
+
 void Simulator::HandleEvent(Event& e)
 {
 	if(e.Is("EVT_TICK") && isInitialized )

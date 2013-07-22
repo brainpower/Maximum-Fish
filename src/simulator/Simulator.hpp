@@ -104,6 +104,8 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		{
 			return Instance->getSpecies(name);
 		}
+		static std::shared_ptr<Species> GetSpecies(const std::string& name, const std::shared_ptr<SimState> s );
+
 
 		static std::shared_ptr<Terrain> GetTerrain()
 		{

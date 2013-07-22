@@ -37,7 +37,7 @@ SimStateIOPlugin::ObjPtr SimStateIOPlugin::loadObject(const boost::property_tree
 			} else if (e.first == "Species") {
 				re->_species->push_back(siop->loadObject(e));
 			} else if (e.first == "Creature") {
-				re->_creatures.push_back(ciop->loadObject(e));
+				re->_creatures.push_back(ciop->loadObject(e, re));
 			}
 		}
 
