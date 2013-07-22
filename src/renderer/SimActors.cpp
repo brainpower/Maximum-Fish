@@ -91,12 +91,20 @@ void SimActors::HandleEvent(Event& e)
 	{
 		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+
 	}
-	else if ( (e.Is("EVT_SAVE_GOOD") || e.Is("EVT_LOAD_GOOD")) )
+	else if ( e.Is("EVT_LOAD_GOOD") )
 	{
-		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD OK!", "Saving / Loading successfull!") );
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "LOAD OK!", "Loading successfull!") );
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+
+		SetCamLimits();
 	}
+	else if ( e.Is("EVT_SAVE_GOOD") )
+    {
+        std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE OK!", "Saving successfull!") );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+    }
 	else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> )))
     {
 		m_highlight = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );
@@ -183,6 +191,8 @@ void SimActors::SetCamLimits()
 
 	sbe::Screen::sCam()->setTargetCenter(sf::Vector2f((TerrainSize*TileSize)/2,(TerrainSize*TileSize)/2));
 	sbe::Screen::sCam()->zoom ((TerrainSize*TileSize) / sbe::Screen::sCam()->getTargetSize().y );
+
+	sbe::Screen::sCam()->printDebugInfo();
 }
 
 void SimActors::CreateTerrainVertexArray(TileRenderList& r)

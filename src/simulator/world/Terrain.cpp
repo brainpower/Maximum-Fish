@@ -294,10 +294,10 @@ void Terrain::CreateParallelisationGraph()
 		}
 	}
 
-	Engine::out() << "Parallelisation: " << Colors.size() << " Colors/IDs" << std::endl;
-	int i = 0;
-	for ( auto it = Colors.begin(); it != Colors.end(); ++it )
-		Engine::out() << "    ID:" << ++i << " - Tiles: " << it->size() << std::endl;
+//	Engine::out() << "Parallelisation: " << Colors.size() << " Colors/IDs" << std::endl;
+//	int i = 0;
+//	for ( auto it = Colors.begin(); it != Colors.end(); ++it )
+//		Engine::out() << "    ID:" << ++i << " - Tiles: " << it->size() << std::endl;
 
 }
 
@@ -456,16 +456,20 @@ void Terrain::calculateHumidity()
 	*/
 }
 
-void Terrain::UpdateTileMap()
+void Terrain::calcMaxElevation()
 {
-	maxElevation = 0;
+    maxElevation = 0;
 	for ( int y = 0; y < Size.y; ++y)
 		for ( int x = 0; x < Size.x; ++x)
 		{
 			float h = getTile(Geom::Vec2f(x,y))->getHeight();
 			if ( h > maxElevation ) maxElevation = h;
 		}
+}
 
+void Terrain::UpdateTileMap()
+{
+    calcMaxElevation();
 
 	tilemapImage.reset ( new sf::Image);
 	tilemapImage->create(Size.x ,Size.y);

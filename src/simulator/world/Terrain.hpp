@@ -80,6 +80,7 @@ class Terrain
 
 		// calculate Rainmap
 		void calculateHumidity();
+        void calcMaxElevation();
 
 		/// Size of the Terrain in tiles x/y
 		Geom::Vec2 Size;

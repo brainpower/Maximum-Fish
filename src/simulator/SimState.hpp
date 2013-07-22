@@ -1,16 +1,12 @@
-
 #ifndef SIMSTATE_HPP
 #define SIMSTATE_HPP
-
-#include <boost/thread.hpp> // thread_specific_ptr ?
 
 #include <list>
 #include <vector>
 #include <random>
 #include <memory> // shared_ptr
 
-#include "world/Species.hpp"
-
+class Species;
 class Tile;
 class Terrain;
 class Creature;

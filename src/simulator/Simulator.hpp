@@ -56,8 +56,6 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 			RESET_SIMULATION	| start a new simulation in paused mode ( default seed )
 			EVT_SAVE_TERRAIN	| save the terrain
 			EVT_SAVE_WHOLE		| save the complete simulation
-			EVT_SAVE_WHOLE_TEST | do a saveWhole() to `sim.debugsavepath`
-			EVT_LOAD_WHOLE_TEST | do a loadWhole() from `sim.debugsavepath`
 			EVT_LOAD_WHOLE		| load a simulation
 			TERRAIN_CLICKED		| handle a click on the terrain
 			SET_SIM_TPS			| set the simulation speed
@@ -166,7 +164,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		int _freezeRate;
 		/// how many ticks should be simulated? Not changed so the simulated amount is still remembered
 		int TicksToSim;
-		/// how many ticks should be simulated? 0 for infinite
+		/// how many ticks are left to be simulated? 0 for infinite
 		int simulateTicks;
 
 		bool isPaused;
@@ -177,9 +175,11 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::vector<std::shared_ptr<boost::thread>> threads;
 		std::shared_ptr<boost::barrier> startBarrier;
 		std::shared_ptr<boost::barrier> endBarrier;
-		/// thread entry point
+
+		/// create and initialize threads ( seed
 		void initThreads();
 		void stopThreads();
+		/// thread entry point
 		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed);
 
 		int numThreads;
@@ -190,6 +190,9 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 
 		// Statistics
+
+		void resetStats();
+
 		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
 		int CreatureCounts[3];
 

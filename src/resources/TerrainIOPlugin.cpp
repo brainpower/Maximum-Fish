@@ -42,6 +42,7 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 					}
 				}
 
+        re->calcMaxElevation();
     }
     catch ( boost::property_tree::ptree_error e )
     {

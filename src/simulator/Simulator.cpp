@@ -136,16 +136,10 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", _state->_terrain, true);
 	}
-	else if (e.Is("EVT_SAVE_WHOLE_TEST") && isInitialized ) {
-		saveWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
-	}
-	else if (e.Is("EVT_LOAD_WHOLE_TEST") && isInitialized ) {
-		loadWhole( Engine::getCfg()->get<std::string>("sim.debugsavepath"));
-	}
 	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string)) && isInitialized ) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
 	}
-	else if (e.Is("EVT_LOAD_WHOLE", typeid(std::string)) && isInitialized ) {
+	else if (e.Is("EVT_LOAD_WHOLE", typeid(std::string))) {
 		loadWhole(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_QUIT"))
@@ -190,11 +184,6 @@ void Simulator::init()
 
 	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
 
-	EatenCounts.push_back(0);
-	StarvedCounts.push_back(0);
-	FrozenCounts.push_back(0);
-	ThirstCounts.push_back(0);
-	OldCounts.push_back(0);
 }
 
 
@@ -217,10 +206,10 @@ void Simulator::NewSimulation( std::shared_ptr<std::vector<std::shared_ptr<Speci
 	_state = state;
 
 	state->_terrain->CreateDebugTerrain( _state->_currentSeed );
+
+    Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
 	Generator G (state, *rng);
-
 	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
-
 	G.CreateCreatures(_spec, _specnum, countMult);
 
 	NewSimulation( state, rng);
@@ -239,45 +228,20 @@ void Simulator::NewSimulation(
 		initThreads();
 	}
 
-
 	state->_currentTick = 0;
 	simulateTicks = 0;
 	TicksToSim = 0;
-
-	//Engine::out(Engine::INFO) << "[Simulator] Random engine" << std::endl;
-	// ^ crap, there's nothing here that has anything to do with random generators
-
 	state->_numGenerated = 0;
 
 	Creature::loadConfigValues();
 
-	Engine::out(Engine::INFO) << "[Simulator] Terrain" << std::endl;
-	//Terra = newTerrain; // we've done that before already
-
-
-	Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
-	CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
-
-	// generator writes to state directly
-	//state->_creatures.clear();
-	//state->_creatures = newCreatures;
-
+    resetStats();
 	// count Creatures once
 	for( auto C : state->_creatures )
 	{
 		CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
 		C->updateTileFromPos();
 	}
-
-	// generator writes to state directly
-	//state->_species.clear();
-	//state->_species = newSpecies;
-
-	// add default species
-	//std::shared_ptr<Species> S ( new Species( "UNDEFINED_SPECIES", Species::SPECIES_TYPE::HERBA));
-	//state->_species->push_back( S );
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
@@ -308,9 +272,6 @@ void Simulator::NewSimulation(
 	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
 
-	// set a valid thread num in state 0, weirdly Simulator::numThreads seems to contain a invalid number of threads
-	//_state->_numThreads = Engine::getCfg()->get<int>("sim.numThreads");
-	Engine::out(Engine::SPAM) << "[Simulator][debug] Sim::numThreads " << numThreads << ", state: " << state->_numThreads << ", _state: " << _state->_numThreads << std::endl;
 
 	_pod->clear();
 	Engine::out() << "[Sim] Freeze" << std::endl;
@@ -618,6 +579,29 @@ void Simulator::logTickStats()
 	//ProcessingTimes.push_back(  )
 }
 
+void Simulator::resetStats()
+{
+    CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+    EatenCounts.clear();
+	StarvedCounts.clear();
+	FrozenCounts.clear();
+	ThirstCounts.clear();
+	OldCounts.clear();
+
+	EatenCounts.push_back(0);
+	StarvedCounts.push_back(0);
+	FrozenCounts.push_back(0);
+	ThirstCounts.push_back(0);
+	OldCounts.push_back(0);
+
+	CarnivoreCounts.clear();
+	HerbaeCounts.clear();
+	HerbivoreCounts.clear();
+}
+
 void Simulator::CreatePlotters()
 {
 	if(!isInitialized) return;
@@ -764,8 +748,8 @@ void Simulator::saveWhole(const std::string &savePath){
 	Engine::getCfg()->set("sim.paused", isPaused);
 }
 
-void Simulator::loadWhole(const std::string &loadPath){
-	if(!isInitialized) return;
+void Simulator::loadWhole(const std::string &loadPath)
+{
 
 	bool wasPaused = isPaused;
 	isPaused = true; // pause sim while saving
@@ -773,7 +757,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	if(loadPath.empty() || !Engine::GetIO()->addPath(loadPath))
 	{
-		Event e("EVT_LOAD_BAD", std::string("Load path invalid ( sim.debugsavepath in config )!"));
+		Event e("EVT_LOAD_BAD", std::string("Load path \""+ loadPath +"\" invalid!"));
 		Module::Get()->QueueEvent(e, true);
 		return;
 	}
@@ -783,7 +767,7 @@ void Simulator::loadWhole(const std::string &loadPath){
 
 	if(tmp.empty())
 	{
-		Event e("EVT_LOAD_BAD", std::string("Error loading"));
+		Event e("EVT_LOAD_BAD", std::string("Error loading from \"" + loadPath + "\"!"));
 		Module::Get()->QueueEvent(e, true);
 
 		Engine::out(Engine::ERROR) << "[Simulator]Error loading from '" << loadPath << "'!" << std::endl;
