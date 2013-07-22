@@ -1,6 +1,8 @@
 #include "MainMenu.hpp"
-#include "FileBrowse.hpp"
+
+#include "sbe/sfg/FileBrowse.hpp"
 #include "sbe/sfg/Message.hpp"
+
 #include "SFGUI/Window.hpp"
 #include "SFGUI/Button.hpp"
 #include "SFGUI/Box.hpp"
@@ -61,7 +63,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 
 
 	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
-	fb = std::make_shared<FileBrowse>(Geom::Vec2{600,400});
+	fb = std::make_shared<sbe::FileBrowse> ( Geom::Vec2{600,400} );
 
 }
 

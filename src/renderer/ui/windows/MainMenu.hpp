@@ -10,7 +10,10 @@ namespace sfg
 {
 	class Window;
 }
-class FileBrowse;
+
+namespace sbe {
+    class FileBrowse;
+}
 
 /// MainMenu
 class MainMenu : public sbe::EventUser
@@ -31,7 +34,7 @@ class MainMenu : public sbe::EventUser
 		void updatePosition();
 
 		sfg::SharedPtr<sfg::Window> Win;
-		std::shared_ptr<FileBrowse> fb;
+		std::shared_ptr<sbe::FileBrowse> fb;
 
 		unsigned int currentlabeltext;
 
