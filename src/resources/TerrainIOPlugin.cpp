@@ -20,7 +20,9 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 
         re.reset( new Terrain() );
 
-        re->setHumidityFactor( pt.get<float>("humidityFactor") );
+        re->humidityFactor = pt.get<float>("humidityFactor");
+        re->globalTemp     = pt.get<float>("globalTemp");
+        re->maxElevation   = pt.get<float>("maxElevation");
         re->Size.x = pt.get<int>("size.x");
         re->Size.y = pt.get<int>("size.y");
 
@@ -62,7 +64,9 @@ bool TerrainIOPlugin::saveObject( const std::string& name,const Terrain &t, boos
 
         pt.put<std::string>("Name", name);
 
-        pt.put<float>("humidityFactor", t.getHumidityFactor());
+        pt.put<float>("humidityFactor", t.humidityFactor);
+        pt.put<float>("globalTemp",     t.globalTemp);
+        pt.put<float>("maxElevation",   t.maxElevation);
 
         pt.put<int>("size.x", t.Size.x);
         pt.put<int>("size.y", t.Size.y);
