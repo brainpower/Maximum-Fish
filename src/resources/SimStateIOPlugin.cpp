@@ -32,14 +32,13 @@ SimStateIOPlugin::ObjPtr SimStateIOPlugin::loadObject(const boost::property_tree
 		re->_species = std::make_shared<std::vector<std::shared_ptr<Species>>>();
 
 		for( const ptree::value_type& e : pt){
-			if(e.first == "Terrain"){
-				re->_terrain = tiop->loadObject(e);
-			} else if (e.first == "Species") {
-				re->_species->push_back(siop->loadObject(e));
-			} else if (e.first == "Creature") {
-				re->_creatures.push_back(ciop->loadObject(e, re));
-			}
+			if(e.first == "Terrain")       re->_terrain = tiop->loadObject(e);
+			else if (e.first == "Species") re->_species->push_back(siop->loadObject(e));
 		}
+		for( const ptree::value_type& e : pt)
+			if (e.first == "Creature") 
+				re->_creatures.push_back(ciop->loadObject(e, re));
+
 
 		if(!re->_terrain || re->_species->empty() || re->_creatures.empty()) {
 			Engine::out(Engine::ERROR) << "[SimStateIOPlugin] Error loading SimState from ptree!" << std::endl;
