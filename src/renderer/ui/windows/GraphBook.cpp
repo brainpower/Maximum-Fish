@@ -23,6 +23,7 @@ GraphBook::GraphBook( const Geom::Vec2 Size )
 	RegisterForEvent( "TOGGLE_SHOW_GRAPHBOOK" );
 	RegisterForEvent( "ADD_GRAPH_TO_BOOK" );
 	RegisterForEvent( "KEY_PRESSED_ENTER" );
+	RegisterForEvent( "RESET_UI" );
 	RegisterForEvent( "debug_reload_graph" );
 	CreateWindow( Size );
 	Win->Show( false );
@@ -34,6 +35,10 @@ void GraphBook::CreateWindow( const Geom::Vec2 Size )
 	Win->SetTitle( "GraphBook" );
 		Tabs = Notebook::Create();
 		Tabs->SetTabPosition( Notebook::TabPosition::LEFT );
+		// add an empty label, notebook requires this
+		Label::Ptr label = Label::Create( "No graph" );
+        Label::Ptr label2 = Label::Create( "There are no graphs available at this time." );
+        Tabs->SetCurrentPage( Tabs->AppendPage( label2, label ) );
 	Win->Add( Tabs );
 	Win->SetRequisition( sf::Vector2f( Size.x, Size.y ) );
 	updatePosition();
@@ -45,11 +50,15 @@ void GraphBook::HandleEvent( Event& e )
 {
 	if ( UpdateTimer.getElapsedTime() > sf::seconds( 1.0 ) && Win->IsGloballyVisible() )
 	{
-		UpdateGraphSettings(cTT());
-		PlotGraph(cTT());
+	    if ( hasValidTab() )
+        {
+            UpdateGraphSettings(cTT());
+            PlotGraph(cTT());
+        }
 		UpdateTimer.restart();
 	}
-	else if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
+
+	if ( e.Is( "TOGGLE_SHOW_GRAPHBOOK" ) )
 	{
 		if ( Win->IsGloballyVisible() )
 		{
@@ -58,7 +67,8 @@ void GraphBook::HandleEvent( Event& e )
 		else
 		{
 			updatePosition();
-			PlotGraph(cTT());//not realy clicked, but for updating the current tab
+			if ( hasValidTab() )
+                PlotGraph( cTT() ); //not really clicked, but for updating the current tab
 			Win->Show( true );
 			Win->GrabFocus();
 			UpdateTimer.restart();
@@ -66,6 +76,7 @@ void GraphBook::HandleEvent( Event& e )
 	}
 	else if ( e.Is( "ADD_GRAPH_TO_BOOK", typeid( std::pair<std::string, std::shared_ptr<sbe::GraphPlotter>> ) ) )
 	{
+	    //Engine::out() << "[GraphBook] Got ADD_GRAPH_TO_BOOK Event" << std::endl;
 		auto x = boost::any_cast<std::pair<std::string, std::shared_ptr<sbe::GraphPlotter>>>( e.Data() );
 		AddNewGraph( x.first, x.second );
 	}
@@ -74,8 +85,15 @@ void GraphBook::HandleEvent( Event& e )
 		handleEntryInput();
 		//reviewEntryInput();
 	}
+	else if ( e.Is( "RESET_UI" ))
+	{
+	    Engine::out() << "[GraphBook] clearing." << std::endl;
+	    clearGraphs();
+	}
 	else if ( e.Is( "debug_reload_graph" ) )
 	{
+	    if ( !hasValidTab() ) return;
+
 		UpdateGraphSettings(cTT());
 		PlotGraph(cTT());
 	}
@@ -166,7 +184,6 @@ void GraphBook::vViewingLogarithmicToggle()
 	if ( !hasValidTab() )
 		return;
 	auto t = cTT();
-	t.vLogAxBox->Show( t.vLogAxBtn->IsActive() );
 	UpdateGraphSettings( t );
 }
 
@@ -289,25 +306,11 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				t.vRangeBox->Show( false );
 				t.vLogAxBtn = CheckButton::Create( "Make vertical axis logarithmic" );
 				t.vLogAxBtn->GetSignal( CheckButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-				t.vLogAxBox = Box::Create( Box::Orientation::HORIZONTAL, 3.0f );
-					t.logBase2 = RadioButton::Create( "2     " );
-					t.logBase2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-					t.logBaseE = RadioButton::Create( "e     ", t.logBase2->GetGroup() );
-					t.logBaseE->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-					t.logBase10 = RadioButton::Create( "10     ", t.logBase2->GetGroup() );
-					t.logBase10->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
-					t.logBase10->SetActive( true );
-				t.vLogAxBox->Pack( Label::Create( "Base:   " ), false, false );
-				t.vLogAxBox->Pack( t.logBase2, false, false );
-				t.vLogAxBox->Pack( t.logBaseE, false, false );
-				t.vLogAxBox->Pack( t.logBase10, false, false );
-				t.vLogAxBox->Show( false );
 			vAxisBox->Pack( t.vRB0, false, false );
 			vAxisBox->Pack( t.vRB1, false, false );
 			vAxisBox->Pack( t.vRangeBox, false, false );
 			vAxisBox->Pack( Separator::Create(), false, false );
 			vAxisBox->Pack( t.vLogAxBtn, false, false );
-			vAxisBox->Pack( t.vLogAxBox, false, false );
 		optionBox->Pack( Separator::Create( Separator::Orientation::VERTICAL ), false, false );
 		optionBox->Pack( vAxisBox, false, false );
 		//uncomment the following line to ensure space for axis-range-entrys even if they are not visible
@@ -315,13 +318,20 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 	box->Pack( optionBox, false, false );
 	Label::Ptr label = Label::Create( displayName );
 	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotCurrentGraph, this );
+
+
 	Tabs->SetCurrentPage( Tabs->AppendPage( box, label ) );
 
+    // first Tab, remove the placeholder
+    Label::Ptr tmp = DynamicPointerCast<Label>( Tabs->GetNthTabLabel(0) );
+    if ( Tabs->GetPageCount() == 2 && tmp->GetText() == "No graph" )
+        Tabs->RemovePage(0);
+
+
 	graphTupleList.push_back( t );
-	Engine::out() << "setting new graph" << std::endl;
 	UpdateGraphSettings( t );
 
-	Engine::out() << "set new graph" << std::endl;
+	Engine::out() << "[GraphBook] New Graph: " << displayName << std::endl;
 }
 
 void GraphBook::UpdateGraphSettings( graphTuple& GT )
@@ -343,7 +353,7 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	G->getGraph().dynY = ( activeRadioButton == 0 );
 	G->getGraph().AxisSize.y = stopCorner.y - startCorner.y;
 	G->getGraph().logScale = ( GT.vLogAxBtn->IsActive() );
-	G->getGraph().logBase = ( GT.logBase2->IsActive() ? 2 : ( GT.logBaseE->IsActive() ? 2.71828 : 10 ) );
+	G->getGraph().logBase = 2;
 
 	G->getGraph().logScale = GT.vLogAxBtn->IsActive();
 
@@ -356,6 +366,7 @@ GraphBook::graphTuple& GraphBook::cTT()
 {
 	/// the way to prevent return value if current page = -1 is to check hasValidTab() first
 	int i = Tabs->GetCurrentPage();
+	//Engine::out() << "Tab index accessed is: " << i << std::endl;
 	return graphTupleList.at( i );
 }
 
@@ -384,7 +395,19 @@ void GraphBook::PlotGraph( graphTuple& GT )
 
 bool GraphBook::hasValidTab()
 {
-	return ( Tabs->GetCurrentPage() >= 0 );
+    if ( Tabs->GetCurrentPage() < 0 || Tabs->GetPageCount() <= 0 ) return false;
+
+    // we have tabs, check for "valid" tabs, not the placeholder one
+
+//    Engine::out() << "[GraphBook] Hasvalidtab: " << Tabs->GetPageCount() << " Tabs" << std::endl;
+
+
+    Label::Ptr tmp = DynamicPointerCast<Label>( Tabs->GetNthTabLabel(0) );
+//    Engine::out() << "[GraphBook] Label: " << tmp->GetText().toAnsiString() << " Tabs" << std::endl;
+    if ( tmp->GetText() == "No graph" )
+        return false;
+
+    return true;
 }
 
 void GraphBook::updatePosition()
@@ -396,8 +419,23 @@ void GraphBook::updatePosition()
 
 int GraphBook::entryVal( sfg::SharedPtr <sfg::Entry>& E )
 {
-	int value = boost::lexical_cast<int>( E->GetText().toAnsiString().empty() ? "0" : E->GetText().toAnsiString() );
+    int value = boost::lexical_cast<int>( E->GetText().toAnsiString().empty() ? "0" : E->GetText().toAnsiString() );
 	E->SetText( boost::lexical_cast<std::string>( value ) );
 	E->SetCursorPosition( 99 );
 	return value;
+}
+
+void GraphBook::clearGraphs()
+{
+    while ( Tabs->GetPageCount() > 1 )
+        Tabs->RemovePage(0);
+
+    Label::Ptr label = Label::Create( "No graph" );
+    Label::Ptr label2 = Label::Create( "There are no graphs available at this time." );
+	Tabs->SetCurrentPage( Tabs->AppendPage( label2, label ) );
+
+    Tabs->RemovePage(0);
+
+    //Tabs->SetCurrentPage( -1 );
+    graphTupleList.clear();
 }

@@ -26,7 +26,7 @@ class Overlays : sbe::EventUser
 			--------------------|---------------------------
 			OVERLAY_CLICK		| std::string
 			DISPLAY_MAP			| std::shared_ptr<MapPlotter>
-			CLEAR_OVERLAYS    | -
+			RESET_UI    | Remove all overlays
 		*/
 		void HandleEvent( Event& e);
 

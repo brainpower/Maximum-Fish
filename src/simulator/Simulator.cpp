@@ -123,6 +123,15 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
+
+	    if ( !m_specs || !m_counts)
+        {
+            std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "No Simulation started.", "Please start a Simulation via 'New simulation' from the Main Menu before resetting." ));
+
+            Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
+            return;
+        }
+
 		bool wasPaused = isPaused;
 		isPaused = true;
 		Engine::getCfg()->set("sim.paused", isPaused);
@@ -220,6 +229,8 @@ void Simulator::NewSimulation(
 	std::mt19937* rng)
 {
 
+    Module::Get()->QueueEvent("RESET_UI", true);
+
 	state->_seeder.reset( rng ); // must do it this early for initThreads to work
 
 	if ( multiThreaded)
@@ -264,19 +275,11 @@ void Simulator::NewSimulation(
 
 	RendererUpdate.restart();
 
-	Engine::out() << "[Simulator] Init Graphs for GraphBook" << std::endl;
+
 	CreatePlotters();
-	auto data = std::make_pair( std::string( "Population" ), CountGraph );
-	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
-
-	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
-	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
-
 
 	_pod->clear();
-	Engine::out() << "[Sim] Freeze" << std::endl;
 	_pod->freeze(_state);
-	Engine::out() << "[Sim] Freezed - " << _pod->peekTop()->_currentTick << "/" << _pod->peekTop()->_numThreads << std::endl;
 }
 
 void Simulator::initThreads()
@@ -551,6 +554,7 @@ void Simulator::parallelTick()
 			(*(++it))->done = false;
 		}
 	}
+
 	EatenCounts.push_back((int)eaten);
 	StarvedCounts.push_back((int)starved);
 	FrozenCounts.push_back((int)frozen);
@@ -600,33 +604,49 @@ void Simulator::resetStats()
 	CarnivoreCounts.clear();
 	HerbaeCounts.clear();
 	HerbivoreCounts.clear();
+
+    CarnivoreCounts.push_back(0);
+	HerbaeCounts.push_back(0);
+	HerbivoreCounts.push_back(0);
+
 }
 
 void Simulator::CreatePlotters()
 {
 	if(!isInitialized) return;
 
+    Engine::out() << "[Simulator] Creating Graphs for GraphBook" << std::endl;
+
 	CountGraph.reset(new sbe::GraphPlotter );
 	DeathGraph.reset(new sbe::GraphPlotter );
+
 	{
-	sbe::Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
-	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
-	g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
-	g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
-	g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
+        sbe::Graph g;
+        g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+        g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
+        g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
+        g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
+        g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
 	CountGraph->setGraph( g );
 	}
 
-	sbe::Graph g;
-	g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
-	g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
-	g.addCurve( sbe::Curve("Dead - Eaten", EatenCounts, sf::Color::Black) );
-	g.addCurve( sbe::Curve("Dead - Frozen", FrozenCounts, sf::Color::Cyan) );
-	g.addCurve( sbe::Curve("Dead - Starved", StarvedCounts, sf::Color::Yellow) );
-	g.addCurve( sbe::Curve("Dead - Thirst", ThirstCounts, sf::Color::Magenta) );
-	g.addCurve( sbe::Curve("Dead - Old", OldCounts, sf::Color(0, 80, 0)) );
+        sbe::Graph g;
+        g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
+        g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
+        g.addCurve( sbe::Curve("Dead - Eaten", EatenCounts, sf::Color::Black) );
+        g.addCurve( sbe::Curve("Dead - Frozen", FrozenCounts, sf::Color::Cyan) );
+        g.addCurve( sbe::Curve("Dead - Starved", StarvedCounts, sf::Color::Yellow) );
+        g.addCurve( sbe::Curve("Dead - Thirst", ThirstCounts, sf::Color::Magenta) );
+        g.addCurve( sbe::Curve("Dead - Old", OldCounts, sf::Color(0, 80, 0)) );
 	DeathGraph->setGraph( g );
+
+    //Engine::out() << "[Simulator] Queueing Population graph" << std::endl;
+	auto data = std::make_pair( std::string( "Population" ), CountGraph );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
+
+    //Engine::out() << "[Simulator] Queueing MoD graph" << std::endl;
+	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
 
 }
 
