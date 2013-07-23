@@ -52,6 +52,7 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
 
 	//add wholeselectionbox to window
 	Win->Add( Topleveltabs );
+	Win->SetTitle("InfoPanel [F1]");
 	updatePosition();
 
 	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );

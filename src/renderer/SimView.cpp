@@ -34,7 +34,7 @@ SimView::SimView()
 	InitDesktop();
 	ISim.reset ( new SimActors );
 
-	Module::Get()->QueueEvent("KEY_SHOW_NEWSIM");
+	Module::Get()->QueueEvent("TOGGLE_SHOW_MAINMENU");
 }
 
 SimView::~SimView()
