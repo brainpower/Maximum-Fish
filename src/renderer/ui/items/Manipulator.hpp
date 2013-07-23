@@ -7,7 +7,12 @@
 #include "renderer/ui/items/DetailsSpecies.hpp"
 #include "renderer/ui/items/DetailsTile.hpp"
 
-#include <SFGUI/SFGUI.hpp>
+#include <SFGUI/SharedPtr.hpp>
+namespace sfg
+{
+	class Box;
+	class Label;
+}
 
 /// Base class for manipulators for simulation entities
 class Manipulator : public sbe::EventUser
@@ -18,7 +23,7 @@ class Manipulator : public sbe::EventUser
 		virtual ~Manipulator() {};
 
 		virtual void HandleEvent( Event& e );
-		virtual sfg::Box::Ptr Get();
+		virtual sfg::SharedPtr<sfg::Box> Get();
     private:
         bool ThisNotSelector;
 		void SwitchToSelector();
@@ -28,9 +33,9 @@ class Manipulator : public sbe::EventUser
 		void ResetInformation();
 
         std::shared_ptr<Details> CurrentDetailsBox;
-		sfg::Box::Ptr WholeBox;
+		sfg::SharedPtr<sfg::Box> WholeBox;
 
-        sfg::Label::Ptr Information;
+        sfg::SharedPtr<sfg::Label>  Information;
 };
 
 #endif // MANIPULATOR_H

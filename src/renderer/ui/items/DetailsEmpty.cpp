@@ -1,5 +1,9 @@
 #include "DetailsEmpty.hpp"
 
+
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Box.hpp>
+
 DetailsEmpty::DetailsEmpty()
 {
     DetailsLabel = sfg::Label::Create("Select a Creature,\nSpecies or Tile\nto see its details.");

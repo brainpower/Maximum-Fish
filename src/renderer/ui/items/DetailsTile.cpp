@@ -1,5 +1,9 @@
 #include "DetailsTile.hpp"
 
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Box.hpp>
+#include <SFGUI/Button.hpp>
+
 #include <boost/format.hpp>
 using boost::format;
 using boost::io::group;

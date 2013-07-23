@@ -1,6 +1,12 @@
 #include "DetailsCreature.hpp"
 #include "simulator/world/Species.hpp"
 
+
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Box.hpp>
+#include <SFGUI/ComboBox.hpp>
+#include <SFGUI/Scale.hpp>
+
 #include <boost/format.hpp>
 using boost::format;
 using boost::io::group;

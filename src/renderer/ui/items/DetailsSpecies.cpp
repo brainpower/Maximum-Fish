@@ -1,5 +1,9 @@
 #include "DetailsSpecies.hpp"
 
+
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Box.hpp>
+
 #include <boost/format.hpp>
 using boost::format;
 using boost::io::group;

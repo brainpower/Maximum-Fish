@@ -1,5 +1,8 @@
 #include "Details.hpp"
 
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Box.hpp>
+
 Details::Details()
 {
 	UpdateTimer.restart();

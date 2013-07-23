@@ -1,5 +1,10 @@
 #include "Selector.hpp"
 
+#include <SFGUI/Box.hpp>
+#include <SFGUI/Frame.hpp>
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Notebook.hpp>
+
 Selector::Selector()
 {
     RegisterForEvent( "TOGGLE_SECECT_MAN" );

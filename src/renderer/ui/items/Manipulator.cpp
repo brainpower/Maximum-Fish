@@ -2,6 +2,10 @@
 #include "sbe/gfx/Screen.hpp"
 #include "DetailsEmpty.hpp"
 
+#include <SFGUI/Label.hpp>
+#include <SFGUI/Box.hpp>
+#include <SFGUI/Button.hpp>
+
 Manipulator::Manipulator()
 {
     RegisterForEvent( "TOGGLE_SELECT_MAN" );

@@ -4,7 +4,6 @@
 #include "renderer/ui/items/Details.hpp"
 #include "simulator/world/Species.hpp"
 
-#include <SFGUI/SFGUI.hpp>
 
 /// Shows Details about a Species
 class DetailsSpecies : public Details
@@ -14,8 +13,8 @@ class DetailsSpecies : public Details
 		DetailsSpecies(const std::shared_ptr<Species>& _species);
 		virtual ~DetailsSpecies() {}
 
-        virtual sfg::Widget::Ptr GetLabel();
-        virtual sfg::Widget::Ptr GetBox();
+        virtual sfg::SharedPtr<sfg::Widget> GetLabel();
+        virtual sfg::SharedPtr<sfg::Widget> GetBox();
         virtual void UpdateLabel();
         virtual void UpdateBox();
     private:
