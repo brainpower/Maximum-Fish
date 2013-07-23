@@ -35,6 +35,7 @@ class NewSimWindow : public sbe::EventUser
 
 		void okClick();
 		void newSpeciesClick();
+		void delSpeciesClick();
 		void abortClick();
 		void createSpecies();
 		void modifySpecies(std::shared_ptr<Species> _spec);
@@ -86,7 +87,6 @@ class NewSimWindow : public sbe::EventUser
 		sbe::sfgList s_list;
 		std::vector<std::shared_ptr<Species>> t_species;
 		std::vector<int> t_species_count;
-
 };
 
 #endif // NEWSIM_HPP
