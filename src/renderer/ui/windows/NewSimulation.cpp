@@ -207,13 +207,16 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 
 	Table::Ptr main = Table::Create();
 	Button::Ptr okBtn = Button::Create( "Create" );
+	Button::Ptr delBtn = Button::Create( "Delete" );
 	okBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::newSpeciesClick , this );
+	delBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::delSpeciesClick , this );
 	s_list = *(new sbe::sfgList("SPECIES_GEN_CLICKED"));
 	main->Attach(s_list.getList(), {{0,0},{1,1}}, Table::EXPAND, 0);
 
 		main->Attach( lbl("New Species" ),			{{1,0},{1,1}}, Table::EXPAND, 0 );
 		main->Attach( NewSpecies, 					{{2,0},{1,1}}, Table::EXPAND, 0 );
 		main->Attach( okBtn, 						{{3,0},{1,1}}, Table::FILL, 0 );
+		main->Attach( delBtn, 						{{4,0},{1,1}}, Table::FILL, 0 );
 		main->Attach( lbl("Species Count" ),		{{0,1},{1,1}}, Table::EXPAND, 0 );
 		main->Attach( SpeciesCount, 				{{3,1},{1,1}}, Table::EXPAND, 0 );
 		main->Attach( lbl( "Species Type" ),		{{0,2},{1,1}}, Table::EXPAND, 0 );
@@ -347,6 +350,14 @@ void NewSimWindow::newSpeciesClick()
 	s_list.addItem(NewSpecies->GetText().toAnsiString());
 	t_species_count.push_back(boost::lexical_cast<int>(SpeciesCount->GetText().toAnsiString()));
 	createSpecies();
+}
+
+void NewSimWindow::delSpeciesClick()
+{
+	std::cout << s_list.getIndex(s_list.getSelectedItem()) << std::endl;
+	t_species.erase(t_species.begin()+s_list.getIndex(s_list.getSelectedItem()));
+	t_species_count.erase(t_species_count.begin()+s_list.getIndex(s_list.getSelectedItem()));
+	s_list.removeItem(s_list.getSelectedItem());
 }
 
 SharedPtr<Entry> NewSimWindow::entry( const std::string& cfg, sf::Vector2f req )
