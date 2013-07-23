@@ -53,10 +53,6 @@ class GraphBook : public sbe::EventUser
 			sfg::SharedPtr <sfg::Entry>        vFrom;
 			sfg::SharedPtr <sfg::Entry>        vTo;
 			sfg::SharedPtr <sfg::CheckButton>  vLogAxBtn;
-			sfg::SharedPtr <sfg::Box>          vLogAxBox;
-			sfg::SharedPtr <sfg::RadioButton>  logBase2;
-			sfg::SharedPtr <sfg::RadioButton>  logBaseE;
-			sfg::SharedPtr <sfg::RadioButton>  logBase10;
 			Geom::Point                        hLimit;
 			Geom::Point                        vLimit;
 			int                                hEndOffset;
@@ -145,6 +141,8 @@ class GraphBook : public sbe::EventUser
 		/// Deque where all graphtuples are saved
 		std::deque<graphTuple> graphTupleList;
 
+        /// removes all Graphs from the graphbook
+        void clearGraphs();
 
 		/// I will name the this function "Current-Tab-Tuple", because it will give you the tuple from the list at the current tab of the graphbook.
 		graphTuple& cTT();
