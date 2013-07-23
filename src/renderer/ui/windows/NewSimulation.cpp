@@ -359,9 +359,11 @@ void NewSimWindow::newSpeciesClick()
 
 void NewSimWindow::delSpeciesClick()
 {
-	if(last_selected == s_list.getIndex(s_list.getSelectedItem())) last_selected = -1;
-	t_species.erase(t_species.begin()+s_list.getIndex(s_list.getSelectedItem()));
-	t_species_count.erase(t_species_count.begin()+s_list.getIndex(s_list.getSelectedItem()));
+	if ( last_selected == s_list.getIndex(s_list.getSelectedItem()) ) last_selected = -1;
+	int index = s_list.getIndex(s_list.getSelectedItem());
+	if ( index == -1 ) return;
+	t_species.erase(t_species.begin()+index);
+	t_species_count.erase(t_species_count.begin()+index);
 	s_list.removeItem(s_list.getSelectedItem());
 }
 
