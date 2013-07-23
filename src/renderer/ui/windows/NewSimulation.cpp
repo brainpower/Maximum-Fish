@@ -23,8 +23,13 @@ void NewSimWindow::HandleEvent(Event& e)
 {
 	if ( e.Is("KEY_SHOW_NEWSIM") )
 	{
-		CreateWindow();
-		Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
+		if ( !Win )
+        {
+            CreateWindow();
+            Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
+        }
+        else Win->Show(true);
+
 	}
 
 	if( e.Is("SAVE_SPECIES", typeid(std::shared_ptr<Species>)))
