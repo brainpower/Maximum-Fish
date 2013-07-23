@@ -16,7 +16,6 @@ NewSimWindow::NewSimWindow()
 {
 	RegisterForEvent("KEY_SHOW_NEWSIM");
 	RegisterForEvent("SPECIES_GEN_CLICKED");
-	RegisterForEvent("SAVE_SPECIES");
 }
 
 void NewSimWindow::HandleEvent(Event& e)
@@ -31,12 +30,6 @@ void NewSimWindow::HandleEvent(Event& e)
         else Win->Show(true);
 
 	}
-
-	if( e.Is("SAVE_SPECIES", typeid(std::shared_ptr<Species>)))
-	{
-		modifySpecies(boost::any_cast<std::shared_ptr<Species>>(e.Data()));
-	}
-
 
 	if( e.Is("SPECIES_GEN_CLICKED", typeid( std::string )))
 	{
