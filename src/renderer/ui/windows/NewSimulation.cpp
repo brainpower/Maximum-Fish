@@ -70,6 +70,8 @@ void NewSimWindow::HandleEvent(Event& e)
 void NewSimWindow::CreateWindow()
 {
 	Win = Window::Create( );
+	Win->SetTitle("Create new simulation");
+
 	Box::Ptr mainBox = Box::Create( Box::VERTICAL );
 		Notebook::Ptr nB = Notebook::Create();
 		nB->AppendPage( CreateGenerationPage(), lbl("Generation") );

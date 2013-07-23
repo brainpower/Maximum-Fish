@@ -133,6 +133,7 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		box->Pack( buttonBox, false, false );
 
 	Win->Add( box );
+	Win->SetTitle( "Control" );
 	updatePosition();
 
 	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
