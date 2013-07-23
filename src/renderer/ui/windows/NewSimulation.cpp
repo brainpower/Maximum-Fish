@@ -37,6 +37,10 @@ void NewSimWindow::HandleEvent(Event& e)
 	{
 		std::string s =  boost::any_cast<std::string>(e.Data());
 
+		if(last_selected != -1)  {
+			modifySpecies(t_species[last_selected]);
+		}
+
 		for(int i = 0; i < t_species.size(); i++)
 		{
 			if(s.compare(t_species[i]->getName()) == 0)
@@ -61,9 +65,9 @@ void NewSimWindow::HandleEvent(Event& e)
 					SpeciesType->SetText(*(new sf::String("CARNIVORE")));
 				}
 				SpeciesCount->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species_count[i]))));
+				last_selected = s_list.getIndex(s);
 			}
 		}
-
 	}
 }
 
@@ -340,6 +344,7 @@ void NewSimWindow::modifySpecies(std::shared_ptr<Species> S)
 	S->setWaterRequirement(boost::lexical_cast<float>(WaterReq->GetText().toAnsiString()));
 	S->setType( type );
 	S->setOptimalTemperature(boost::lexical_cast<int>(OptimalTemperature->GetText().toAnsiString()));
+	t_species_count[last_selected] = boost::lexical_cast<int>(SpeciesCount->GetText().toAnsiString());
 }
 
 void NewSimWindow::abortClick()
@@ -356,7 +361,7 @@ void NewSimWindow::newSpeciesClick()
 
 void NewSimWindow::delSpeciesClick()
 {
-	std::cout << s_list.getIndex(s_list.getSelectedItem()) << std::endl;
+	if(last_selected == s_list.getIndex(s_list.getSelectedItem())) last_selected = -1;
 	t_species.erase(t_species.begin()+s_list.getIndex(s_list.getSelectedItem()));
 	t_species_count.erase(t_species_count.begin()+s_list.getIndex(s_list.getSelectedItem()));
 	s_list.removeItem(s_list.getSelectedItem());

@@ -87,6 +87,7 @@ class NewSimWindow : public sbe::EventUser
 		sbe::sfgList s_list;
 		std::vector<std::shared_ptr<Species>> t_species;
 		std::vector<int> t_species_count;
+		int last_selected = -1;
 };
 
 #endif // NEWSIM_HPP
