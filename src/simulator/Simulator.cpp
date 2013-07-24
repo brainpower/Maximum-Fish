@@ -188,8 +188,6 @@ void Simulator::NewSimulation( std::shared_ptr<std::vector<std::shared_ptr<Speci
 
     newstate->seeder.reset( new std::mt19937(seed) );
 
-
-
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
 	newstate->currentSeed = seed;
 
@@ -366,9 +364,9 @@ void Simulator::advance()
 		SendScaleUpdate();
 
 		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(state->species->size()));
-		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
-		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
-		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
+		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( HerbaeCounts.back() ));
+		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( HerbivoreCounts.back() ));
+		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CarnivoreCounts.back() ));
 		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( state->currentTick ));
 //		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( state->numGenerated ));
 //		Module::Get()->DebugString("Dead - Eaten", boost::lexical_cast<std::string>( EatenCounts.back() ));

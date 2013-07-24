@@ -33,7 +33,7 @@ void Generator::CreateCreatures( std::shared_ptr<std::vector<std::shared_ptr<Spe
 	{
 		for(int c = 0; c < (_mult*(*_spc)[s]); c++)
 		{
-			std::shared_ptr<Creature> C = createNonRandomCreature( (*_sp)[s] );
+			std::shared_ptr<Creature> C = createCreature( (*_sp)[s] );
 			if (!C) continue;
 			state->creatures.push_back(C);
 		}
@@ -120,7 +120,6 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 		{
 			ptr_creature->setCurrentHealth( health_dist( rnd ) );
 			ptr_creature->setAge( age_dist( rnd ) );
-
 
             std::uniform_int_distribution<int> mating_dist( -ptr_creature->getAge(), 0 );
             ptr_creature->setLastMating( mating_dist( rnd ) );
