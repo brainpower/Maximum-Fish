@@ -15,7 +15,7 @@ class SimState {
 
 public:
 	explicit SimState()
-	 : _terrain(nullptr), _currentTick(0), _currentSeed(0), _numGenerated(0) {}
+	 : terrain(nullptr), currentTick(0), currentSeed(0), numGenerated(0) {}
 
 	/// makes deep copy of the state, so all creatures,species etc. of this state are preserved
 	explicit SimState(const SimState &s);
@@ -25,18 +25,18 @@ public:
 private:
 
 	//std::string rnd_state;
-	std::shared_ptr<Terrain> _terrain;
-	std::list<std::shared_ptr<Creature>> _creatures;
-	std::shared_ptr<std::vector<std::shared_ptr<Species>>> _species;
+	std::shared_ptr<Terrain> terrain;
+	std::list<std::shared_ptr<Creature>> creatures;
+	std::shared_ptr<std::vector<std::shared_ptr<Species>>> species;
 
-	int _currentTick;
-	int _currentSeed;
-	int _numThreads;
+	int currentTick;
+	int currentSeed;
+	int numThreads;
 
-	unsigned int _numGenerated;
+	unsigned int numGenerated;
 
-	std::shared_ptr<std::mt19937> _seeder;
-	std::vector<std::shared_ptr<std::mt19937>> _gens;
+	std::shared_ptr<std::mt19937> seeder;
+	std::vector<std::shared_ptr<std::mt19937>> gens;
 
 	friend class Simulator;
 	friend class SimStateIOPlugin;

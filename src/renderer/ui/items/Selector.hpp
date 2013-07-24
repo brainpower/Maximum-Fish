@@ -27,7 +27,7 @@ class Selector : public sbe::EventUser
     private:
         bool ThisNotManipulator;
         void SetDetail( const std::shared_ptr<Creature>& _creature );
-        void SetDetail( const std::shared_ptr<Species>& _species );
+        void SetDetail( const std::shared_ptr<Species>& species );
         void SetDetail( const std::shared_ptr<Tile>& _tile );
 		void SwitchToManipulator();
         void CreateBox();

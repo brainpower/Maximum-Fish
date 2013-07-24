@@ -41,7 +41,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 	public:
 		Simulator();
 		~Simulator() {
-			if (multiThreaded) stopThreads();
+			if ( state && state->numThreads > 1 ) stopThreads();
 		}
 
 		/**
@@ -54,7 +54,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 			SIM_PAUSE			| pause
 			SIM_UNPAUSE			| unpause
 			RESET_SIMULATION	| start a new simulation in paused mode ( default seed )
-			EVT_SAVE_TERRAIN	| save the terrain
+			EVT_SAVEterrain	| save the terrain
 			EVT_SAVE_WHOLE		| save the complete simulation
 			EVT_LOAD_WHOLE		| load a simulation
 			TERRAIN_CLICKED		| handle a click on the terrain
@@ -65,10 +65,11 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		virtual void HandleEvent( Event& e);
 
 		void init();
+		void reset();
 		/// Create a new Simulation from a seed
 		void NewSimulation(std::shared_ptr<std::vector<std::shared_ptr<Species>>> _spec, std::shared_ptr<std::vector<int>> _specnum, int seed = 0);
 		/// Create a new Simulation from the given rng, Terrain, species and Creatures
-		void NewSimulation( std::shared_ptr<SimState> state, std::mt19937* rng);
+		void NewSimulation( std::shared_ptr<SimState> state);
 
 		/// simulate one tick
 		void advance();
@@ -77,27 +78,30 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		typedef std::list<std::shared_ptr<Tile>>::iterator TileIt;
 
 		/// simulate a range of Tiles
-		void tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list);
+		void tick(std::list<std::shared_ptr<Tile>>& list);
 		void parallelTick();
+		/// Cleanup after one tick has been simulated, remove dead creatures, count means of death, log counts
+		void CleanupTick();
+
 
 		std::shared_ptr<SimState> setState(const SimState &s){
-			if ( multiThreaded)	stopThreads();
-			auto old = _state;
-			_state.reset( new SimState(s) );
-			if ( multiThreaded)	initThreads();
+			if ( state->numThreads > 1 )	stopThreads();
+			auto old = state;
+			state.reset( new SimState(s) );
+			if ( state->numThreads > 1 )	initThreads();
 			return old;
 		}
 
 		std::shared_ptr<SimState> setState( const std::shared_ptr<const SimState> s){
-			if ( multiThreaded)	stopThreads();
-			auto old = _state;
-			_state = std::make_shared<SimState>(*s);
-			if ( multiThreaded)	initThreads();
+			if ( state->numThreads > 1 )	stopThreads();
+			auto old = state;
+			state = std::make_shared<SimState>(*s);
+			if ( state->numThreads > 1 )	initThreads();
 			return old;
 		}
 
 		std::shared_ptr<SimState> getState( ){
-			return _state;
+			return state;
 		}
 
 		static std::shared_ptr<Species> GetSpecies(const std::string& name)
@@ -109,13 +113,13 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		static std::shared_ptr<Terrain> GetTerrain()
 		{
-			return Instance->_state->_terrain;
+			return Instance->state->terrain;
 		}
 
 		std::mt19937& rnd()
 		{
-			_state->_numGenerated++;
-			return *_tid < 0 ? *(_state->_seeder) : *(_state->_gens[*_tid]);
+			state->numGenerated++;
+			return *tid < 0 ? *(state->seeder) : *(state->gens[*tid]);
 		}
 
 		static std::mt19937& GetRnd()
@@ -123,7 +127,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 			return Instance->rnd();
 		}
 
-		static std::list<std::shared_ptr<Creature>>& GetCreatures() { return Instance->_state->_creatures; }
+		static std::list<std::shared_ptr<Creature>>& GetCreatures() { return Instance->state->creatures; }
 
 	private:
 
@@ -143,11 +147,6 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		//friend class StasisPod;
 
 
-
-		sf::Clock RendererUpdate;
-		/// measures how long it takes if the user requests to simulate X ticks
-		sf::Clock TickTimer;
-
 		std::shared_ptr<Species>& getSpecies( const std::string& name );
 
 		void HandleClick( const Geom::Pointf& pos );
@@ -160,8 +159,31 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		void saveWhole(const std::string &savePath);
 		void loadWhole(const std::string &loadPath);
 
-		std::shared_ptr<SimState> _state;
+		/// create and initialize threads ( seed
+		void initThreads();
+		void stopThreads();
+		/// thread entry point
+		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed);
+
+		void resetStats();
+
+
+        // ### MEMBERS ###
+
+        /// for sending updates to the renderer
+        sf::Clock RendererUpdate;
+		/// measures how long it takes if the user requests to simulate X ticks
+		sf::Clock TickTimer;
+
+		/// holds the current state of the simulation
+		std::shared_ptr<SimState> state;
+		/// holds all saved States
 		std::shared_ptr<StasisPod> _pod;
+
+		///
+        std::shared_ptr<std::vector<std::shared_ptr<Species>>> m_specs;
+		std::shared_ptr<std::vector<int>> m_counts;
+
 
 		int _freezeRate;
 		/// how many ticks should be simulated? Not changed so the simulated amount is still remembered
@@ -178,25 +200,16 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::shared_ptr<boost::barrier> startBarrier;
 		std::shared_ptr<boost::barrier> endBarrier;
 
-		/// create and initialize threads ( seed
-		void initThreads();
-		void stopThreads();
-		/// thread entry point
-		void thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, int seed);
-
-		int numThreads;
-		bool multiThreaded;
-		boost::thread_specific_ptr<int> _tid;
+		boost::thread_specific_ptr<int> tid;
 
 		static Simulator* Instance;
 
-
 		// Statistics
-
-		void resetStats();
 
 		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
 		int CreatureCounts[3];
+		/// Counter for each way a creature can die
+        int MeansOfDeath[5];
 
 		std::vector<int> CarnivoreCounts;
 		std::vector<int> HerbivoreCounts;
@@ -212,8 +225,6 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::shared_ptr<sbe::GraphPlotter> DeathGraph;
 
 		std::vector<int> ProcessingTimes;
-		std::shared_ptr<std::vector<std::shared_ptr<Species>>> m_specs;
-		std::shared_ptr<std::vector<int>> m_counts;
 
 };
 

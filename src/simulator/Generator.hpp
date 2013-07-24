@@ -21,7 +21,7 @@ class Generator
 					//~ std::list<std::shared_ptr<Creature>>& _Creatures,
 					//~ Terrain& _T,
 					//~ std::mt19937& _rnd );
-		Generator( std::shared_ptr<SimState> state, std::mt19937& _rnd);
+		Generator( std::shared_ptr<SimState> _state);
 
 		/// create a number of species with several creatures for each species
 		void CreateSpeciesWithCreatures( Species::SPECIES_TYPE type, int SpeciesCount, int CreatureCount );
@@ -45,8 +45,8 @@ class Generator
 		std::shared_ptr<Species> createSpecies( Species::SPECIES_TYPE type );
 
 	private:
-		std::shared_ptr<SimState> _state;
-		std::mt19937& _rnd;
+	    std::mt19937& rnd;
+		std::shared_ptr<SimState> state;
 
 };
 

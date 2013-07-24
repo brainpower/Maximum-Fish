@@ -32,6 +32,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 
 Simulator* Simulator::Instance = nullptr;
@@ -39,10 +40,6 @@ Simulator* Simulator::Instance = nullptr;
 Simulator::Simulator() : isPaused(true), isInitialized(false) {
 
 	Instance = this;
-
-	CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
 
 	RegisterForEvent("EVT_TICK");
 	RegisterForEvent("EVT_QUIT");
@@ -52,7 +49,7 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 	RegisterForEvent("SIM_UNPAUSE");
 	RegisterForEvent("RESET_SIMULATION");
 
-	RegisterForEvent("EVT_SAVE_TERRAIN");
+	RegisterForEvent("EVT_SAVEterrain");
 	RegisterForEvent("EVT_SAVE_WHOLE");
 	RegisterForEvent("EVT_SAVE_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE_TEST");
@@ -66,27 +63,9 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 	RegisterForEvent("NEW_NONRANDOM_SIM");
 
 	init();
+	reset();
 }
 
-std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
-{
-	for ( auto& S : *_state->_species )
-	{
-		if ( S->getName() == name) return S;
-	}
-
-	return _state->_species->back(); // INVALID_SPECIES
-}
-
-std::shared_ptr<Species> Simulator::GetSpecies( const std::string& name, const std::shared_ptr<SimState> s )
-{
-	for ( auto& S : *s->_species )
-	{
-		if ( S->getName() == name) return S;
-	}
-
-	return s->_species->back(); // INVALID_SPECIES
-}
 
 void Simulator::HandleEvent(Event& e)
 {
@@ -129,7 +108,7 @@ void Simulator::HandleEvent(Event& e)
 	}
 	else if ( e.Is( "UPDATE_OVERLAYS" ) && isInitialized  )
 	{
-		_state->_terrain->CreateMapPlotters();
+		state->terrain->CreateMapPlotters();
 	}
 	else if (e.Is("RESET_SIMULATION"))
 	{
@@ -151,9 +130,9 @@ void Simulator::HandleEvent(Event& e)
 		isPaused = wasPaused;
 		Engine::getCfg()->set("sim.paused", isPaused);
 	}
-	else if (e.Is("EVT_SAVE_TERRAIN") && isInitialized )
+	else if (e.Is("EVT_SAVEterrain") && isInitialized )
 	{
-		Engine::GetResMgr()->saveObject( "DebugTerrain", _state->_terrain, true);
+		Engine::GetResMgr()->saveObject( "DebugTerrain", state->terrain, true);
 	}
 	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string)) && isInitialized ) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
@@ -190,75 +169,72 @@ void Simulator::HandleEvent(Event& e)
 void Simulator::init()
 {
 	registerIOPlugins();
-	// we have to make sure the renderer is setup before we can send the updateXXrenderlist events
-	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
-	numThreads = Engine::getCfg()->get<int>("sim.numThreads");
-	multiThreaded = numThreads > 1;
 
 	_pod.reset(new StasisPod());
 	_freezeRate = Engine::getCfg()->get<int>("sim.freezeRate");
 
-	_tid.reset(new int(-1));
+	tid.reset(new int(-1));
 
 	//NewSimulation(Engine::getCfg()->get<int>("sim.defaultSeed"));
-
 }
 
 
-void Simulator::NewSimulation( std::shared_ptr<std::vector<std::shared_ptr<Species>>> _spec, std::shared_ptr<std::vector<int>> _specnum, int seed )
+void Simulator::NewSimulation( std::shared_ptr<std::vector<std::shared_ptr<Species>>> spec, std::shared_ptr<std::vector<int>> specnum, int seed )
 {
-	std::shared_ptr<SimState> state(new SimState());
+	std::shared_ptr<SimState> newstate(new SimState());
 
-	std::mt19937* rng = new std::mt19937(seed);
+    newstate->numThreads = Engine::getCfg()->get<int>("sim.numThreads");
+
+    newstate->seeder.reset( new std::mt19937(seed) );
+
+
+
 	Engine::out(Engine::INFO) << "[Simulator] Seed is >> " << boost::lexical_cast<std::string>(seed) << " <<" << std::endl;
-	state->_currentSeed = seed;
-	// set a valid thread num in state, weirdly Simulator::numThreads seems to contain a invalid number of threads
-	state->_numThreads = numThreads;
+	newstate->currentSeed = seed;
+
+    std::uniform_int_distribution<int> seed_dist;
+	for ( int thread = 0; thread < newstate->numThreads; ++thread)
+		newstate->gens.push_back(std::shared_ptr<std::mt19937>( new std::mt19937(seed_dist(*(newstate->seeder))) ));
 
 	Engine::out(Engine::INFO) << "[Simulator] Creating Terrain" << std::endl;
-	state->_terrain.reset( new Terrain() );
-	state->_species = _spec;
-	state->_creatures.clear();
-	// we have to set it here, so Simulator::GetTerrain() will work in Tile
-	//this->setState(state, true);
-	_state = state;
+	newstate->terrain.reset( new Terrain() );
+	newstate->species = spec;
 
-	state->_terrain->CreateDebugTerrain( _state->_currentSeed );
+	// we have to set it here, so Simulator::GetTerrain() will work in Tile
+	//this->setnewstate(newstate, true);
+	state = newstate;
+
+	newstate->terrain->CreateDebugTerrain( state->currentSeed );
 
     Engine::out(Engine::INFO) << "[Simulator] Creatures and species" << std::endl;
-	Generator G (state, *rng);
-	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
-	G.CreateCreatures(_spec, _specnum, countMult);
+	Generator G (newstate);
 
-	NewSimulation( state, rng);
+	int countMult =  Engine::getCfg()->get<int>("sim.terragen.count");
+	G.CreateCreatures(spec, specnum, countMult);
+
+	NewSimulation( newstate );
 }
 
-void Simulator::NewSimulation(
-	std::shared_ptr<SimState> state,
-	std::mt19937* rng)
+void Simulator::NewSimulation( std::shared_ptr<SimState> newstate)
 {
-
+    reset();
     Module::Get()->QueueEvent("RESET_UI", true);
 
-	state->_seeder.reset( rng ); // must do it this early for initThreads to work
 
-	if ( multiThreaded)
+	if ( newstate->numThreads > 1 )
 	{
 		stopThreads();
 		initThreads();
 	}
 
-	state->_currentTick = 0;
-	simulateTicks = 0;
-	TicksToSim = 0;
-	state->_numGenerated = 0;
+	newstate->currentTick = 0;
+	newstate->numGenerated = 0;
 
 	Creature::loadConfigValues();
 
-    resetStats();
 	// count Creatures once
-	for( auto C : state->_creatures )
+	for( auto C : newstate->creatures )
 	{
 		CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
 		C->updateTileFromPos();
@@ -266,22 +242,21 @@ void Simulator::NewSimulation(
 
 	Engine::out(Engine::INFO) << "[Simulator] Simulation is set up" << std::endl;
 
-	isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
-	Engine::getCfg()->set("sim.paused", isPaused);
+
 
 
 	// categorize tiles for parallel computation of the simulation
-	state->_terrain->CreateParallelisationGraph();
+	newstate->terrain->CreateParallelisationGraph();
 
 	// send terrain to renderer
-	state->_terrain->UpdateTileMap();
-	state->_terrain->UpdateTerrain();
+	newstate->terrain->UpdateTileMap();
+	newstate->terrain->UpdateTerrain();
 	// send creatures to renderer
 	UpdateCreatureRenderList();
 
 	isInitialized = true;
 
-	state->_terrain->CreateMapPlotters();
+	newstate->terrain->CreateMapPlotters();
 
 	RendererUpdate.restart();
 
@@ -289,18 +264,28 @@ void Simulator::NewSimulation(
 	CreatePlotters();
 
 	_pod->clear();
-	_pod->freeze(_state);
+	_pod->freeze(newstate);
 }
+
+void Simulator::reset()
+{
+    resetStats();
+    simulateTicks = 0;
+	TicksToSim = 0;
+    isInitialized = false;
+
+    isPaused = Engine::getCfg()->get<bool>("sim.pauseOnStart");
+	Engine::getCfg()->set("sim.paused", isPaused);
+}
+
+
 
 void Simulator::initThreads()
 {
-	startBarrier.reset( new boost::barrier( numThreads+1) );
-	endBarrier.reset( new boost::barrier( numThreads+1 ) );
-	_state->_gens.clear();
+	startBarrier.reset( new boost::barrier( state->numThreads+1) );
+	endBarrier.reset( new boost::barrier( state->numThreads+1 ) );
 
-	std::uniform_int_distribution<int> seeder;
-
-	for ( int thread = 0; thread < numThreads; ++thread)
+	for ( int thread = 0; thread < state->numThreads; ++thread)
 	{
 		std::shared_ptr<std::list<std::shared_ptr<Tile>>> cur;
 		cur.reset ( new std::list<std::shared_ptr<Tile>> );
@@ -308,7 +293,6 @@ void Simulator::initThreads()
 		cur.reset ( new std::list<std::shared_ptr<Tile>> );
 		NextLists.push_back(cur);
 
-		_state->_gens.push_back(std::shared_ptr<std::mt19937>( new std::mt19937(seeder(*(_state->_seeder))) ));
 		threads.push_back( std::shared_ptr<boost::thread>( new boost::thread(
 		    boost::bind( &Simulator::thread, this, CurrentLists[thread], thread ))));
 	}
@@ -327,18 +311,6 @@ void Simulator::stopThreads()
 	NextLists.clear();
 }
 
-void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, const int tid)
-{
-	_tid.reset(new int(tid));
-	while ( !boost::this_thread::interruption_requested() )
-	{
-		startBarrier->wait();
-
-		tick( list );
-
-		endBarrier->wait();
-	}
-}
 void Simulator::advance()
 {
 	if(!isInitialized) return;
@@ -363,45 +335,27 @@ void Simulator::advance()
 		}
 		if ( simulateTicks > 0 ) simulateTicks--;
 
-		CreatureCounts[0] = 0;
-		CreatureCounts[1] = 0;
-		CreatureCounts[2] = 0;
 
-		if ( multiThreaded )
+		if ( state->numThreads > 1 )
 		{
 			parallelTick();
 		}
 		else
 		{
-			for( auto& batch : _state->_terrain->getColors())
-				for ( auto& T : batch)
-					for ( auto Cit = T->getCreatures().begin(); Cit != T->getCreatures().end(); )
-					{
-						if ( (*Cit)->getCurrentHealth() <= 0 )
-						{
-							auto ptr = *(Cit++);
-							T->removeCreature(ptr);
-							_state->_creatures.remove(ptr);
-						}
-						else
-						{
-							CreatureCounts[ (int)((*Cit)->getSpecies()->getType()) ]++;
-							(*Cit)->done = false;
-							(*(Cit++))->live();
-						}
-					}
+			for( auto& batch : state->terrain->getColors())
+                tick( batch );
+
+            // remove dead creatures, log stats
+            CleanupTick();
 		}
 
-		_state->_currentTick++;
+		state->currentTick++;
 
+        // log stats and reset counters
 		logTickStats();
 
-		if(! (_state->_currentTick % _freezeRate))
-		{
-			Engine::out() << "[Sim] Freeze" << std::endl;
-			_pod->freeze(_state);
-			Engine::out() << "[Sim] Freezed" << std::endl;
-		}
+		if(! (state->currentTick % _freezeRate))
+			_pod->freeze(state);
 
 
 	}
@@ -411,118 +365,98 @@ void Simulator::advance()
 	{
 		SendScaleUpdate();
 
-		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(_state->_species->size()));
+		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(state->species->size()));
 		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( CreatureCounts[0] ));
 		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( CreatureCounts[1] ));
 		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CreatureCounts[2] ));
-		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( _state->_currentTick ));
-		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( _state->_numGenerated ));
-		Module::Get()->DebugString("Dead - Eaten", boost::lexical_cast<std::string>( EatenCounts.back() ));
-		Module::Get()->DebugString("Dead - Starved", boost::lexical_cast<std::string>( StarvedCounts.back() ));
-		Module::Get()->DebugString("Dead - Thirst", boost::lexical_cast<std::string>( ThirstCounts.back() ));
-		Module::Get()->DebugString("Dead - Frozen", boost::lexical_cast<std::string>( FrozenCounts.back() ));
-		Module::Get()->DebugString("Dead - Old", boost::lexical_cast<std::string>( OldCounts.back() ));
+		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( state->currentTick ));
+//		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( state->numGenerated ));
+//		Module::Get()->DebugString("Dead - Eaten", boost::lexical_cast<std::string>( EatenCounts.back() ));
+//		Module::Get()->DebugString("Dead - Starved", boost::lexical_cast<std::string>( StarvedCounts.back() ));
+//		Module::Get()->DebugString("Dead - Thirst", boost::lexical_cast<std::string>( ThirstCounts.back() ));
+//		Module::Get()->DebugString("Dead - Frozen", boost::lexical_cast<std::string>( FrozenCounts.back() ));
+//		Module::Get()->DebugString("Dead - Old", boost::lexical_cast<std::string>( OldCounts.back() ));
 
 		if ( !isPaused )
 		{
 			UpdateCreatureRenderList();
-			if (Engine::getCfg()->get<bool>("system.ui.Overlays.live")) _state->_terrain->CreateMapPlotters();
+			if (Engine::getCfg()->get<bool>("system.ui.Overlays.live")) state->terrain->CreateMapPlotters();
 		}
 
 		RendererUpdate.restart();
 	}
 }
 
-void Simulator::SendScaleUpdate()
+void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, const int _tid)
 {
-	int maxTick = std::max( _state->_currentTick, _pod->peekTop()->_currentTick );
-		sf::Vector2i data = sf::Vector2i( _state->_currentTick, maxTick );
-		Module::Get()->QueueEvent(Event("SIM_UPDATE_TICK_SCALE", data ), true);
+	tid.reset(new int(_tid));
+	while ( !boost::this_thread::interruption_requested() )
+	{
+		startBarrier->wait();
+
+		tick( *list );
+
+		endBarrier->wait();
+	}
 }
 
-void Simulator::tick(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list)
+
+void Simulator::tick(std::list<std::shared_ptr<Tile>>& list)
 {
-	for(auto it = list->cbegin(); it != list->cend(); it++)
+    //int creatures = 0;
+
+	for(auto it = list.cbegin(); it != list.cend(); it++)
 	{
+	    // skip placeholders ( only required in singlethreaded mode, im MT mode lists are splitted at the dividers )
+	    if ( !(*it) ) continue;
+
 		auto Cs = (*it)->getCreatures();
 		for ( auto it2 = Cs.cbegin(); it2 != Cs.cend(); it2++)
 			if (*it2 && (*it2)->getCurrentHealth() > 0)
-				(*it2)->live();
+            {
+                (*it2)->live();
+                //creatures++;
+            }
+
 	}
+
+//    std::stringstream ss;
+//    ss << "Thread " << *tid << " got " << list.size() <<"/" << creatures << " Tiles/Creatures " << std::endl;
+//    Engine::out() << ss.str();
+
 }
 
 
 void Simulator::parallelTick()
 {
-	int eaten = 0;
-	int frozen = 0;
-	int starved = 0;
-	int thirst = 0;
-	int old = 0;
 
 	//  makes sure our threads are waiting at the "endBarrier" needed for the loop
 	// do this by starting an empty batch
-	for ( int thread = 0; thread < numThreads; ++thread)
+	for ( int thread = 0; thread < state->numThreads; ++thread)
 		CurrentLists[thread]->clear();
 	startBarrier->wait();
 
-	for( auto& batch : _state->_terrain->getColors())
+	for( auto& batch : state->terrain->getColors())
 	{
 
-		for ( int thread = 0; thread < numThreads; ++thread)
+		for ( int thread = 0; thread < state->numThreads; ++thread)
 			NextLists[thread]->clear();
 
 		// prepare the next batch of work
 		int curthread = 0;
 		for ( auto& T : batch )
 		{
-			if ( !T ) curthread = (curthread+1)%numThreads;
+			if ( !T ) curthread = (curthread+1)% state->numThreads;
 			else 	  NextLists[curthread]->push_back(T);
 		}
-
-//		for ( int i = 0; i < numThreads; ++i)
-//		{
-//			Engine::out() << "Thread: " << i << " has " << NextLists[i]->size() << std::endl;
-//		}
 
 		// wait till the threads are finished
 		endBarrier->wait();
 
-		// cleanup dead creatures
-		for(auto it = _state->_creatures.begin(); it != _state->_creatures.end(); )
-		{
-
-			if ((*it)->getCurrentHealth() <= 0)
-			{
-				switch((*it)->causeOfDeath)
-				{
-					case Creature::CauseOfDeath::EATEN:
-						eaten++;
-						break;
-					case Creature::CauseOfDeath::FROZEN:
-						frozen++;
-						break;
-					case Creature::CauseOfDeath::THIRST:
-						thirst++;
-						break;
-					case Creature::CauseOfDeath::STARVED:
-						starved++;
-						break;
-					case Creature::CauseOfDeath::OLD:
-						old++;
-						break;
-				}
-				(*it)->getTile()->removeCreature(*it);
-				auto it2 = it++;
-				_state->_creatures.erase( it2 );
-			}
-			else {
-				(*(++it))->done = false;
-			}
-		}
+        CleanupTick();
 
 		// swap the lists
-		for ( int thread = 0; thread < numThreads; ++thread )
+		for ( int thread = 0; thread < state->numThreads; ++thread )
 			CurrentLists[thread]->swap( *(NextLists[thread]) );
 
 		startBarrier->wait();
@@ -531,45 +465,35 @@ void Simulator::parallelTick()
 	// make sure we correctly stop the last batch
 	endBarrier->wait();
 
+    CleanupTick();
+
+}
+
+void Simulator::CleanupTick()
+{
+
 	// cleanup dead creatures
-	for(auto it = _state->_creatures.begin(); it != _state->_creatures.end(); )
+	for(auto it = state->creatures.begin(); it != state->creatures.end(); )
 	{
 
 		if ((*it)->getCurrentHealth() <= 0)
 		{
-			switch((*it)->causeOfDeath)
-			{
-				case Creature::CauseOfDeath::EATEN:
-					eaten++;
-					break;
-				case Creature::CauseOfDeath::FROZEN:
-					frozen++;
-					break;
-				case Creature::CauseOfDeath::THIRST:
-					thirst++;
-					break;
-				case Creature::CauseOfDeath::STARVED:
-					starved++;
-					break;
-				case Creature::CauseOfDeath::OLD:
-					old++;
-					break;
-			}
+			MeansOfDeath[ (*it)->getCauseOfDeath() ]++;
+
 			(*it)->getTile()->removeCreature(*it);
 			auto it2 = it++;
-			_state->_creatures.erase( it2 );
+			state->creatures.erase( it2 );
 		}
-		else {
+		else
+        {
 			CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+
 			(*(++it))->done = false;
 		}
 	}
 
-	EatenCounts.push_back((int)eaten);
-	StarvedCounts.push_back((int)starved);
-	FrozenCounts.push_back((int)frozen);
-	ThirstCounts.push_back((int)thirst);
-	OldCounts.push_back((int)old);
+
+
 }
 
 void Simulator::logTickStats()
@@ -579,6 +503,18 @@ void Simulator::logTickStats()
 	HerbaeCounts.push_back(CreatureCounts[(int)Species::HERBA]);
 	HerbivoreCounts.push_back(CreatureCounts[(int)Species::HERBIVORE]);
 	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
+
+    EatenCounts.push_back(      MeansOfDeath[ Creature::EATEN   ]);
+	StarvedCounts.push_back(    MeansOfDeath[ Creature::STARVED ]);
+	FrozenCounts.push_back(     MeansOfDeath[ Creature::FROZEN  ]);
+	ThirstCounts.push_back(     MeansOfDeath[ Creature::THIRST  ]);
+	OldCounts.push_back(        MeansOfDeath[ Creature::OLD     ]);
+
+    CreatureCounts[0] = 0;
+	CreatureCounts[1] = 0;
+	CreatureCounts[2] = 0;
+
+    for ( int i = 0; i < Creature::NONE; ++i) MeansOfDeath[i] = 0;
 
 	CountGraph->updateCurveData( "Herbs", HerbaeCounts );
 	CountGraph->updateCurveData( "Herbivore", HerbivoreCounts );
@@ -598,6 +534,8 @@ void Simulator::resetStats()
     CreatureCounts[0] = 0;
 	CreatureCounts[1] = 0;
 	CreatureCounts[2] = 0;
+
+    for ( int i = 0; i < Creature::NONE; ++i) MeansOfDeath[i] = 0;
 
     EatenCounts.clear();
 	StarvedCounts.clear();
@@ -664,7 +602,7 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 {
 	if( !isInitialized ) return;
 
-	const std::shared_ptr<Tile>& T = _state->_terrain->getTile( pos );
+	const std::shared_ptr<Tile>& T = state->terrain->getTile( pos );
 
 	// Check if the Coordinates are valid
 	if (!T)
@@ -707,14 +645,43 @@ void Simulator::UpdateCreatureRenderList()
 	Event Ev("UpdateCreatureRenderList", std::vector<CreatureRenderInfo>() );
 	 std::vector<CreatureRenderInfo>& RI = boost::any_cast< std::vector<CreatureRenderInfo>& >(Ev.Data());
 
-	RI.resize(_state->_creatures.size());
+	RI.resize(state->creatures.size());
 	int i = 0;
-	for ( auto& C : _state->_creatures )
+	for ( auto& C : state->creatures )
 	{
 		RI[i++] = std::make_tuple( C->getPosition(), (int)C->getSpecies()->getType(), C->getSpecies().get() );
 	}
 
 	Module::Get()->QueueEvent(Ev, true);
+}
+
+
+std::shared_ptr<Species>& Simulator::getSpecies( const std::string& name )
+{
+	for ( auto& S : *state->species )
+	{
+		if ( S->getName() == name) return S;
+	}
+
+	return state->species->back(); // INVALID_SPECIES
+}
+
+std::shared_ptr<Species> Simulator::GetSpecies( const std::string& name, const std::shared_ptr<SimState> s )
+{
+	for ( auto& S : *s->species )
+	{
+		if ( S->getName() == name) return S;
+	}
+
+	return s->species->back(); // INVALID_SPECIES
+}
+
+
+void Simulator::SendScaleUpdate()
+{
+	int maxTick = std::max( state->currentTick, _pod->peekTop()->currentTick );
+		sf::Vector2i data = sf::Vector2i( state->currentTick, maxTick );
+		Module::Get()->QueueEvent(Event("SIM_UPDATE_TICK_SCALE", data ), true);
 }
 
 void Simulator::registerIOPlugins()
@@ -756,10 +723,10 @@ void Simulator::saveWhole(const std::string &savePath){
 
 	Engine::out(Engine::SPAM) << "[Simulator]Save to path: " << Engine::GetIO()->topPath() << std::endl;
 
-	_pod->freeze(_state); // freeze latest state
+	_pod->freeze(state); // freeze latest state
 
 	// do some saving...
-	//~ if(!Engine::GetIO()->saveObject( "tick"+boost::lexical_cast<std::string>(_state->_currentTick), *_state, true)){
+	//~ if(!Engine::GetIO()->saveObject( "tick"+boost::lexical_cast<std::string>(state->currentTick), *state, true)){
 	if(!Engine::GetIO()->saveObject( "StasisPod", *_pod, true)){
 
 		Event e("EVT_SAVE_BAD", std::string("Error saving StasisPod!"));
@@ -809,23 +776,10 @@ void Simulator::loadWhole(const std::string &loadPath)
 
 	auto latestState = tmp[0]->tawTop(); // taw latest state
 
-	std::mt19937* newGen = new std::mt19937();
-
 	setState(latestState);
-	if( latestState->_numThreads != numThreads ){
-		Event e("EVT_LOAD_BAD", std::string("Error loading"));
-		Module::Get()->QueueEvent(e, true);
-
-		Engine::out(Engine::ERROR) << "[Simulator]Error loading from '" << loadPath << "'!" << std::endl;
-		Engine::out(Engine::ERROR) << "[Simulator]Won't continue with SimState saved with " << latestState->_numThreads
-		                           << " threads using " << numThreads << "threads!" << std::endl;
-
-		delete newGen;
-		return;
-	}
 
 	_pod = tmp[0];
-	NewSimulation( latestState, newGen );
+	NewSimulation( latestState );
 
 	// loading done...
 	Module::Get()->QueueEvent("EVT_LOAD_GOOD", true);
@@ -839,8 +793,8 @@ void Simulator::forwardTo(const int i){
 
 	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] forwarding to " << i << std::endl;
 	setState(_pod->peekTick(i));
-	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] got state for tick " << _state->_currentTick << std::endl;
-	TicksToSim = i - _state->_currentTick;
+	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] got state for tick " << state->currentTick << std::endl;
+	TicksToSim = i - state->currentTick;
 
 	isPaused = false;
 	Engine::getCfg()->set("sim.paused", isPaused);

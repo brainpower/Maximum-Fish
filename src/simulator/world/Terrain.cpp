@@ -289,7 +289,7 @@ void Terrain::CreateParallelisationGraph()
 			}
 
 			// acts as a divider between the squares of this color
-//			Colors[ id ].emplace_back();
+			Colors[ id ].emplace_back();
 //			Engine::out() << "Color[" << id << "] " << x << "," << y << " size " << xx << "," << yy << " c: " << count << " . Size: " << Colors[id].size() << std::endl;
 		}
 	}

@@ -204,13 +204,13 @@ void Selector::SetDetail( const std::shared_ptr<Creature>& _creature )
     }
 }
 
-void Selector::SetDetail( const std::shared_ptr<Species>& _species )
+void Selector::SetDetail( const std::shared_ptr<Species>& species )
 {
     SpeciesFrame->RemoveAll();
 
-    if ( _species )
+    if ( species )
     {
-        CurrentDetailsSpecies.reset( new DetailsSpecies( _species ) );
+        CurrentDetailsSpecies.reset( new DetailsSpecies( species ) );
         SpeciesFrame->Add( CurrentDetailsSpecies->GetLabel() );
         SpeciesEmpty = false;
         SpeciesFrame->Show( true );

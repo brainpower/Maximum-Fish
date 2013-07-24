@@ -21,14 +21,16 @@ class Creature : public std::enable_shared_from_this<Creature>
 		Creature( const std::shared_ptr<Species>& Species);
 		Creature( const Creature &o);
 		virtual ~Creature() {};
-		enum CauseOfDeath {EATEN, STARVED, OLD, FROZEN, THIRST, NONE};
-		int causeOfDeath;
+		enum CauseOfDeath {EATEN = 0, STARVED, OLD, FROZEN, THIRST, NONE};
+        int getCauseOfDeath() { return causeOfDeath; }
 
 		void live();
 
 		void setCurrentHealth(const float ch){ currentHealth = ch;}
 		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
+        void setLastMating( const int lm ) { lastmating = lm; }
+
 		/// set a new position and update the list of creatures in the affected Tiles
 		void setPosition(const Geom::Pointf& pos);
 		/// set a new position without updating the list of creatures in the affected Tiles
@@ -39,6 +41,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		float getCurrentHealth() const { return currentHealth; }
 		int getAge() const { return age; }
+        int getLastMating( const int lm ) { return lastmating; }
 		const std::string& getSpeciesString() const;
 		const std::shared_ptr<Species>& getSpecies() const {return mySpecies;};
 		const Geom::Vec2f& getPosition() const { return Position; }
@@ -83,7 +86,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 			}
 			return dmg;
 		}
-		inline float foodDamage() { 
+		inline float foodDamage() {
 			float dmg = mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();
 			if ( currentHealth <= dmg ) {
 				if(age > old * mySpecies->getMaxAge()) die(OLD);
@@ -127,10 +130,10 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		static float resistance;
 		static int   ageExponent;
-		
+
 		static float fleeFactor;
 		// -- END STATIC SETTINGS --
-		
+
 		//defines when a creature is "old" (in relation to maxAge)
 		const float old = 0.9;
 
@@ -158,6 +161,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		float curAgeFactor;
 		int age;
 		int lastmating;
+        int causeOfDeath;
 		Geom::Vec2f Position;
 		Geom::Vec2f prevMove;
 
