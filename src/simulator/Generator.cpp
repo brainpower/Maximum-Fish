@@ -115,6 +115,8 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 	{
 		Geom::Pointf Position (pos_dist(rnd),pos_dist(rnd));
 
+        if ( !state->terrain->getTile(Position) ) continue;
+
 		float hab = state->terrain->getTile(Position)->getHabitability(ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )
 		{
@@ -129,6 +131,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 		}
 	}
 
+    Engine::out(Engine::ERROR) << "[Generator] Unable to find valid Position for Creature!" << std::endl;
 	return std::shared_ptr<Creature> ();
 }
 

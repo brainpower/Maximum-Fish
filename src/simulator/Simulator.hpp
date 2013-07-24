@@ -85,7 +85,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 
 		std::shared_ptr<SimState> setState(const SimState &s){
-			if ( state->numThreads > 1 )	stopThreads();
+			if ( state && state->numThreads > 1 )	stopThreads();
 			auto old = state;
 			state.reset( new SimState(s) );
 			if ( state->numThreads > 1 )	initThreads();
@@ -93,7 +93,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		}
 
 		std::shared_ptr<SimState> setState( const std::shared_ptr<const SimState> s){
-			if ( state->numThreads > 1 )	stopThreads();
+			if ( state && state->numThreads > 1 )	stopThreads();
 			auto old = state;
 			state = std::make_shared<SimState>(*s);
 			if ( state->numThreads > 1 )	initThreads();

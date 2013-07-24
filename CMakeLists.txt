@@ -66,9 +66,9 @@ if(USE_CUSTOM_SFML)
 	set(SFML_INCLUDE_DIR "${CUSTOM_SFML_ROOT}/include")
 endif(USE_CUSTOM_SFML)
 
-find_package(Boost 1.46 COMPONENTS thread system)# regex)
+find_package(Boost 1.48 COMPONENTS thread system)# regex)
 #only audio required, the others are pulled in by sfgui
-find_package(SFML 2 COMPONENTS audio)
+find_package(SFML 2 COMPONENTS graphics window system)
 
 #######################################################
 ####################### SBE ###########################

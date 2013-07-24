@@ -45,10 +45,6 @@ SimActors::SimActors()
 
 	RegisterForEvent("RESET_SIMULATION");
 
-	RegisterForEvent("EVT_SAVE_GOOD");
-	RegisterForEvent("EVT_SAVE_BAD");
-	RegisterForEvent("EVT_LOAD_BAD");
-	RegisterForEvent("EVT_LOAD_GOOD");
 
 	GridColor = sf::Color( Engine::getCfg()->get<int>("system.ui.simView.gridColor.r"),
 						Engine::getCfg()->get<int>("system.ui.simView.gridColor.g"),
@@ -87,24 +83,6 @@ void SimActors::HandleEvent(Event& e)
 			CreateTerrainShaderMap();
 		}
 	}
-	else if ( (e.Is("EVT_SAVE_BAD", typeid(std::string)) || e.Is("EVT_LOAD_BAD", typeid(std::string))) )
-	{
-		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
-		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
-
-	}
-	else if ( e.Is("EVT_LOAD_GOOD") )
-	{
-		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "LOAD OK!", "Loading successfull!") );
-		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
-
-		SetCamLimits();
-	}
-	else if ( e.Is("EVT_SAVE_GOOD") )
-    {
-        std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE OK!", "Saving successfull!") );
-		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
-    }
 	else if ( e.Is( "CREATURE_CLICKED", typeid( std::shared_ptr<Creature> )))
     {
 		m_highlight = boost::any_cast<std::shared_ptr<Creature>>( e.Data() );

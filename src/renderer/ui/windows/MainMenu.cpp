@@ -17,6 +17,11 @@ MainMenu::MainMenu( const Geom::Vec2 Size )
 	RegisterForEvent( "FB_CANCEL" );
 	RegisterForEvent( "FB_OK" );
 
+	RegisterForEvent("EVT_SAVE_GOOD");
+	RegisterForEvent("EVT_SAVE_BAD");
+	RegisterForEvent("EVT_LOAD_BAD");
+	RegisterForEvent("EVT_LOAD_GOOD");
+
 	currentlabeltext = 0;
 	CreateWindow( Size );
 	Win->Show( false );
@@ -92,6 +97,26 @@ void MainMenu::HandleEvent( Event& e )
 	{*/
 		if ( boost::any_cast<bool>(e.Data()) ) Module::Get()->QueueEvent( Event( "EVT_QUIT" ) , true );
 	}
+    else if ( (e.Is("EVT_SAVE_BAD", typeid(std::string)) || e.Is("EVT_LOAD_BAD", typeid(std::string))) )
+	{
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+
+	}
+	else if ( e.Is("EVT_LOAD_GOOD") )
+	{
+        Module::Get()->QueueEvent( Event("CLOSE_MESSAGE", std::string("Loading...") ) );
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "LOAD OK!", "Loading successfull!") );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+
+	}
+	else if ( e.Is("EVT_SAVE_GOOD") )
+    {
+        Module::Get()->QueueEvent( Event("CLOSE_MESSAGE", std::string("Saving...") ) );
+        std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE OK!", "Saving successfull!") );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+    }
+
 	//~ else if( e.Is( "FB_CANCEL" )){
 		// default action when presing Cancel in fb
 	//~ }
@@ -121,6 +146,10 @@ void MainMenu::BtnSaveClick()
 {
 	fb->setTitle("Select folder to save to...");
 	fb->setOkEvt("EVT_SAVE_WHOLE");
+	fb->setOkAction( [](const std::string& fb){
+                 	std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::MODAL , "Saving...", "Saving simulation, please wait...") );
+                    Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+                 } );
 	fb->show();
 
 	//Module::Get()->QueueEvent( Event( "EVT_SAVE_WHOLE" ), true );
@@ -130,8 +159,14 @@ void MainMenu::BtnLoadClick()
 {
 	fb->setTitle("Select folder to load from...");
 	fb->setOkEvt("EVT_LOAD_WHOLE");
+    fb->setOkAction( [](const std::string& fb){
+                std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::MODAL , "Loading...", "Loading simulation, please wait...") );
+                Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+             } );
 	fb->show();
 	//Module::Get()->QueueEvent( Event( "EVT_LOAD_WHOLE" ), true );
+
+
 }
 
 void MainMenu::BtnExitClick()
