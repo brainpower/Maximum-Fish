@@ -49,7 +49,7 @@ Simulator::Simulator() : isPaused(true), isInitialized(false) {
 	RegisterForEvent("SIM_UNPAUSE");
 	RegisterForEvent("RESET_SIMULATION");
 
-	RegisterForEvent("EVT_SAVEterrain");
+	RegisterForEvent("EVT_SAVE_TERRAIN");
 	RegisterForEvent("EVT_SAVE_WHOLE");
 	RegisterForEvent("EVT_SAVE_WHOLE_TEST");
 	RegisterForEvent("EVT_LOAD_WHOLE_TEST");
@@ -130,7 +130,7 @@ void Simulator::HandleEvent(Event& e)
 		isPaused = wasPaused;
 		Engine::getCfg()->set("sim.paused", isPaused);
 	}
-	else if (e.Is("EVT_SAVEterrain") && isInitialized )
+	else if (e.Is("EVT_SAVE_TERRAIN") && isInitialized )
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", state->terrain, true);
 	}
@@ -390,6 +390,7 @@ void Simulator::advance()
 void Simulator::thread(std::shared_ptr<std::list<std::shared_ptr<Tile>>> list, const int _tid)
 {
 	tid.reset(new int(_tid));
+
 	while ( !boost::this_thread::interruption_requested() )
 	{
 		startBarrier->wait();
@@ -514,7 +515,8 @@ void Simulator::logTickStats()
 	CreatureCounts[1] = 0;
 	CreatureCounts[2] = 0;
 
-    for ( int i = 0; i < Creature::NONE; ++i) MeansOfDeath[i] = 0;
+    for ( int i = 0; i < Creature::NONE; ++i)
+        MeansOfDeath[i] = 0;
 
 	CountGraph->updateCurveData( "Herbs", HerbaeCounts );
 	CountGraph->updateCurveData( "Herbivore", HerbivoreCounts );
@@ -535,7 +537,8 @@ void Simulator::resetStats()
 	CreatureCounts[1] = 0;
 	CreatureCounts[2] = 0;
 
-    for ( int i = 0; i < Creature::NONE; ++i) MeansOfDeath[i] = 0;
+    for ( int i = 0; i < Creature::NONE; ++i)
+        MeansOfDeath[i] = 0;
 
     EatenCounts.clear();
 	StarvedCounts.clear();

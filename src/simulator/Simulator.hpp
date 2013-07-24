@@ -209,7 +209,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
 		int CreatureCounts[3];
 		/// Counter for each way a creature can die
-        int MeansOfDeath[5];
+        int MeansOfDeath[6];
 
 		std::vector<int> CarnivoreCounts;
 		std::vector<int> HerbivoreCounts;
@@ -225,6 +225,8 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		std::shared_ptr<sbe::GraphPlotter> DeathGraph;
 
 		std::vector<int> ProcessingTimes;
+
+
 
 };
 
