@@ -110,7 +110,7 @@ void Creature::live()
 {
 	if ( done ) return;
 	done = true;
-	curAgeFactor = ageFactor();
+	recalcAgeFactor();
 
 	// damage from environment
 	resistance = healthPercentage() * currentResistance();
@@ -278,6 +278,7 @@ void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 	// health from two parents for animals, from one for plants
 	newborn->setCurrentHealth( otherparent? mHealthCost()*2 : mHealthCost() );
 	Simulator::GetCreatures().push_back(newborn);
+	newborn->recalcAgeFactor();
 
 	currentHealth -= mHealthCost();
 	// plants dont need another parent
@@ -398,14 +399,30 @@ bool Creature::validPos( Geom::Pointf NewPosition ) const
 void Creature::calcDamage()
 {
 	currentHealth -= foodDamage();
+	if ( currentHealth < 0 ) {
+		if(age > old * mySpecies->getMaxAge()) die(OLD);
+		else die(STARVED);
+	}
+
 	// clipped at 100% ( no bonuses for to much water )
 	currentHealth -= waterDamage();
+	if ( currentHealth < 0 ) {
+		if(age > old * mySpecies->getMaxAge()) die(OLD);
+		else die(THIRST);
+	}
+
 	//--damage from wrong elevation/temperature
 	currentHealth-= envDamage();
+	if ( currentHealth < 0 )
+	{
+		if(age > old * mySpecies->getMaxAge()) die(OLD);
+		else die(FROZEN);
+	}
 }
 
 void Creature::die(CauseOfDeath cod)
 {
+	std::cout << "Creature dieing!!" << std::endl;
 	setCurrentHealth(-1);
 	// make sure we won't be simulated later
 	causeOfDeath = cod;

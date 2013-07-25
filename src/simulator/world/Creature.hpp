@@ -30,6 +30,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
         void setLastMating( const int lm ) { lastmating = lm; }
+		void recalcAgeFactor() { curAgeFactor = ageFactor(); }
 
 		/// set a new position and update the list of creatures in the affected Tiles
 		void setPosition(const Geom::Pointf& pos);
@@ -48,7 +49,15 @@ class Creature : public std::enable_shared_from_this<Creature>
 		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
 
 		//## Calculated Values ##
-		inline float ageFactor()
+		/*
+			!!!!!!!!!!!!!!!!!!!!!!   README    !!!!!!!!!!!!!!!!!!!!!!!
+			THESE FUNCTIONS ARE JUST CALCULATIONS ( OUTSOURCED FORMULAS ) AND SHOULD NEVER CHANGE THE CREATURE DIRECTLY
+			IT IS ASSUMED THESE CAN BE CALLED FROM THE OUTSIDE WITHOUT MODIFYING THE CREATURE.
+		*/
+
+
+
+		inline float ageFactor() const
 		{
 			static const float a = 0.6;
 			//static const float b = 0.164993; // a=0.4
@@ -59,40 +68,25 @@ class Creature : public std::enable_shared_from_this<Creature>
 			float re = -a*std::pow( (2*(age+0.5*b*ma) - ma) / ma, ageExponent) + 1;
 			return re > 0 ? re : 0;
 		}
-		inline float currentMaxHealth() { return mySpecies->getMaxHealth()*currentResistance(); }
-		inline float healthPercentage() { return currentHealth/currentMaxHealth(); }
-		inline float currentResistance() { return mySpecies->getResistance() * curAgeFactor; }
-		inline float minAge() { return mySpecies->getMaxAge()*matingAge; }
-		inline float mHealthCost() { return currentMaxHealth() * matingHealthCost; }
-		inline float currentMaxSpeed() { return mySpecies->getMaxSpeed() * currentResistance(); }
+		inline float currentMaxHealth() const { return mySpecies->getMaxHealth()*currentResistance(); }
+		inline float healthPercentage() const { return currentHealth/currentMaxHealth(); }
+		inline float currentResistance() const { return mySpecies->getResistance() * curAgeFactor; }
+		inline float minAge() const { return mySpecies->getMaxAge()*matingAge; }
+		inline float mHealthCost() const { return currentMaxHealth() * matingHealthCost; }
+		inline float currentMaxSpeed() const { return mySpecies->getMaxSpeed() * currentResistance(); }
 
-		inline float envDamage() {
+		inline float envDamage() const {
 			float envDmg = std::pow( (currentTile->calcTemperature() - mySpecies->getOptimalTemperature()) / altModifier1, altModifier2);
 			if ( mySpecies->getType() == Species::HERBA ) envDmg = envDmg*plantEnvDmgFactor;
-
 			envDmg = envDmg/currentResistance() * envMult;
-			if ( currentHealth <= envDmg ) {
-				if(age > old * mySpecies->getMaxAge()) die(OLD);
-				else die(FROZEN);
-			}
 			return envDmg;
 		}
-		inline float waterSupply() { return currentTile->getCurrentHumidity()/mySpecies->getWaterRequirement(); }
-		inline float waterDamage() {
-			float dmg = waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * std::pow(1 - waterSupply(), 3) : 0;
-			if ( currentHealth <= dmg ) {
-				if(age > old * mySpecies->getMaxAge()) die(OLD);
-				else die(THIRST);
-			}
-			return dmg;
+		inline float waterSupply() const { return currentTile->getCurrentHumidity()/mySpecies->getWaterRequirement(); }
+		inline float waterDamage() const {
+			return waterSupply()<1 ? mySpecies->getMaxHealth()*mySpecies->getWaterRequirement() * std::pow(1 - waterSupply(), 3) : 0;
 		}
-		inline float foodDamage() {
-			float dmg = mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();
-			if ( currentHealth <= dmg ) {
-				if(age > old * mySpecies->getMaxAge()) die(OLD);
-				else die(STARVED);
-			}
-			return dmg;
+		inline float foodDamage() const {
+			return mySpecies->getMaxHealth()*mySpecies->getFoodRequirement()*currentResistance();
 		}
 
 		//'' END Calculated Values ##

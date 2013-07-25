@@ -84,6 +84,7 @@ std::shared_ptr<Creature> Generator::createRandomCreature()
 	if( hab > 0.0f && ptr_creature->validPos( Position ) )
 	{
 		ptr_creature->setPositionUnsafe( Position );
+		ptr_creature->recalcAgeFactor();
 		return ptr_creature;
 	}
 
@@ -127,6 +128,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
             ptr_creature->setLastMating( mating_dist( rnd ) );
 
 			ptr_creature->setPositionUnsafe( Position );
+			ptr_creature->recalcAgeFactor();
 			return ptr_creature;
 		}
 	}
@@ -151,6 +153,7 @@ std::shared_ptr<Creature> Generator::createNonRandomCreature( const std::shared_
 			ptr_creature->setCurrentHealth( spec->getMaxHealth() );
 			ptr_creature->setAge( 0 );
 			ptr_creature->setPositionUnsafe( Position );
+			ptr_creature->recalcAgeFactor();
 			return ptr_creature;
 		}
 	}
