@@ -359,7 +359,6 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 
 	G->updateVertexArrays();
 	//G->printSettings();
-	PlotGraph( GT );
 }
 
 GraphBook::graphTuple& GraphBook::cTT()

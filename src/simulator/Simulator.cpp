@@ -322,6 +322,9 @@ void Simulator::advance()
 			// dont notify on single-step
 			if ( TicksToSim > 1 )
 			{
+				// remove "forwarding" message.
+				Module::Get()->QueueEvent( Event("CLOSE_MESSAGE", std::string("Forwarding.") ), true );
+
 				std::string text = boost::lexical_cast<std::string>( TicksToSim ) + " Ticks Simulated in " + boost::lexical_cast<std::string>(TickTimer.restart().asSeconds()) + " s.";
 				std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "Simulation Stopped", text, "PAUSELOCK_DOWN", true ));
 
@@ -803,6 +806,12 @@ void Simulator::forwardTo(const int i){
 	TickTimer.restart();
 	simulateTicks = TicksToSim;
 	Engine::out(Engine::SPAM) << "[Simulator][forwardTo] yet to simulate " << TicksToSim << std::endl;
+
+	std::string msg = "Please wait while we simulate ";
+	msg += boost::lexical_cast<std::string>( TicksToSim );
+	msg += " ticks.";
+	std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::MODAL , "Forwarding.", msg) );
+	Module::Get()->QueueEvent( Event("NEW_MESSAGE", M), true );
 
 	//~ isPaused = wasPaused;
 	//~ Engine::getCfg()->set("sim.paused", isPaused);
