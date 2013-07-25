@@ -122,11 +122,7 @@ void Creature::live()
 	if(mySpecies->getType() == Species::HERBIVORE)
 	{
 		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::CARNIVORE);
-		if(nearest) {
-			//std::cout << "Fleeing from " << Position << " to " << Position + Geom::normalize(Position - nearest->getPosition())*currentMaxSpeed() << " - nearest is at " << nearest->getPosition() << std::flush;
-			didsomethingthistick = moveTo(Position + Geom::normalize(Position - nearest->getPosition())*currentMaxSpeed());
-			//std::cout << " => SUCCESS!" << std::endl;
-		}
+		if(nearest) didsomethingthistick = moveTo(Position + Geom::normalize(Position - nearest->getPosition())*currentMaxSpeed());
 	}
 
 
@@ -422,7 +418,6 @@ void Creature::calcDamage()
 
 void Creature::die(CauseOfDeath cod)
 {
-	std::cout << "Creature dieing!!" << std::endl;
 	setCurrentHealth(-1);
 	// make sure we won't be simulated later
 	causeOfDeath = cod;
