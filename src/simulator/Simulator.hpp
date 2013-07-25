@@ -205,28 +205,17 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 		static Simulator* Instance;
 
 		// Statistics
+		std::vector<int> Counts[3];
+		std::vector<int> DeathCounts[3];
+		std::vector<int> BirthCounts[3];
 
-		/// Counter for each type of Creature ( Carnivore, Herbivore, Herba )
-		int CreatureCounts[3];
-		/// Counter for each way a creature can die
-        int MeansOfDeath[6];
-
-		std::vector<int> CarnivoreCounts;
-		std::vector<int> HerbivoreCounts;
-		std::vector<int> HerbaeCounts;
-
-		std::vector<int> EatenCounts;
-		std::vector<int> StarvedCounts;
-		std::vector<int> FrozenCounts;
-		std::vector<int> ThirstCounts;
-		std::vector<int> OldCounts;
+		std::vector<int> MeansOfDeathCounts[6];
 
 		std::shared_ptr<sbe::GraphPlotter> CountGraph;
+		std::shared_ptr<sbe::GraphPlotter> BirthDeathGraph;
 		std::shared_ptr<sbe::GraphPlotter> DeathGraph;
 
 		std::vector<int> ProcessingTimes;
-
-
 
 };
 

@@ -23,7 +23,7 @@ class GraphBook : public sbe::EventUser
 {
 	public:
 
-		GraphBook( const Geom::Vec2 Size = Geom::Vec2( 400, 400 ) );
+		GraphBook();
 		virtual ~GraphBook() {};
 
 		/**

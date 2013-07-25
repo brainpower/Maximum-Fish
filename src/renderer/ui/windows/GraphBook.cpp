@@ -13,9 +13,11 @@
 
 #include <string>
 
+#include "sbe/Config.hpp"
+
 using namespace sfg;
 
-GraphBook::GraphBook( const Geom::Vec2 Size )
+GraphBook::GraphBook()
  : ListenToActionKeys( 0 ),
  textchangeavoidrecursive( true )
 {
@@ -25,7 +27,7 @@ GraphBook::GraphBook( const Geom::Vec2 Size )
 	RegisterForEvent( "KEY_PRESSED_ENTER" );
 	RegisterForEvent( "RESET_UI" );
 	RegisterForEvent( "debug_reload_graph" );
-	CreateWindow( Size );
+	CreateWindow( Geom::Vec2( Engine::getCfg()->get<int>("sim.plots.size.x")+60,Engine::getCfg()->get<int>("sim.plots.size.y")+40 ) );
 	Win->Show( false );
 }
 

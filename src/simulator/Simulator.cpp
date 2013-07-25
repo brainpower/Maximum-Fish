@@ -234,7 +234,7 @@ void Simulator::NewSimulation( std::shared_ptr<SimState> newstate)
 	// count Creatures once
 	for( auto C : newstate->creatures )
 	{
-		CreatureCounts[ (int)(C->getSpecies()->getType()) ]++;
+		Counts[ (int)(C->getSpecies()->getType()) ].back()++;
 		C->updateTileFromPos();
 	}
 
@@ -352,12 +352,8 @@ void Simulator::advance()
 
 		state->currentTick++;
 
-        // log stats and reset counters
-		logTickStats();
-
 		if(! (state->currentTick % _freezeRate))
 			_pod->freeze(state);
-
 
 	}
 
@@ -367,9 +363,9 @@ void Simulator::advance()
 		SendScaleUpdate();
 
 		Module::Get()->DebugString("#Species", boost::lexical_cast<std::string>(state->species->size()));
-		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( HerbaeCounts.back() ));
-		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( HerbivoreCounts.back() ));
-		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( CarnivoreCounts.back() ));
+		Module::Get()->DebugString("#Plants", boost::lexical_cast<std::string>( Counts[ Species::HERBA ].back() ));
+		Module::Get()->DebugString("#Herbivores", boost::lexical_cast<std::string>( Counts[ Species::HERBIVORE ].back() ));
+		Module::Get()->DebugString("#Carnivores", boost::lexical_cast<std::string>( Counts[ Species::CARNIVORE ].back() ));
 		Module::Get()->DebugString("#Tick", boost::lexical_cast<std::string>( state->currentTick ));
 //		Module::Get()->DebugString("#rnds", boost::lexical_cast<std::string>( state->numGenerated ));
 //		Module::Get()->DebugString("Dead - Eaten", boost::lexical_cast<std::string>( EatenCounts.back() ));
@@ -385,6 +381,12 @@ void Simulator::advance()
 		}
 
 		RendererUpdate.restart();
+	}
+
+	if ( !isPaused)
+	{
+		// log stats and reset counters
+		logTickStats();
 	}
 }
 
@@ -477,10 +479,11 @@ void Simulator::CleanupTick()
 	// cleanup dead creatures
 	for(auto it = state->creatures.begin(); it != state->creatures.end(); )
 	{
-
+		int type = (int)((*it)->getSpecies()->getType());
 		if ((*it)->getCurrentHealth() <= 0)
 		{
-			MeansOfDeath[ (*it)->getCauseOfDeath() ]++;
+			MeansOfDeathCounts[ (*it)->getCauseOfDeath() ].back()++;
+			DeathCounts[ type ].back()++;
 
 			(*it)->getTile()->removeCreature(*it);
 			auto it2 = it++;
@@ -488,7 +491,11 @@ void Simulator::CleanupTick()
 		}
 		else
         {
-			CreatureCounts[ (int)((*it)->getSpecies()->getType()) ]++;
+			Counts[ type ].back()++;
+			if ( (*it)->getAge() == 0)
+			{
+				BirthCounts[ type ].back()++;
+			}
 
 			(*(++it))->done = false;
 		}
@@ -502,65 +509,61 @@ void Simulator::logTickStats()
 {
 	if(!isInitialized) return;
 
-	HerbaeCounts.push_back(CreatureCounts[(int)Species::HERBA]);
-	HerbivoreCounts.push_back(CreatureCounts[(int)Species::HERBIVORE]);
-	CarnivoreCounts.push_back(CreatureCounts[(int)Species::CARNIVORE]);
+	CountGraph->updateCurveData( "Herbs", 		Counts[ Species::HERBA ]  );
+	CountGraph->updateCurveData( "Herbivore", 	Counts[ Species::HERBIVORE ] );
+	CountGraph->updateCurveData( "Carnivore", 	Counts[ Species::CARNIVORE ] );
 
-    EatenCounts.push_back(      MeansOfDeath[ Creature::EATEN   ]);
-	StarvedCounts.push_back(    MeansOfDeath[ Creature::STARVED ]);
-	FrozenCounts.push_back(     MeansOfDeath[ Creature::FROZEN  ]);
-	ThirstCounts.push_back(     MeansOfDeath[ Creature::THIRST  ]);
-	OldCounts.push_back(        MeansOfDeath[ Creature::OLD     ]);
+	DeathGraph->updateCurveData("Dead - Eaten", 	MeansOfDeathCounts[ Creature::EATEN ]);
+	DeathGraph->updateCurveData("Dead - Frozen", 	MeansOfDeathCounts[ Creature::FROZEN ]);
+	DeathGraph->updateCurveData("Dead - Starved", 	MeansOfDeathCounts[ Creature::STARVED ]);
+	DeathGraph->updateCurveData("Dead - Thirst", 	MeansOfDeathCounts[ Creature::THIRST ]);
+	DeathGraph->updateCurveData("Dead - Old", 		MeansOfDeathCounts[ Creature::OLD ]);
+	DeathGraph->updateCurveData("Dead - None", 		MeansOfDeathCounts[ Creature::NONE ]);
 
-    CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
+	BirthDeathGraph->updateCurveData("Deaths - Herbae", 		DeathCounts[ Species::HERBA ]);
+	BirthDeathGraph->updateCurveData("Births - Herbae", 		BirthCounts[ Species::HERBA ]);
+	BirthDeathGraph->updateCurveData("Deaths - Herbivores", 	DeathCounts[ Species::HERBIVORE ]);
+	BirthDeathGraph->updateCurveData("Births - Herbivores", 	BirthCounts[ Species::HERBIVORE ]);
+	BirthDeathGraph->updateCurveData("Deaths - Carnivores", 	DeathCounts[ Species::CARNIVORE ]);
+	BirthDeathGraph->updateCurveData("Births - Carnivores", 	BirthCounts[ Species::CARNIVORE ]);
 
-    for ( int i = 0; i < Creature::NONE; ++i)
-        MeansOfDeath[i] = 0;
+	// add new counter for the next tick
+    for ( int i = 0; i <= Creature::NONE; ++i)
+	{
+		MeansOfDeathCounts[i].push_back(0);
+	}
 
-	CountGraph->updateCurveData( "Herbs", HerbaeCounts );
-	CountGraph->updateCurveData( "Herbivore", HerbivoreCounts );
-	CountGraph->updateCurveData( "Carnivore", CarnivoreCounts );
 
-	DeathGraph->updateCurveData("Dead - Eaten", EatenCounts   );
-	DeathGraph->updateCurveData("Dead - Frozen", FrozenCounts);
-	DeathGraph->updateCurveData("Dead - Starved", StarvedCounts);
-	DeathGraph->updateCurveData("Dead - Thirst", ThirstCounts);
-	DeathGraph->updateCurveData("Dead - Old", OldCounts);
+	for ( int i = 0; i < 3; ++i)
+	{
+		Counts[i].push_back(0);
+		BirthCounts[i].push_back(0);
+		DeathCounts[i].push_back(0);
+	}
 
 	//ProcessingTimes.push_back(  )
 }
 
 void Simulator::resetStats()
 {
-    CreatureCounts[0] = 0;
-	CreatureCounts[1] = 0;
-	CreatureCounts[2] = 0;
 
-    for ( int i = 0; i < Creature::NONE; ++i)
-        MeansOfDeath[i] = 0;
+    for ( int i = 0; i <= Creature::NONE; ++i)
+	{
+		MeansOfDeathCounts[i].clear();
+		MeansOfDeathCounts[i].push_back(0);
+	}
 
-    EatenCounts.clear();
-	StarvedCounts.clear();
-	FrozenCounts.clear();
-	ThirstCounts.clear();
-	OldCounts.clear();
+	for ( int i = 0; i < 3; ++i)
+	{
+		Counts[i].clear();
+		Counts[i].push_back(0);
 
-	EatenCounts.push_back(0);
-	StarvedCounts.push_back(0);
-	FrozenCounts.push_back(0);
-	ThirstCounts.push_back(0);
-	OldCounts.push_back(0);
+		BirthCounts[i].clear();
+		BirthCounts[i].push_back(0);
 
-	CarnivoreCounts.clear();
-	HerbaeCounts.clear();
-	HerbivoreCounts.clear();
-
-    CarnivoreCounts.push_back(0);
-	HerbaeCounts.push_back(0);
-	HerbivoreCounts.push_back(0);
-
+		DeathCounts[i].clear();
+		DeathCounts[i].push_back(0);
+	}
 }
 
 void Simulator::CreatePlotters()
@@ -571,34 +574,57 @@ void Simulator::CreatePlotters()
 
 	CountGraph.reset(new sbe::GraphPlotter );
 	DeathGraph.reset(new sbe::GraphPlotter );
+	BirthDeathGraph.reset(new sbe::GraphPlotter );
+
+	Geom::Point Size = Geom::Point( Engine::getCfg()->get<int>("sim.plots.size.x"),Engine::getCfg()->get<int>("sim.plots.size.y") );
 
 	{
         sbe::Graph g;
-        g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
-        g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
-        g.addCurve( sbe::Curve("Herbs", HerbaeCounts, sf::Color::Green) );
-        g.addCurve( sbe::Curve("Herbivore", HerbivoreCounts, sf::Color::Blue) );
-        g.addCurve( sbe::Curve("Carnivore", CarnivoreCounts, sf::Color::Red) );
-	CountGraph->setGraph( g );
+        g.Size = Size;
+        g.AxisSize = Geom::Point( 1000, 1000 );
+        g.addCurve( sbe::Curve("Herbs", 	Counts[ Species::HERBA ] , sf::Color::Green) );
+        g.addCurve( sbe::Curve("Herbivore", Counts[ Species::HERBIVORE ], sf::Color::Blue) );
+        g.addCurve( sbe::Curve("Carnivore", Counts[ Species::CARNIVORE ], sf::Color::Red) );
+		CountGraph->setGraph( g );
 	}
 
+	{
+		sbe::Graph g;
+        g.Size = Size;
+        g.AxisSize = Geom::Point( 1000, 1000 );
+        g.addCurve( sbe::Curve("Dead - Eaten", 		MeansOfDeathCounts[ Creature::EATEN ], sf::Color::Black) );
+        g.addCurve( sbe::Curve("Dead - Frozen", 	MeansOfDeathCounts[ Creature::FROZEN ], sf::Color::Cyan) );
+        g.addCurve( sbe::Curve("Dead - Starved", 	MeansOfDeathCounts[ Creature::STARVED ], sf::Color::Yellow) );
+        g.addCurve( sbe::Curve("Dead - Thirst", 	MeansOfDeathCounts[ Creature::THIRST ], sf::Color::Magenta) );
+        g.addCurve( sbe::Curve("Dead - Old", 		MeansOfDeathCounts[ Creature::OLD ], sf::Color(0, 80, 0)) );
+        g.addCurve( sbe::Curve("Dead - NONE", 		MeansOfDeathCounts[ Creature::NONE ], sf::Color(0, 102, 50)) );
+		DeathGraph->setGraph( g );
+	}
+
+	{
         sbe::Graph g;
-        g.Size = Geom::Point( Engine::getCfg()->get<int>("sim.countplot.size.x"),Engine::getCfg()->get<int>("sim.countplot.size.y"));
-        g.AxisSize = Geom::Point(Engine::getCfg()->get<int>("sim.countplot.axissize.x"), Engine::getCfg()->get<int>("sim.countplot.axissize.y"));
-        g.addCurve( sbe::Curve("Dead - Eaten", EatenCounts, sf::Color::Black) );
-        g.addCurve( sbe::Curve("Dead - Frozen", FrozenCounts, sf::Color::Cyan) );
-        g.addCurve( sbe::Curve("Dead - Starved", StarvedCounts, sf::Color::Yellow) );
-        g.addCurve( sbe::Curve("Dead - Thirst", ThirstCounts, sf::Color::Magenta) );
-        g.addCurve( sbe::Curve("Dead - Old", OldCounts, sf::Color(0, 80, 0)) );
-	DeathGraph->setGraph( g );
+        g.Size = Size;
+        g.AxisSize = Geom::Point( 1000, 1000 );
+        g.addCurve( sbe::Curve("Deaths - Herbae", 		DeathCounts[ (int)Species::HERBA ], sf::Color( 102, 0, 0) ) );
+        g.addCurve( sbe::Curve("Births - Herbae", 		BirthCounts[ (int)Species::HERBA ], sf::Color( 255, 0, 0) ) );
+        g.addCurve( sbe::Curve("Deaths - Herbivores", 	DeathCounts[ (int)Species::HERBIVORE ], sf::Color( 0, 102, 0) ) );
+        g.addCurve( sbe::Curve("Births - Herbivores", 	BirthCounts[ (int)Species::HERBIVORE ], sf::Color( 0, 255, 0) ) );
+        g.addCurve( sbe::Curve("Deaths - Carnivores", 	DeathCounts[ (int)Species::CARNIVORE ], sf::Color( 0, 0, 102) ) );
+        g.addCurve( sbe::Curve("Births - Carnivores", 	BirthCounts[ (int)Species::CARNIVORE ], sf::Color( 0, 0, 255) ) );
+		BirthDeathGraph->setGraph( g );
+	}
 
     //Engine::out() << "[Simulator] Queueing Population graph" << std::endl;
 	auto data = std::make_pair( std::string( "Population" ), CountGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data), true);
 
-    //Engine::out() << "[Simulator] Queueing MoD graph" << std::endl;
-	auto data2 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
+    //Engine::out() << "[Simulator] Queueing Population graph" << std::endl;
+	auto data2 = std::make_pair( std::string( "Population Changes" ), BirthDeathGraph );
 	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data2), true);
+
+    //Engine::out() << "[Simulator] Queueing MoD graph" << std::endl;
+	auto data3 = std::make_pair( std::string( "Means of Death" ), DeathGraph );
+	Module::Get()->QueueEvent(Event("ADD_GRAPH_TO_BOOK", data3), true);
 
 }
 
