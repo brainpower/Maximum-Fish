@@ -68,11 +68,11 @@ void GraphBook::HandleEvent( Event& e )
 		}
 		else
 		{
-			updatePosition();
 			if ( hasValidTab() )
                 PlotGraph( cTT() ); //not really clicked, but for updating the current tab
 			Win->Show( true );
 			Win->GrabFocus();
+			updatePosition();
 			UpdateTimer.restart();
 		}
 	}
