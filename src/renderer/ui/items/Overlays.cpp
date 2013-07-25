@@ -54,6 +54,13 @@ Overlays::Overlays()
 	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
 	ubuttonbox->Pack ( UpdateButton, false, false);
 
+	sfg::Button::Ptr DisableButton = sfg::Button::Create("Disable all Overlays");
+	DisableButton->GetSignal( sfg::Button::OnLeftClick ).Connect( &Overlays::HideAll, this );
+	sfg::Box::Ptr dbuttonbox = sfg::Box::Create( sfg::Box::HORIZONTAL, 0 );
+	dbuttonbox->Pack ( Spacer, true, true );
+	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
+	dbuttonbox->Pack ( DisableButton, false, false);
+
 	sfg::Separator::Ptr sep =  sfg::Separator::Create();
 	sep->SetRequisition( sf::Vector2f( 10, 30 ) );
 
@@ -72,6 +79,7 @@ Overlays::Overlays()
 	myBox->Pack( Spacer, true, true );
 	myBox->Pack( cbuttonbox, false, false );
 	myBox->Pack( ubuttonbox, false, false );
+	myBox->Pack( dbuttonbox, false, false );
 	myBox->Pack( sep, false, true );
 	myBox->Pack( ChkButton, false, false );
 	myBox->Pack( CurrentFrame, false, false );
@@ -128,9 +136,10 @@ void Overlays::AddMap( std::shared_ptr<sbe::MapPlotter>& M )
 			  && myOverlays.getSelectedItem() == M->getName() )
 		ShowMap( M->getName() );
 
+	if ( myOverlays.getSelectedItem() == "" ) myOverlays.select(0);
 }
 
-void Overlays::ShowMap( std::string& name )
+void Overlays::ShowMap( const std::string& name )
 {
 	if ( Maps.count(name) == 1)
 	{
@@ -154,6 +163,17 @@ void Overlays::ClearOverlays()
 {
 	CurrentFrame->RemoveAll();
 	CurrentFrame->SetLabel( "None" );
+}
+
+void Overlays::HideAll()
+{
+	for ( auto& overlay : Maps )
+	{
+		if (overlay.second.second)
+			RemoveActor( overlay.first );
+		if ( myOverlays.getSelectedItem() == overlay.first )
+			ShowMap( overlay.first );
+	}
 }
 
 void Overlays::ToggleLive()

@@ -30,10 +30,12 @@ class Overlays : sbe::EventUser
 		*/
 		void HandleEvent( Event& e);
 
-		///
+		/// Removes current overlay
 		void ClearOverlays();
 		/// Toggle rendering of current overlay
 		void ToggleRendering();
+		/// Disable rendering of all overlays
+		void HideAll();
 		/// toggle live updating of overlays
 		void ToggleLive();
 		/// update overlays right now
@@ -41,7 +43,7 @@ class Overlays : sbe::EventUser
 
 	private:
 
-		void ShowMap( std::string& name );
+		void ShowMap( const std::string& name );
 		void AddMap( std::shared_ptr<sbe::MapPlotter>& M );
 
 		void CreateActor( const std::string& name );
