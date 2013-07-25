@@ -68,7 +68,7 @@ endif(USE_CUSTOM_SFML)
 
 find_package(Boost 1.48 COMPONENTS thread system)# regex)
 #only audio required, the others are pulled in by sfgui
-find_package(SFML 2 COMPONENTS graphics window system)
+find_package(SFML 2 COMPONENTS audio graphics window system)
 
 #######################################################
 ####################### SBE ###########################
