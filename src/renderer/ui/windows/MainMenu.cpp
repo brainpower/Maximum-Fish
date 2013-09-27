@@ -97,9 +97,17 @@ void MainMenu::HandleEvent( Event& e )
 	{*/
 		if ( boost::any_cast<bool>(e.Data()) ) Module::Get()->QueueEvent( Event( "EVT_QUIT" ) , true );
 	}
-    else if ( (e.Is("EVT_SAVE_BAD", typeid(std::string)) || e.Is("EVT_LOAD_BAD", typeid(std::string))) )
+    else if ( e.Is("EVT_SAVE_BAD", typeid(std::string)  ) )
 	{
-		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE / LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
+		Module::Get()->QueueEvent( Event("CLOSE_MESSAGE", std::string("Saving...") ) );
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "SAVE ERROR!", boost::any_cast< std::string >(e.Data())) );
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
+
+	}
+    else if (  e.Is("EVT_LOAD_BAD", typeid(std::string)) )
+	{
+		Module::Get()->QueueEvent( Event("CLOSE_MESSAGE", std::string("Loading...") ) );
+		std::shared_ptr<sbe::Message> M( new sbe::Message( sbe::Message::Type::OK , "LOAD ERROR!", boost::any_cast< std::string >(e.Data())) );
 		Module::Get()->QueueEvent( Event("NEW_MESSAGE", M) );
 
 	}

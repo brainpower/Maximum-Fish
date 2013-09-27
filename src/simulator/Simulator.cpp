@@ -134,7 +134,7 @@ void Simulator::HandleEvent(Event& e)
 	{
 		Engine::GetResMgr()->saveObject( "DebugTerrain", state->terrain, true);
 	}
-	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string)) && isInitialized ) {
+	else if (e.Is("EVT_SAVE_WHOLE", typeid(std::string)) ) {
 		saveWhole(boost::any_cast<std::string>(e.Data()));
 	}
 	else if (e.Is("EVT_LOAD_WHOLE", typeid(std::string))) {
@@ -737,7 +737,13 @@ void Simulator::registerIOPlugins()
 }
 
 void Simulator::saveWhole(const std::string &savePath){
-	if(!isInitialized) return;
+	if(!isInitialized)
+	{
+		Event e("EVT_SAVE_BAD", std::string("Simulation invalid!"));
+		Module::Get()->QueueEvent(e, true);
+		return;
+	}
+
 	bool wasPaused = isPaused;
 
 	isPaused = true; // pause sim while saving
