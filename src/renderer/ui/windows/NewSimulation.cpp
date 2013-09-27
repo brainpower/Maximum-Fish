@@ -208,6 +208,7 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 	OptimalTemperature = entry("sim.species.defaults.optimalTemperature");
 	NewSpecies = entry("");
 	SpeciesType = entry("plant", 0);
+	SpeciesType->SetState(sfg::Widget::INSENSITIVE);
 	CreatureCount = entry("0", 0);
 
 	Table::Ptr main = Table::Create();
@@ -334,7 +335,7 @@ void NewSimWindow::modifySpecies(std::shared_ptr<Species> S)
 	S->setMaxRegeneration(boost::lexical_cast<float>(MaxRegen->GetText().toAnsiString()));
 	S->setFoodRequirement(boost::lexical_cast<float>(FoodReq->GetText().toAnsiString()));
 	S->setWaterRequirement(boost::lexical_cast<float>(WaterReq->GetText().toAnsiString()));
-	S->setType( getCurrentSpeciesType() );
+
 	S->setOptimalTemperature(boost::lexical_cast<int>(OptimalTemperature->GetText().toAnsiString()));
 	t_species_count[last_selected] = boost::lexical_cast<int>(CreatureCount->GetText().toAnsiString());
 }
