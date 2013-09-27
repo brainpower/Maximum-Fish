@@ -16,7 +16,10 @@ void Generator::CreateSpeciesWithCreatures(  Species::SPECIES_TYPE type, int Spe
 {
 	for ( int i = 0; i < SpeciesCount; ++i)
 	{
-		std::shared_ptr<Species> S = createSpecies( type );
+		std::string name = Species::type2String(type);
+		name += "_" + boost::lexical_cast<std::string>(i);
+
+		std::shared_ptr<Species> S = createSpecies( type, name );
 		state->species->push_back( S );
 		for ( int j = 0; j < (CreatureCount/SpeciesCount); ++j)
 		{
@@ -41,35 +44,6 @@ void Generator::CreateCreatures( std::shared_ptr<std::vector<std::shared_ptr<Spe
 
 }
 
-
-std::shared_ptr<Species> Generator::createRandomSpecies()
-{
-	std::uniform_int_distribution<int> type_rnd(0,2);
-	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
-
-	Species::SPECIES_TYPE t = (Species::SPECIES_TYPE) type_rnd( rnd );
-
-	std::string name;
-	switch (t)
-	{
-	case Species::SPECIES_TYPE::HERBA:
-		name = "plant";
-		break;
-	case Species::SPECIES_TYPE::HERBIVORE:
-		name = "herbivore";
-		break;
-	case Species::SPECIES_TYPE::CARNIVORE:
-		name = "carnivore";
-		break;
-	}
-
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(state->species->size()), t) );
-
-	S->setType( t );
-	S->setOptimalTemperature( temp_rnd( rnd ) );
-
-	return S;
-}
 
 std::shared_ptr<Creature> Generator::createRandomCreature()
 {
@@ -162,29 +136,21 @@ std::shared_ptr<Creature> Generator::createNonRandomCreature( const std::shared_
 }
 
 
-std::shared_ptr<Species> Generator::createSpecies( Species::SPECIES_TYPE type )
+std::shared_ptr<Species> Generator::createRandomSpecies(Species::SPECIES_TYPE type, const std::string& name, std::mt19937& rnd)
 {
 	std::uniform_int_distribution<int> type_rnd(0,2);
 	std::uniform_int_distribution<int> temp_rnd(Engine::getCfg()->get<int>("sim.species.rnd.temp.min"),Engine::getCfg()->get<int>("sim.species.rnd.temp.max"));
 
-	std::string name;
-	switch (type)
-	{
-		case Species::SPECIES_TYPE::HERBA:
-			name = "plant";
-		break;
-		case Species::SPECIES_TYPE::HERBIVORE:
-			name = "herbivore";
-		break;
-		case Species::SPECIES_TYPE::CARNIVORE:
-			name = "carnivore";
-		break;
-	}
+	std::shared_ptr<Species> S ( new Species( name, type) );
 
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(state->species->size()), type) );
+	S->setOptimalTemperature( temp_rnd( rnd ) );
 
-	S->setType( type );
-	S->setOptimalTemperature( temp_rnd(rnd ) );
+	return S;
+}
 
+
+std::shared_ptr<Species> Generator::createSpecies( Species::SPECIES_TYPE type, const std::string& name )
+{
+	std::shared_ptr<Species> S ( new Species( name , type) );
 	return S;
 }

@@ -1,6 +1,10 @@
 #include "NewSimulation.hpp"
 
+#include "sbe/sfg/Message.hpp"
+
 #include "sbe/Config.hpp"
+
+#include "simulator/Generator.hpp"
 
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
@@ -9,6 +13,8 @@
 #include <SFGUI/Entry.hpp>
 #include <SFGUI/Button.hpp>
 #include <SFGUI/Table.hpp>
+#include <SFGUI/Separator.hpp>
+#include <SFGUI/ComboBox.hpp>
 
 using namespace sfg;
 
@@ -43,26 +49,21 @@ void NewSimWindow::HandleEvent(Event& e)
 		{
 			if(s.compare(t_species[i]->getName()) == 0)
 			{
-				NewSpecies->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getName()))));
-				MaxAge->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxAge()))));
-				MaxHealth->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxHealth()))));
-				MaxSpeed->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxSpeed()))));
-				Reach->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getReach()))));
-				Resistance->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getResistance()))));
-				BreedingSpeed->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getBreedingSpeed()))));
-				MaxRegen->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getMaxRegeneration()))));
-				FoodReq->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getFoodRequirement()))));
-				WaterReq->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getWaterRequirement()))));
-				OptimalTemperature->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species[i]->getOptimalTemperature()))));
-				if(t_species[i]->getType() ==  Species::SPECIES_TYPE::HERBA)
-				{
-					SpeciesType->SetText(*(new sf::String("HERBA")));
-				} else if(t_species[i]->getType() ==  Species::SPECIES_TYPE::HERBIVORE) {
-					SpeciesType->SetText(*(new sf::String("HERBIVORE")));
-				} else {
-					SpeciesType->SetText(*(new sf::String("CARNIVORE")));
-				}
-				SpeciesCount->SetText(*(new sf::String(boost::lexical_cast<std::string>(t_species_count[i]))));
+				NewSpecies->SetText(t_species[i]->getName());
+				MaxAge->SetText(boost::lexical_cast<std::string>(t_species[i]->getMaxAge()));
+				MaxHealth->SetText(boost::lexical_cast<std::string>(t_species[i]->getMaxHealth()));
+				MaxSpeed->SetText(boost::lexical_cast<std::string>(t_species[i]->getMaxSpeed()));
+				Reach->SetText(boost::lexical_cast<std::string>(t_species[i]->getReach()));
+				Resistance->SetText(boost::lexical_cast<std::string>(t_species[i]->getResistance()));
+				BreedingSpeed->SetText(boost::lexical_cast<std::string>(t_species[i]->getBreedingSpeed()));
+				MaxRegen->SetText(boost::lexical_cast<std::string>(t_species[i]->getMaxRegeneration()));
+				FoodReq->SetText(boost::lexical_cast<std::string>(t_species[i]->getFoodRequirement()));
+				WaterReq->SetText(boost::lexical_cast<std::string>(t_species[i]->getWaterRequirement()));
+				OptimalTemperature->SetText(boost::lexical_cast<std::string>(t_species[i]->getOptimalTemperature()));
+
+				SpeciesType->SetText(Species::type2String( t_species[i]->getType() ));
+
+				CreatureCount->SetText(boost::lexical_cast<std::string>(t_species_count[i]));
 				last_selected = s_list.getIndex(s);
 			}
 		}
@@ -206,68 +207,78 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 	WaterReq = entry("sim.species.defaults.waterRequirement.carnivore");
 	OptimalTemperature = entry("sim.species.defaults.optimalTemperature");
 	NewSpecies = entry("");
-	SpeciesType = entry("HERBA", 0);
-	SpeciesCount = entry("0", 0);
+	SpeciesType = entry("plant", 0);
+	CreatureCount = entry("0", 0);
 
 	Table::Ptr main = Table::Create();
-	Button::Ptr okBtn = Button::Create( "Create" );
+	Button::Ptr newBtn = Button::Create( "Add Default Species" );
+	Button::Ptr rndBtn = Button::Create( "Add Random Species" );
 	Button::Ptr delBtn = Button::Create( "Delete" );
-	okBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::newSpeciesClick , this );
+	newBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::newSpeciesClick , this );
+	rndBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::newRandomSpeciesClick , this );
 	delBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::delSpeciesClick , this );
-	s_list = *(new sbe::sfgList("SPECIES_GEN_CLICKED"));
-	main->Attach(s_list.getList(), {{0,0},{1,1}}, Table::EXPAND, 0);
 
-		main->Attach( lbl("New Species" ),			{{1,0},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( NewSpecies, 					{{2,0},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( okBtn, 						{{3,0},{1,1}}, Table::FILL, 0 );
-		main->Attach( delBtn, 						{{4,0},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl("Species Count" ),		{{0,1},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( SpeciesCount, 				{{3,1},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( lbl( "Species Type" ),		{{0,2},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( SpeciesType, 					{{3,2},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Maximum Age" ),			{{0,3},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( MaxAge, 						{{3,3},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Maximum Health" ), 		{{0,4},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( MaxHealth, 					{{3,4},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Maximum Speed" ), 		{{0,5},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( MaxSpeed, 					{{3,5},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Maximum Reach" ), 		{{0,6},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( Reach, 						{{3,6},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Resistance" ), 			{{0,7},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( Resistance, 					{{3,7},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "BreedingSpeed" ), 		{{0,8},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( BreedingSpeed, 				{{3,8},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Maximum Regeneration" ),{{0,9},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( MaxRegen, 					{{3,9},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Food Requirement" ), 	{{0,10},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( FoodReq,			 			{{3,10},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Water Requirement" ), 	{{0,11},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( WaterReq,			 			{{3,11},{1,1}}, Table::FILL, 0 );
-		main->Attach( lbl( "Optimal Temperature" ), {{0,12},{1,1}}, Table::EXPAND, 0 );
-		main->Attach( OptimalTemperature, 			{{3,12},{1,1}}, Table::FILL, 0 );
+	Separator::Ptr spacer = Separator::Create(Separator::Orientation::HORIZONTAL);
+	cmbBox = ComboBox::Create();
+	cmbBox->AppendItem("plant");
+	cmbBox->AppendItem("herbivore");
+	cmbBox->AppendItem("carnivore");
+	cmbBox->SelectItem(0);
+
+	s_list.setClickEventName("SPECIES_GEN_CLICKED");
+
+	unsigned r = 0;
+	main->Attach(s_list.getList(), {{0,r},{1,6}}, Table::FILL, 0);
+
+		main->Attach( lbl("New Species" ),			{{1,r++},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( NewSpecies, 					{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( cmbBox,						{{1,r++},{1,1}}, Table::FILL, 0);
+		main->Attach( newBtn, 						{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( rndBtn, 						{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( delBtn, 						{{1,r++},{1,1}}, Table::FILL, 0);
+		main->Attach( spacer, 				 		{{0,r++},{2,1}}, Table::FILL, 0);
+		main->Attach( lbl("# of Creatures" ),		{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( CreatureCount, 				{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Species Type" ),		{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( SpeciesType, 					{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Age" ),			{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxAge, 						{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Health" ), 		{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxHealth, 					{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Speed" ), 		{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxSpeed, 					{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Reach" ), 		{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( Reach, 						{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Resistance" ), 			{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( Resistance, 					{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "BreedingSpeed" ), 		{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( BreedingSpeed, 				{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Maximum Regeneration" ),{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( MaxRegen, 					{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Food Requirement" ), 	{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( FoodReq,			 			{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Water Requirement" ), 	{{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( WaterReq,			 			{{1,r++},{1,1}}, Table::FILL, 0 );
+		main->Attach( lbl( "Optimal Temperature" ), {{0,r},{1,1}}, Table::EXPAND, 0 );
+		main->Attach( OptimalTemperature, 			{{1,r++},{1,1}}, Table::FILL, 0 );
 
 		main->Attach( Box::Create(), 					{{1,0},{1,5}});
 	main->Attach( Box::Create(), 						{{0,5},{3,1}});
 
-	main->SetColumnSpacings( 2.0f );
+	main->SetColumnSpacings( 5.0f );
 	main->SetRowSpacings( 2.0f );
 
-	t_species.push_back(createSpecies(Species::SPECIES_TYPE::HERBA));
-	t_species.push_back(createSpecies(Species::SPECIES_TYPE::HERBIVORE));
-	t_species.push_back(createSpecies(Species::SPECIES_TYPE::CARNIVORE));
+	for ( int i = 0; i < Engine::getCfg()->get<int>( "sim.terragen.species.plant" ); ++i )
+		t_species.push_back(Generator::createSpecies(Species::SPECIES_TYPE::HERBA, "plant_" + boost::lexical_cast<std::string>(t_species.size() ) ));
+	for ( int i = 0; i < Engine::getCfg()->get<int>( "sim.terragen.species.herbivore" ); ++i )
+		t_species.push_back(Generator::createSpecies(Species::SPECIES_TYPE::HERBIVORE, "herbivore_" + boost::lexical_cast<std::string>(t_species.size() ) ));
+	for ( int i = 0; i < Engine::getCfg()->get<int>( "sim.terragen.species.carnivore" ); ++i )
+		t_species.push_back(Generator::createSpecies(Species::SPECIES_TYPE::CARNIVORE, "carnivore_" + boost::lexical_cast<std::string>(t_species.size() ) ));
 
 	for(std::shared_ptr<Species> spe : t_species)
 	{
 		s_list.addItem(spe->getName());
-		if(spe->getType() == Species::SPECIES_TYPE::HERBA)
-		{
-			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.plant"));
-		} else if(spe->getType() == Species::SPECIES_TYPE::HERBIVORE)
-		{
-			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.herbivore"));
-		} else {
-			t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count.carnivore"));
-		}
+		t_species_count.push_back(Engine::getCfg()->get<int>("sim.terragen.count." + Species::type2String(spe->getType())));
 	}
 	s_list.select(0);
 	return main;
@@ -275,6 +286,10 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 
 void NewSimWindow::okClick()
 {
+
+	if(last_selected != -1)  {
+		modifySpecies(t_species[last_selected]);
+	}
 
 	Engine::getCfg()->set("sim.terragen.count", CountMult->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.defaultSeed", Seed->GetText().toAnsiString());
@@ -298,17 +313,6 @@ void NewSimWindow::okClick()
 	Engine::getCfg()->set("sim.terragen.debug.humidity.rainfall", RainFall->GetText().toAnsiString());
 	Engine::getCfg()->set("sim.terragen.debug.humidity.rainamount", RainAmount->GetText().toAnsiString());
 
-	Engine::getCfg()->set("sim.species.defaults.maxAge", MaxAge->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.maxHealth", MaxHealth->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.maxSpeed.carnivore", MaxSpeed->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.reach.carnivore", Reach->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.resistance", Resistance->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.breedingSpeed.carnivore", BreedingSpeed->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.maxRegeneration.carnivore", MaxRegen->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.foodRequirement.carnivore", FoodReq->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.waterRequirement.carnivore", WaterReq->GetText().toAnsiString());
-	Engine::getCfg()->set("sim.species.defaults.optimalTemperature", OptimalTemperature->GetText().toAnsiString());
-
 	Win->Show(false);
 
 	if(!t_species.empty())
@@ -321,16 +325,6 @@ void NewSimWindow::okClick()
 
 void NewSimWindow::modifySpecies(std::shared_ptr<Species> S)
 {
-	Species::SPECIES_TYPE type;
-	if(SpeciesType->GetText().toAnsiString().compare("HERBA") == 0)
-	{
-		type = Species::SPECIES_TYPE::HERBA;
-	} else if(SpeciesType->GetText().toAnsiString().compare("HERBIVORE") == 0) {
-		type = Species::SPECIES_TYPE::HERBIVORE;
-	} else {
-		type = Species::SPECIES_TYPE::CARNIVORE;
-	}
-
 	S->setMaxAge(boost::lexical_cast<int>(MaxAge->GetText().toAnsiString()));
 	S->setMaxHealth(boost::lexical_cast<float>(MaxHealth->GetText().toAnsiString()));
 	S->setMaxSpeed(boost::lexical_cast<float>(MaxSpeed->GetText().toAnsiString()));
@@ -340,9 +334,9 @@ void NewSimWindow::modifySpecies(std::shared_ptr<Species> S)
 	S->setMaxRegeneration(boost::lexical_cast<float>(MaxRegen->GetText().toAnsiString()));
 	S->setFoodRequirement(boost::lexical_cast<float>(FoodReq->GetText().toAnsiString()));
 	S->setWaterRequirement(boost::lexical_cast<float>(WaterReq->GetText().toAnsiString()));
-	S->setType( type );
+	S->setType( getCurrentSpeciesType() );
 	S->setOptimalTemperature(boost::lexical_cast<int>(OptimalTemperature->GetText().toAnsiString()));
-	t_species_count[last_selected] = boost::lexical_cast<int>(SpeciesCount->GetText().toAnsiString());
+	t_species_count[last_selected] = boost::lexical_cast<int>(CreatureCount->GetText().toAnsiString());
 }
 
 void NewSimWindow::abortClick()
@@ -352,9 +346,31 @@ void NewSimWindow::abortClick()
 
 void NewSimWindow::newSpeciesClick()
 {
-	s_list.addItem(NewSpecies->GetText().toAnsiString());
-	t_species_count.push_back(boost::lexical_cast<int>(SpeciesCount->GetText().toAnsiString()));
-	createSpecies();
+	std::string name = NewSpecies->GetText().toAnsiString();
+	if(s_list.getIndex(name) < 0) {
+		s_list.addItem(name);
+		t_species_count.push_back(boost::lexical_cast<int>(CreatureCount->GetText().toAnsiString()));
+		createSpecies();
+	} else {
+		std::string text = "The Species '" + name + "' is already present!";
+		std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "Species already exists!", text ));
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
+	}
+}
+
+void NewSimWindow::newRandomSpeciesClick()
+{
+	std::string name = NewSpecies->GetText().toAnsiString();
+	if(s_list.getIndex(name) < 0) {
+		s_list.addItem(name);
+		t_species_count.push_back(boost::lexical_cast<int>(CreatureCount->GetText().toAnsiString()));
+		std::shared_ptr<Species> S = Generator::createRandomSpecies(getCurrentSpeciesType(), name, rnd);
+		t_species.push_back(S);
+	} else {
+		std::string text = "The Species '" + name + "' is already present!";
+		std::shared_ptr<sbe::Message> m( new sbe::Message(sbe::Message::OK, "Species already exists!", text ));
+		Module::Get()->QueueEvent( Event("NEW_MESSAGE", m), true );
+	}
 }
 
 void NewSimWindow::delSpeciesClick()
@@ -390,55 +406,11 @@ SharedPtr<Label> NewSimWindow::lbl( const std::string& text, sf::Vector2f Align 
 
 void NewSimWindow::createSpecies()
 {
-	Species::SPECIES_TYPE type;
-	if(SpeciesType->GetText().toAnsiString().compare("HERBA") == 0)
-	{
-		type = Species::SPECIES_TYPE::HERBA;
-	} else if(SpeciesType->GetText().toAnsiString().compare("HERBIVORE") == 0) {
-		type = Species::SPECIES_TYPE::HERBIVORE;
-	} else {
-		type = Species::SPECIES_TYPE::CARNIVORE;
-	}
-	std::shared_ptr<Species> S ( new Species( NewSpecies->GetText().toAnsiString(), type) );
-
-
-	S->setMaxAge(boost::lexical_cast<int>(MaxAge->GetText().toAnsiString()));
-	S->setMaxHealth(boost::lexical_cast<float>(MaxHealth->GetText().toAnsiString()));
-	S->setMaxSpeed(boost::lexical_cast<float>(MaxSpeed->GetText().toAnsiString()));
-	S->setReach(boost::lexical_cast<float>(Reach->GetText().toAnsiString()));
-	S->setResistance(boost::lexical_cast<float>(Resistance->GetText().toAnsiString()));
-	S->setBreedingSpeed(boost::lexical_cast<int>(BreedingSpeed->GetText().toAnsiString()));
-	S->setMaxRegeneration(boost::lexical_cast<float>(MaxRegen->GetText().toAnsiString()));
-	S->setFoodRequirement(boost::lexical_cast<float>(FoodReq->GetText().toAnsiString()));
-	S->setWaterRequirement(boost::lexical_cast<float>(WaterReq->GetText().toAnsiString()));
-	S->setType( type );
-	S->setOptimalTemperature(boost::lexical_cast<int>(OptimalTemperature->GetText().toAnsiString()));
-
+	std::shared_ptr<Species> S ( new Species( NewSpecies->GetText().toAnsiString(), getCurrentSpeciesType()) );
 	t_species.push_back(S);
 }
 
-std::shared_ptr<Species> NewSimWindow::createSpecies( Species::SPECIES_TYPE type )
+Species::SPECIES_TYPE NewSimWindow::getCurrentSpeciesType()
 {
-	std::uniform_int_distribution<int> type_rnd(0,2);
-
-	std::string name;
-	switch (type)
-	{
-		case Species::SPECIES_TYPE::HERBA:
-			name = "plant";
-		break;
-		case Species::SPECIES_TYPE::HERBIVORE:
-			name = "herbivore";
-		break;
-		case Species::SPECIES_TYPE::CARNIVORE:
-			name = "carnivore";
-		break;
-	}
-
-	std::shared_ptr<Species> S ( new Species( name + "_" + boost::lexical_cast<std::string>(t_species.size()), type) );
-
-	S->setType( type );
-	S->setOptimalTemperature( Engine::getCfg()->get<int>("sim.species.rnd.temp.min") );
-
-	return S;
+	return Species::string2Type(cmbBox->GetSelectedText().toAnsiString());
 }

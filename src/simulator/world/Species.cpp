@@ -15,24 +15,10 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
  foodRequirement( 0 ),
  waterRequirement( 0 ),
  optimalTemperature( 0 ),
- ImageSetName("Creatures_serious"),
+ ImageSetName(""),
  Frame( t )
 {
-	std::string typestring;
-	switch ( type )
-	{
-		case HERBA:
-			typestring = "plant";
-			maxSpeed = 0;
-			break;
-		case HERBIVORE:
-			typestring = "herbivore";
-			break;
-		case CARNIVORE:
-			typestring = "carnivore";
-			break;
-	}
-
+	std::string typestring = type2String( type );
 	Reach = Engine::getCfg()->get<float>("sim.species.defaults.reach")
 			* Engine::getCfg()->get<float>("sim.species.defaults.reach." + typestring);
 
@@ -57,7 +43,8 @@ Species::Species(const std::string& _name, SPECIES_TYPE t)
 						* Engine::getCfg()->get<float>("sim.species.defaults.waterRequirement." + typestring);
 
 	optimalTemperature = Engine::getCfg()->get<int>("sim.species.defaults.optimalTemperature");
-	ImageSetName = Engine::getCfg()->get<std::string>("sim.species.defaults.imageSetName");
+
+	ImageSetName = Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet");
 
 }
 

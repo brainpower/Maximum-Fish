@@ -12,7 +12,7 @@ Details::Details()
 
 void Details::HandleEvent(Event& e)
 {
-	if (UpdateTimer.getElapsedTime() > sf::seconds(1.0))
+	if (UpdateTimer.getElapsedTime() > sf::seconds(.33))
 	{
 		UpdateLabel();
 		UpdateTimer.restart();

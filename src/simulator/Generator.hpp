@@ -35,14 +35,19 @@ class Generator
 		std::shared_ptr<Creature> createCreature( const std::shared_ptr<Species>& spec );
 
 		std::shared_ptr<Creature> createNonRandomCreature( const std::shared_ptr<Species>& spec );
+
+
+
 		/// create a random new species
-		std::shared_ptr<Species> createRandomSpecies();
+		static std::shared_ptr<Species> createRandomSpecies(Species::SPECIES_TYPE type, const std::string& name, std::mt19937& rnd);
 
 		/**
 			Create a new species with a given type.
 			@param type the type of the new species
+			@param name the name for the new species
 		*/
-		std::shared_ptr<Species> createSpecies( Species::SPECIES_TYPE type );
+		static std::shared_ptr<Species> createSpecies( Species::SPECIES_TYPE type, const std::string& name );
+
 
 	private:
 	    std::mt19937& rnd;

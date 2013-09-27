@@ -19,6 +19,7 @@ namespace sfg
 	class Window;
 	class Entry;
 	class Label;
+	class ComboBox;
 }
 
 class NewSimWindow : public sbe::EventUser
@@ -35,11 +36,13 @@ class NewSimWindow : public sbe::EventUser
 
 		void okClick();
 		void newSpeciesClick();
+		void newRandomSpeciesClick();
 		void delSpeciesClick();
 		void abortClick();
 		void createSpecies();
 		void modifySpecies(std::shared_ptr<Species> _spec);
-		std::shared_ptr<Species> createSpecies( Species::SPECIES_TYPE type );
+
+		Species::SPECIES_TYPE getCurrentSpeciesType();
 
 		sfg::SharedPtr<sfg::Entry> entry( const std::string& cfg, sf::Vector2f req = { 60, 5 } );
 		sfg::SharedPtr<sfg::Entry> entry( std::string _str,int _t, sf::Vector2f req = { 60, 5 } );
@@ -82,12 +85,16 @@ class NewSimWindow : public sbe::EventUser
 		sfg::SharedPtr<sfg::Entry> OptimalTemperature;
 		sfg::SharedPtr<sfg::Entry> NewSpecies;
 		sfg::SharedPtr<sfg::Entry> SpeciesType;
-		sfg::SharedPtr<sfg::Entry> SpeciesCount;
+		sfg::SharedPtr<sfg::Entry> CreatureCount;
+
+		sfg::SharedPtr<sfg::ComboBox>  cmbBox;
 
 		sbe::sfgList s_list;
 		std::vector<std::shared_ptr<Species>> t_species;
 		std::vector<int> t_species_count;
 		int last_selected = -1;
+
+		std::mt19937 rnd;
 };
 
 #endif // NEWSIM_HPP

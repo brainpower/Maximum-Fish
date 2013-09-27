@@ -16,6 +16,34 @@ class Species
 			CARNIVORE
 		};
 
+		static std::string type2String( SPECIES_TYPE t )
+		{
+			std::string typestring;
+			switch ( t )
+			{
+				case HERBA:
+					typestring = "plant";
+					break;
+				case HERBIVORE:
+					typestring = "herbivore";
+					break;
+				case CARNIVORE:
+					typestring = "carnivore";
+					break;
+			}
+			return typestring;
+		}
+
+		static SPECIES_TYPE string2Type( const std::string& t )
+		{
+			SPECIES_TYPE type;
+			if ( t=="plant" )	type = HERBA;
+			else if ( t=="herbivore") type = HERBIVORE;
+			else if ( t=="carnivore") type = CARNIVORE;
+			return type;
+		}
+
+
 		Species(const std::string &_name, SPECIES_TYPE t);
 
 		virtual ~Species();
