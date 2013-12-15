@@ -1,3 +1,0 @@
-[submodule "libsbe"]
-	path = libsbe
-	url = git@github.com:Lirrec/SchiffbruchEngine.git

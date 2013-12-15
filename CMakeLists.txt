@@ -2,26 +2,16 @@ project(Maximum-Fish)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/cmake/Modules" ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
-
 #######################################################
 ######################## Cmake Options ################
 #######################################################
 
 option( PROFILE "" OFF)
-if(NOT USE_CUSTOM_BOOST)
-	option(USE_CUSTOM_BOOST "" OFF)
-endif()
-option(USE_CUSTOM_SFML "" ON)
-set(CUSTOM_BOOST_ROOT "${CUSTOM_BOOST_ROOT}" CACHE PATH "custom boost build root dir")
-set(CUSTOM_SFML_ROOT "${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML" CACHE PATH "custom SFML build root dir")
 
 option(SUPPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
 option(ENABLE_LTO "enable lto, if ya dont know what this is, ya dont need it!" OFF)
 
-set( SFGUI_BUILD_EXAMPLES false CACHE BOOL "Do or dont build examples)")
 set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
-set( SFML_STATIC_LIBRARIES true CACHE BOOL "Was SFML built as a static library?" )
 
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #set(VERSION_CHECK_DONE OFF)
@@ -52,30 +42,31 @@ endif()
 ################## External Libraries #################
 #######################################################
 
-if(USE_CUSTOM_BOOST)
-	message(STATUS "Using custom boost...")
-	message(STATUS "setting BOOST_ROOT to ${CUSTOM_BOOST_ROOT}")
-	set(Boost_NO_SYSTEM_PATHS ON)
-	set(BOOST_ROOT "${CUSTOM_BOOST_ROOT}")
-	set(BOOST_LIBRARYDIR "${CUSTOM_BOOST_ROOT}/lib")
-endif()
 
-if(USE_CUSTOM_SFML)
-	message(STATUS "Using custom SFML...")
-	set(SFML_ROOT "${CUSTOM_SFML_ROOT}/build")
-	set(SFML_INCLUDE_DIR "${CUSTOM_SFML_ROOT}/include")
-endif(USE_CUSTOM_SFML)
 
-find_package(Boost 1.48 COMPONENTS thread system)# regex)
-#only audio required, the others are pulled in by sfgui
-find_package(SFML 2 COMPONENTS audio graphics window system)
+find_package(Boost 1.48 COMPONENTS thread system REQUIRED)# regex)
+find_package(SFML 2 COMPONENTS audio graphics window system REQUIRED)
+find_package(SFGUI REQUIRED)
+find_package(SBE REQUIRED)
+
 
 #######################################################
 ####################### SBE ###########################
 #######################################################
 
 #set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
-add_subdirectory(libsbe)
+
+if(SBE_FOUND)
+	include_directories(${SBE_INCLUDE_DIR})
+else()
+	message( FATAL_ERROR "!! SBE not found!")
+endif()
+
+if(SFGUI_FOUND)
+	include_directories(${SFGUI_INCLUDE_DIR})
+else()
+	message( FATAL_ERROR "!! SBE not found!")
+endif()
 
 # check for libraries
 
@@ -113,14 +104,6 @@ file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.hpp" "${SR
 
 include_directories( ${PROJECT_SOURCE_DIR}/src )
 
-get_property(INCLUDE_DIRS GLOBAL PROPERTY SBE_INCLUDE_DIRS)
-
-include_directories( ${INCLUDE_DIRS} )
-#include_directories( ${PROJECT_SOURCE_DIR}/libsbe/include )
-#include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/include )
-#include_directories( ${PROJECT_SOURCE_DIR}/libsbe/SFGUI/extlibs/SFML/include )
-
-
 #needed on windows to find the libs sfml provides
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
   link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/x86 )
@@ -156,16 +139,13 @@ endif()
 
 add_definitions( -DBOOST_THREAD_USE_LIB -pipe )
 
-if(NOT SHARED)
-	add_definitions( -DSFML_STATIC -DSFGUI_STATIC)
-endif()
 if(ENABLE_LTO)
 	add_definitions( -flto )
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
-	add_definitions( -fstack-protector --param=ssp-buffer-size=4 ) 
+	#add_definitions( -fstack-protector --param=ssp-buffer-size=4 ) 
 elseif(CMAKE_BUILD_TYPE MATCHES Release)
 	if( PROFILE )
 		add_definitions( -O1 )
@@ -179,7 +159,7 @@ if( PROFILE )
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
-target_link_libraries(MaximumFish sbe sfgui )
+target_link_libraries(MaximumFish ${SBE_LIBRARY} ${SFGUI_LIBRARY} ${SFML_LIBRARIES} )
 
 if( PROFILE )
 	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )
