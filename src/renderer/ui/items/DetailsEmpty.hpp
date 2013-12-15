@@ -13,8 +13,8 @@ class DetailsEmpty : public Details
 		virtual ~DetailsEmpty() {}
 		virtual void UpdateLabel() {}
 		virtual void UpdateBox() {}
-        virtual sfg::SharedPtr<sfg::Widget> GetLabel();
-        virtual sfg::SharedPtr<sfg::Widget> GetBox();
+        virtual std::shared_ptr<sfg::Widget> GetLabel();
+        virtual std::shared_ptr<sfg::Widget> GetBox();
 };
 
 #endif // DETAILS_EMPTY_H

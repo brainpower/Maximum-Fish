@@ -7,7 +7,7 @@
 #include "renderer/ui/items/DetailsSpecies.hpp"
 #include "renderer/ui/items/DetailsTile.hpp"
 
-#include <SFGUI/SharedPtr.hpp>
+
 namespace sfg
 {
 	class Box;
@@ -23,7 +23,7 @@ class Manipulator : public sbe::EventUser
 		virtual ~Manipulator() {};
 
 		virtual void HandleEvent( Event& e );
-		virtual sfg::SharedPtr<sfg::Box> Get();
+		virtual std::shared_ptr<sfg::Box> Get();
     private:
         bool ThisNotSelector;
 		void SwitchToSelector();
@@ -33,9 +33,9 @@ class Manipulator : public sbe::EventUser
 		void ResetInformation();
 
         std::shared_ptr<Details> CurrentDetailsBox;
-		sfg::SharedPtr<sfg::Box> WholeBox;
+		std::shared_ptr<sfg::Box> WholeBox;
 
-        sfg::SharedPtr<sfg::Label>  Information;
+        std::shared_ptr<sfg::Label>  Information;
 };
 
 #endif // MANIPULATOR_H

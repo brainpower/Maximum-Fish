@@ -31,32 +31,32 @@ Overlays::Overlays()
 	RegisterForEvent( "DISPLAY_MAP" );
 	RegisterForEvent( "RESET_UI" );
 
-	myBox = sfg::Box::Create( sfg::Box::VERTICAL );
+	myBox = sfg::Box::Create( sfg::Box::Orientation::VERTICAL );
 
 	myOverlays.getList()->SetRequisition( sf::Vector2f( 50, 150 ) );
 
-	sfg::Box::Ptr Spacer = sfg::Box::Create( sfg::Box::VERTICAL );
+	sfg::Box::Ptr Spacer = sfg::Box::Create( sfg::Box::Orientation::VERTICAL );
 	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
 
 
 	sfg::Button::Ptr ClearButton = sfg::Button::Create("Clear");
-	ClearButton->GetSignal( sfg::Button::OnLeftClick ).Connect( &Overlays::ClearOverlays, this );
-	sfg::Box::Ptr cbuttonbox = sfg::Box::Create( sfg::Box::HORIZONTAL, 0 );
+	ClearButton->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &Overlays::ClearOverlays, this ));
+	sfg::Box::Ptr cbuttonbox = sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 0 );
 	cbuttonbox->Pack ( Spacer, true, true );
 	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
 	cbuttonbox->Pack ( ClearButton, false, false);
 
 
 	sfg::Button::Ptr UpdateButton = sfg::Button::Create("Update Overlays now");
-	UpdateButton->GetSignal( sfg::Button::OnLeftClick ).Connect( &Overlays::ForceUpdate, this );
-	sfg::Box::Ptr ubuttonbox = sfg::Box::Create( sfg::Box::HORIZONTAL, 0 );
+	UpdateButton->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &Overlays::ForceUpdate, this ));
+	sfg::Box::Ptr ubuttonbox = sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 0 );
 	ubuttonbox->Pack ( Spacer, true, true );
 	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
 	ubuttonbox->Pack ( UpdateButton, false, false);
 
 	sfg::Button::Ptr DisableButton = sfg::Button::Create("Disable all Overlays");
-	DisableButton->GetSignal( sfg::Button::OnLeftClick ).Connect( &Overlays::HideAll, this );
-	sfg::Box::Ptr dbuttonbox = sfg::Box::Create( sfg::Box::HORIZONTAL, 0 );
+	DisableButton->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &Overlays::HideAll, this ));
+	sfg::Box::Ptr dbuttonbox = sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 0 );
 	dbuttonbox->Pack ( Spacer, true, true );
 	Spacer->SetRequisition( sf::Vector2f( 10, 10 ) );
 	dbuttonbox->Pack ( DisableButton, false, false);
@@ -66,7 +66,7 @@ Overlays::Overlays()
 
 	sfg::CheckButton::Ptr ChkButton = sfg::CheckButton::Create("Update live");
 	ChkButton->SetActive(Engine::getCfg()->get<bool>("system.ui.Overlays.live"));
-	ChkButton->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Overlays::ToggleLive, this );
+	ChkButton->GetSignal( sfg::ToggleButton::OnToggle ).Connect( std::bind( &Overlays::ToggleLive, this ));
 	ChkButton->SetRequisition( sf::Vector2f( 10, 30 ) );
 
 	CurrentFrame = sfg::Frame::Create("None");
@@ -150,8 +150,8 @@ void Overlays::ShowMap( const std::string& name )
 		//sfg::Image::Ptr I = sfg::Image::Create( Maps[name].first->getImage() );
 		sfg::CheckButton::Ptr CB = sfg::CheckButton::Create( "Active" );
 		if (Maps[name].second) CB->SetActive ( true );
-		CB->GetSignal( sfg::ToggleButton::OnToggle ).Connect( &Overlays::ToggleRendering, this );
-		sfg::Box::Ptr B = sfg::Box::Create(sfg::Box::VERTICAL);
+		CB->GetSignal( sfg::ToggleButton::OnToggle ).Connect( std::bind( &Overlays::ToggleRendering, this ));
+		sfg::Box::Ptr B = sfg::Box::Create(sfg::Box::Orientation::VERTICAL);
 		B->Pack(CB, false, false);
 		B->Pack(I, false, false);
 		CurrentFrame->Add(B);

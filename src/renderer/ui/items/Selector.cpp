@@ -20,7 +20,7 @@ Selector::Selector()
 void Selector::CreateBox()
 {
         //create wholebox
-        WholeBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+        WholeBox = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 3.0f );
 
             //create notebook
             sfg::Notebook::Ptr selectiontabs( sfg::Notebook::Create() );
@@ -54,20 +54,20 @@ void Selector::CreateBox()
 
 
     //set Events
-    CreatureFrame->GetSignal( sfg::Frame::OnRightClick ).Connect( &Selector::SwitchToCreatureManipulator, this );
-    CreatureFrame->GetSignal( sfg::Frame::OnMouseEnter ).Connect( &Selector::ExtendCreatureLabel, this );
-    CreatureFrame->GetSignal( sfg::Frame::OnMouseLeave ).Connect( &Selector::ReduceCreatureLabel, this );
-    CreatureFrame->GetSignal( sfg::Frame::OnRightClick ).Connect( &Selector::ReduceCreatureLabel, this );
+    CreatureFrame->GetSignal( sfg::Frame::OnRightClick ).Connect( std::bind( &Selector::SwitchToCreatureManipulator, this ));
+    CreatureFrame->GetSignal( sfg::Frame::OnMouseEnter ).Connect( std::bind( &Selector::ExtendCreatureLabel, this ));
+    CreatureFrame->GetSignal( sfg::Frame::OnMouseLeave ).Connect( std::bind( &Selector::ReduceCreatureLabel, this ));
+    CreatureFrame->GetSignal( sfg::Frame::OnRightClick ).Connect( std::bind( &Selector::ReduceCreatureLabel, this ));
 
-    SpeciesFrame->GetSignal(  sfg::Frame::OnRightClick ).Connect( &Selector::SwitchToSpeciesManipulator, this );
-    SpeciesFrame->GetSignal(  sfg::Frame::OnMouseEnter ).Connect( &Selector::ExtendSpeciesLabel, this );
-    SpeciesFrame->GetSignal(  sfg::Frame::OnMouseLeave ).Connect( &Selector::ReduceSpeciesLabel, this );
-    SpeciesFrame->GetSignal(  sfg::Frame::OnRightClick ).Connect( &Selector::ReduceSpeciesLabel, this );
+    SpeciesFrame->GetSignal(  sfg::Frame::OnRightClick ).Connect( std::bind( &Selector::SwitchToSpeciesManipulator, this ));
+    SpeciesFrame->GetSignal(  sfg::Frame::OnMouseEnter ).Connect( std::bind( &Selector::ExtendSpeciesLabel, this ));
+    SpeciesFrame->GetSignal(  sfg::Frame::OnMouseLeave ).Connect( std::bind( &Selector::ReduceSpeciesLabel, this ));
+    SpeciesFrame->GetSignal(  sfg::Frame::OnRightClick ).Connect( std::bind( &Selector::ReduceSpeciesLabel, this ));
 
-    TileFrame->GetSignal(     sfg::Frame::OnRightClick ).Connect( &Selector::SwitchToTileManipulator, this );
-    TileFrame->GetSignal(     sfg::Frame::OnMouseEnter ).Connect( &Selector::ExtendTileLabel, this );
-    TileFrame->GetSignal(     sfg::Frame::OnMouseLeave ).Connect( &Selector::ReduceTileLabel, this );
-    TileFrame->GetSignal(     sfg::Frame::OnRightClick ).Connect( &Selector::ReduceTileLabel, this );
+    TileFrame->GetSignal(     sfg::Frame::OnRightClick ).Connect( std::bind( &Selector::SwitchToTileManipulator, this ));
+    TileFrame->GetSignal(     sfg::Frame::OnMouseEnter ).Connect( std::bind( &Selector::ExtendTileLabel, this ));
+    TileFrame->GetSignal(     sfg::Frame::OnMouseLeave ).Connect( std::bind( &Selector::ReduceTileLabel, this ));
+    TileFrame->GetSignal(     sfg::Frame::OnRightClick ).Connect( std::bind( &Selector::ReduceTileLabel, this ));
 
 }
 

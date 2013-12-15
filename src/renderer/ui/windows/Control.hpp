@@ -5,7 +5,7 @@
 
 #include "sbe/geom/Point.hpp"
 
-#include <SFGUI/SharedPtr.hpp>
+
 namespace sfg
 {
 	class ToggleButton;
@@ -27,17 +27,17 @@ class Control : public sbe::EventUser
 
 	private:
 		void CreateWindow( const Geom::Vec2 Size );
-		sfg::SharedPtr<sfg::ToggleButton> BtnDbgWin;
-        sfg::SharedPtr<sfg::ToggleButton> BtnIPanWin;
-        sfg::SharedPtr<sfg::ToggleButton> BtnMnMnWin;
-        sfg::SharedPtr<sfg::ToggleButton> BtnGraBoWin;
-        sfg::SharedPtr<sfg::ToggleButton> BtnSimPause;
-        sfg::SharedPtr<sfg::Button> BtnSimReset;
-        sfg::SharedPtr<sfg::Button> BtnSimSingleFrame;
-        sfg::SharedPtr<sfg::Button> BtnSimFrames;
-        sfg::SharedPtr<sfg::Entry> Framesdisplay;
-        sfg::SharedPtr<sfg::Scale> SclTickSlider;
-        sfg::SharedPtr<sfg::Entry> TickScaleDisplay;
+		std::shared_ptr<sfg::ToggleButton> BtnDbgWin;
+        std::shared_ptr<sfg::ToggleButton> BtnIPanWin;
+        std::shared_ptr<sfg::ToggleButton> BtnMnMnWin;
+        std::shared_ptr<sfg::ToggleButton> BtnGraBoWin;
+        std::shared_ptr<sfg::ToggleButton> BtnSimPause;
+        std::shared_ptr<sfg::Button> BtnSimReset;
+        std::shared_ptr<sfg::Button> BtnSimSingleFrame;
+        std::shared_ptr<sfg::Button> BtnSimFrames;
+        std::shared_ptr<sfg::Entry> Framesdisplay;
+        std::shared_ptr<sfg::Scale> SclTickSlider;
+        std::shared_ptr<sfg::Entry> TickScaleDisplay;
         unsigned int Frames;
         void BtnFramesUpClick();
 		void BtnFramesDownClick();
@@ -69,7 +69,7 @@ class Control : public sbe::EventUser
 		int ChangeframesonButtons;
 		void CalculateNewFrames();
 
-		sfg::SharedPtr<sfg::Window> Win;
+		std::shared_ptr<sfg::Window> Win;
 
 };
 

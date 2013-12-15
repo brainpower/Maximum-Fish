@@ -48,8 +48,8 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 	Win->SetRequisition( sf::Vector2f( Size.x, Size.y ) );
 
 	// main box, vertical
-	Box::Ptr box( Box::Create( Box::VERTICAL, 5.0f ) );
-	Box::Ptr buttonBox( Box::Create( Box::HORIZONTAL, 5.0f ) );
+	Box::Ptr box( Box::Create( Box::Orientation::VERTICAL, 5.0f ) );
+	Box::Ptr buttonBox( Box::Create( Box::Orientation::HORIZONTAL, 5.0f ) );
 	buttonBox->SetRequisition({ (float)Size.x, 0});
 
 		BtnMnMnWin =  ToggleButton::Create(  "MainMenu [Esc]" );
@@ -62,14 +62,14 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnSimFrames = Button::Create(     ">>|" );
 		SclTickSlider = sfg::Scale::Create();
 
-		Box::Ptr boxTickSlider = Box::Create( Box::HORIZONTAL, 5.0f );
+		Box::Ptr boxTickSlider = Box::Create( Box::Orientation::HORIZONTAL, 5.0f );
 		boxTickSlider->SetRequisition({ 100, 30 });
 		SclTickSlider->SetRequisition({ 100, 20 });
 		SclTickSlider->SetIncrements(1,500);
 		SclTickSlider->SetValue(0);
 		SclTickSlider->Show(Engine::getCfg()->get<bool>("sim.paused"));
-		SclTickSlider->GetSignal(sfg::Scale::OnMouseLeftRelease).Connect( &Control::TickSliderReleased, this );
-		SclTickSlider->GetSignal(sfg::Scale::OnMouseMove).Connect( &Control::TickSliderLabelUpdate, this );
+		SclTickSlider->GetSignal(sfg::Scale::OnMouseLeftRelease).Connect( std::bind( &Control::TickSliderReleased, this) );
+		SclTickSlider->GetSignal(sfg::Scale::OnMouseMove).Connect( std::bind( &Control::TickSliderLabelUpdate, this) );
 		TickScaleDisplay = Entry::Create( "0 / 0" );
 		TickScaleDisplay->SetRequisition({ 100, 0 });
 		TickScaleDisplay->SetState( Widget::State::INSENSITIVE );
@@ -77,21 +77,21 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		boxTickSlider->Pack( SclTickSlider, true, true );
 		boxTickSlider->Pack( TickScaleDisplay, false, false );
 
-		Box::Ptr framesframe( Box::Create( Box::HORIZONTAL, 0 ) );
+		Box::Ptr framesframe( Box::Create( Box::Orientation::HORIZONTAL, 0 ) );
 			Framesdisplay = Entry::Create();
 			Framesdisplay->SetRequisition( { 60, 0 } );
 			//Framesdisplay->SetState( Widget::State::INSENSITIVE );
 			Framesdisplay->SetText( boost::lexical_cast<std::string>( Frames ) );
 			textchangeavoidrecursive = false;
-			Framesdisplay->GetSignal( Entry::OnTextChanged ).Connect( &Control::EntryTextChange , this );
-			Framesdisplay->GetSignal( Entry::OnGainFocus ).Connect( &Control::EntryGainFocus , this );
-			Framesdisplay->GetSignal( Entry::OnLostFocus ).Connect( &Control::EntryLostFocus , this );
+			Framesdisplay->GetSignal( Entry::OnTextChanged ).Connect( std::bind( &Control::EntryTextChange , this ));
+			Framesdisplay->GetSignal( Entry::OnGainFocus ).Connect( std::bind( &Control::EntryGainFocus , this ));
+			Framesdisplay->GetSignal( Entry::OnLostFocus ).Connect( std::bind( &Control::EntryLostFocus , this ));
 			Button::Ptr down = Button::Create( "<" );
 			Button::Ptr up   = Button::Create( ">" );
-				down->GetSignal( Button::OnLeftClick ).Connect( &Control::BtnFramesDownClick, this );
-				down->GetSignal( Button::OnLeftClick ).Connect( &Screen::OnHandledEvent, Screen::get() );
-				up->GetSignal(   Button::OnLeftClick ).Connect( &Control::BtnFramesUpClick, this );
-				up->GetSignal(   Button::OnLeftClick ).Connect( &Screen::OnHandledEvent, Screen::get() );
+				down->GetSignal( Button::OnLeftClick ).Connect( std::bind( &Control::BtnFramesDownClick, this ));
+				down->GetSignal( Button::OnLeftClick ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+				up->GetSignal(   Button::OnLeftClick ).Connect( std::bind( &Control::BtnFramesUpClick, this ));
+				up->GetSignal(   Button::OnLeftClick ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
 
 			framesframe->Pack( down, false, false );
 			framesframe->Pack( Framesdisplay, false, false );
@@ -102,23 +102,23 @@ void Control::CreateWindow( const Geom::Vec2 Size )
 		BtnIPanWin->SetActive( true );
 		BtnSimPause->SetActive( true );
 
-		BtnDbgWin->GetSignal(   ToggleButton::OnToggle ).Connect( &Control::BtnDbgWinClick, this );
-		BtnDbgWin->GetSignal(   ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
-		BtnIPanWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Control::BtnIPanWinClick, this );
-		BtnIPanWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
-		BtnMnMnWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Control::BtnMnMnWinClick, this );
-		BtnMnMnWin->GetSignal(  ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
-		BtnGraBoWin->GetSignal( ToggleButton::OnToggle ).Connect( &Control::BtnGraBoWinClick, this );
-		BtnGraBoWin->GetSignal( ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
+		BtnDbgWin->GetSignal(   ToggleButton::OnToggle ).Connect( std::bind( &Control::BtnDbgWinClick, this ));
+		BtnDbgWin->GetSignal(   ToggleButton::OnToggle ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+		BtnIPanWin->GetSignal(  ToggleButton::OnToggle ).Connect( std::bind( &Control::BtnIPanWinClick, this ));
+		BtnIPanWin->GetSignal(  ToggleButton::OnToggle ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+		BtnMnMnWin->GetSignal(  ToggleButton::OnToggle ).Connect( std::bind( &Control::BtnMnMnWinClick, this ));
+		BtnMnMnWin->GetSignal(  ToggleButton::OnToggle ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+		BtnGraBoWin->GetSignal( ToggleButton::OnToggle ).Connect( std::bind( &Control::BtnGraBoWinClick, this ));
+		BtnGraBoWin->GetSignal( ToggleButton::OnToggle ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
 			simPauseConnectionSerial =
-		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( &Control::BtnSimPauseClick, this );
-		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( &Screen::OnHandledEvent, Screen::get() );
-		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimResetClick, this );
-		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
-		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimSingleFrameClick, this );
-		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
-		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( &Control::BtnSimFramesClick, this );
-		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( &Screen::OnHandledEvent, Screen::get() );
+		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( std::bind( &Control::BtnSimPauseClick, this ));
+		BtnSimPause->GetSignal( ToggleButton::OnToggle ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( std::bind( &Control::BtnSimResetClick, this ));
+		BtnSimReset->GetSignal( Button::OnLeftClick    ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( std::bind( &Control::BtnSimSingleFrameClick, this ));
+		BtnSimSingleFrame->GetSignal( Button::OnLeftClick    ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
+		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( std::bind( &Control::BtnSimFramesClick, this ));
+		BtnSimFrames->GetSignal( Button::OnLeftClick    ).Connect( std::bind( &Screen::OnHandledEvent, Screen::get() ));
 
 		buttonBox->Pack( BtnMnMnWin,  false, false );
 		buttonBox->Pack( BtnIPanWin,  false, false );

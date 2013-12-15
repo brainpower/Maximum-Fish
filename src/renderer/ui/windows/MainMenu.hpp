@@ -5,7 +5,7 @@
 
 #include "sbe/geom/Point.hpp"
 
-#include <SFGUI/SharedPtr.hpp>
+
 namespace sfg
 {
 	class Window;
@@ -33,7 +33,7 @@ class MainMenu : public sbe::EventUser
 		void BtnExitClick();
 		void updatePosition();
 
-		sfg::SharedPtr<sfg::Window> Win;
+		std::shared_ptr<sfg::Window> Win;
 		std::shared_ptr<sbe::FileBrowse> fb;
 
 		unsigned int currentlabeltext;

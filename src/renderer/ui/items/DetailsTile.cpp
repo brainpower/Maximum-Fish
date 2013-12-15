@@ -17,7 +17,7 @@ DetailsTile::DetailsTile(const std::shared_ptr<Tile>& _tile)
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
     //Box
-    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+    DetailsBox = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 3.0f );
 
     UpdateLabel();
     UpdateBox();
@@ -43,7 +43,7 @@ void DetailsTile::UpdateBox()
 	DetailsBox->RemoveAll();
 
 	DetailsBox->Pack( sfg::Label::Create( "Height:" ), false, true );
-		sfg::Box::Ptr heightBox( sfg::Box::Create( sfg::Box::HORIZONTAL, 0 ) );
+		sfg::Box::Ptr heightBox( sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 0 ) );
             HeightDiplay = sfg::Entry::Create();
             //HeightDiplay->SetRequisition( sf::Vector2f( 40, 0 ) );
             HeightDiplay->SetState( sfg::Widget::State::INSENSITIVE );
@@ -52,8 +52,8 @@ void DetailsTile::UpdateBox()
             heightDown->SetRequisition( sf::Vector2f( 40, 0 ) );
             sfg::Button::Ptr heightUp   = sfg::Button::Create( ">" );
             heightUp->SetRequisition( sf::Vector2f( 40, 0 ) );
-                //heightDown->GetSignal( sfg::Button::OnLeftClick ).Connect( &Control::BtnHeightDownClick, this );
-                //heightUp->GetSignal(   sfg::Button::OnLeftClick ).Connect( &Control::BtnHeightUpClick, this );
+                //heightDown->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &Control::BtnHeightDownClick, this ));
+                //heightUp->GetSignal(   sfg::Button::OnLeftClick ).Connect( std::bind( &Control::BtnHeightUpClick, this ));
 
             heightBox->Pack( heightDown, false, false );
             heightBox->Pack( HeightDiplay, true, true );
@@ -61,7 +61,7 @@ void DetailsTile::UpdateBox()
 	DetailsBox->Pack( heightBox, false, true );
 
 	DetailsBox->Pack( sfg::Label::Create( "Nutrition:" ), false, true );
-		sfg::Box::Ptr nutritionBox( sfg::Box::Create( sfg::Box::HORIZONTAL, 0 ) );
+		sfg::Box::Ptr nutritionBox( sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 0 ) );
             NutritionDiplay = sfg::Entry::Create();
             //NutritionDiplay->SetRequisition( sf::Vector2f( 40, 0 ) );
             NutritionDiplay->SetState( sfg::Widget::State::INSENSITIVE );
@@ -70,8 +70,8 @@ void DetailsTile::UpdateBox()
             nutritionDown->SetRequisition( sf::Vector2f( 40, 0 ) );
             sfg::Button::Ptr nutritionUp   = sfg::Button::Create( ">" );
             nutritionUp->SetRequisition( sf::Vector2f( 40, 0 ) );
-                //nutritionDown->GetSignal( sfg::Button::OnLeftClick ).Connect( &Control::BtnNutritionDownClick, this );
-                //nutritionUp->GetSignal(   sfg::Button::OnLeftClick ).Connect( &Control::BtnNutritionUpClick, this );
+                //nutritionDown->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &Control::BtnNutritionDownClick, this ));
+                //nutritionUp->GetSignal(   sfg::Button::OnLeftClick ).Connect( std::bind( &Control::BtnNutritionUpClick, this ));
 
             nutritionBox->Pack( nutritionDown, false, false );
             nutritionBox->Pack( NutritionDiplay, true, true );
@@ -79,7 +79,7 @@ void DetailsTile::UpdateBox()
 	DetailsBox->Pack( nutritionBox, false, true );
 
 	DetailsBox->Pack( sfg::Label::Create( "Humidity:" ), false, true );
-		sfg::Box::Ptr humidityBox( sfg::Box::Create( sfg::Box::HORIZONTAL, 0 ) );
+		sfg::Box::Ptr humidityBox( sfg::Box::Create( sfg::Box::Orientation::HORIZONTAL, 0 ) );
             HumidityDiplay = sfg::Entry::Create();
             //HumidityDiplay->SetRequisition( sf::Vector2f( 40, 0 ) );
             HumidityDiplay->SetState( sfg::Widget::State::INSENSITIVE );
@@ -88,8 +88,8 @@ void DetailsTile::UpdateBox()
             humidityDown->SetRequisition( sf::Vector2f( 40, 0 ) );
             sfg::Button::Ptr humidityUp   = sfg::Button::Create( ">" );
             humidityUp->SetRequisition( sf::Vector2f( 40, 0 ) );
-                //humidityDown->GetSignal( sfg::Button::OnLeftClick ).Connect( &Control::BtnHumidityDownClick, this );
-                //humidityUp->GetSignal(   sfg::Button::OnLeftClick ).Connect( &Control::BtnHumidityUpClick, this );
+                //humidityDown->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &Control::BtnHumidityDownClick, this) );
+                //humidityUp->GetSignal(   sfg::Button::OnLeftClick ).Connect( std::bind( &Control::BtnHumidityUpClick, this) );
 
             humidityBox->Pack( humidityDown, false, false );
             humidityBox->Pack( HumidityDiplay, true, true );

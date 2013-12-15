@@ -17,7 +17,7 @@ void Manipulator::CreateBox()
 {
 
         //create wholebox
-        WholeBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+        WholeBox = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 3.0f );
 
        /*     //create InfoFrame
             sfg::Frame::Ptr infoFrame( sfg::Frame::Create( "Information" ) );
@@ -28,12 +28,12 @@ void Manipulator::CreateBox()
 
             //create manipulation1
             sfg::Frame::Ptr m1( sfg::Frame::Create( "m1" ) );
-            unsigned int serial1on  = m1->GetSignal( sfg::Frame::OnMouseEnter ).Connect( &Manipulator::SetInformation_1, this );
-            unsigned int serial1off = m1->GetSignal( sfg::Frame::OnMouseLeave ).Connect( &Manipulator::ResetInformation, this );
+            unsigned int serial1on  = m1->GetSignal( sfg::Frame::OnMouseEnter ).Connect( std::bind( &Manipulator::SetInformation_1, this ));
+            unsigned int serial1off = m1->GetSignal( sfg::Frame::OnMouseLeave ).Connect( std::bind( &Manipulator::ResetInformation, this );
             //create manipulation2
             sfg::Frame::Ptr m2( sfg::Frame::Create("m2") );
-            unsigned int serial2on  = m2->GetSignal( sfg::Frame::OnMouseEnter ).Connect( &Manipulator::SetInformation_2, this );
-            unsigned int serial2off = m2->GetSignal( sfg::Frame::OnMouseLeave ).Connect( &Manipulator::ResetInformation, this );
+            unsigned int serial2on  = m2->GetSignal( sfg::Frame::OnMouseEnter ).Connect( std::bind( &Manipulator::SetInformation_2, this ));
+            unsigned int serial2off = m2->GetSignal( sfg::Frame::OnMouseLeave ).Connect( std::bind( &Manipulator::ResetInformation, this ));
 
         //pack all into wholebox
         WholeBox->Pack( infoFrame, false, true );
@@ -43,7 +43,7 @@ void Manipulator::CreateBox()
         CurrentDetailsBox.reset( new DetailsEmpty() );
         WholeBox->Pack( CurrentDetailsBox->GetBox() );
     //set events
-    WholeBox->GetSignal( sfg::Box::OnRightClick ).Connect( &Manipulator::SwitchToSelector, this );
+    WholeBox->GetSignal( sfg::Box::OnRightClick ).Connect( std::bind( &Manipulator::SwitchToSelector, this) );
 
 }
 

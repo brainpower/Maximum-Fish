@@ -36,24 +36,24 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 
 	// create buttons and link them to methods
 	sfg::Button::Ptr btnResume( sfg::Button::Create( "Resume" ) );
-	btnResume->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnResumeClick, this );
+	btnResume->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &MainMenu::BtnResumeClick, this ));
 
 	sfg::Button::Ptr btnNew( sfg::Button::Create( "New Simulation" ) );
-	btnNew->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnNewClick, this );
+	btnNew->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &MainMenu::BtnNewClick, this ));
 
 	// exit button
 	sfg::Button::Ptr btnExit( sfg::Button::Create( "Exit Program" ) );
-	btnExit->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnExitClick, this );
+	btnExit->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &MainMenu::BtnExitClick, this ));
 	// save and load
 	sfg::Button::Ptr btnSave( sfg::Button::Create( "Save Simulation" ) );
-	btnSave->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnSaveClick, this );
+	btnSave->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &MainMenu::BtnSaveClick, this ));
 	sfg::Button::Ptr btnLoad( sfg::Button::Create( "Load Simulation" ) );
-	btnLoad->GetSignal( sfg::Button::OnLeftClick ).Connect( &MainMenu::BtnLoadClick, this );
+	btnLoad->GetSignal( sfg::Button::OnLeftClick ).Connect( std::bind( &MainMenu::BtnLoadClick, this ));
 	// options
 	sfg::Button::Ptr btnOptions( sfg::Button::Create( "Options" ) );
 
 	// main box, vertical
-	sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::VERTICAL, 3.0f ) );
+	sfg::Box::Ptr box( sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 3.0f ) );
 	box->Pack( btnResume, false, false );
 	box->Pack( btnNew, false, false );
 	box->Pack( btnSave, false, false );

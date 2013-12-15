@@ -17,7 +17,7 @@ DetailsSpecies::DetailsSpecies(const std::shared_ptr<Species>& _species)
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 
     //Box
-    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+    DetailsBox = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 3.0f );
 
 	UpdateLabel();
     UpdateBox();

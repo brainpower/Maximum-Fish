@@ -107,7 +107,7 @@ void GraphBook::EntryTextChange()
 		return;
 	if ( !textchangeavoidrecursive )
 	{
-		SharedPtr<Entry> entry;
+		std::shared_ptr<Entry> entry;
 		switch ( ListenToActionKeys )
 		{
 		case 1:
@@ -256,29 +256,29 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 			Box::Ptr hAxisBox = Box::Create( Box::Orientation::VERTICAL, 3.0f );
 				t.hRB0 = RadioButton::Create( "auto-adjust horizontal axis." );
 				t.hRB0->SetActive( true );
-				t.hRB0->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeAllToggle, this );
+				t.hRB0->GetSignal( RadioButton::OnToggle ).Connect( std::bind( &GraphBook::hViewingRangeAllToggle, this ));
 				t.hRB1 = RadioButton::Create( "show selection on horizontal axis", t.hRB0->GetGroup() );
-				t.hRB1->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeSelectionToggle, this );
+				t.hRB1->GetSignal( RadioButton::OnToggle ).Connect( std::bind( &GraphBook::hViewingRangeSelectionToggle, this ));
 				t.hRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
 					t.hFrom = Entry::Create( boost::lexical_cast<std::string>( t.hLimit.x ) );
-						t.hFrom->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeFromEntryGainFocus , this );
-						t.hFrom->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						t.hFrom->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+						t.hFrom->GetSignal( Entry::OnGainFocus ).Connect( std::bind( &GraphBook::HViewingRangeFromEntryGainFocus , this ));
+						t.hFrom->GetSignal( Entry::OnLostFocus ).Connect( std::bind( &GraphBook::EntryLostFocus , this ));
+						t.hFrom->GetSignal( Entry::OnTextChanged ).Connect( std::bind( &GraphBook::EntryTextChange , this ));
 					t.hTo = Entry::Create( boost::lexical_cast<std::string>( t.hLimit.y ) );
-						t.hTo->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeToEntryGainFocus , this );
-						t.hTo->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						t.hTo->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+						t.hTo->GetSignal( Entry::OnGainFocus ).Connect( std::bind( &GraphBook::HViewingRangeToEntryGainFocus , this ));
+						t.hTo->GetSignal( Entry::OnLostFocus ).Connect( std::bind( &GraphBook::EntryLostFocus , this ));
+						t.hTo->GetSignal( Entry::OnTextChanged ).Connect( std::bind( &GraphBook::EntryTextChange , this ));
 				t.hRangeBox->Pack( t.hFrom, true, true );
 				t.hRangeBox->Pack( Label::Create( "-" ), false, false );
 				t.hRangeBox->Pack( t.hTo, true, true );
 				t.hRangeBox->Show( false );
 				t.hRB2 = RadioButton::Create( "show only the last", t.hRB0->GetGroup() );
-				t.hRB2->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::hViewingRangeEndToggle, this );
+				t.hRB2->GetSignal( RadioButton::OnToggle ).Connect( std::bind( &GraphBook::hViewingRangeEndToggle, this ));
 				t.hEndBox = Box::Create( Box::Orientation::HORIZONTAL );
 					t.hEndEntry = Entry::Create( boost::lexical_cast<std::string>( t.hEndOffset ) );
-						t.hEndEntry->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::HViewingRangeEndEntryGainFocus , this );
-						t.hEndEntry->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						t.hEndEntry->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+						t.hEndEntry->GetSignal( Entry::OnGainFocus ).Connect( std::bind( &GraphBook::HViewingRangeEndEntryGainFocus , this ));
+						t.hEndEntry->GetSignal( Entry::OnLostFocus ).Connect( std::bind( &GraphBook::EntryLostFocus , this ));
+						t.hEndEntry->GetSignal( Entry::OnTextChanged ).Connect( std::bind( &GraphBook::EntryTextChange , this ));
 				t.hEndBox->Pack( t.hEndEntry, true, true );
 				t.hEndBox->Pack( Label::Create( "  Ticks" ), true, true );
 				t.hEndBox->Show( false );
@@ -292,22 +292,22 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 				t.vRB0 = RadioButton::Create( "auto-adjust vertical axis." );
 				t.vRB0->SetActive( true );
 				t.vRB1 = RadioButton::Create( "show selection on vertical axis", t.vRB0->GetGroup() );
-				t.vRB0->GetSignal( RadioButton::OnToggle ).Connect( &GraphBook::vViewingRange, this );
+				t.vRB0->GetSignal( RadioButton::OnToggle ).Connect( std::bind( &GraphBook::vViewingRange, this ));
 				t.vRangeBox = Box::Create( Box::Orientation::HORIZONTAL );
 					t.vFrom = Entry::Create( boost::lexical_cast<std::string>(t.vLimit.x ) );
-						t.vFrom->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeFromEntryGainFocus , this );
-						t.vFrom->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						t.vFrom->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+						t.vFrom->GetSignal( Entry::OnGainFocus ).Connect( std::bind( &GraphBook::VViewingRangeFromEntryGainFocus , this ));
+						t.vFrom->GetSignal( Entry::OnLostFocus ).Connect( std::bind( &GraphBook::EntryLostFocus , this ));
+						t.vFrom->GetSignal( Entry::OnTextChanged ).Connect( std::bind( &GraphBook::EntryTextChange , this ));
 					t.vTo = Entry::Create( boost::lexical_cast<std::string>( t.vLimit.y ) );
-						t.vTo->GetSignal( Entry::OnGainFocus ).Connect( &GraphBook::VViewingRangeToEntryGainFocus , this );
-						t.vTo->GetSignal( Entry::OnLostFocus ).Connect( &GraphBook::EntryLostFocus , this );
-						t.vTo->GetSignal( Entry::OnTextChanged ).Connect( &GraphBook::EntryTextChange , this );
+						t.vTo->GetSignal( Entry::OnGainFocus ).Connect( std::bind( &GraphBook::VViewingRangeToEntryGainFocus , this ));
+						t.vTo->GetSignal( Entry::OnLostFocus ).Connect( std::bind( &GraphBook::EntryLostFocus , this ));
+						t.vTo->GetSignal( Entry::OnTextChanged ).Connect( std::bind( &GraphBook::EntryTextChange , this ));
 				t.vRangeBox->Pack( t.vFrom, true, true );
 				t.vRangeBox->Pack( Label::Create( "-" ), false, false );
 				t.vRangeBox->Pack( t.vTo, true, true );
 				t.vRangeBox->Show( false );
 				t.vLogAxBtn = CheckButton::Create( "Make vertical axis logarithmic" );
-				t.vLogAxBtn->GetSignal( CheckButton::OnToggle ).Connect( &GraphBook::vViewingLogarithmicToggle, this );
+				t.vLogAxBtn->GetSignal( CheckButton::OnToggle ).Connect( std::bind( &GraphBook::vViewingLogarithmicToggle, this ));
 			vAxisBox->Pack( t.vRB0, false, false );
 			vAxisBox->Pack( t.vRB1, false, false );
 			vAxisBox->Pack( t.vRangeBox, false, false );
@@ -319,13 +319,13 @@ void GraphBook::AddNewGraph( std::string displayName, std::shared_ptr<sbe::Graph
 		//optionBox->SetRequisition( sf::Vector2f( optionBox->GetAllocation().width, optionBox->GetAllocation().height ) );
 	box->Pack( optionBox, false, false );
 	Label::Ptr label = Label::Create( displayName );
-	label->GetSignal( Label::OnLeftClick ).Connect( &GraphBook::PlotCurrentGraph, this );
+	label->GetSignal( Label::OnLeftClick ).Connect( std::bind( &GraphBook::PlotCurrentGraph, this ));
 
 
 	Tabs->SetCurrentPage( Tabs->AppendPage( box, label ) );
 
     // first Tab, remove the placeholder
-    Label::Ptr tmp = DynamicPointerCast<Label>( Tabs->GetNthTabLabel(0) );
+    Label::Ptr tmp = std::dynamic_pointer_cast<Label>( Tabs->GetNthTabLabel(0) );
     if ( Tabs->GetPageCount() == 2 && tmp->GetText() == "No graph" )
         Tabs->RemovePage(0);
 
@@ -405,7 +405,7 @@ bool GraphBook::hasValidTab()
 //    Engine::out() << "[GraphBook] Hasvalidtab: " << Tabs->GetPageCount() << " Tabs" << std::endl;
 
 
-    Label::Ptr tmp = DynamicPointerCast<Label>( Tabs->GetNthTabLabel(0) );
+    Label::Ptr tmp = std::dynamic_pointer_cast<Label>( Tabs->GetNthTabLabel(0) );
 //    Engine::out() << "[GraphBook] Label: " << tmp->GetText().toAnsiString() << " Tabs" << std::endl;
     if ( tmp->GetText() == "No graph" )
         return false;
@@ -420,7 +420,7 @@ void GraphBook::updatePosition()
 	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width ) , ( winSize.y - Allocation.height ) ) );
 }
 
-int GraphBook::entryVal( sfg::SharedPtr <sfg::Entry>& E )
+int GraphBook::entryVal( std::shared_ptr<sfg::Entry>& E )
 {
     int value = boost::lexical_cast<int>( E->GetText().toAnsiString().empty() ? "0" : E->GetText().toAnsiString() );
 	E->SetText( boost::lexical_cast<std::string>( value ) );

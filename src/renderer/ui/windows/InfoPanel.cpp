@@ -48,7 +48,7 @@ void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::V
 		Topleveltabs->AppendPage( SelectionBox, selectorlabel );
 		Topleveltabs->AppendPage( ManipulationBox, manipulatorlabel );
 		Topleveltabs->AppendPage( MyOverlay->Get(), sfg::Label::Create( "Overlays" ) );
-		Topleveltabs->GetSignal( sfg::Label::OnMouseLeftPress ).Connect( &InfoPanel::CheckTabSwitchPermission, this );
+		Topleveltabs->GetSignal( sfg::Label::OnMouseLeftPress ).Connect( std::bind( &InfoPanel::CheckTabSwitchPermission, this ));
 
 	//add wholeselectionbox to window
 	Win->Add( Topleveltabs );

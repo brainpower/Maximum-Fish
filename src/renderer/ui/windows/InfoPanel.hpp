@@ -11,7 +11,7 @@
 #include "renderer/ui/items/Manipulator.hpp"
 #include "renderer/ui/items/Overlays.hpp"
 
-#include <SFGUI/SharedPtr.hpp>
+
 namespace sfg
 {
 	class Window;
@@ -36,10 +36,10 @@ class InfoPanel : public sbe::EventUser
 		int CurrentActivePage;
 		int SelectorManipulator;
 
-		sfg::SharedPtr<sfg::Window> Win;
-		sfg::SharedPtr<sfg::Notebook> Topleveltabs;
-		sfg::SharedPtr<sfg::Box> SelectionBox;
-		sfg::SharedPtr<sfg::Box> ManipulationBox;
+		std::shared_ptr<sfg::Window> Win;
+		std::shared_ptr<sfg::Notebook> Topleveltabs;
+		std::shared_ptr<sfg::Box> SelectionBox;
+		std::shared_ptr<sfg::Box> ManipulationBox;
 
 		std::unique_ptr<Selector> MySelector;
 		std::unique_ptr<Manipulator> MyManipulator;

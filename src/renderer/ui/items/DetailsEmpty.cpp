@@ -7,7 +7,7 @@
 DetailsEmpty::DetailsEmpty()
 {
     DetailsLabel = sfg::Label::Create("Select a Creature,\nSpecies or Tile\nto see its details.");
-    DetailsBox = sfg::Box::Create( sfg::Box::VERTICAL, 3.0f );
+    DetailsBox = sfg::Box::Create( sfg::Box::Orientation::VERTICAL, 3.0f );
     DetailsBox->Pack( sfg::Label::Create( "This is an empty Manipulator." ) );
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );
 }

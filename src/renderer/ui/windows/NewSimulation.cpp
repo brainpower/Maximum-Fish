@@ -75,21 +75,21 @@ void NewSimWindow::CreateWindow()
 	Win = Window::Create( );
 	Win->SetTitle("Create new simulation");
 
-	Box::Ptr mainBox = Box::Create( Box::VERTICAL );
+	Box::Ptr mainBox = Box::Create( Box::Orientation::VERTICAL );
 		Notebook::Ptr nB = Notebook::Create();
 		nB->AppendPage( CreateGenerationPage(), lbl("Generation") );
 		nB->AppendPage( CreateTerrainPage(), lbl("Terrain") );
 		nB->AppendPage( CreateSpeciesPage(), lbl("Species") );
 	mainBox->Pack( nB, true,true);
 		Box::Ptr hBox;
-		hBox = Box::Create( Box::HORIZONTAL, 3.0f);
+		hBox = Box::Create( Box::Orientation::HORIZONTAL, 3.0f);
 		// add Spacer
 		hBox->Pack( lbl("-- MF --"), true, true);
 			Button::Ptr abortBtn = Button::Create( "Abort" );
-			abortBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::abortClick , this );
+			abortBtn->GetSignal( Button::OnLeftClick ).Connect( std::bind( &NewSimWindow::abortClick , this ));
 		hBox->Pack( abortBtn, false, false);
 			Button::Ptr okBtn = Button::Create( "Ok/New" );
-			okBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::okClick , this );
+			okBtn->GetSignal( Button::OnLeftClick ).Connect( std::bind( &NewSimWindow::okClick , this ));
 		hBox->Pack( okBtn, false, false );
 	mainBox->Pack( hBox, false, false );
 
@@ -101,7 +101,7 @@ void NewSimWindow::CreateWindow()
 	Win->SetPosition( sf::Vector2f( ( winSize.x - Allocation.width )/2 , ( winSize.y - Allocation.height )/2   ) );
 }
 
-SharedPtr<Widget> NewSimWindow::CreateGenerationPage()
+std::shared_ptr<Widget> NewSimWindow::CreateGenerationPage()
 {
 	CountMult = entry("sim.terragen.count");
 	Seed =  entry("sim.defaultSeed");
@@ -142,7 +142,7 @@ SharedPtr<Widget> NewSimWindow::CreateGenerationPage()
 	return main;
 }
 
-SharedPtr<Widget> NewSimWindow::CreateTerrainPage()
+std::shared_ptr<Widget> NewSimWindow::CreateTerrainPage()
 {
 	MaxHeight = entry("sim.terragen.debug.maxheight");
 	Size = entry("sim.terragen.debug.size");
@@ -192,7 +192,7 @@ SharedPtr<Widget> NewSimWindow::CreateTerrainPage()
 	return main;
 }
 
-SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
+std::shared_ptr<Widget> NewSimWindow::CreateSpeciesPage()
 {
 	t_species.clear();
 	t_species_count.clear();
@@ -208,16 +208,16 @@ SharedPtr<Widget> NewSimWindow::CreateSpeciesPage()
 	OptimalTemperature = entry("sim.species.defaults.optimalTemperature");
 	NewSpecies = entry("");
 	SpeciesType = entry("plant", 0);
-	SpeciesType->SetState(sfg::Widget::INSENSITIVE);
+	SpeciesType->SetState(sfg::Widget::State::INSENSITIVE);
 	CreatureCount = entry("0", 0);
 
 	Table::Ptr main = Table::Create();
 	Button::Ptr newBtn = Button::Create( "Add Default Species" );
 	Button::Ptr rndBtn = Button::Create( "Add Random Species" );
 	Button::Ptr delBtn = Button::Create( "Delete" );
-	newBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::newSpeciesClick , this );
-	rndBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::newRandomSpeciesClick , this );
-	delBtn->GetSignal( Button::OnLeftClick ).Connect( &NewSimWindow::delSpeciesClick , this );
+	newBtn->GetSignal( Button::OnLeftClick ).Connect( std::bind( &NewSimWindow::newSpeciesClick , this ));
+	rndBtn->GetSignal( Button::OnLeftClick ).Connect( std::bind( &NewSimWindow::newRandomSpeciesClick , this ));
+	delBtn->GetSignal( Button::OnLeftClick ).Connect( std::bind( &NewSimWindow::delSpeciesClick , this ));
 
 	Separator::Ptr spacer = Separator::Create(Separator::Orientation::HORIZONTAL);
 	cmbBox = ComboBox::Create();
@@ -384,23 +384,23 @@ void NewSimWindow::delSpeciesClick()
 	s_list.removeItem(s_list.getSelectedItem());
 }
 
-SharedPtr<Entry> NewSimWindow::entry( const std::string& cfg, sf::Vector2f req )
+std::shared_ptr<Entry> NewSimWindow::entry( const std::string& cfg, sf::Vector2f req )
 {
-	SharedPtr<Entry> tmp = Entry::Create( Engine::getCfg()->get<std::string>(cfg) );
+	std::shared_ptr<Entry> tmp = Entry::Create( Engine::getCfg()->get<std::string>(cfg) );
 	tmp->SetRequisition( req );
 	return tmp;
 }
 
-SharedPtr<Entry> NewSimWindow::entry( std::string _str, int _t, sf::Vector2f req )
+std::shared_ptr<Entry> NewSimWindow::entry( std::string _str, int _t, sf::Vector2f req )
 {
-	SharedPtr<Entry> tmp = Entry::Create( _str );
+	std::shared_ptr<Entry> tmp = Entry::Create( _str );
 	tmp->SetRequisition( req );
 	return tmp;
 }
 
-SharedPtr<Label> NewSimWindow::lbl( const std::string& text, sf::Vector2f Align )
+std::shared_ptr<Label> NewSimWindow::lbl( const std::string& text, sf::Vector2f Align )
 {
-	SharedPtr<Label> tmp = Label::Create(text);
+	std::shared_ptr<Label> tmp = Label::Create(text);
 	tmp->SetAlignment( Align );
 	return tmp;
 }

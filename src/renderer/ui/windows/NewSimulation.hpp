@@ -1,7 +1,7 @@
 #ifndef NEWSIM_HPP
 #define NEWSIM_HPP
 
-#include <SFGUI/SharedPtr.hpp>
+
 
 #include "sbe/event/EventUser.hpp"
 #include "sbe/sfg/List.hpp"
@@ -28,9 +28,9 @@ class NewSimWindow : public sbe::EventUser
 		NewSimWindow();
 		void HandleEvent(Event& e);
 		void CreateWindow();
-		sfg::SharedPtr<sfg::Widget> CreateGenerationPage();
-		sfg::SharedPtr<sfg::Widget> CreateTerrainPage();
-		sfg::SharedPtr<sfg::Widget> CreateSpeciesPage();
+		std::shared_ptr<sfg::Widget> CreateGenerationPage();
+		std::shared_ptr<sfg::Widget> CreateTerrainPage();
+		std::shared_ptr<sfg::Widget> CreateSpeciesPage();
 
 	private:
 
@@ -44,50 +44,50 @@ class NewSimWindow : public sbe::EventUser
 
 		Species::SPECIES_TYPE getCurrentSpeciesType();
 
-		sfg::SharedPtr<sfg::Entry> entry( const std::string& cfg, sf::Vector2f req = { 60, 5 } );
-		sfg::SharedPtr<sfg::Entry> entry( std::string _str,int _t, sf::Vector2f req = { 60, 5 } );
-		sfg::SharedPtr<sfg::Label> lbl( const std::string& text, sf::Vector2f Align = {0.5f, 0.5f} );
+		std::shared_ptr<sfg::Entry> entry( const std::string& cfg, sf::Vector2f req = { 60, 5 } );
+		std::shared_ptr<sfg::Entry> entry( std::string _str,int _t, sf::Vector2f req = { 60, 5 } );
+		std::shared_ptr<sfg::Label> lbl( const std::string& text, sf::Vector2f Align = {0.5f, 0.5f} );
 
-		sfg::SharedPtr<sfg::Window> Win;
-		sfg::SharedPtr<sfg::Notebook> Tabs;
+		std::shared_ptr<sfg::Window> Win;
+		std::shared_ptr<sfg::Notebook> Tabs;
 		// Generation Page
-		sfg::SharedPtr<sfg::Entry> Seed;
+		std::shared_ptr<sfg::Entry> Seed;
 
-		sfg::SharedPtr<sfg::Entry> CountMult;
-		sfg::SharedPtr<sfg::Entry> CarnivoreSpeciesCount;
-		sfg::SharedPtr<sfg::Entry> CarnivoreCount;
-		sfg::SharedPtr<sfg::Entry> HerbivoreSpeciesCount;
-		sfg::SharedPtr<sfg::Entry> HerbivoreCount;
-		sfg::SharedPtr<sfg::Entry> PlantSpeciesCount;
-		sfg::SharedPtr<sfg::Entry> PlantCount;
+		std::shared_ptr<sfg::Entry> CountMult;
+		std::shared_ptr<sfg::Entry> CarnivoreSpeciesCount;
+		std::shared_ptr<sfg::Entry> CarnivoreCount;
+		std::shared_ptr<sfg::Entry> HerbivoreSpeciesCount;
+		std::shared_ptr<sfg::Entry> HerbivoreCount;
+		std::shared_ptr<sfg::Entry> PlantSpeciesCount;
+		std::shared_ptr<sfg::Entry> PlantCount;
 
 		// Terrain Page
-		sfg::SharedPtr<sfg::Entry> MaxHeight;
-		sfg::SharedPtr<sfg::Entry> Size;
-		sfg::SharedPtr<sfg::Entry> WaterLimit;
-		sfg::SharedPtr<sfg::Entry> NutritionMin;
-		sfg::SharedPtr<sfg::Entry> NutritionMax;
-		sfg::SharedPtr<sfg::Entry> HumidityMin;
-		sfg::SharedPtr<sfg::Entry> HumidityMax;
-		sfg::SharedPtr<sfg::Entry> RainAmount;
-		sfg::SharedPtr<sfg::Entry> RainFall;
+		std::shared_ptr<sfg::Entry> MaxHeight;
+		std::shared_ptr<sfg::Entry> Size;
+		std::shared_ptr<sfg::Entry> WaterLimit;
+		std::shared_ptr<sfg::Entry> NutritionMin;
+		std::shared_ptr<sfg::Entry> NutritionMax;
+		std::shared_ptr<sfg::Entry> HumidityMin;
+		std::shared_ptr<sfg::Entry> HumidityMax;
+		std::shared_ptr<sfg::Entry> RainAmount;
+		std::shared_ptr<sfg::Entry> RainFall;
 
 		// Species Page
-		sfg::SharedPtr<sfg::Entry> MaxAge;
-		sfg::SharedPtr<sfg::Entry> MaxHealth;
-		sfg::SharedPtr<sfg::Entry> MaxSpeed;
-		sfg::SharedPtr<sfg::Entry> Reach;
-		sfg::SharedPtr<sfg::Entry> Resistance;
-		sfg::SharedPtr<sfg::Entry> BreedingSpeed;
-		sfg::SharedPtr<sfg::Entry> MaxRegen;
-		sfg::SharedPtr<sfg::Entry> FoodReq;
-		sfg::SharedPtr<sfg::Entry> WaterReq;
-		sfg::SharedPtr<sfg::Entry> OptimalTemperature;
-		sfg::SharedPtr<sfg::Entry> NewSpecies;
-		sfg::SharedPtr<sfg::Entry> SpeciesType;
-		sfg::SharedPtr<sfg::Entry> CreatureCount;
+		std::shared_ptr<sfg::Entry> MaxAge;
+		std::shared_ptr<sfg::Entry> MaxHealth;
+		std::shared_ptr<sfg::Entry> MaxSpeed;
+		std::shared_ptr<sfg::Entry> Reach;
+		std::shared_ptr<sfg::Entry> Resistance;
+		std::shared_ptr<sfg::Entry> BreedingSpeed;
+		std::shared_ptr<sfg::Entry> MaxRegen;
+		std::shared_ptr<sfg::Entry> FoodReq;
+		std::shared_ptr<sfg::Entry> WaterReq;
+		std::shared_ptr<sfg::Entry> OptimalTemperature;
+		std::shared_ptr<sfg::Entry> NewSpecies;
+		std::shared_ptr<sfg::Entry> SpeciesType;
+		std::shared_ptr<sfg::Entry> CreatureCount;
 
-		sfg::SharedPtr<sfg::ComboBox>  cmbBox;
+		std::shared_ptr<sfg::ComboBox>  cmbBox;
 
 		sbe::sfgList s_list;
 		std::vector<std::shared_ptr<Species>> t_species;

@@ -5,7 +5,8 @@
 #include "sbe/geom/Point.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
 
-#include <SFGUI/SharedPtr.hpp>
+#include <memory>
+
 namespace sfg
 {
 	class Window;
@@ -38,21 +39,21 @@ class GraphBook : public sbe::EventUser
 		struct graphTuple
 		{
 			std::shared_ptr<sbe::GraphPlotter> plotter;
-			sfg::SharedPtr <sfg::Image>        image;
-			sfg::SharedPtr <sfg::RadioButton>  hRB0;
-			sfg::SharedPtr <sfg::RadioButton>  hRB1;
-			sfg::SharedPtr <sfg::RadioButton>  hRB2;
-			sfg::SharedPtr <sfg::RadioButton>  vRB0;
-			sfg::SharedPtr <sfg::RadioButton>  vRB1;
-			sfg::SharedPtr <sfg::Box>          hRangeBox;
-			sfg::SharedPtr <sfg::Entry>        hFrom;
-			sfg::SharedPtr <sfg::Entry>        hTo;
-			sfg::SharedPtr <sfg::Box>          hEndBox;
-			sfg::SharedPtr <sfg::Entry>        hEndEntry;
-			sfg::SharedPtr <sfg::Box>          vRangeBox;
-			sfg::SharedPtr <sfg::Entry>        vFrom;
-			sfg::SharedPtr <sfg::Entry>        vTo;
-			sfg::SharedPtr <sfg::CheckButton>  vLogAxBtn;
+			std::shared_ptr<sfg::Image>        image;
+			std::shared_ptr<sfg::RadioButton>  hRB0;
+			std::shared_ptr<sfg::RadioButton>  hRB1;
+			std::shared_ptr<sfg::RadioButton>  hRB2;
+			std::shared_ptr<sfg::RadioButton>  vRB0;
+			std::shared_ptr<sfg::RadioButton>  vRB1;
+			std::shared_ptr<sfg::Box>          hRangeBox;
+			std::shared_ptr<sfg::Entry>        hFrom;
+			std::shared_ptr<sfg::Entry>        hTo;
+			std::shared_ptr<sfg::Box>          hEndBox;
+			std::shared_ptr<sfg::Entry>        hEndEntry;
+			std::shared_ptr<sfg::Box>          vRangeBox;
+			std::shared_ptr<sfg::Entry>        vFrom;
+			std::shared_ptr<sfg::Entry>        vTo;
+			std::shared_ptr<sfg::CheckButton>  vLogAxBtn;
 			Geom::Point                        hLimit;
 			Geom::Point                        vLimit;
 			int                                hEndOffset;
@@ -111,7 +112,7 @@ class GraphBook : public sbe::EventUser
 		void handleEntryInput();
 
 		///
-		int entryVal( sfg::SharedPtr <sfg::Entry>& E  );
+		int entryVal( std::shared_ptr<sfg::Entry>& E  );
 
 		/// determines if listenling to enter (should be active when an entry is active)
 		int ListenToActionKeys;
@@ -148,10 +149,10 @@ class GraphBook : public sbe::EventUser
 		graphTuple& cTT();
 
 		/// The SFGUI-Window (Parent-Widget) of GraphBook
-		sfg::SharedPtr<sfg::Window> Win;
+		std::shared_ptr<sfg::Window> Win;
 
 		/// The Notebook in the Window
-		sfg::SharedPtr<sfg::Notebook> Tabs;
+		std::shared_ptr<sfg::Notebook> Tabs;
 
 		/// Clock for auto-updating the visible graph
 		sf::Clock UpdateTimer;
