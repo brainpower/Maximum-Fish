@@ -42,10 +42,22 @@ endif()
 ################## External Libraries #################
 #######################################################
 
+if (BUILD_SHARED_LIBS)
+	set(SFML_STATIC_LIBRARIES false)
+	message (" -- LINKING DYNAMIC -- ")
+else()
+	message (" -- LINKING STATIC -- ")
+	set(SFML_STATIC_LIBRARIES true)
+	set(SFGUI_STATIC_LIBRARIES true)
+	set(SBE_STATIC_LIBRARIES true)
+endif()
 
+set( CMAKE_MODULE_PATH "${SFML_ROOT}/cmake/Modules" ${CMAKE_MODULE_PATH} )
+set( CMAKE_MODULE_PATH "${SFGUI_ROOT}/cmake" ${CMAKE_MODULE_PATH} )
+set( CMAKE_MODULE_PATH "${SBE_ROOT}/cmake" ${CMAKE_MODULE_PATH} )
 
-find_package(Boost 1.48 COMPONENTS thread system REQUIRED)# regex)
-find_package(SFML 2 COMPONENTS audio graphics window system REQUIRED)
+find_package(Boost 1.50 COMPONENTS thread system filesystem REQUIRED)# regex)
+find_package(SFML 2 COMPONENTS audio graphics window system main REQUIRED)
 find_package(SFGUI REQUIRED)
 find_package(SBE REQUIRED)
 
@@ -159,7 +171,7 @@ if( PROFILE )
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
-target_link_libraries(MaximumFish ${SBE_LIBRARY} ${SFGUI_LIBRARY} ${SFML_LIBRARIES} )
+target_link_libraries(MaximumFish ${SBE_LIBRARY} ${SFML_LIBRARIES} ${SFGUI_LIBRARY}  ${SFML_DEPENDENCIES} ${Boost_LIBRARIES} )
 
 if( PROFILE )
 	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )
