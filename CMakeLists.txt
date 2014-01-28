@@ -12,12 +12,18 @@ option(SUPPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effec
 option(ENABLE_LTO "enable lto, if ya dont know what this is, ya dont need it!" OFF)
 
 set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
+set( SBE_ROOT "" CACHE PATH "Path to where SchiffbruchEngine is located.")
+set( SFGUI_ROOT "" CACHE PATH "Path to where SFGUI is located.")
+
+set( CMAKE_MODULE_PATH "${SFML_ROOT}/cmake/Modules" ${CMAKE_MODULE_PATH} )
+set( CMAKE_MODULE_PATH "${SFGUI_ROOT}/cmake" ${CMAKE_MODULE_PATH} )
+set( CMAKE_MODULE_PATH "${SBE_ROOT}/cmake" ${CMAKE_MODULE_PATH} )
 
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #set(VERSION_CHECK_DONE OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
-	set( CMAKE_BUILD_TYPE "Release")
+	set( CMAKE_BUILD_TYPE "Release" CACHE STRING)
 endif()
 
 #######################################################
@@ -44,20 +50,22 @@ endif()
 
 if (BUILD_SHARED_LIBS)
 	set(SFML_STATIC_LIBRARIES false)
-	message (" -- LINKING DYNAMIC -- ")
+	set(SFGUI_STATIC_LIBRARIES false)
+	set(SBE_STATIC_LIBRARIES false)
+	message (STATUS "LINKING DYNAMIC -- ")
 else()
-	message (" -- LINKING STATIC -- ")
+	message (STATUS "LINKING STATIC -- ")
 	set(SFML_STATIC_LIBRARIES true)
 	set(SFGUI_STATIC_LIBRARIES true)
 	set(SBE_STATIC_LIBRARIES true)
 endif()
 
-set( CMAKE_MODULE_PATH "${SFML_ROOT}/cmake/Modules" ${CMAKE_MODULE_PATH} )
-set( CMAKE_MODULE_PATH "${SFGUI_ROOT}/cmake" ${CMAKE_MODULE_PATH} )
-set( CMAKE_MODULE_PATH "${SBE_ROOT}/cmake" ${CMAKE_MODULE_PATH} )
+if(CMAKE_SYSTEM_NAME MATCHES Windows)
+	set( ADD_SFML_MAIN "main")
+endif()
 
 find_package(Boost 1.50 COMPONENTS thread system filesystem REQUIRED)# regex)
-find_package(SFML 2 COMPONENTS audio graphics window system main REQUIRED)
+find_package(SFML 2 COMPONENTS audio graphics window system ${ADD_SFML_MAIN} REQUIRED)
 find_package(SFGUI REQUIRED)
 find_package(SBE REQUIRED)
 
