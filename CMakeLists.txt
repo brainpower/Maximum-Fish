@@ -49,18 +49,16 @@ endif()
 #######################################################
 
 if (BUILD_SHARED_LIBS)
+	message (STATUS "DYNAMIC LINKING -- ")
 	set(SFML_STATIC_LIBRARIES false)
 	set(SFGUI_STATIC_LIBRARIES false)
 	set(SBE_STATIC_LIBRARIES false)
-	message (STATUS "LINKING DYNAMIC -- ")
+
 else()
-	message (STATUS "LINKING STATIC -- ")
+	message (STATUS "STATIC LINKING -- ")
 	set(SFML_STATIC_LIBRARIES true)
 	set(SFGUI_STATIC_LIBRARIES true)
 	set(SBE_STATIC_LIBRARIES true)
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES Windows)
 	set( ADD_SFML_MAIN "main")
 endif()
 
@@ -73,8 +71,6 @@ find_package(SBE REQUIRED)
 #######################################################
 ####################### SBE ###########################
 #######################################################
-
-#set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
 
 if(SBE_FOUND)
 	include_directories(${SBE_INCLUDE_DIR})
@@ -165,7 +161,6 @@ endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
-	#add_definitions( -fstack-protector --param=ssp-buffer-size=4 ) 
 elseif(CMAKE_BUILD_TYPE MATCHES Release)
 	if( PROFILE )
 		add_definitions( -O1 )
