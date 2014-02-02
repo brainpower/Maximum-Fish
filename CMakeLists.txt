@@ -11,7 +11,7 @@ option( PROFILE "" OFF)
 option(SUPPRESS_BOOST_HEADER_WARNINGS "only works with gcc, so it's got no effect when using another compiler" ON)
 option(ENABLE_LTO "enable lto, if ya dont know what this is, ya dont need it!" OFF)
 
-set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
+set( SHARED ON CACHE BOOL "Link with shared libs." )
 set( SBE_ROOT "" CACHE PATH "Path to where SchiffbruchEngine is located.")
 set( SFGUI_ROOT "" CACHE PATH "Path to where SFGUI is located.")
 
@@ -23,7 +23,7 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #set(VERSION_CHECK_DONE OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
-	set( CMAKE_BUILD_TYPE "Release" CACHE STRING)
+	set( CMAKE_BUILD_TYPE "Release" CACHE STRING "")
 endif()
 
 #######################################################
@@ -40,15 +40,13 @@ if (CMAKE_COMPILER_IS_GNUCXX AND NOT VERSION_CHECK_DONE)
 		execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
 	endif()
 
-	# supress boost header warnings by telling gcc they're system headers
-
 endif()
 
 #######################################################
 ################## External Libraries #################
 #######################################################
 
-if (BUILD_SHARED_LIBS)
+if (SHARED)
 	message (STATUS "DYNAMIC LINKING -- ")
 	set(SFML_STATIC_LIBRARIES false)
 	set(SFGUI_STATIC_LIBRARIES false)
@@ -69,7 +67,7 @@ find_package(SBE REQUIRED)
 
 
 #######################################################
-####################### SBE ###########################
+############## checks for libraries ###################
 #######################################################
 
 if(SBE_FOUND)
@@ -81,10 +79,8 @@ endif()
 if(SFGUI_FOUND)
 	include_directories(${SFGUI_INCLUDE_DIR})
 else()
-	message( FATAL_ERROR "!! SBE not found!")
+	message( FATAL_ERROR "!! SFGUI not found!")
 endif()
-
-# check for libraries
 
 if(Boost_FOUND)
 	if(CMAKE_COMPILER_IS_GNUCXX AND SUPPRESS_BOOST_HEADER_WARNINGS)
@@ -99,7 +95,7 @@ endif()
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
 else()
-	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
+	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${SFML_ROOT}/build' first!")
 endif()
 
 
