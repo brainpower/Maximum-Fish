@@ -1,3 +1,4 @@
+#include <boost/lexical_cast.hpp>
 #include "Generator.hpp"
 
 #include "Simulator.hpp"
@@ -51,7 +52,7 @@ std::shared_ptr<Creature> Generator::createRandomCreature()
 	std::uniform_int_distribution<int> species_dist(0,state->species->size()-1);
 
 	std::shared_ptr<Creature> ptr_creature = std::shared_ptr<Creature>(new Creature( (*state->species)[species_dist(rnd)] ));
-	Geom::Pointf Position (pos_dist(rnd),pos_dist(rnd));
+	glm::point2 Position (pos_dist(rnd),pos_dist(rnd));
 
 	float hab = state->terrain->getTile(Position)->getHabitability(ptr_creature->getSpecies());
 
@@ -88,7 +89,7 @@ std::shared_ptr<Creature> Generator::createCreature( const std::shared_ptr<Speci
 	// try a few times, but make sure we're not stuck in a loop
 	for (int tries = 0; tries < 1000; ++tries)
 	{
-		Geom::Pointf Position (pos_dist(rnd),pos_dist(rnd));
+		glm::point2 Position (pos_dist(rnd),pos_dist(rnd));
 
         if ( !state->terrain->getTile(Position) ) continue;
 
@@ -119,7 +120,7 @@ std::shared_ptr<Creature> Generator::createNonRandomCreature( const std::shared_
 	// try a few times, but make sure we're not stuck in a loop
 	for (int tries = 0; tries < 1000; ++tries)
 	{
-		Geom::Pointf Position (pos_dist(rnd),pos_dist(rnd));
+		glm::point2 Position (pos_dist(rnd),pos_dist(rnd));
 
 		float hab = state->terrain->getTile(Position)->getHabitability(ptr_creature->getSpecies());
 		if( hab > 0.0f && ptr_creature->validPos( Position ) )

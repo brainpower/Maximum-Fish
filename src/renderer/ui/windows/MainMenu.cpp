@@ -9,7 +9,7 @@
 
 //using namespace sfg is not possible because Engine is ambiguous
 
-MainMenu::MainMenu( const Geom::Vec2 Size )
+MainMenu::MainMenu( const glm::ivec2 Size )
 {
 	RegisterForEvent( "EVT_FRAME" );
 	RegisterForEvent( "MESSAGE_ANSWER_MAINMENU" );
@@ -23,11 +23,11 @@ MainMenu::MainMenu( const Geom::Vec2 Size )
 	RegisterForEvent("EVT_LOAD_GOOD");
 
 	currentlabeltext = 0;
-	CreateWindow( Size );
+	InitWindow( Size );
 	Win->Show( false );
 }
 
-void MainMenu::CreateWindow( const Geom::Vec2 Size )
+void MainMenu::InitWindow( const glm::ivec2 Size )
 {
 	Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::TITLEBAR | sfg::Window::Style::SHADOW );
 
@@ -68,7 +68,7 @@ void MainMenu::CreateWindow( const Geom::Vec2 Size )
 
 
 	Module::Get()->QueueEvent( Event( "SCREEN_ADD_WINDOW", Win ) );
-	fb = std::make_shared<sbe::FileBrowse> ( Geom::Vec2{600,400} );
+	fb = std::make_shared<sbe::FileBrowse> ( glm::ivec2{600,400} );
 
 }
 

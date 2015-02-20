@@ -20,13 +20,13 @@ class Control : public sbe::EventUser
 {
 	public:
 
-		Control( const Geom::Vec2 Size = Geom::Vec2( 250, 30 ) );
+		Control( const glm::ivec2 Size = glm::ivec2( 250, 30 ) );
 		virtual ~Control() {}
 
 		virtual void HandleEvent( Event& e );
 
 	private:
-		void CreateWindow( const Geom::Vec2 Size );
+		void InitWindow( const glm::ivec2 Size );
 		std::shared_ptr<sfg::ToggleButton> BtnDbgWin;
         std::shared_ptr<sfg::ToggleButton> BtnIPanWin;
         std::shared_ptr<sfg::ToggleButton> BtnMnMnWin;

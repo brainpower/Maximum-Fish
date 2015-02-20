@@ -24,12 +24,12 @@ class InfoPanel : public sbe::EventUser
 {
 	public:
 
-		InfoPanel( const Geom::Point& RelativePosition = Geom::Point( 280, 0 ), const Geom::Vec2 Size = Geom::Vec2( 300, 600 ) );
+		InfoPanel( const glm::ipoint2& RelativePosition = glm::ipoint2( 280, 0 ), const glm::ivec2 Size = glm::ivec2( 300, 600 ) );
 		~InfoPanel() {};
 
 		void HandleEvent( Event& e );
 	private:
-		void CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size );
+		void InitWindow( const glm::ipoint2& RelativePosition, const glm::ivec2 Size );
 		void CheckTabSwitchPermission();
 		void updatePosition();
 

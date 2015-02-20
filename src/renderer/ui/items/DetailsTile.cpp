@@ -5,6 +5,8 @@
 #include <SFGUI/Button.hpp>
 
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+
 using boost::format;
 using boost::io::group;
 

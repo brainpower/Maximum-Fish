@@ -87,7 +87,7 @@ void SimView::HandleSfmlEvent ( const sf::Event& e)
 
 		RealPos /= (float)TileSize;
 
-		Module::Get()->QueueEvent( Event("TERRAIN_CLICKED", Geom::Pointf( RealPos.x, RealPos.y )), true);
+		Module::Get()->QueueEvent( Event("TERRAIN_CLICKED", glm::point2( RealPos.x, RealPos.y )), true);
 	}
 }
 
@@ -104,10 +104,10 @@ bool SimView::LoadResources()
 
 	std::shared_ptr<sbe::ImageSet> I( new sbe::ImageSet( Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"),
 											Engine::getCfg()->get<std::string>("system.renderer.creatureTexture"),
-											Geom::Point( 0, 0 ),
-											Geom::Point(0,0),
-											Geom::Vec2( 16,16),
-											Geom::Vec2( 3, 1 ),
+											glm::ipoint2( 0, 0 ),
+											glm::ipoint2(0,0),
+											glm::ivec2( 16,16),
+											glm::ivec2( 3, 1 ),
 											0 ) );
 
 	Engine::GetResMgr()->add(I ,Engine::getCfg()->get<std::string>("system.renderer.creatureImageSet"));
@@ -152,10 +152,10 @@ bool SimView::LoadResources()
 
 	std::shared_ptr<sbe::ImageSet> I2( new sbe::ImageSet( Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ),
 												Engine::getCfg()->get<std::string>("system.renderer.terrainTexture" ),
-												Geom::Point( 0, 0 ),
-												Geom::Point(0,0),
-												Geom::Vec2( 32,32),
-												Geom::Vec2( 4, 1 ),
+												glm::ipoint2( 0, 0 ),
+												glm::ipoint2(0,0),
+												glm::ivec2( 32,32),
+												glm::ivec2( 4, 1 ),
 												0 ) );
 
 	Engine::GetResMgr()->add(I2 ,Engine::getCfg()->get<std::string>("system.renderer.terrainImageSet" ));

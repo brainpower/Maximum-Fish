@@ -40,7 +40,7 @@ void Tile::loadConfigValues()
 	maxwalkableHumidity = Engine::getCfg()->get<float>("sim.terrain.maxwalkablehumidity");
 }
 
-Tile::Tile( Geom::Point _Position, float _height, float _nutrition, float _baseHumidity )
+Tile::Tile( glm::ipoint2 _Position, float _height, float _nutrition, float _baseHumidity )
  : Position(_Position),
   height(_height),
   nutrition( _nutrition ),

@@ -27,7 +27,7 @@ class NewSimWindow : public sbe::EventUser
 	public:
 		NewSimWindow();
 		void HandleEvent(Event& e);
-		void CreateWindow();
+		void InitWindow();
 		std::shared_ptr<sfg::Widget> CreateGenerationPage();
 		std::shared_ptr<sfg::Widget> CreateTerrainPage();
 		std::shared_ptr<sfg::Widget> CreateSpeciesPage();

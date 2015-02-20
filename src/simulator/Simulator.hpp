@@ -131,7 +131,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 	private:
 
-		typedef std::tuple<Geom::Pointf,int,Species*> CreatureRenderInfo;
+		typedef std::tuple<glm::point2,int,Species*> CreatureRenderInfo;
 		void UpdateCreatureRenderList();
 
 
@@ -149,7 +149,7 @@ class Simulator : public sbe::EventUser, sf::NonCopyable
 
 		std::shared_ptr<Species>& getSpecies( const std::string& name );
 
-		void HandleClick( const Geom::Pointf& pos );
+		void HandleClick( const glm::point2& pos );
 
 		void logTickStats();
 		void CreatePlotters();

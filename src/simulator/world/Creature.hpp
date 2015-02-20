@@ -33,11 +33,11 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void recalcAgeFactor() { curAgeFactor = ageFactor(); }
 
 		/// set a new position and update the list of creatures in the affected Tiles
-		void setPosition(const Geom::Pointf& pos);
+		void setPosition(const glm::point2& pos);
 		/// set a new position without updating the list of creatures in the affected Tiles
 		/// used if you just want to create a creature without affecting the simulator state ( yet )
-		void setPositionUnsafe(const Geom::Pointf& pos);
-		void movePosition(const Geom::Pointf& pos);
+		void setPositionUnsafe(const glm::point2& pos);
+		void movePosition(const glm::point2& pos);
 		void die(CauseOfDeath cod);
 
 		float getCurrentHealth() const { return currentHealth; }
@@ -45,7 +45,7 @@ class Creature : public std::enable_shared_from_this<Creature>
         int getLastMating( const int lm ) { return lastmating; }
 		const std::string& getSpeciesString() const;
 		const std::shared_ptr<Species>& getSpecies() const {return mySpecies;};
-		const Geom::Vec2f& getPosition() const { return Position; }
+		const glm::vec2& getPosition() const { return Position; }
 		const std::shared_ptr<Tile>& getTile() const {return currentTile;}
 
 		//## Calculated Values ##
@@ -91,7 +91,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 
 		//'' END Calculated Values ##
 
-		bool validPos( Geom::Pointf NewPosition ) const ;
+		bool validPos( glm::point2 NewPosition ) const ;
 
 		// neccessary to update currentTile after loading from "savegame"
 		void updateTileFromPos();
@@ -142,9 +142,9 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void reproduce( std::shared_ptr<Creature> otherparent = std::shared_ptr<Creature>());
 
 		void move();
-		bool moveTo(const Geom::Vec2f Target);
+		bool moveTo(const glm::vec2 Target);
 		bool randomMove();
-		Geom::Vec2f getNewPosition();
+		glm::vec2 getNewPosition();
 		/**
 			Calculates environmental effects (damage from temperature, water/food requirement)
 		*/
@@ -156,8 +156,8 @@ class Creature : public std::enable_shared_from_this<Creature>
 		int age;
 		int lastmating;
         int causeOfDeath;
-		Geom::Vec2f Position;
-		Geom::Vec2f prevMove;
+		glm::vec2 Position;
+		glm::vec2 prevMove;
 
 		//References
 		std::shared_ptr<Species> mySpecies;

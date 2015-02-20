@@ -8,6 +8,7 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <random>
 
 class Simulator;
 class SimState;

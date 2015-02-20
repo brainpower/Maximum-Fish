@@ -30,39 +30,39 @@ class Terrain
 		float getHumidityFactor( ) const { return humidityFactor;}
 
 		/// returns a list of Creatures in the given radius around Position for which filter returns true
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
-		std::list<std::shared_ptr<Creature>> getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::list<std::shared_ptr<Creature>> getNearby(glm::vec2 Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::list<std::shared_ptr<Creature>> getNearby(glm::vec2 Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::list<std::shared_ptr<Creature>> getNearby(glm::vec2 Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
 		/// returns the nearest Creatures in radius around Position for which the filter returns true
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const ;
-		std::shared_ptr<Creature> getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::shared_ptr<Creature> getNearest(glm::vec2 Position, float radius,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
+		std::shared_ptr<Creature> getNearest(glm::vec2 Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const ;
+		std::shared_ptr<Creature> getNearest(glm::vec2 Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} ) const;
 
 
 //		/// returns a list of Creatures in the given radius around Position for which filter returns true
-//		std::list<std::shared_ptr<Creature>> getNearbyType(Geom::Vec2f Position, float radius, Species::SPECIES_TYPE t, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
+//		std::list<std::shared_ptr<Creature>> getNearbyType(glm::vec2 Position, float radius, Species::SPECIES_TYPE t, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
 //		/// returns the nearest Creatures in radius around Position for which the filter returns true
-//		std::shared_ptr<Creature> getNearestType(Geom::Vec2f Position, float radius, Species::SPECIES_TYPE t,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
+//		std::shared_ptr<Creature> getNearestType(glm::vec2 Position, float radius, Species::SPECIES_TYPE t,  std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
 //
-//		std::list<std::shared_ptr<Creature>> getNearbySpecies(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
+//		std::list<std::shared_ptr<Creature>> getNearbySpecies(glm::vec2 Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
 //		/// returns the nearest Creatures in radius around Position for which the filter returns true
-//		std::shared_ptr<Creature> getNearestSpecies(Geom::Vec2f Position, float radius, std::shared_ptr<Species> std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
+//		std::shared_ptr<Creature> getNearestSpecies(glm::vec2 Position, float radius, std::shared_ptr<Species> std::function<bool(const std::shared_ptr<Creature>&)> filter = [](const std::shared_ptr<Creature>&){return true;} );
 
 
 		/// returns the eight neighbours of a tile
 		std::list<std::shared_ptr<Tile>> getNeighbours(Tile& T) const;
 
-		float getTileElevation(Geom::Vec2f pos) const;
+		float getTileElevation(glm::vec2 pos) const;
 		float getMaxElevation() const ;
 		float getGlobalTemp() const;
-		const Geom::Vec2& getSize() const { return Size; };
+		const glm::ivec2& getSize() const { return Size; };
 
-		bool validPos( const Geom::Pointf& Pos ) const
+		bool validPos( const glm::point2& Pos ) const
 		{
 			return (!( Pos.x >= Size.x || Pos.x < 0 || Pos.y >= Size.y || Pos.y < 0));
 		}
 
-		const std::shared_ptr<Tile>& getTile( Geom::Vec2f pos ) const;
+		const std::shared_ptr<Tile>& getTile( glm::vec2 pos ) const;
 
 		void CreateDebugTerrain( int seed );
 		void CreateMapPlotters();
@@ -83,7 +83,7 @@ class Terrain
         void calcMaxElevation();
 
 		/// Size of the Terrain in tiles x/y
-		Geom::Vec2 Size;
+		glm::ivec2 Size;
 
 		float humidityFactor;
 

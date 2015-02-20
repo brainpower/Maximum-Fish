@@ -9,13 +9,14 @@
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
 #include <SFGUI/Scale.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "sbe/gfx/Screen.hpp"
 
 using sbe::Screen;
 using namespace sfg;
 
-Control::Control( const Geom::Vec2 Size )
+Control::Control( const glm::ivec2 Size )
 // simulation starts paused, so start with one lock
  : Frames( 0 ),
  simPauseLockLevel( 1 ),
@@ -37,11 +38,11 @@ Control::Control( const Geom::Vec2 Size )
 
 	Frames = Engine::getCfg()->get<int>( "system.ui.control.simFrameRate" );
 
-	CreateWindow( Size );
+	InitWindow( Size );
 	Win->Show( true );
 }
 
-void Control::CreateWindow( const Geom::Vec2 Size )
+void Control::InitWindow( const glm::ivec2 Size )
 {
 	Win = Window::Create();
 	Win->SetStyle( 0 );

@@ -19,13 +19,13 @@ namespace sbe {
 class MainMenu : public sbe::EventUser
 {
 	public:
-		MainMenu( const Geom::Vec2 Size = Geom::Vec2(200, 300));
+		MainMenu( const glm::ivec2 Size = glm::ivec2(200, 300));
 		virtual ~MainMenu() {};
 
 		virtual void HandleEvent( Event& e);
 
 	private:
-		void CreateWindow(const Geom::Vec2 Size);
+		void InitWindow(const glm::ivec2 Size);
 		void BtnResumeClick();
 		void BtnNewClick();
 		void BtnSaveClick();

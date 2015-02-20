@@ -146,7 +146,7 @@ void Overlays::ShowMap( const std::string& name )
 		CurrentFrame->RemoveAll();
 		CurrentFrame->SetLabel( name );
 
-		sfg::Image::Ptr I = sfg::Image::Create( sbe::gfx::ScaleImage( Maps[name].first->getImage(), Geom::Vec2(128,128)) );
+		sfg::Image::Ptr I = sfg::Image::Create( sbe::gfx::ScaleImage( Maps[name].first->getImage(), glm::ivec2(128,128)) );
 		//sfg::Image::Ptr I = sfg::Image::Create( Maps[name].first->getImage() );
 		sfg::CheckButton::Ptr CB = sfg::CheckButton::Create( "Active" );
 		if (Maps[name].second) CB->SetActive ( true );

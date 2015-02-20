@@ -1,6 +1,7 @@
 #include "Simulator.hpp"
 
 #include <boost/thread.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "sbe/ResourceManager.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
@@ -97,10 +98,10 @@ void Simulator::HandleEvent(Event& e)
 		Engine::getCfg()->set("sim.paused", isPaused);
 		if (isPaused) UpdateCreatureRenderList();
 	}
-	else if(e.Is("TERRAIN_CLICKED", typeid( Geom::Pointf )) && isInitialized )
+	else if(e.Is("TERRAIN_CLICKED", typeid( glm::point2 )) && isInitialized )
 	{
 		// cast into desired type
-		HandleClick( boost::any_cast<Geom::Pointf>( e.Data() ) );
+		HandleClick( boost::any_cast<glm::point2>( e.Data() ) );
 	}
 	else if (e.Is("SET_SIM_TPS", typeid(unsigned int)))
 	{
@@ -576,12 +577,12 @@ void Simulator::CreatePlotters()
 	DeathGraph.reset(new sbe::GraphPlotter );
 	BirthDeathGraph.reset(new sbe::GraphPlotter );
 
-	Geom::Point Size = Geom::Point( Engine::getCfg()->get<int>("sim.plots.size.x"),Engine::getCfg()->get<int>("sim.plots.size.y") );
+	glm::ipoint2 Size = glm::ipoint2( Engine::getCfg()->get<int>("sim.plots.size.x"),Engine::getCfg()->get<int>("sim.plots.size.y") );
 
 	{
         sbe::Graph g;
         g.Size = Size;
-        g.AxisSize = Geom::Point( 1000, 1000 );
+        g.AxisSize = glm::ipoint2( 1000, 1000 );
         g.addCurve( sbe::Curve("Herbs", 	Counts[ Species::HERBA ] , sf::Color::Green) );
         g.addCurve( sbe::Curve("Herbivore", Counts[ Species::HERBIVORE ], sf::Color::Blue) );
         g.addCurve( sbe::Curve("Carnivore", Counts[ Species::CARNIVORE ], sf::Color::Red) );
@@ -591,7 +592,7 @@ void Simulator::CreatePlotters()
 	{
 		sbe::Graph g;
         g.Size = Size;
-        g.AxisSize = Geom::Point( 1000, 1000 );
+        g.AxisSize = glm::ipoint2( 1000, 1000 );
         g.addCurve( sbe::Curve("Dead - Eaten", 		MeansOfDeathCounts[ Creature::EATEN ], sf::Color::Black) );
         g.addCurve( sbe::Curve("Dead - Frozen", 	MeansOfDeathCounts[ Creature::FROZEN ], sf::Color::Cyan) );
         g.addCurve( sbe::Curve("Dead - Starved", 	MeansOfDeathCounts[ Creature::STARVED ], sf::Color::Yellow) );
@@ -604,7 +605,7 @@ void Simulator::CreatePlotters()
 	{
         sbe::Graph g;
         g.Size = Size;
-        g.AxisSize = Geom::Point( 1000, 1000 );
+        g.AxisSize = glm::ipoint2( 1000, 1000 );
         g.addCurve( sbe::Curve("Deaths - Herbae", 		DeathCounts[ (int)Species::HERBA ], sf::Color( 102, 0, 0) ) );
         g.addCurve( sbe::Curve("Births - Herbae", 		BirthCounts[ (int)Species::HERBA ], sf::Color( 255, 0, 0) ) );
         g.addCurve( sbe::Curve("Deaths - Herbivores", 	DeathCounts[ (int)Species::HERBIVORE ], sf::Color( 0, 102, 0) ) );
@@ -628,7 +629,7 @@ void Simulator::CreatePlotters()
 
 }
 
-void Simulator::HandleClick( const Geom::Pointf& pos)
+void Simulator::HandleClick( const glm::point2& pos)
 {
 	if( !isInitialized ) return;
 
@@ -653,7 +654,7 @@ void Simulator::HandleClick( const Geom::Pointf& pos)
 	std::shared_ptr<Creature> tmp;
 	for ( const std::shared_ptr<Creature>& C : T->getCreatures())
 	{
-		float dist = Geom::distance(pos, C->getPosition());
+		float dist = glm::distance(pos, C->getPosition());
 		if ( dist < curdist )
 		{
 			tmp = C;

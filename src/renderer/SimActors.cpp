@@ -61,7 +61,7 @@ SimActors::~SimActors()
 
 void SimActors::HandleEvent(Event& e)
 {
-	//if(e.Is("UpdateCreatureRenderList", typeid( std::vector<std::tuple<Geom::Pointf,int,Species*>> )))
+	//if(e.Is("UpdateCreatureRenderList", typeid( std::vector<std::tuple<glm::point2,int,Species*>> )))
 	if(e.Is("UpdateCreatureRenderList", typeid( CreatureRenderList )))
 	{
 		CreatureRenderList& r = boost::any_cast< CreatureRenderList& >(e.Data());
@@ -319,7 +319,7 @@ sf::FloatRect SimActors::DetermineTilePos( std::shared_ptr<Tile>& t)
 	return re;
 }
 
-sf::FloatRect SimActors::DetermineCreaturePos( Geom::Pointf& Pos)
+sf::FloatRect SimActors::DetermineCreaturePos( glm::point2& Pos)
 {
 	sf::FloatRect re;
 

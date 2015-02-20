@@ -27,11 +27,11 @@ GraphBook::GraphBook()
 	RegisterForEvent( "KEY_PRESSED_ENTER" );
 	RegisterForEvent( "RESET_UI" );
 	RegisterForEvent( "debug_reload_graph" );
-	CreateWindow( Geom::Vec2( Engine::getCfg()->get<int>("sim.plots.size.x")+60,Engine::getCfg()->get<int>("sim.plots.size.y")+40 ) );
+	InitWindow( glm::ivec2( Engine::getCfg()->get<int>("sim.plots.size.x")+60,Engine::getCfg()->get<int>("sim.plots.size.y")+40 ) );
 	Win->Show( false );
 }
 
-void GraphBook::CreateWindow( const Geom::Vec2 Size )
+void GraphBook::InitWindow( const glm::ivec2 Size )
 {
 	Win = Window::Create( Window::Style::BACKGROUND | Window::Style::TITLEBAR | Window::Style::RESIZE | Window::Style::SHADOW );
 	Win->SetTitle( "GraphBook" );
@@ -227,8 +227,8 @@ void GraphBook::handleEntryInput()
 	auto& curTuple = cTT();
 
 	// just load all entrys
-	Geom::Point hlimits = { entryVal(curTuple.hFrom), entryVal(curTuple.hTo) };
-	Geom::Point vlimits = { entryVal(curTuple.vFrom), entryVal(curTuple.vTo) };
+	glm::ipoint2 hlimits = { entryVal(curTuple.hFrom), entryVal(curTuple.hTo) };
+	glm::ipoint2 vlimits = { entryVal(curTuple.vFrom), entryVal(curTuple.vTo) };
 	if ( hlimits.x > hlimits.y ) hlimits.x = hlimits.y;
 	if ( vlimits.x > vlimits.y ) vlimits.x = vlimits.y;
 
@@ -342,8 +342,8 @@ void GraphBook::UpdateGraphSettings( graphTuple& GT )
 	if ( !G )
 		return;
 
-	Geom::Vec2 startCorner = Geom::Vec2( GT.hLimit.x, GT.vLimit.x );
-	Geom::Vec2 stopCorner  = Geom::Vec2( GT.hLimit.y, GT.vLimit.y );
+	glm::ivec2 startCorner = glm::ivec2( GT.hLimit.x, GT.vLimit.x );
+	glm::ivec2 stopCorner  = glm::ivec2( GT.hLimit.y, GT.vLimit.y );
 	G->getGraph().AxisStart = startCorner;
 	int activeRadioButton = ( GT.hRB0->IsActive() ? 0 : ( GT.hRB1->IsActive() ? 1 : 2 ) );
 	G->getGraph().dynX = ( activeRadioButton == 0 );

@@ -1,15 +1,16 @@
 #include "Terrain.hpp"
 
-#include "sbe/event/Event.hpp"
-#include "sbe/Module.hpp"
+#include <sbe/event/Event.hpp>
+#include <sbe/Module.hpp>
 
-#include "sbe/geom/Helpers.hpp"
-#include "sbe/geom/PointHelpers.hpp"
-#include "sbe/geom/RectHelpers.hpp"
+#include <sbe/geom/Helpers.hpp>
+#include <sbe/geom/PointHelpers.hpp>
+#include <sbe/geom/RectHelpers.hpp>
+#include <glm/gtx/norm.hpp>
 
-#include "sbe/Config.hpp"
+#include <sbe/Config.hpp>
 
-#include "sbe/gfx/MapPlotter.hpp"
+#include <sbe/gfx/MapPlotter.hpp>
 
 #include "Creature.hpp"
 
@@ -45,16 +46,16 @@ Terrain::Terrain(const Terrain &o)
 	CreateParallelisationGraph();
 }
 
-const std::shared_ptr<Tile>& Terrain::getTile( Geom::Vec2f pos ) const
+const std::shared_ptr<Tile>& Terrain::getTile( glm::vec2 pos ) const
 {
-	unsigned int index = Geom::linear(pos, Size.x);
+	unsigned int index = geom::linear(pos, Size.x);
 	if (!validPos(pos) || index >= Tiles.size()) return InvalidTile;
 	return Tiles[ index ];
 }
 
-float Terrain::getTileElevation(Geom::Vec2f pos) const
+float Terrain::getTileElevation(glm::vec2 pos) const
 {
-	unsigned int index = Geom::linear(pos, Size.x);
+	unsigned int index = geom::linear(pos, Size.x);
 	if (!validPos(pos) || index > Tiles.size()) return -1;
 	return Tiles[ index ]->getHeight();
 }
@@ -89,7 +90,7 @@ std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T) const
 	{
 		for (int y = T.getPosition().y-1; y < T.getPosition().y+1; ++y)
 		{
-			auto _T = getTile( Geom::Vec2f(x,y) );
+			auto _T = getTile( glm::vec2(x,y) );
 			if (!_T || (x = T.getPosition().x && y == T.getPosition().y)) break;
 
 			ret.push_back(_T);
@@ -99,7 +100,7 @@ std::list<std::shared_ptr<Tile>> Terrain::getNeighbours(Tile& T) const
 	return ret;
 }
 
-std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(glm::vec2 Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
@@ -110,12 +111,12 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( glm::vec2(x,y) );
 			if (!T) break;
 
 			for (std::shared_ptr<Creature>& C : T->Creatures)
 			{
-				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
+				if ( glm::distance2( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
 			}
 		}
 	}
@@ -123,7 +124,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	return ret;
 }
 
-std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(glm::vec2 Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
@@ -134,12 +135,12 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( glm::vec2(x,y) );
 			if (!T) break;
 
 			for (std::shared_ptr<Creature>& C : T->Types[type])
 			{
-				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
+				if ( glm::distance2( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
 			}
 		}
 	}
@@ -147,7 +148,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	return ret;
 }
 
-std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
+std::list<std::shared_ptr<Creature>> Terrain::getNearby(glm::vec2 Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::list<std::shared_ptr<Creature>> ret;
 
@@ -158,12 +159,12 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( glm::vec2(x,y) );
 			if (!T) break;
 
 			for (std::shared_ptr<Creature>& C : T->SpeciesList[species])
 			{
-				if ( Geom::squaredist( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
+				if ( glm::distance2( C->getPosition(), Position ) < r2 && filter ( C ) ) ret.push_back(C);
 			}
 		}
 	}
@@ -172,7 +173,7 @@ std::list<std::shared_ptr<Creature>> Terrain::getNearby(Geom::Vec2f Position, fl
 }
 
 
-std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
+std::shared_ptr<Creature> Terrain::getNearest(glm::vec2 Position, float radius, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::shared_ptr<Creature> nearest;
 
@@ -183,12 +184,12 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( glm::vec2(x,y) );
 			if (!T || (x==Position.y && y == Position.y)) continue;
 
 			for (std::shared_ptr<Creature>& C : T->Creatures)
 			{
-				float curdist = Geom::squaredist( C->getPosition(), Position );
+				float curdist = glm::distance2( C->getPosition(), Position );
 				if ( curdist < mindist2 && filter ( C ) )
 				{
 					nearest = C;
@@ -201,7 +202,7 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	return nearest;
 }
 
-std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
+std::shared_ptr<Creature> Terrain::getNearest(glm::vec2 Position, float radius, int type, std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::shared_ptr<Creature> nearest;
 
@@ -212,12 +213,12 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( glm::vec2(x,y) );
 			if (!T || (x==Position.y && y == Position.y)) continue;
 
 			for (std::shared_ptr<Creature>& C : T->Types[type])
 			{
-				float curdist = Geom::squaredist( C->getPosition(), Position );
+				float curdist = glm::distance2( C->getPosition(), Position );
 				if ( curdist < mindist2 && filter ( C ) )
 				{
 					nearest = C;
@@ -230,7 +231,7 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	return nearest;
 }
 
-std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
+std::shared_ptr<Creature> Terrain::getNearest(glm::vec2 Position, float radius, std::shared_ptr<Species> species,  std::function<bool(const std::shared_ptr<Creature>&)> filter ) const
 {
 	std::shared_ptr<Creature> nearest;
 
@@ -241,12 +242,12 @@ std::shared_ptr<Creature> Terrain::getNearest(Geom::Vec2f Position, float radius
 	{
 		for (int y = Position.y-radius; y < Position.y+radius; ++y)
 		{
-			std::shared_ptr<Tile> T = getTile( Geom::Vec2f(x,y) );
+			std::shared_ptr<Tile> T = getTile( glm::vec2(x,y) );
 			if (!T || (x==Position.y && y == Position.y)) continue;
 
 			for (std::shared_ptr<Creature>& C : T->SpeciesList[species])
 			{
-				float curdist = Geom::squaredist( C->getPosition(), Position );
+				float curdist = glm::distance2( C->getPosition(), Position );
 				if ( curdist < mindist2 && filter ( C ) )
 				{
 					nearest = C;
@@ -363,7 +364,7 @@ void Terrain::CreateDebugTerrain( int seed )
 	Tiles.clear();
 	{
 		int tmp = Engine::getCfg()->get<float>("sim.terragen.debug.size");
-		Size = Geom::Vec2( tmp, tmp );
+		Size = glm::ivec2( tmp, tmp );
 	}
 	// maximum height to generate
 	float maxHeight = Engine::getCfg()->get<float>("sim.terragen.debug.maxheight");
@@ -373,7 +374,7 @@ void Terrain::CreateDebugTerrain( int seed )
 
 	float waterlimit = Engine::getCfg()->get<float>("sim.terragen.debug.waterlimit");
 
-	Geom::Pointf Mid = Geom::Pointf( Size.x/2, Size.y/2 );
+	glm::point2 Mid = glm::point2( Size.x/2, Size.y/2 );
 
 
 	std::mt19937 gen(seed);
@@ -390,12 +391,12 @@ void Terrain::CreateDebugTerrain( int seed )
 	{
 		for ( int x = 0; x < Size.x; ++x)
 		{
-			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
-			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
+			glm::point2 TileMid = glm::point2( x+.5, y+.5 );
+			float HeightFactor = (1 - glm::distance( TileMid, Mid )/maxFallofDist );
 			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float TileHeight = maxHeight*HeightFactor;
 
-			Tile *tmp = new Tile( Geom::Point(x,y), TileHeight, nutritionrnd(gen), ((TileHeight < waterlimit)?1:0));
+			Tile *tmp = new Tile( glm::ipoint2(x,y), TileHeight, nutritionrnd(gen), ((TileHeight < waterlimit)?1:0));
 			std::shared_ptr<Tile> T(tmp);
 			Tiles.push_back ( T );
 		}
@@ -447,8 +448,8 @@ void Terrain::calculateHumidity()
 	{
 		for ( int x = 0; x < Size.x; ++x)
 		{
-			Geom::Pointf TileMid = Geom::Pointf( x+.5, y+.5 );
-			float HeightFactor = (1 - Geom::distance( TileMid, Mid )/maxFallofDist );
+			glm::point2 TileMid = glm::point2( x+.5, y+.5 );
+			float HeightFactor = (1 - glm::distance( TileMid, Mid )/maxFallofDist );
 			HeightFactor = HeightFactor < 0 ? 0 : HeightFactor;
 			float Humidity = minHumidity + (maxHumidity-minHumidity)*(1-HeightFactor);
 		}
@@ -462,7 +463,7 @@ void Terrain::calcMaxElevation()
 	for ( int y = 0; y < Size.y; ++y)
 		for ( int x = 0; x < Size.x; ++x)
 		{
-			float h = getTile(Geom::Vec2f(x,y))->getHeight();
+			float h = getTile(glm::vec2(x,y))->getHeight();
 			if ( h > maxElevation ) maxElevation = h;
 		}
 }
@@ -477,7 +478,7 @@ void Terrain::UpdateTileMap()
 	{
 		for(int y = 0; y < Size.y; y++)
 		{
-			Geom::Vec2f pos(x, y);
+			glm::vec2 pos(x, y);
 			sf::Color tile(getTile(pos)->getTileSpriteIndex(),0,0,0);
 			tilemapImage->setPixel(x, y, tile);
 		}

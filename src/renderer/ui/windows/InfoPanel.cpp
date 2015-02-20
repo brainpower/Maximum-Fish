@@ -7,7 +7,7 @@
 
 //using namespace sfg is not possible because Engine is ambiguous
 
-InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
+InfoPanel::InfoPanel( const glm::ipoint2& RelativePosition, const glm::ivec2 Size )
 {
 	RegisterForEvent( "TOGGLE_SHOW_INFOPANEL" );
 	RegisterForEvent( "TOGGLE_SELECT_MAN" );
@@ -15,10 +15,10 @@ InfoPanel::InfoPanel( const Geom::Point& RelativePosition, const Geom::Vec2 Size
 	RegisterForEvent( "TOGGLE_FULLSCREEN" );
 	CurrentActivePage = 0;
 	SelectorManipulator = 0;
-	CreateWindow( RelativePosition, Size );
+	InitWindow( RelativePosition, Size );
 }
 
-void InfoPanel::CreateWindow( const Geom::Point& RelativePosition, const Geom::Vec2 Size )
+void InfoPanel::InitWindow( const glm::ipoint2& RelativePosition, const glm::ivec2 Size )
 {
 	//make and configure window
 	Win = sfg::Window::Create( sfg::Window::Style::BACKGROUND | sfg::Window::Style::SHADOW );

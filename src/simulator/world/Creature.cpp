@@ -71,12 +71,12 @@ const std::string& Creature::getSpeciesString() const
 	return mySpecies->getName();
 }
 
-void Creature::setPositionUnsafe( const Geom::Pointf& pos)
+void Creature::setPositionUnsafe( const glm::point2& pos)
 {
 	Position = pos;
 }
 
-void Creature::setPosition( const Geom::Pointf& pos)
+void Creature::setPosition( const glm::point2& pos)
 {
 	prevMove = pos - Position;
 	Position = pos;
@@ -101,7 +101,7 @@ void Creature::updateTileFromPos(std::shared_ptr<Terrain> t)
 	}
 }
 
-void Creature::movePosition( const Geom::Pointf& pos)
+void Creature::movePosition( const glm::point2& pos)
 {
 	setPosition( Position + pos );
 }
@@ -122,7 +122,7 @@ void Creature::live()
 	if(mySpecies->getType() == Species::HERBIVORE)
 	{
 		std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::CARNIVORE);
-		if(nearest) didsomethingthistick = moveTo(Position + Geom::normalize(Position - nearest->getPosition())*currentMaxSpeed());
+		if(nearest) didsomethingthistick = moveTo(Position + glm::normalize(Position - nearest->getPosition())*currentMaxSpeed());
 	}
 
 
@@ -143,7 +143,7 @@ void Creature::live()
 
 			std::shared_ptr<Creature> nearest = Simulator::GetTerrain()->getNearest(Position, mySpecies->getReach(), Species::HERBIVORE);
 			if(nearest)
-				didsomethingthistick = moveTo(Position + Geom::normalize(nearest->getPosition() - Position)*currentMaxSpeed());
+				didsomethingthistick = moveTo(Position + glm::normalize(nearest->getPosition() - Position)*currentMaxSpeed());
 		}
 		else*/
 			move();
@@ -254,7 +254,7 @@ void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 {
 	lastmating = age;
 	auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));
-	Geom::Pointf newPosition = Position;
+	glm::point2 newPosition = Position;
 
 	// for plants
 	if ( ! otherparent )
@@ -303,14 +303,14 @@ void Creature::move()
 }
 
 
-bool Creature::moveTo( Geom::Pointf Target )
+bool Creature::moveTo( glm::point2 Target )
 {
 	// move as far in direction of the target as possible
-	Geom::Vec2f direction = Geom::normalize( Target - Position );
-	direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), currentMaxSpeed());
+	glm::vec2 direction = glm::normalize( Target - Position );
+	direction *= glm::vec2(mySpecies->getMaxSpeed(), currentMaxSpeed());
 	direction += Position;
 
-	if ( Geom::distance( Target, Position ) > currentMaxSpeed() )
+	if ( glm::distance( Target, Position ) > currentMaxSpeed() )
 	{
 		if ( validPos( direction ) )
 			setPosition( direction );
@@ -331,7 +331,7 @@ bool Creature::moveTo( Geom::Pointf Target )
 
 bool Creature::randomMove()
 {
-	Geom::Pointf NewPosition = Position;
+	glm::point2 NewPosition = Position;
 
 	NewPosition = getNewPosition();
 
@@ -341,7 +341,7 @@ bool Creature::randomMove()
 	if (newtile) hab = newtile->getHabitability(mySpecies);
 
 	if ( 	hab <= 0.0f
-		|| Geom::distance( Position, NewPosition) > currentMaxSpeed()
+		|| glm::distance( Position, NewPosition) > currentMaxSpeed()
 		|| !validPos( NewPosition )
 		) return false;
 
@@ -349,11 +349,11 @@ bool Creature::randomMove()
 	return true;
 }
 
-Geom::Vec2f Creature::getNewPosition()
+glm::vec2 Creature::getNewPosition()
 {
 	std::uniform_real_distribution<float> rndNoDir( -currentMaxSpeed() , currentMaxSpeed() );
 	std::uniform_real_distribution<float> rnd( 0 , currentMaxSpeed() );
-	Geom::Vec2f newPos;
+	glm::vec2 newPos;
 
 	if(prevMove.x == 0 && prevMove.y == 0)
 	{
@@ -364,7 +364,7 @@ Geom::Vec2f Creature::getNewPosition()
 	{
 		std::uniform_real_distribution<float> rndAngle( -maxAngle , maxAngle );
 		int angle = (int)(rndAngle(Simulator::GetRnd()));
-		Geom::Vec2f unitLast = Geom::normalize(prevMove);
+		glm::vec2 unitLast = glm::normalize(prevMove);
 
 		float spd = std::abs(rnd(Simulator::GetRnd()));
 
@@ -377,7 +377,7 @@ Geom::Vec2f Creature::getNewPosition()
 	return newPos;
 }
 
-bool Creature::validPos( Geom::Pointf NewPosition ) const
+bool Creature::validPos( glm::point2 NewPosition ) const
 {
 	const std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
 

@@ -6,6 +6,7 @@
 #include "sbe/gfx/GraphPlotter.hpp"
 
 #include <memory>
+#include <deque>
 
 namespace sfg
 {
@@ -54,8 +55,8 @@ class GraphBook : public sbe::EventUser
 			std::shared_ptr<sfg::Entry>        vFrom;
 			std::shared_ptr<sfg::Entry>        vTo;
 			std::shared_ptr<sfg::CheckButton>  vLogAxBtn;
-			Geom::Point                        hLimit;
-			Geom::Point                        vLimit;
+			glm::ipoint2                        hLimit;
+			glm::ipoint2                        vLimit;
 			int                                hEndOffset;
 
 				/// constructor for graphTuple
@@ -72,7 +73,7 @@ class GraphBook : public sbe::EventUser
 		};
 
 		/// initializer for the Window
-		void CreateWindow( const Geom::Vec2 Size );
+		void InitWindow( const glm::ivec2 Size );
 
 		/// called from eventhandler, adding a new graph and optionBox
 		void AddNewGraph( std::string displayName, std::shared_ptr<sbe::GraphPlotter> graph );

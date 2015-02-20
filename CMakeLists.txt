@@ -44,7 +44,7 @@ endif()
 
 
 
-find_package(Boost 1.48 COMPONENTS thread system REQUIRED)# regex)
+find_package(Boost 1.55 COMPONENTS thread system filesystem REQUIRED)
 find_package(SFML 2 COMPONENTS audio graphics window system REQUIRED)
 find_package(SFGUI REQUIRED)
 find_package(SBE REQUIRED)
@@ -107,6 +107,10 @@ include_directories( ${PROJECT_SOURCE_DIR}/src )
 #needed on windows to find the libs sfml provides
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
   link_directories( ${CUSTOM_SFML_ROOT}/extlibs/libs-mingw/x86 )
+
+  	# nogdi prevents a "#define ERROR 0" from wingdi.h which fucks up our code
+  	# wingdi.h is sometimes included in gl.h ( some mingw versions of glew don't include it, most do )
+  	add_definitions( -DNOGDI -DWIN32_LEAN_AND_MEAN )
 endif()
 
 if(NOT VERSION_CHECK_DONE)
@@ -137,7 +141,7 @@ if(NOT VERSION_CHECK_DONE)
 	set(VERSION_CHECK_DONE ON)
 endif()
 
-add_definitions( -DBOOST_THREAD_USE_LIB -pipe )
+add_definitions( -DBOOST_THREAD_USE_LIB -pipe -DGLM_FORCE_RADIANS )
 
 if(ENABLE_LTO)
 	add_definitions( -flto )
@@ -145,7 +149,7 @@ endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	message(STATUS "System is ${CMAKE_SYSTEM_NAME}")
-	#add_definitions( -fstack-protector --param=ssp-buffer-size=4 ) 
+	#add_definitions( -fstack-protector --param=ssp-buffer-size=4 )
 elseif(CMAKE_BUILD_TYPE MATCHES Release)
 	if( PROFILE )
 		add_definitions( -O1 )
@@ -159,7 +163,7 @@ if( PROFILE )
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
-target_link_libraries(MaximumFish ${SBE_LIBRARY} ${SFGUI_LIBRARY} ${SFML_LIBRARIES} )
+target_link_libraries( MaximumFish ${SBE_LIBRARY} ${SFML_LIBRARIES} ${SFGUI_LIBRARY}  ${SFML_DEPENDENCIES} ${Boost_LIBRARIES} )
 
 if( PROFILE )
 	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )

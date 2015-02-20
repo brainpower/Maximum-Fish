@@ -68,7 +68,7 @@ class SimActors : public sbe::EventUser
 
 	private:
 
-		typedef std::tuple<Geom::Pointf,int,Species*> CreatureRenderInfo;
+		typedef std::tuple<glm::point2,int,Species*> CreatureRenderInfo;
 		typedef std::vector<CreatureRenderInfo> CreatureRenderList;
 		//typedef std::list<std::shared_ptr<Creature>> CreatureRenderList;
 		typedef std::vector<std::shared_ptr<Tile>> TileRenderList;
@@ -98,7 +98,7 @@ class SimActors : public sbe::EventUser
 		/// determines where a Creature should be rendered on the viewport
 		sf::FloatRect DetermineCreaturePos ( std::shared_ptr<Creature>& c);
 		/// determines where a Creature should be rendered on the viewport
-		sf::FloatRect DetermineCreaturePos( Geom::Pointf& Pos);
+		sf::FloatRect DetermineCreaturePos( glm::point2& Pos);
 
 		bool useShaderTileMap;
 		// one pixel for each tile to determine the right sprite to render

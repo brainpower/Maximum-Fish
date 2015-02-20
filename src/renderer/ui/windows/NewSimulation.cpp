@@ -30,7 +30,7 @@ void NewSimWindow::HandleEvent(Event& e)
 	{
 		if ( !Win )
         {
-            CreateWindow();
+            InitWindow();
             Module::Get()->QueueEvent( Event("SCREEN_ADD_WINDOW", Win) );
         }
         else Win->Show(true);
@@ -70,7 +70,7 @@ void NewSimWindow::HandleEvent(Event& e)
 	}
 }
 
-void NewSimWindow::CreateWindow()
+void NewSimWindow::InitWindow()
 {
 	Win = Window::Create( );
 	Win->SetTitle("Create new simulation");
