@@ -70,7 +70,8 @@ class Tile
 
 		/// a list of all Creatures on that Tile
 		std::list<std::shared_ptr<Creature>> Creatures;
-		std::list<std::shared_ptr<Creature>> Types[3];
+		// UNKNOWN is the last member of the types enum, hopefully
+		std::list<std::shared_ptr<Creature>> Types[Species::UNKNOWN+1];
 		std::unordered_map<std::shared_ptr<Species>, std::list<std::shared_ptr<Creature>>> SpeciesList;
 
 

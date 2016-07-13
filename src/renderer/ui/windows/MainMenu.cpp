@@ -2,6 +2,9 @@
 
 #include "sbe/sfg/FileBrowse.hpp"
 #include "sbe/sfg/Message.hpp"
+#include "sbe/Module.hpp"
+
+#include "SFML/Graphics/RenderWindow.hpp"
 
 #include "SFGUI/Window.hpp"
 #include "SFGUI/Button.hpp"

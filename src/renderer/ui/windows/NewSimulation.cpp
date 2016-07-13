@@ -3,8 +3,11 @@
 #include "sbe/sfg/Message.hpp"
 
 #include "sbe/Config.hpp"
+#include "sbe/Module.hpp"
 
 #include "simulator/Generator.hpp"
+
+#include <SFML/Graphics/RenderWindow.hpp>
 
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>

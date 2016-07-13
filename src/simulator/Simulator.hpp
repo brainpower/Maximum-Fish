@@ -7,6 +7,8 @@
 
 #include "sbe/geom/Point.hpp"
 
+#include <SFML/System/Clock.hpp>
+
 class Tile;
 class Terrain;
 class Creature;
@@ -20,6 +22,9 @@ namespace sbe {
 #include <vector>
 #include <random>
 #include <memory>
+
+#include <boost/thread/barrier.hpp>
+#include <boost/thread/tss.hpp> // boost::thread_specific_ptr
 
 #include <SFML/System/NonCopyable.hpp>
 

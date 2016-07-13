@@ -1,5 +1,6 @@
 #include "Manipulator.hpp"
 #include "sbe/gfx/Screen.hpp"
+#include "sbe/Module.hpp"
 #include "DetailsEmpty.hpp"
 
 #include <SFGUI/Label.hpp>

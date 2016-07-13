@@ -42,7 +42,7 @@ CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree
 }
 
 
-CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node, const std::shared_ptr<SimState> s)
+CreatureIOPlugin::ObjPtr CreatureIOPlugin::loadObject(const boost::property_tree::ptree::value_type &node, const std::shared_ptr<SimState> &s)
 {
 	ObjPtr re;
 	if (node.first != "Creature") return re;

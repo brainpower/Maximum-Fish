@@ -9,9 +9,8 @@ using boost::format;
 using boost::io::group;
 
 DetailsSpecies::DetailsSpecies(const std::shared_ptr<Species>& _species)
+ : currentSpecies(_species)
 {
-    currentSpecies = _species;
-
     //Label
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );

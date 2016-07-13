@@ -13,12 +13,13 @@ option(ENABLE_LTO "enable lto, if ya dont know what this is, ya dont need it!" O
 
 set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
 
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #set(VERSION_CHECK_DONE OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
 	set( CMAKE_BUILD_TYPE "Release")
 endif()
+
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 #######################################################
 # compiler version detection                          #
@@ -47,6 +48,7 @@ endif()
 find_package(Boost 1.55 COMPONENTS thread system filesystem REQUIRED)
 find_package(SFML 2 COMPONENTS audio graphics window system REQUIRED)
 find_package(SFGUI REQUIRED)
+find_package(glm REQUIRED)
 find_package(SBE REQUIRED)
 
 
@@ -72,8 +74,10 @@ endif()
 
 if(Boost_FOUND)
 	if(CMAKE_COMPILER_IS_GNUCXX AND SUPPRESS_BOOST_HEADER_WARNINGS)
-		set(CMAKE_CXX_FLAGS "-isystem${Boost_INCLUDE_DIR}")
+		# dont do this, GCC 6 chokes on that! (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70129)
+		#set(CMAKE_CXX_FLAGS "-isystem${Boost_INCLUDE_DIR}")
 	endif()
+	add_definitions( -DBOOST_THREAD_USE_LIB )
 	include_directories(${Boost_INCLUDE_DIR})
 	link_directories(${Boost_LIBRARY_DIRS})
 else()
@@ -84,6 +88,14 @@ if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
 else()
 	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
+endif()
+
+if(glm_FOUND)
+	add_definitions( -DGLM_FORCE_RADIANS -DGLM_FORCE_CXX11  )
+	include_directories(${GLM_INCLUDE_DIRS})
+
+else()
+	message( FATAL_ERROR "!! glm not found!" )
 endif()
 
 
@@ -141,7 +153,7 @@ if(NOT VERSION_CHECK_DONE)
 	set(VERSION_CHECK_DONE ON)
 endif()
 
-add_definitions( -DBOOST_THREAD_USE_LIB -pipe -DGLM_FORCE_RADIANS )
+add_definitions( -pipe )
 
 if(ENABLE_LTO)
 	add_definitions( -flto )

@@ -11,9 +11,8 @@ using boost::format;
 using boost::io::group;
 
 DetailsTile::DetailsTile(const std::shared_ptr<Tile>& _tile)
+ : currentTile(_tile)
 {
-    currentTile = _tile;
-
     //Label
     DetailsLabel = sfg::Label::Create();
     DetailsLabel->SetAlignment( sf::Vector2f(0.f, 0.f) );

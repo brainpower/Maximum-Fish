@@ -1,5 +1,7 @@
 #include "Details.hpp"
 
+#include <SFML/System/Clock.hpp>
+
 #include <SFGUI/Label.hpp>
 #include <SFGUI/Box.hpp>
 

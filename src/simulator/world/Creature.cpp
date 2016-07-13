@@ -32,12 +32,13 @@ float Creature::fleeFactor = 0;
 Creature::Creature( const std::shared_ptr<Species>& Species)
  : 	done(true),
 	currentHealth(100),
+	curAgeFactor(0.0),
 	age(0),
 	lastmating(0),
+	causeOfDeath(NONE),
 	Position( 0, 0 ),
 	prevMove( 0, 0 ),
-	mySpecies (Species),
-	causeOfDeath(NONE)
+	mySpecies (Species)
 {
 	if (!Species)
 	{
@@ -56,13 +57,14 @@ Creature::Creature( const std::shared_ptr<Species>& Species)
 Creature::Creature(const Creature &o)
 	: done(o.done),
 	  currentHealth(o.currentHealth),
+	  curAgeFactor(o.curAgeFactor),
 	  age(o.age),
 	  lastmating(o.lastmating),
+	  causeOfDeath(o.causeOfDeath),
 	  Position(o.Position),
 	  prevMove(o.prevMove),
 	  mySpecies(o.mySpecies),
-	  currentTile(nullptr),
-	  causeOfDeath(o.causeOfDeath)
+	  currentTile(nullptr)
 {
 }
 

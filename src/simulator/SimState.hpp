@@ -15,7 +15,7 @@ class SimState {
 
 public:
 	explicit SimState()
-	 : terrain(nullptr), currentTick(0), currentSeed(0), numGenerated(0) {}
+	 : terrain(nullptr), species(nullptr), currentTick(0), currentSeed(0), numThreads(0), numGenerated(0) {}
 
 	/// makes deep copy of the state, so all creatures,species etc. of this state are preserved
 	explicit SimState(const SimState &s);

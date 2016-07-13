@@ -11,6 +11,7 @@
 #include "renderer/ui/items/Manipulator.hpp"
 #include "renderer/ui/items/Overlays.hpp"
 
+#include <SFML/System/Clock.hpp>
 
 namespace sfg
 {

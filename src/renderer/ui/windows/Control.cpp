@@ -2,6 +2,9 @@
 
 #include "sbe/Config.hpp"
 #include "sbe/sfg/Message.hpp"
+#include "sbe/Module.hpp"
+
+#include <SFML/Graphics/RenderWindow.hpp>
 
 #include <SFGUI/ToggleButton.hpp>
 #include <SFGUI/Button.hpp>
@@ -9,9 +12,12 @@
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Box.hpp>
 #include <SFGUI/Scale.hpp>
+#include <SFGUI/Adjustment.hpp>
+
 #include <boost/lexical_cast.hpp>
 
 #include "sbe/gfx/Screen.hpp"
+
 
 using sbe::Screen;
 using namespace sfg;

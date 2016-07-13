@@ -1,5 +1,8 @@
 #include "GraphBook.hpp"
 
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
+
 #include <SFGUI/Window.hpp>
 #include <SFGUI/Notebook.hpp>
 #include <SFGUI/Box.hpp>
@@ -14,6 +17,7 @@
 #include <string>
 
 #include "sbe/Config.hpp"
+#include "sbe/Module.hpp"
 
 using namespace sfg;
 

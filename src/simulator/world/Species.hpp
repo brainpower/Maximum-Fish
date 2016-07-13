@@ -13,7 +13,8 @@ class Species
 		enum SPECIES_TYPE {
 			HERBA = 0,
 			HERBIVORE,
-			CARNIVORE
+			CARNIVORE,
+			UNKNOWN // keep this the last type!
 		};
 
 		static std::string type2String( SPECIES_TYPE t )
@@ -40,6 +41,7 @@ class Species
 			if ( t=="plant" )	type = HERBA;
 			else if ( t=="herbivore") type = HERBIVORE;
 			else if ( t=="carnivore") type = CARNIVORE;
+			else type = UNKNOWN;
 			return type;
 		}
 

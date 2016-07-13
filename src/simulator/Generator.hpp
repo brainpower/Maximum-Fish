@@ -4,6 +4,8 @@
 #include "simulator/world/Species.hpp"
 #include "sbe/geom/Point.hpp"
 
+#include <SFML/System/Clock.hpp>
+
 #include <vector>
 #include <list>
 #include <memory>

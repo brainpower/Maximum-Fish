@@ -7,6 +7,8 @@
 
 #include "sbe/Config.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 Generator::Generator( std::shared_ptr<SimState> _state)
 : state(_state), rnd(*_state->seeder)
 {

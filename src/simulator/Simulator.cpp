@@ -7,6 +7,7 @@
 #include "sbe/gfx/GraphPlotter.hpp"
 #include "sbe/geom/PointHelpers.hpp"
 #include "sbe/sfg/Message.hpp"
+#include "sbe/Module.hpp"
 
 #include "sbe/Config.hpp"
 

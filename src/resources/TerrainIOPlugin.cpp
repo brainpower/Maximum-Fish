@@ -46,7 +46,7 @@ TerrainIOPlugin::ObjPtr TerrainIOPlugin::loadObject(const boost::property_tree::
 
         re->calcMaxElevation();
     }
-    catch ( boost::property_tree::ptree_error e )
+    catch ( boost::property_tree::ptree_error &e )
     {
         Engine::out() << "[TerrainIOPlugin] Error loading Terrain from ptree!" << e.what() << std::endl;
         re.reset();

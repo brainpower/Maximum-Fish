@@ -3,6 +3,7 @@
 
 #include "sbe/event/EventUser.hpp"
 
+#include <SFML/System/Clock.hpp>
 
 namespace sfg
 {

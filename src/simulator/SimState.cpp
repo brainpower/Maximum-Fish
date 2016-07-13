@@ -5,12 +5,12 @@
 #include "world/Creature.hpp"
 
 SimState::SimState(const SimState &o)
-	: currentTick(o.currentTick),
-	  currentSeed(o.currentSeed),
-	  numGenerated(o.numGenerated),
-	  terrain( new Terrain(*o.terrain) ),
+	: terrain( new Terrain(*o.terrain) ),
 	  species(o.species),
-	  numThreads(o.numThreads)
+	  currentTick(o.currentTick),
+	  currentSeed(o.currentSeed),
+	  numThreads(o.numThreads),
+	  numGenerated(o.numGenerated)
 {
 	seeder.reset(new std::mt19937(*o.seeder));
 	for( auto p : o.gens)

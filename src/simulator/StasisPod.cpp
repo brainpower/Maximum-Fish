@@ -43,15 +43,15 @@ std::shared_ptr<SimState> StasisPod::tawTick(const int i){
 	} return nullptr;
 }
 
-const std::shared_ptr<const SimState> StasisPod::peek(const size_t i){
+const std::shared_ptr<const SimState> StasisPod::peek(const size_t i) const{
 	return _pod[i];
 }
 
-const std::shared_ptr<const SimState> StasisPod::peekTop(){
+const std::shared_ptr<const SimState> StasisPod::peekTop() const {
 	return _pod.empty() ? nullptr : _pod.front();
 }
 
-const std::shared_ptr<const SimState> StasisPod::peekTick(const int i){
+const std::shared_ptr<const SimState> StasisPod::peekTick(const int i) const {
 	auto it = _pod.begin();
 	for( ; it != _pod.end() && (*it)->currentTick > i ; ++it);
 	return it != _pod.end() ? *it : nullptr;

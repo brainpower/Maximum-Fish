@@ -5,6 +5,8 @@
 #include <SFGUI/Label.hpp>
 #include <SFGUI/Notebook.hpp>
 
+#include "sbe/Module.hpp"
+
 Selector::Selector()
 {
     RegisterForEvent( "TOGGLE_SECECT_MAN" );

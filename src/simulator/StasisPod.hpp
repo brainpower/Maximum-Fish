@@ -15,9 +15,9 @@ public:
 	std::shared_ptr<SimState> taw(const size_t i);
 	std::shared_ptr<SimState> tawTop();
 	std::shared_ptr<SimState> tawTick(const int i);
-	const std::shared_ptr<const SimState> peek(const size_t i);
-	const std::shared_ptr<const SimState> peekTop();
-	const std::shared_ptr<const SimState> peekTick(const int i);
+	const std::shared_ptr<const SimState> peek(const size_t i) const;
+	const std::shared_ptr<const SimState> peekTop() const;
+	const std::shared_ptr<const SimState> peekTick(const int i) const;
 
 	void discardStartingWith(const int tick);
 	void clear();

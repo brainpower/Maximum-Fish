@@ -2,13 +2,14 @@
 
 #include "sbe/event/SFMLEventUser.hpp"
 #include "sbe/ResourceManager.hpp"
-#include "sbe/gfx/ImageSet.hpp"
 #include "sbe/Config.hpp"
+#include "sbe/Module.hpp"
 
 #include "sbe/gfx/Camera.hpp"
 #include "sbe/gfx/Renderer.hpp"
 #include "sbe/gfx/GraphPlotter.hpp"
 #include "sbe/gfx/Screen.hpp"
+#include "sbe/gfx/ImageSet.hpp"
 
 #include "renderer/ui/windows/Control.hpp"
 #include "renderer/ui/windows/InfoPanel.hpp"

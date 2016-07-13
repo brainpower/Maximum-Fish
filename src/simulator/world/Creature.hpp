@@ -27,7 +27,7 @@ class Creature : public std::enable_shared_from_this<Creature>
 		void live();
 
 		void setCurrentHealth(const float ch){ currentHealth = ch;}
-		void setCurrentTile(const std::shared_ptr<Tile> t){ currentTile = t;}
+		void setCurrentTile(const std::shared_ptr<Tile> &t){ currentTile = t;}
 		void setAge(const int a){ age = a; }
         void setLastMating( const int lm ) { lastmating = lm; }
 		void recalcAgeFactor() { curAgeFactor = ageFactor(); }

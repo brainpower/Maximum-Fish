@@ -1,9 +1,11 @@
 #include "InfoPanel.hpp"
 #include "sbe/gfx/Screen.hpp"
+#include "sbe/Module.hpp"
 
 #include "SFGUI/Window.hpp"
 #include "SFGUI/Notebook.hpp"
 #include "SFGUI/Label.hpp"
+
 
 //using namespace sfg is not possible because Engine is ambiguous
 

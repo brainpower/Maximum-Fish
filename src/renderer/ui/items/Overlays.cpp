@@ -6,6 +6,7 @@
 #include <SFGUI/Label.hpp>
 #include <SFGUI/Separator.hpp>
 #include <SFGUI/Label.hpp>
+#include <SFGUI/Image.hpp>
 
 #include "sbe/gfx/Actor.hpp"
 #include "sbe/gfx/Renderer.hpp"
@@ -14,6 +15,7 @@
 #include "sbe/Config.hpp"
 #include "sbe/Engine.hpp"
 #include "sbe/ResourceManager.hpp"
+#include "sbe/Module.hpp"
 
 /// TODO: move into a header, dont copy!
 enum RenderLayers {

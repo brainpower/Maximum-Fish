@@ -47,9 +47,10 @@ Tile::Tile( glm::ipoint2 _Position, float _height, float _nutrition, float _base
   usedNutrition(0),
   baseHumidity( _baseHumidity ),
   parallelID(0),
-  currentHumidity( _baseHumidity )
+  currentHumidity( _baseHumidity ),
+  Creatures(std::list<std::shared_ptr<Creature>>()),
+  SpeciesList(std::unordered_map<std::shared_ptr<Species>, std::list<std::shared_ptr<Creature>>>())
 {
-
 }
 
 float Tile::calcTemperature() const

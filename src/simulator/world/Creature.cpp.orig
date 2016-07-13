@@ -48,12 +48,12 @@ const std::string& Creature::getSpeciesString() const
 	return mySpecies->getName();
 }
 
-void Creature::setPositionUnsafe( const Geom::Pointf& pos)
+void Creature::setPositionUnsafe( const glm::point2& pos)
 {
 	Position = pos;
 }
 
-void Creature::setPosition( const Geom::Pointf& pos)
+void Creature::setPosition( const glm::point2& pos)
 {
 	Position = pos;
 	updateTileFromPos();
@@ -70,7 +70,7 @@ void Creature::updateTileFromPos(){
 	}
 }
 
-void Creature::movePosition( const Geom::Pointf& pos)
+void Creature::movePosition( const glm::point2& pos)
 {
 	setPosition( Position + pos );
 }
@@ -193,7 +193,7 @@ void Creature::reproduce( std::shared_ptr<Creature> otherparent)
 		float healthCost = mySpecies->getMaxHealth() * matingHealthCost;
 		auto newborn = std::shared_ptr<Creature>(new Creature(mySpecies));
 
-		Geom::Pointf newPosition = Position;
+		glm::point2 newPosition = Position;
 
 		// for plants
 		if ( ! otherparent )
@@ -244,13 +244,13 @@ void Creature::move()
 }
 
 
-bool Creature::moveTo( Geom::Pointf Target )
+bool Creature::moveTo( glm::point2 Target )
 {
 	// move as far in direction of the target as possible
 	if ( Geom::distance( Target, Position ) > mySpecies->getMaxSpeed() )
 	{
-		Geom::Vec2f direction = Geom::normalize( Target - Position );
-		direction *= Geom::Vec2f(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
+		glm::vec2 direction = Geom::normalize( Target - Position );
+		direction *= glm::vec2(mySpecies->getMaxSpeed(), mySpecies->getMaxSpeed());
 		direction += Position;
 		if ( validPos( direction ) )
 			setPosition( direction );
@@ -266,7 +266,7 @@ bool Creature::moveYourAss()
 {
 	std::uniform_real_distribution<float> rnd(-(mySpecies->getMaxSpeed()), mySpecies->getMaxSpeed());
 
-	Geom::Pointf NewPosition = Position;
+	glm::point2 NewPosition = Position;
 
 	NewPosition.x += rnd(Simulator::GetRnd());
 	NewPosition.y += rnd(Simulator::GetRnd());
@@ -295,7 +295,7 @@ bool Creature::moveYourAss()
 	return false;
 }
 
-bool Creature::validPos( Geom::Pointf NewPosition ) const
+bool Creature::validPos( glm::point2 NewPosition ) const
 {
 	const std::shared_ptr<Tile> newtile = Simulator::GetTerrain()->getTile( NewPosition );
 
