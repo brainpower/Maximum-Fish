@@ -58,18 +58,10 @@ find_package(SBE REQUIRED)
 
 #set( SBE_DEBUG ${DEBUG} CACHE BOOL "" )
 
-if(SBE_FOUND)
-	include_directories(${SBE_INCLUDE_DIR})
-else()
-	message( FATAL_ERROR "!! SBE not found!")
-endif()
-
 if(SFGUI_FOUND)
 	include_directories(${SFGUI_INCLUDE_DIR})
-  # FIXME: make SBE export it's dependencies correctly or something
-  set(SFGUI_LIBRARY sfgui)
 else()
-	message( FATAL_ERROR "!! SBE not found!")
+  message( FATAL_ERROR "!! SFGUI not found!")
 endif()
 
 # check for libraries
@@ -88,8 +80,6 @@ endif()
 
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
-  # FIXME: make SBE export its dependencies correctly or SFML set its libraries correctly or something
-  set(SFML_LIBRARIES sfml-audio sfml-graphics sfml-window sfml-system)
 else()
 	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
 endif()
@@ -102,7 +92,6 @@ else()
 endif()
 
 message(STATUS "-- INCLUDES --")
-message(STATUS "sfml libs:      ${SFML_LIBRARIES}" )
 message(STATUS "sfml includes:  ${SFML_INCLUDE_DIR}" )
 message(STATUS "sfml deps:      ${SFML_DEPENDENCIES}" )
 message(STATUS "sfgui lib:      ${SFGUI_LIBRARY}" )
@@ -171,7 +160,7 @@ if( PROFILE )
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
-target_link_libraries( MaximumFish ${Boost_LIBRARIES} ${SBE_LIBRARY} ${SFML_LIBRARIES} ${SFGUI_LIBRARY}  ${SFML_DEPENDENCIES} Threads::Threads )
+target_link_libraries( MaximumFish sbe Threads::Threads )
 
 if( PROFILE )
 	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )
