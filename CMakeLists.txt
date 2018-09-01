@@ -66,6 +66,8 @@ endif()
 
 if(SFGUI_FOUND)
 	include_directories(${SFGUI_INCLUDE_DIR})
+  # FIXME: make SBE export it's dependencies correctly or something
+  set(SFGUI_LIBRARY sfgui)
 else()
 	message( FATAL_ERROR "!! SBE not found!")
 endif()
@@ -86,18 +88,29 @@ endif()
 
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
+  # FIXME: make SBE export its dependencies correctly or SFML set its libraries correctly or something
+  set(SFML_LIBRARIES sfml-audio sfml-graphics sfml-window sfml-system)
 else()
 	message( FATAL_ERROR "!! SFML not found!\n   Please build SFML in '${CUSTOM_SFML_ROOT}/build' first!")
 endif()
 
 if(glm_FOUND)
-	add_definitions( -DGLM_FORCE_RADIANS -DGLM_FORCE_CXX11  )
+  add_definitions( -DGLM_FORCE_RADIANS -DGLM_FORCE_CXX11 -DGLM_ENABLE_EXPERIMENTAL )
 	include_directories(${GLM_INCLUDE_DIRS})
-
 else()
 	message( FATAL_ERROR "!! glm not found!" )
 endif()
 
+message(STATUS "-- INCLUDES --")
+message(STATUS "sfml libs:      ${SFML_LIBRARIES}" )
+message(STATUS "sfml includes:  ${SFML_INCLUDE_DIR}" )
+message(STATUS "sfml deps:      ${SFML_DEPENDENCIES}" )
+message(STATUS "sfgui lib:      ${SFGUI_LIBRARY}" )
+message(STATUS "sfgui includes: ${SFGUI_INCLUDE_DIR}" )
+message(STATUS "GLM includes    ${GLM_INCLUDE_DIRS}")
+message(STATUS "SBE includes:   ${SBE_INCLUDE_DIR}")
+message(STATUS "SBE libs:       ${SBE_LIBRARY}")
+message(STATUS "boost includes: ${Boost_INCLUDE_DIR}\n\n" )
 
 
 #######################################################
@@ -114,6 +127,8 @@ file( GLOB_RECURSE HDRS RELATIVE "${PROJECT_SOURCE_DIR}" "${SRCDIR}/*.hpp" "${SR
 ##################### Compiler Options ################
 #######################################################
 
+set(CMAKE_CXX_STANDARD 17)
+
 include_directories( ${PROJECT_SOURCE_DIR}/src )
 
 #needed on windows to find the libs sfml provides
@@ -127,28 +142,9 @@ endif()
 
 if(NOT VERSION_CHECK_DONE)
 	# set some definitions depending on gcc version
-	if (GCC_VERSION VERSION_EQUAL 4.7 OR GCC_VERSION VERSION_GREATER 4.7)
-	   add_definitions ( -std=c++11 )
-
-		if(GCC_VERSION VERSION_EQUAL 4.8 OR GCC_VERSION VERSION_GREATER 4.8)
-			if(GCC_VERSION VERSION_EQUAL 4.9 OR GCC_VERSION VERSION_GREATER 4.9)
-				add_definitions( -D__GCC_4_9__ )
-			else()
-				add_definitions ( -D__GCC_4_8__ )
-			endif()
-			if(CMAKE_BUILD_TYPE MATCHES Debug)
-				add_definitions( -Og )
-			endif()
-		endif()
-	else()
-		if(GCC_VERSION VERSION_EQUAL 4.6 OR GCC_VERSION VERSION_GREATER 4.6)
-	    add_definitions ( -std=c++0x -D__GCC_4_6__ )
-		else()
-			message("-- Unsupported compiler detected. Build might fail!")
-			# changing this to -std=c++0x if you've got an old compiler, might work
-			add_definitions( -std=c++11 )
-		endif()
-
+	add_definitions( -D__GCC_4_9__ )
+	if(CMAKE_BUILD_TYPE MATCHES Debug)
+		add_definitions( -Og )
 	endif()
 	set(VERSION_CHECK_DONE ON)
 endif()
@@ -175,7 +171,7 @@ if( PROFILE )
 endif()
 
 add_executable( MaximumFish ${HDRS} ${SRCS}  )
-target_link_libraries( MaximumFish ${SBE_LIBRARY} ${SFML_LIBRARIES} ${SFGUI_LIBRARY}  ${SFML_DEPENDENCIES} ${Boost_LIBRARIES} )
+target_link_libraries( MaximumFish ${Boost_LIBRARIES} ${SBE_LIBRARY} ${SFML_LIBRARIES} ${SFGUI_LIBRARY}  ${SFML_DEPENDENCIES} Threads::Threads )
 
 if( PROFILE )
 	set_target_properties( MaximumFish PROPERTIES LINK_FLAGS "-O1 -pg" )
