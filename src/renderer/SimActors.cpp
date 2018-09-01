@@ -1,6 +1,8 @@
 #include "SimActors.hpp"
 
 #include "sbe/gfx/Actor.hpp"
+#include "sbe/gfx/actors/VertexActor.hpp"
+#include "sbe/gfx/actors/SpriteActor.hpp"
 #include "sbe/gfx/Renderer.hpp"
 #include "sbe/gfx/Camera.hpp"
 #include "sbe/Config.hpp"
@@ -9,6 +11,7 @@
 #include "sbe/gfx/GraphPlotter.hpp"
 #include "sbe/gfx/MapPlotter.hpp"
 #include "sbe/gfx/ImageUtils.hpp"
+#include "sbe/gfx/ImageSet.hpp"
 #include "sbe/gfx/Screen.hpp"
 
 #include "sbe/sfg/Message.hpp"
@@ -19,6 +22,8 @@
 #include "simulator/world/Tile.hpp"
 
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <SFGUI/Window.hpp>

@@ -9,6 +9,7 @@
 #include <SFGUI/Image.hpp>
 
 #include "sbe/gfx/Actor.hpp"
+#include "sbe/gfx/actors/SpriteActor.hpp"
 #include "sbe/gfx/Renderer.hpp"
 #include "sbe/gfx/Screen.hpp"
 
@@ -201,8 +202,9 @@ void Overlays::ToggleRendering()
 
 void Overlays::CreateActor( const std::string& name )
 {
-	std::shared_ptr<sbe::Actor>& A(Maps[name].second);
-	A.reset( new sbe::SpriteActor() );
+	std::shared_ptr<sbe::Actor> A(Maps[name].second);
+	// FIXME: A is reset immediately, either construct with new Actor or the reset is wrong
+  A.reset( new sbe::SpriteActor() );
 
 	sf::Image temp = Maps[name].first->getImage();
 	sbe::gfx::SetImageAlpha( temp, 128 );
@@ -231,7 +233,7 @@ void Overlays::RemoveActor( const std::string& name )
 {
 	std::string tmp = "overlay_"+name;
 	Engine::GetResMgr()->remove<sf::Texture>( tmp );
-	std::shared_ptr<sbe::Actor>& A(Maps[name].second);
+	std::shared_ptr<sbe::Actor> A(Maps[name].second);
 	if ( !A ) return;
 	sbe::Screen::sRndr()->removeActor( A->getID() );
 	A.reset();

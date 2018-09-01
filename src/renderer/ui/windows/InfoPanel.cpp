@@ -2,6 +2,8 @@
 #include "sbe/gfx/Screen.hpp"
 #include "sbe/Module.hpp"
 
+#include "SFML/Graphics/RenderWindow.hpp"
+
 #include "SFGUI/Window.hpp"
 #include "SFGUI/Notebook.hpp"
 #include "SFGUI/Label.hpp"
